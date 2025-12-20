@@ -1,6 +1,14 @@
 # school-manage program
 이 프로젝트는 [기존의 출석부 프로젝트](https://github.com/dc-choi/Attendance)를 보완하기 위해서 제작된 프로젝트입니다.
 
+## 문서(로드맵/가이드)
+권장 작업 순서: **아키텍처 → 타입 안정성 → 배포**
+
+- `ARCHITECTURE_MONOREPO.md`: pnpm 모노레포 + Vite + tRPC 전환 로드맵(백엔드 아키텍처 개선 포함)
+- `TYPE_SAFETY_AUDIT.md`: 타입 안정성 이슈 진단 및 개선 우선순위(마이그레이션 체크리스트)
+- `DEPLOY_DOCKERHUB.md`: Docker Hub(private) 기반 백엔드 이미지 배포(분리 배포 기준)
+- `TESTING_VITEST.md`: 테스트 런너를 Vitest로 전환하는 플랜(ESM 친화)
+
 ## 주요 기능
 - 로그인: 각 계정별로 로그인하여 계정에 속한 그룹을 관리할 수 있습니다.
 - 그룹 리스트: 주일학교 학생들이 속한 그룹을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.

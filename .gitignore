@@ -77,3 +77,4 @@ typings/
 /.scannerwork/
 /.sonar/
 .nvmrc
+.turbo/
