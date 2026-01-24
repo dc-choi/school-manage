@@ -29,7 +29,7 @@ import { useStudents } from '~/features/student';
 export function StudentListPage() {
     const navigate = useNavigate();
     const [searchInput, setSearchInput] = useState('');
-    const [searchOptionInput, setSearchOptionInput] = useState<'all' | 'name' | 'catholicName'>('all');
+    const [searchOptionInput, setSearchOptionInput] = useState<'all' | 'societyName' | 'catholicName' | 'baptizedAt'>('all');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [bulkAction, setBulkAction] = useState<'delete' | 'restore' | 'graduate' | 'cancelGraduation' | null>(null);
     const [deletedModalOpen, setDeletedModalOpen] = useState(false);
@@ -209,6 +209,7 @@ export function StudentListPage() {
         },
         { key: 'age', header: '나이', render: (row: (typeof students)[0]) => row.age ?? '-' },
         { key: 'contact', header: '연락처', render: (row: (typeof students)[0]) => formatContact(row.contact) },
+        { key: 'baptizedAt', header: '축일', render: (row: (typeof students)[0]) => row.baptizedAt ?? '-' },
     ];
 
     const graduatedColumns = [
@@ -282,8 +283,9 @@ export function StudentListPage() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">전체</SelectItem>
-                            <SelectItem value="name">이름</SelectItem>
+                            <SelectItem value="societyName">이름</SelectItem>
                             <SelectItem value="catholicName">세례명</SelectItem>
+                            <SelectItem value="baptizedAt">축일</SelectItem>
                         </SelectContent>
                     </Select>
                     <div className="flex gap-2">

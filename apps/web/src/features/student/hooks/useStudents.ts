@@ -7,7 +7,7 @@ type GraduatedFilter = 'active' | 'graduated' | 'all';
 
 interface UseStudentsOptions {
     initialPage?: number;
-    searchOption?: 'all' | 'name' | 'catholicName';
+    searchOption?: 'all' | 'societyName' | 'catholicName' | 'baptizedAt';
     searchWord?: string;
     initialDeleteFilter?: DeleteFilter;
     initialGraduatedFilter?: GraduatedFilter;
