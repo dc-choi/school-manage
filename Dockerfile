@@ -14,9 +14,9 @@ COPY packages/utils/package.json ./packages/utils/
 
 RUN pnpm install --frozen-lockfile
 
-# 소스 복사 및 빌드
+# 소스 복사 및 빌드 (API만)
 COPY . .
-RUN pnpm build
+RUN pnpm turbo build --filter=@school/api
 
 # ===== Stage 2: Runner =====
 FROM node:24-alpine AS runner
