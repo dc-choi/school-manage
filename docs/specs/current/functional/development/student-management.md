@@ -76,6 +76,7 @@ Authorization: Bearer <accessToken>
 {
   societyName: string (필수)
   catholicName?: string
+  gender?: 'M' | 'F'
   age?: number
   contact?: number
   description?: string

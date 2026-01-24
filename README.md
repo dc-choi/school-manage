@@ -26,7 +26,8 @@
 ### 현재 제공
 - 로그인: 각 계정별로 로그인하여 계정에 속한 그룹을 관리할 수 있습니다.
 - 그룹 리스트: 주일학교 학생들이 속한 그룹을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
-- 학생 명단: 주일학교 학생들의 명단을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
+- 학생 명단: 주일학교 학생들의 명단(이름, 세례명, 성별, 나이, 연락처 등)을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
+- 졸업 관리: 학생들의 졸업 처리 및 졸업 취소를 일괄로 처리할 수 있습니다.
 - 출석부: 주일학교 학생들의 출석을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
 - 통계: 각 계정별 우수한 학생들의 출석 현황을 간단하게 확인 할 수 있습니다.
 
@@ -141,6 +142,7 @@ CREATE TABLE `student` (
   `_id` bigint NOT NULL AUTO_INCREMENT COMMENT 'PK',
   `society_name` varchar(50) NOT NULL COMMENT '이름',
   `catholic_name` varchar(50) NULL COMMENT '세례명',
+  `gender` varchar(1) NULL COMMENT '성별 (M: 남, F: 여)',
   `age` bigint NULL COMMENT '나이',
   `contact` bigint NULL COMMENT '연락처',
   `description` mediumtext COMMENT '상세 설명',
@@ -148,6 +150,7 @@ CREATE TABLE `student` (
   `create_at` datetime NOT NULL COMMENT '생성일자',
   `update_at` datetime NULL COMMENT '수정일자',
   `delete_at` datetime NULL COMMENT '삭제일자',
+  `graduated_at` datetime NULL COMMENT '졸업일자',
   `group_id` bigint NOT NULL COMMENT '그룹의 PK',
   PRIMARY KEY (`_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
