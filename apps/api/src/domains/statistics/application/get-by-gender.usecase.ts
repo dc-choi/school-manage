@@ -15,10 +15,11 @@ export class GetByGenderUseCase {
         const accountId = BigInt(input.accountId);
         const yearStr = String(year);
 
-        // 1. 계정 소속 그룹의 학생 조회 (성별 포함)
+        // 1. 계정 소속 그룹의 학생 조회 (성별 포함, 졸업생 제외)
         const students = await database.student.findMany({
             where: {
                 deletedAt: null,
+                graduatedAt: null,
                 group: {
                     accountId,
                     deletedAt: null,

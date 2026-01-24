@@ -45,6 +45,7 @@ export class GetExcellentStudentsUseCase {
                     WHERE account_id = ${accountId}
                 )
                 AND s.delete_at IS NULL
+                AND s.graduated_at IS NULL
                 AND a.delete_at IS NULL
                 GROUP BY s._id
                 ORDER BY count DESC

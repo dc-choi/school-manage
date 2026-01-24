@@ -27,10 +27,11 @@ export class GetAttendanceRateUseCase {
         const startDateStr = formatDateCompact(startDate);
         const endDateStr = formatDateCompact(endDate);
 
-        // 2. 계정 소속 그룹의 학생 조회
+        // 2. 계정 소속 그룹의 학생 조회 (졸업생 제외)
         const students = await database.student.findMany({
             where: {
                 deletedAt: null,
+                graduatedAt: null,
                 group: {
                     accountId,
                     deletedAt: null,

@@ -44,6 +44,7 @@ export class GetTopOverallUseCase {
                     AND a.delete_at IS NULL
                 WHERE g.account_id = ${accountId}
                 AND s.delete_at IS NULL
+                AND s.graduated_at IS NULL
                 AND g.delete_at IS NULL
                 GROUP BY s._id, g.name
                 ORDER BY score DESC

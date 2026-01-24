@@ -46,6 +46,7 @@ export class GetGroupStatisticsUseCase {
                     where: {
                         groupId: group.id,
                         deletedAt: null,
+                        graduatedAt: null,
                     },
                     select: { id: true },
                 });
