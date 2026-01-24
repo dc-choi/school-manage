@@ -18,6 +18,8 @@
             "@school/api/*": ["../api/dist/src/*"]
         },
         "composite": true,
+        "outDir": "dist",
+        "declarationDir": "dist",
         "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
     },
     "include": ["src", "test", "vitest.setup.ts", "vite.config.ts"],
