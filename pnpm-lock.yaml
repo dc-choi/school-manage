@@ -24,6 +24,9 @@ catalogs:
     '@trpc/server':
       specifier: ^10.45.2
       version: 10.45.4
+    '@types/express':
+      specifier: ^4.17.25
+      version: 4.17.25
     '@types/node':
       specifier: ^24.10.9
       version: 24.10.9
@@ -145,7 +148,7 @@ importers:
         specifier: ^2.8.19
         version: 2.8.19
       '@types/express':
-        specifier: ^4.17.25
+        specifier: 'catalog:'
         version: 4.17.25
       '@types/jsonwebtoken':
         specifier: ^9.0.10
@@ -323,6 +326,9 @@ importers:
       '@eslint/js':
         specifier: 'catalog:'
         version: 9.39.2
+      '@types/express':
+        specifier: 'catalog:'
+        version: 4.17.25
       '@types/node':
         specifier: 'catalog:'
         version: 24.10.9
