@@ -60,6 +60,7 @@ export class ListStudentsUseCase {
         return {
             page,
             size,
+            total: count,
             totalPage: Math.ceil(count / size),
             students: rows.map((row) => ({
                 id: String(row.id),

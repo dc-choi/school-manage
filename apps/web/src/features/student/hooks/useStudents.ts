@@ -115,6 +115,7 @@ export function useStudents(options: UseStudentsOptions = {}) {
 
     return {
         students: listQuery.data?.students ?? [],
+        total: listQuery.data?.total ?? 0,
         totalPage: listQuery.data?.totalPage ?? 0,
         currentPage: page,
         isLoading: listQuery.isLoading,

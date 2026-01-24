@@ -19,6 +19,7 @@ export class ListGroupsUseCase {
                         students: {
                             where: {
                                 deletedAt: null,
+                                graduatedAt: null,
                             },
                         },
                     },

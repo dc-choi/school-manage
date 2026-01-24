@@ -8,7 +8,7 @@
 |--------------------------------------|------|-----------------------------------------------------------------------------------|
 | **Current Functional**               | 100% | 5개 도메인 완전 문서화 + 구현 완료 (student-graduation → student-management 병합, statistics 통합) |
 | **Target Functional**                | 100% | 로드맵 1단계 완료 (그룹/학생 UI/UX 개선, 졸업 처리 모두 완료)                                          |
-| **Target Non-Functional (Security)** | 50%  | 1/2개 SDD 문서 완료                                                                    |
+| **Target Non-Functional**            | -    | DEPLOY 완료, SECURITY/PERFORMANCE 대기                                                 |
 
 ## 관련 문서
 
@@ -107,12 +107,9 @@
 
 | 우선순위 | 기능명                        | SDD 상태 | 비고                    |
 |------|----------------------------|--------|------------------------|
-| P0   | CD 파이프라인 (모노레포 변경 감지 배포) | 작성 완료 | Feature/Task/Development 완료, 구현 대기 |
+| P0   | CD 파이프라인 (모노레포 변경 감지 배포) | ✅ 구현 완료 | SDD 문서 삭제됨 (Non-Functional 규칙) |
 
-**CD 파이프라인:**
-- Feature: `docs/specs/target/non-functional/features/deploy-cd.md`
-- Task: `docs/specs/target/non-functional/tasks/deploy-cd.md`
-- Development: `docs/specs/target/non-functional/development/deploy-cd.md`
+> **구현된 파일**: `.dockerignore`, `Dockerfile`, `docker-compose.yml`, `.github/workflows/deploy.yml`, `nginx.conf.example`, `deploy.sh.example`
 
 ### SECURITY (Non-Functional)
 

@@ -29,6 +29,7 @@ export const getStudentInputSchema = z.object({
 export const createStudentInputSchema = z.object({
     societyName: z.string().min(1, 'Society name is required'),
     catholicName: z.string().optional(),
+    gender: z.enum(['M', 'F']).optional(),
     age: z.number().int().positive().optional(),
     contact: z.number().optional(),
     description: z.string().optional(),
@@ -43,6 +44,7 @@ export const updateStudentInputSchema = z.object({
     id: idSchema,
     societyName: z.string().min(1, 'Society name is required'),
     catholicName: z.string().optional(),
+    gender: z.enum(['M', 'F']).optional(),
     age: z.number().int().positive().optional(),
     contact: z.number().optional(),
     description: z.string().optional(),
@@ -133,6 +135,7 @@ export interface StudentWithGroup extends StudentBase {
 export interface ListStudentsOutput {
     page: number;
     size: number;
+    total: number;
     totalPage: number;
     students: StudentWithGroup[];
 }

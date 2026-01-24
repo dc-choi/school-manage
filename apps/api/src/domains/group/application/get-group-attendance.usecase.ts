@@ -15,11 +15,12 @@ export class GetGroupAttendanceUseCase {
         // 해당 연도의 토/일 날짜 계산
         const { saturday, sunday } = await getYearDate(year);
 
-        // 그룹에 속한 학생들 조회
+        // 그룹에 속한 학생들 조회 (졸업생 제외)
         const students = await database.student.findMany({
             where: {
                 groupId: BigInt(input.groupId),
                 deletedAt: null,
+                graduatedAt: null,
             },
             orderBy: [{ age: 'asc' }, { societyName: 'asc' }],
         });

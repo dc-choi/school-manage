@@ -10,6 +10,7 @@ interface UseStudentsOptions {
 }
 export declare function useStudents(options?: UseStudentsOptions): {
     students: import("@school/trpc").StudentWithGroup[];
+    total: number;
     totalPage: number;
     currentPage: number;
     isLoading: boolean;

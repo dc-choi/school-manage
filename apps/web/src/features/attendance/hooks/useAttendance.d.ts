@@ -11,9 +11,9 @@ export declare function useAttendance(groupId: string, year?: number): {
         }>;
         _meta: object;
         _ctx_out: {
-            res: import("express").Response<any, Record<string, any>>;
             account: import("@school/trpc").AccountInfo;
             req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+            res: import("express").Response<any, Record<string, any>>;
         };
         _input_in: {
             groupId: string;

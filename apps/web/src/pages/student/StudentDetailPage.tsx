@@ -159,6 +159,69 @@ interface GroupSelectFieldProps {
     disabled?: boolean;
 }
 
+interface GenderSelectFieldProps {
+    label: string;
+    value: string | undefined;
+    onSave: (gender: string) => void;
+    disabled?: boolean;
+}
+
+function GenderSelectField({ label, value, onSave, disabled }: GenderSelectFieldProps) {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editValue, setEditValue] = useState(value ?? '');
+
+    useEffect(() => {
+        setEditValue(value ?? '');
+    }, [value]);
+
+    const handleSave = () => {
+        onSave(editValue);
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setEditValue(value ?? '');
+        setIsEditing(false);
+    };
+
+    const displayValue = value === 'M' ? '남' : value === 'F' ? '여' : '-';
+
+    return (
+        <div className="flex items-center border-b py-4 last:border-b-0">
+            <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">{label}</dt>
+            <dd className="flex-1 text-xl">
+                {isEditing ? (
+                    <div className="flex items-center gap-2">
+                        <Select value={editValue} onValueChange={setEditValue}>
+                            <SelectTrigger className="w-48">
+                                <SelectValue placeholder="성별 선택" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="M">남</SelectItem>
+                                <SelectItem value="F">여</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Button onClick={handleSave} className="min-w-24">
+                            저장
+                        </Button>
+                        <Button variant="outline" onClick={handleCancel} className="min-w-24">
+                            취소
+                        </Button>
+                    </div>
+                ) : (
+                    <span
+                        className={`rounded px-2 py-1 ${disabled ? '' : 'cursor-pointer hover:bg-muted/50'}`}
+                        onClick={() => !disabled && setIsEditing(true)}
+                        title={disabled ? undefined : '클릭하여 수정'}
+                    >
+                        {displayValue}
+                    </span>
+                )}
+            </dd>
+        </div>
+    );
+}
+
 function GroupSelectField({ label, value, groupName, groups, onSave, disabled }: GroupSelectFieldProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editValue, setEditValue] = useState(value);
@@ -232,6 +295,7 @@ export function StudentDetailPage() {
                 id,
                 societyName: field === 'societyName' ? value : student.societyName,
                 catholicName: field === 'catholicName' ? value || undefined : student.catholicName,
+                gender: field === 'gender' ? (value as 'M' | 'F' | undefined) : student.gender as 'M' | 'F' | undefined,
                 age: field === 'age' ? (value ? parseInt(value) : undefined) : student.age,
                 contact: field === 'contact' ? (value ? parseInt(value) : undefined) : student.contact,
                 groupId: field === 'groupId' ? value : student.groupId,
@@ -325,6 +389,12 @@ export function StudentDetailPage() {
                                     label="세례명"
                                     value={student?.catholicName ?? ''}
                                     onSave={(v) => handleUpdate('catholicName', v)}
+                                    disabled={isDeleted}
+                                />
+                                <GenderSelectField
+                                    label="성별"
+                                    value={student?.gender}
+                                    onSave={(v) => handleUpdate('gender', v)}
                                     disabled={isDeleted}
                                 />
                                 <EditableField

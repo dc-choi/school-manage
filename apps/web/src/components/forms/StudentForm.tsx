@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 interface StudentFormData {
     societyName: string;
     catholicName?: string;
+    gender?: 'M' | 'F';
     age?: number;
     contact?: number;
     description?: string;
@@ -29,6 +30,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
     const [formData, setFormData] = useState<StudentFormData>({
         societyName: initialData?.societyName ?? '',
         catholicName: initialData?.catholicName ?? '',
+        gender: initialData?.gender,
         age: initialData?.age,
         contact: initialData?.contact,
         description: initialData?.description ?? '',
@@ -79,27 +81,29 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {errors.submit && (
-                        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-base text-destructive">
                             {errors.submit}
                         </div>
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="societyName">이름 (세례명)</Label>
+                        <Label htmlFor="societyName" className="text-lg">이름 (세례명)</Label>
                         <Input
                             id="societyName"
+                            className="h-12 text-lg"
                             value={formData.societyName}
                             onChange={(e) => handleChange('societyName', e.target.value)}
                             placeholder="이름을 입력하세요"
                             disabled={isSubmitting}
                         />
-                        {errors.societyName && <p className="text-sm text-destructive">{errors.societyName}</p>}
+                        {errors.societyName && <p className="text-base text-destructive">{errors.societyName}</p>}
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="catholicName">세례명 (선택)</Label>
+                        <Label htmlFor="catholicName" className="text-lg">세례명 (선택)</Label>
                         <Input
                             id="catholicName"
+                            className="h-12 text-lg"
                             value={formData.catholicName ?? ''}
                             onChange={(e) => handleChange('catholicName', e.target.value)}
                             placeholder="세례명을 입력하세요"
@@ -108,31 +112,49 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="groupId">그룹</Label>
+                        <Label htmlFor="groupId" className="text-lg">그룹</Label>
                         <Select
                             value={formData.groupId}
                             onValueChange={(value) => handleChange('groupId', value)}
                             disabled={isSubmitting}
                         >
-                            <SelectTrigger id="groupId">
+                            <SelectTrigger id="groupId" className="h-12 text-lg">
                                 <SelectValue placeholder="그룹을 선택하세요" />
                             </SelectTrigger>
                             <SelectContent>
                                 {groups.map((g) => (
-                                    <SelectItem key={g.id} value={g.id}>
+                                    <SelectItem key={g.id} value={g.id} className="text-lg">
                                         {g.name}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
-                        {errors.groupId && <p className="text-sm text-destructive">{errors.groupId}</p>}
+                        {errors.groupId && <p className="text-base text-destructive">{errors.groupId}</p>}
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="age">나이 (선택)</Label>
+                        <Label htmlFor="gender" className="text-lg">성별 (선택)</Label>
+                        <Select
+                            value={formData.gender ?? ''}
+                            onValueChange={(value) => handleChange('gender', value as 'M' | 'F' | undefined)}
+                            disabled={isSubmitting}
+                        >
+                            <SelectTrigger id="gender" className="h-12 text-lg">
+                                <SelectValue placeholder="성별을 선택하세요" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="M" className="text-lg">남</SelectItem>
+                                <SelectItem value="F" className="text-lg">여</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="age" className="text-lg">나이 (선택)</Label>
                         <Input
                             id="age"
                             type="number"
+                            className="h-12 text-lg"
                             value={formData.age ?? ''}
                             onChange={(e) =>
                                 handleChange('age', e.target.value ? parseInt(e.target.value, 10) : undefined)
@@ -143,10 +165,11 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="contact">연락처 (선택)</Label>
+                        <Label htmlFor="contact" className="text-lg">연락처 (선택)</Label>
                         <Input
                             id="contact"
                             type="number"
+                            className="h-12 text-lg"
                             value={formData.contact ?? ''}
                             onChange={(e) =>
                                 handleChange('contact', e.target.value ? parseInt(e.target.value, 10) : undefined)
@@ -157,9 +180,10 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="baptizedAt">세례일 (선택)</Label>
+                        <Label htmlFor="baptizedAt" className="text-lg">세례일 (선택)</Label>
                         <Input
                             id="baptizedAt"
+                            className="h-12 text-lg"
                             value={formData.baptizedAt ?? ''}
                             onChange={(e) => handleChange('baptizedAt', e.target.value)}
                             placeholder="YYYY-MM-DD"
@@ -168,9 +192,10 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="description">비고 (선택)</Label>
+                        <Label htmlFor="description" className="text-lg">비고 (선택)</Label>
                         <Input
                             id="description"
+                            className="h-12 text-lg"
                             value={formData.description ?? ''}
                             onChange={(e) => handleChange('description', e.target.value)}
                             placeholder="비고를 입력하세요"
@@ -179,10 +204,10 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2">
-                        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+                        <Button type="button" variant="outline" className="min-w-24" onClick={onCancel} disabled={isSubmitting}>
                             취소
                         </Button>
-                        <Button type="submit" disabled={isSubmitting}>
+                        <Button type="submit" className="min-w-24" disabled={isSubmitting}>
                             {isSubmitting ? '저장 중...' : submitLabel}
                         </Button>
                     </div>

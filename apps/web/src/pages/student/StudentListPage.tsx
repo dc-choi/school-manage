@@ -54,6 +54,10 @@ export function StudentListPage() {
     // 삭제된 학생 목록
     const {
         students: deletedStudents,
+        total: deletedTotal,
+        totalPage: deletedTotalPage,
+        currentPage: deletedCurrentPage,
+        setPage: setDeletedPage,
         isLoading: isDeletedLoading,
         restore,
         isRestoring,
@@ -62,6 +66,10 @@ export function StudentListPage() {
     // 졸업생 목록
     const {
         students: graduatedStudents,
+        total: graduatedTotal,
+        totalPage: graduatedTotalPage,
+        currentPage: graduatedCurrentPage,
+        setPage: setGraduatedPage,
         isLoading: isGraduatedLoading,
         cancelGraduation,
         isCancellingGraduation,
@@ -224,7 +232,6 @@ export function StudentListPage() {
         },
         { key: 'societyName', header: '이름' },
         { key: 'catholicName', header: '세례명' },
-        { key: 'groupName', header: '그룹' },
         { key: 'contact', header: '연락처', render: (row: (typeof graduatedStudents)[0]) => formatContact(row.contact) },
         {
             key: 'graduatedAt',
@@ -315,10 +322,10 @@ export function StudentListPage() {
                         </Button>
                     )}
                     <Button variant="outline" onClick={() => setGraduatedModalOpen(true)}>
-                        졸업생 ({graduatedStudents.length})
+                        졸업생 ({graduatedTotal})
                     </Button>
                     <Button variant="destructive" onClick={() => setDeletedModalOpen(true)}>
-                        삭제된 학생 ({deletedStudents.length})
+                        삭제된 학생 ({deletedTotal})
                     </Button>
                     <Button onClick={() => navigate('/students/new')}>
                         학생 추가
@@ -388,6 +395,15 @@ export function StudentListPage() {
                             isLoading={isDeletedLoading}
                             emptyMessage="삭제된 학생이 없습니다."
                         />
+                        {deletedTotalPage > 1 && (
+                            <div className="mt-4">
+                                <Pagination
+                                    currentPage={deletedCurrentPage}
+                                    totalPages={deletedTotalPage}
+                                    onPageChange={setDeletedPage}
+                                />
+                            </div>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>
@@ -420,6 +436,15 @@ export function StudentListPage() {
                             isLoading={isGraduatedLoading}
                             emptyMessage="졸업생이 없습니다."
                         />
+                        {graduatedTotalPage > 1 && (
+                            <div className="mt-4">
+                                <Pagination
+                                    currentPage={graduatedCurrentPage}
+                                    totalPages={graduatedTotalPage}
+                                    onPageChange={setGraduatedPage}
+                                />
+                            </div>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>

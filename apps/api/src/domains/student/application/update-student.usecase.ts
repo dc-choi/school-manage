@@ -18,6 +18,7 @@ export class UpdateStudentUseCase {
                 data: {
                     societyName: input.societyName,
                     catholicName: input.catholicName,
+                    gender: input.gender,
                     age: input.age ? BigInt(input.age) : null,
                     contact: input.contact ? BigInt(input.contact) : null,
                     description: input.description,
@@ -31,6 +32,7 @@ export class UpdateStudentUseCase {
                 id: String(student.id),
                 societyName: student.societyName,
                 catholicName: student.catholicName ?? undefined,
+                gender: student.gender ?? undefined,
                 age: student.age != null ? Number(student.age) : undefined,
                 contact: student.contact != null ? Number(student.contact) : undefined,
                 description: student.description ?? undefined,

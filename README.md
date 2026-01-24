@@ -109,7 +109,7 @@ packages/
 | **타입 안정성**     | ✅ 완료  | strict 모드, Input/Output 타입 중앙화, 인증 컨텍스트 타입 좁히기                             |
 | **웹 앱**        | ✅ 완료  | 달력 UI 출석부, Login, Group, Student, Statistics 페이지 구현, shadcn/ui 적용          |
 | **테스트**        | ✅ 완료  | Vitest 마이그레이션 완료, Prisma mocking 통합 테스트 (51개)                              |
-| **배포**         | ⏳ 미구현 | Docker Hub + Nginx 예정                                                      |
+| **배포**         | ✅ 완료  | GitHub Actions CD + Docker Hub + Nginx                                       |
 
 ## ERD
 ![ERD](https://github.com/dc-choi/school_manage_back/blob/main/img/v2.0.0%20ERD.JPG)

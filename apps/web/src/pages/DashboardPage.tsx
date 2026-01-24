@@ -46,7 +46,7 @@ export function DashboardPage() {
 
     return (
         <MainLayout title={`안녕하세요, ${account?.name}님!`}>
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {/* 연도 선택 */}
                 <div className="flex items-center gap-2">
                     <Label>통계 연도</Label>

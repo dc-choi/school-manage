@@ -42,15 +42,16 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {error && (
-                        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-base text-destructive">
                             {error}
                         </div>
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="name">그룹명</Label>
+                        <Label htmlFor="name" className="text-lg">그룹명</Label>
                         <Input
                             id="name"
+                            className="h-12 text-lg"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="그룹명을 입력하세요"
@@ -59,10 +60,10 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
                     </div>
 
                     <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+                        <Button type="button" variant="outline" className="min-w-24" onClick={onCancel} disabled={isSubmitting}>
                             취소
                         </Button>
-                        <Button type="submit" disabled={isSubmitting}>
+                        <Button type="submit" className="min-w-24" disabled={isSubmitting}>
                             {isSubmitting ? '저장 중...' : submitLabel}
                         </Button>
                     </div>

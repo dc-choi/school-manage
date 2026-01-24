@@ -57,7 +57,7 @@ export function MainLayout({ children, title }: MainLayoutProps) {
                     </header>
 
                     {/* Content */}
-                    <main className="flex-1 overflow-auto p-10">
+                    <main className="flex-1 overflow-auto p-6">
                         <div className="w-full">{children}</div>
                     </main>
                 </div>
