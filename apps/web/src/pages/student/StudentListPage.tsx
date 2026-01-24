@@ -1,4 +1,4 @@
-import { formatContact } from '@school/utils';
+import { formatContact, formatDateKR } from '@school/utils';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Pagination, Table } from '~/components/common';
@@ -229,8 +229,7 @@ export function StudentListPage() {
         {
             key: 'graduatedAt',
             header: '졸업일',
-            render: (row: (typeof graduatedStudents)[0]) =>
-                row.graduatedAt ? new Date(row.graduatedAt).toLocaleDateString('ko-KR') : '-',
+            render: (row: (typeof graduatedStudents)[0]) => formatDateKR(row.graduatedAt),
         },
     ];
 
@@ -259,8 +258,7 @@ export function StudentListPage() {
         {
             key: 'deletedAt',
             header: '삭제일',
-            render: (row: (typeof deletedStudents)[0]) =>
-                row.deletedAt ? new Date(row.deletedAt).toLocaleDateString('ko-KR') : '-',
+            render: (row: (typeof deletedStudents)[0]) => formatDateKR(row.deletedAt),
         },
     ];
 

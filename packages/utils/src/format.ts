@@ -31,3 +31,16 @@ export const formatDateISO = (date: Date): string => {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
+
+/**
+ * 날짜를 한국어 형식으로 변환한다. (YYYY. M. D.)
+ * @param date Date 객체 또는 ISO 문자열
+ * @param fallback 날짜가 없을 때 반환할 값
+ * @returns 포맷팅된 날짜 문자열 또는 fallback
+ */
+export const formatDateKR = (date: Date | string | null | undefined, fallback = '-'): string => {
+    if (!date) return fallback;
+    const d = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(d.getTime())) return fallback;
+    return d.toLocaleDateString('ko-KR');
+};

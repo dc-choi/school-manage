@@ -46,8 +46,8 @@ export declare function useStudents(options?: UseStudentsOptions): {
         _output_out: typeof import("@trpc/server").unsetMarker;
     }, import("@school/trpc").ListStudentsOutput>> | null;
     setPage: import("react").Dispatch<import("react").SetStateAction<number>>;
-    search: (option: "name" | "all" | "catholicName", word: string) => void;
-    searchOption: "name" | "all" | "catholicName";
+    search: (option: "all" | "name" | "catholicName", word: string) => void;
+    searchOption: "all" | "name" | "catholicName";
     searchWord: string;
     deleteFilter: DeleteFilter;
     changeDeleteFilter: (filter: DeleteFilter) => void;

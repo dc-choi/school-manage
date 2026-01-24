@@ -70,9 +70,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: typeof import("@trpc/server").unsetMarker;
             _input_out: typeof import("@trpc/server").unsetMarker;
@@ -95,9 +95,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: typeof import("@trpc/server").unsetMarker;
             _input_out: typeof import("@trpc/server").unsetMarker;
@@ -113,9 +113,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -135,9 +135,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 name: string;
@@ -157,17 +157,17 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                id: string;
                 name: string;
+                id: string;
             };
             _input_out: {
-                id: string;
                 name: string;
+                id: string;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -181,9 +181,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -203,9 +203,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -225,9 +225,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 groupId: string;
@@ -256,9 +256,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 page?: number | undefined;
@@ -288,9 +288,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -310,26 +310,26 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -344,28 +344,28 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
                 id: string;
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -380,9 +380,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -402,9 +402,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -424,9 +424,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -446,9 +446,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -468,9 +468,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -490,9 +490,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: typeof import("@trpc/server").unsetMarker;
             _input_out: typeof import("@trpc/server").unsetMarker;
@@ -515,27 +515,27 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year: number;
                 attendance: {
+                    data: string;
                     id: string;
                     month: number;
                     day: number;
-                    data: string;
                 }[];
                 isFull: boolean;
             };
             _input_out: {
                 year: number;
                 attendance: {
+                    data: string;
                     id: string;
                     month: number;
                     day: number;
-                    data: string;
                 }[];
                 isFull: boolean;
             };
@@ -551,19 +551,19 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 groupId: string;
-                month: number;
                 year: number;
+                month: number;
             };
             _input_out: {
                 groupId: string;
-                month: number;
                 year: number;
+                month: number;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -577,9 +577,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 groupId: string;
@@ -608,9 +608,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -630,9 +630,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -652,9 +652,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -674,9 +674,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -696,9 +696,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -718,13 +718,13 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                year?: number | undefined;
                 limit?: number | undefined;
+                year?: number | undefined;
             };
             _input_out: {
                 limit: number;
@@ -742,13 +742,13 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                year?: number | undefined;
                 limit?: number | undefined;
+                year?: number | undefined;
             };
             _input_out: {
                 limit: number;
@@ -766,9 +766,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -795,9 +795,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year: number;
@@ -875,9 +875,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: typeof import("@trpc/server").unsetMarker;
             _input_out: typeof import("@trpc/server").unsetMarker;
@@ -900,9 +900,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: typeof import("@trpc/server").unsetMarker;
             _input_out: typeof import("@trpc/server").unsetMarker;
@@ -918,9 +918,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -940,9 +940,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 name: string;
@@ -962,17 +962,17 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                id: string;
                 name: string;
+                id: string;
             };
             _input_out: {
-                id: string;
                 name: string;
+                id: string;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -986,9 +986,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -1008,9 +1008,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -1030,9 +1030,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 groupId: string;
@@ -1061,9 +1061,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 page?: number | undefined;
@@ -1093,9 +1093,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -1115,26 +1115,26 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -1149,28 +1149,28 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
                 id: string;
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -1185,9 +1185,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -1207,9 +1207,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -1229,9 +1229,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -1251,9 +1251,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -1273,9 +1273,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -1295,9 +1295,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: typeof import("@trpc/server").unsetMarker;
             _input_out: typeof import("@trpc/server").unsetMarker;
@@ -1320,27 +1320,27 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year: number;
                 attendance: {
+                    data: string;
                     id: string;
                     month: number;
                     day: number;
-                    data: string;
                 }[];
                 isFull: boolean;
             };
             _input_out: {
                 year: number;
                 attendance: {
+                    data: string;
                     id: string;
                     month: number;
                     day: number;
-                    data: string;
                 }[];
                 isFull: boolean;
             };
@@ -1356,19 +1356,19 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 groupId: string;
-                month: number;
                 year: number;
+                month: number;
             };
             _input_out: {
                 groupId: string;
-                month: number;
                 year: number;
+                month: number;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -1382,9 +1382,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 groupId: string;
@@ -1413,9 +1413,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -1435,9 +1435,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -1457,9 +1457,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -1479,9 +1479,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -1501,9 +1501,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -1523,13 +1523,13 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                year?: number | undefined;
                 limit?: number | undefined;
+                year?: number | undefined;
             };
             _input_out: {
                 limit: number;
@@ -1547,13 +1547,13 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                year?: number | undefined;
                 limit?: number | undefined;
+                year?: number | undefined;
             };
             _input_out: {
                 limit: number;
@@ -1571,9 +1571,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -1600,9 +1600,9 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year: number;
@@ -1686,9 +1686,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: typeof import("@trpc/server").unsetMarker;
             _input_out: typeof import("@trpc/server").unsetMarker;
@@ -1711,9 +1711,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: typeof import("@trpc/server").unsetMarker;
             _input_out: typeof import("@trpc/server").unsetMarker;
@@ -1729,9 +1729,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -1751,9 +1751,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 name: string;
@@ -1773,17 +1773,17 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                id: string;
                 name: string;
+                id: string;
             };
             _input_out: {
-                id: string;
                 name: string;
+                id: string;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -1797,9 +1797,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -1819,9 +1819,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -1841,9 +1841,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 groupId: string;
@@ -1872,9 +1872,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 page?: number | undefined;
@@ -1904,9 +1904,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -1926,26 +1926,26 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -1960,28 +1960,28 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
                 id: string;
-                societyName: string;
                 groupId: string;
+                societyName: string;
+                description?: string | undefined;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
-                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -1996,9 +1996,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 id: string;
@@ -2018,9 +2018,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -2040,9 +2040,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -2062,9 +2062,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -2084,9 +2084,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 ids: string[];
@@ -2106,9 +2106,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: typeof import("@trpc/server").unsetMarker;
             _input_out: typeof import("@trpc/server").unsetMarker;
@@ -2131,27 +2131,27 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year: number;
                 attendance: {
+                    data: string;
                     id: string;
                     month: number;
                     day: number;
-                    data: string;
                 }[];
                 isFull: boolean;
             };
             _input_out: {
                 year: number;
                 attendance: {
+                    data: string;
                     id: string;
                     month: number;
                     day: number;
-                    data: string;
                 }[];
                 isFull: boolean;
             };
@@ -2167,19 +2167,19 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 groupId: string;
-                month: number;
                 year: number;
+                month: number;
             };
             _input_out: {
                 groupId: string;
-                month: number;
                 year: number;
+                month: number;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -2193,9 +2193,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 groupId: string;
@@ -2224,9 +2224,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -2246,9 +2246,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -2268,9 +2268,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -2290,9 +2290,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -2312,9 +2312,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -2334,13 +2334,13 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                year?: number | undefined;
                 limit?: number | undefined;
+                year?: number | undefined;
             };
             _input_out: {
                 limit: number;
@@ -2358,13 +2358,13 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                year?: number | undefined;
                 limit?: number | undefined;
+                year?: number | undefined;
             };
             _input_out: {
                 limit: number;
@@ -2382,9 +2382,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year?: number | undefined;
@@ -2411,9 +2411,9 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             }>;
             _meta: object;
             _ctx_out: {
+                res: import("express").Response<any, Record<string, any>>;
                 account: import("@school/trpc").AccountInfo;
                 req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
                 year: number;

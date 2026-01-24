@@ -13,7 +13,7 @@ export {
 } from './date.js';
 
 // Format utilities
-export { formatContact, formatDateCompact, formatDateISO } from './format.js';
+export { formatContact, formatDateCompact, formatDateISO, formatDateKR } from './format.js';
 
 // Object utilities
 export { prune } from './object.js';

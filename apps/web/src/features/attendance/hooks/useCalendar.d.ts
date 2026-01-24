@@ -14,19 +14,19 @@ export declare function useCalendar(groupId: string, year: number, month: number
         }>;
         _meta: object;
         _ctx_out: {
+            res: import("express").Response<any, Record<string, any>>;
             account: import("@school/trpc").AccountInfo;
             req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-            res: import("express").Response<any, Record<string, any>>;
         };
         _input_in: {
             groupId: string;
-            month: number;
             year: number;
+            month: number;
         };
         _input_out: {
             groupId: string;
-            month: number;
             year: number;
+            month: number;
         };
         _output_in: typeof import("@trpc/server").unsetMarker;
         _output_out: typeof import("@trpc/server").unsetMarker;
@@ -50,9 +50,9 @@ export declare function useDayDetail(groupId: string, date: string, enabled?: bo
         }>;
         _meta: object;
         _ctx_out: {
+            res: import("express").Response<any, Record<string, any>>;
             account: import("@school/trpc").AccountInfo;
             req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-            res: import("express").Response<any, Record<string, any>>;
         };
         _input_in: {
             groupId: string;
@@ -74,9 +74,9 @@ export declare function useDayDetail(groupId: string, date: string, enabled?: bo
         }>;
         _meta: object;
         _ctx_out: {
+            res: import("express").Response<any, Record<string, any>>;
             account: import("@school/trpc").AccountInfo;
             req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-            res: import("express").Response<any, Record<string, any>>;
         };
         _input_in: {
             groupId: string;
@@ -106,9 +106,9 @@ export declare function useHolydays(year: number): {
         }>;
         _meta: object;
         _ctx_out: {
+            res: import("express").Response<any, Record<string, any>>;
             account: import("@school/trpc").AccountInfo;
             req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-            res: import("express").Response<any, Record<string, any>>;
         };
         _input_in: {
             year: number;

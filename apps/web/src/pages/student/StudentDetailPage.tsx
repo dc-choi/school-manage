@@ -1,3 +1,4 @@
+import { formatDateKR } from '@school/utils';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
@@ -363,7 +364,7 @@ export function StudentDetailPage() {
                                     <div className="flex items-center border-b py-4 last:border-b-0">
                                         <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">삭제일</dt>
                                         <dd className="text-xl text-destructive">
-                                            {new Date(student!.deletedAt!).toLocaleDateString('ko-KR')}
+                                            {formatDateKR(student!.deletedAt!)}
                                         </dd>
                                     </div>
                                 )}
