@@ -11,6 +11,7 @@ on:
       - 'docker-compose.yml'
       - 'turbo.json'
       - 'pnpm-workspace.yaml'
+      - 'pnpm-lock.yaml'
       - 'package.json'
 
 jobs:
@@ -34,12 +35,14 @@ jobs:
               - 'docker-compose.yml'
               - 'turbo.json'
               - 'pnpm-workspace.yaml'
+              - 'pnpm-lock.yaml'
               - 'package.json'
             web:
               - 'apps/web/**'
               - 'packages/**'
               - 'turbo.json'
               - 'pnpm-workspace.yaml'
+              - 'pnpm-lock.yaml'
               - 'package.json'
 
   # ===== API 배포 =====
