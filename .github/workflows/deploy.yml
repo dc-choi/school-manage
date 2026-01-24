@@ -87,10 +87,13 @@ jobs:
             docker compose up -d api
             docker image prune -f
 
-  # ===== Web 배포 =====
+  # ===== Web 배포 (API 배포 완료 후) =====
   deploy-web:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.web == 'true'
+    needs: [detect-changes, deploy-api]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.web == 'true' &&
+      (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
