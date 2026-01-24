@@ -21,13 +21,13 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@trpc/server": "^10.45.2",
-        "superjson": "^2.2.1",
+        "@trpc/server": "catalog:",
+        "superjson": "catalog:",
         "zod": "^3.23.8"
     },
     "devDependencies": {
         "typescript": "catalog:",
-        "@types/node": "^18.0.0",
+        "@types/node": "catalog:",
         "@eslint/eslintrc": "catalog:",
         "@eslint/js": "catalog:",
         "@typescript-eslint/eslint-plugin": "catalog:",

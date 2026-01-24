@@ -11,7 +11,8 @@
     "workspaces": [
         "apps/api",
         "apps/web",
-        "packages/trpc"
+        "packages/trpc",
+        "packages/utils"
     ],
     "scripts": {
         "build": "turbo run build",

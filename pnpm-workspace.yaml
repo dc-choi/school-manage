@@ -5,16 +5,33 @@ packages:
   - packages/utils
 
 catalog:
+  # Node types
+  '@types/node': ^24.10.9
+
+  # tRPC (버전 통일 필수)
+  '@trpc/server': ^10.45.2
+  '@trpc/client': ^10.45.2
+  '@trpc/react-query': ^10.45.2
+  superjson: ^2.2.1
+
+  # Testing
+  vitest: ^4.0.16
+
+  # ESLint
   '@eslint/eslintrc': ^3.3.1
   '@eslint/js': ^9.28.0
-  '@trivago/prettier-plugin-sort-imports': ^5.2.2
   '@typescript-eslint/eslint-plugin': ^8.34.0
   '@typescript-eslint/parser': ^8.34.0
   eslint: ^9.28.0
   eslint-config-prettier: ^10.1.5
   eslint-plugin-prettier: ^5.4.1
   globals: ^16.2.0
+
+  # Prettier
+  '@trivago/prettier-plugin-sort-imports': ^5.2.2
   prettier: ^3.7.4
+
+  # TypeScript
   typescript: ^5.8.3
 
 minimumReleaseAge: 1440

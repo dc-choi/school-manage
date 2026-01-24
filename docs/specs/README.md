@@ -8,7 +8,6 @@
 |--------------------------------------|------|-----------------------------------------------------------------------------------|
 | **Current Functional**               | 100% | 5개 도메인 완전 문서화 + 구현 완료 (student-graduation → student-management 병합, statistics 통합) |
 | **Target Functional**                | 100% | 로드맵 1단계 완료 (그룹/학생 UI/UX 개선, 졸업 처리 모두 완료)                                          |
-| **Target Non-Functional (Deploy)**   | 100% | 13개 기능 SDD 문서 완료                                                                  |
 | **Target Non-Functional (Security)** | 50%  | 1/2개 SDD 문서 완료                                                                    |
 
 ## 관련 문서
@@ -106,25 +105,14 @@
 
 ### DEPLOY (Non-Functional)
 
-> **상태**: SDD 문서 완료, 구현 대기
+| 우선순위 | 기능명                        | SDD 상태 | 비고                    |
+|------|----------------------------|--------|------------------------|
+| P0   | CD 파이프라인 (모노레포 변경 감지 배포) | 작성 완료 | Feature/Task/Development 완료, 구현 대기 |
 
-| 우선순위 | 기능명                         | Feature                                 | Task                                    | Development                             |
-|------|-----------------------------|-----------------------------------------|-----------------------------------------|-----------------------------------------|
-| P0   | Docker Hub private repo     | `deploy-dockerhub-private-repo.md`      | `deploy-dockerhub-private-repo.md`      | `deploy-dockerhub-private-repo.md`      |
-| P0   | Docker Hub 계정/권한 분리         | `deploy-dockerhub-access-separation.md` | `deploy-dockerhub-access-separation.md` | `deploy-dockerhub-access-separation.md` |
-| P0   | Docker 이미지 시크릿 제외           | `deploy-dockerhub-secret-exclusion.md`  | `deploy-dockerhub-secret-exclusion.md`  | `deploy-dockerhub-secret-exclusion.md`  |
-| P0   | CI Docker Hub 시크릿 설정        | `deploy-dockerhub-ci-secrets.md`        | `deploy-dockerhub-ci-secrets.md`        | `deploy-dockerhub-ci-secrets.md`        |
-| P0   | CI 이미지 빌드/푸시                | `deploy-dockerhub-ci-publish.md`        | `deploy-dockerhub-ci-publish.md`        | `deploy-dockerhub-ci-publish.md`        |
-| P0   | 이미지 태깅 전략                   | `deploy-dockerhub-tagging-strategy.md`  | `deploy-dockerhub-tagging-strategy.md`  | `deploy-dockerhub-tagging-strategy.md`  |
-| P0   | 운영 서버 Docker 로그인            | `deploy-dockerhub-server-login.md`      | `deploy-dockerhub-server-login.md`      | `deploy-dockerhub-server-login.md`      |
-| P0   | 운영 docker-compose 구성        | `deploy-dockerhub-compose-config.md`    | `deploy-dockerhub-compose-config.md`    | `deploy-dockerhub-compose-config.md`    |
-| P0   | 운영 배포 커맨드                   | `deploy-dockerhub-deploy-commands.md`   | `deploy-dockerhub-deploy-commands.md`   | `deploy-dockerhub-deploy-commands.md`   |
-| P0   | Nginx 정적 배포 + reverse proxy | `deploy-nginx-static.md`                | `deploy-nginx-static.md`                | `deploy-nginx-static.md`                |
-| P1   | Docker Hub 보안 정책            | `deploy-dockerhub-token-security.md`    | `deploy-dockerhub-token-security.md`    | `deploy-dockerhub-token-security.md`    |
-| P1   | 배포 롤백 전략                    | `deploy-dockerhub-rollback.md`          | `deploy-dockerhub-rollback.md`          | `deploy-dockerhub-rollback.md`          |
-| P1   | 주말 컷오버 런북                   | `cutover-runbook.md`                    | `cutover-runbook.md`                    | `cutover-runbook.md`                    |
-
-> 경로 접두사: `docs/specs/target/non-functional/{features|tasks|development}/`
+**CD 파이프라인:**
+- Feature: `docs/specs/target/non-functional/features/deploy-cd.md`
+- Task: `docs/specs/target/non-functional/tasks/deploy-cd.md`
+- Development: `docs/specs/target/non-functional/development/deploy-cd.md`
 
 ### SECURITY (Non-Functional)
 

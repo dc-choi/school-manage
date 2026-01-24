@@ -1,0 +1,64 @@
+# 환경변수 (시크릿)
+.env*
+!.env.example
+
+# 의존성 (빌드 시 재설치)
+node_modules
+
+# 빌드 산출물 (빌드 시 재생성)
+dist
+apps/*/dist
+packages/*/dist
+
+# 개발/테스트
+.turbo
+coverage
+*.log
+logs
+
+# IDE/OS
+.idea
+.vscode
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# GitHub
+.github
+
+# 문서
+docs
+*.md
+img
+
+# 테스트
+test
+tests
+**/*.test.ts
+**/*.spec.ts
+vitest.config.*
+vitest.setup.*
+vitest.workspace.*
+
+# Docker/배포 (메타 설정)
+Dockerfile
+docker-compose.yml
+*.sh.example
+*.conf.example
+
+# 린트/포맷 설정
+eslint.config.js
+.prettierrc
+.editorconfig
+
+# 런타임 버전 설정
+.npmrc
+.nvmrc
+
+# 빌드 도구 설정
+turbo.json
+
+# Web 전용 설정 (API Docker 빌드에 불필요)
+components.json

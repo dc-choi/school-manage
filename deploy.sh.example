@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# 사용법: ./deploy.sh [api|web|all]
+
+set -e
+
+DEPLOY_PATH="/home/deploy/school"
+WEB_PATH="/var/www/school"
+
+deploy_api() {
+    echo "=== Deploying API ==="
+    cd "$DEPLOY_PATH"
+    docker compose pull api
+    docker compose up -d api
+    docker image prune -f
+    echo "API deployed successfully"
+}
+
+deploy_web() {
+    echo "=== Deploying Web ==="
+    # 로컬에서 빌드 후 실행
+    # scp -r apps/web/dist/* user@server:$WEB_PATH/
+    echo "Web deployed successfully"
+}
+
+case "$1" in
+    api)
+        deploy_api
+        ;;
+    web)
+        deploy_web
+        ;;
+    all)
+        deploy_api
+        deploy_web
+        ;;
+    *)
+        echo "Usage: $0 [api|web|all]"
+        exit 1
+        ;;
+esac

@@ -1,0 +1,15 @@
+services:
+  api:
+    image: ${DOCKERHUB_USERNAME:-username}/school-api:${TAG:-latest}
+    container_name: school-api
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/trpc/health.check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
