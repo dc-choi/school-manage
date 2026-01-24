@@ -28,6 +28,7 @@
     "dependencies": {
         "@prisma/adapter-mariadb": "^7.2.0",
         "@prisma/client": "^6.19.1",
+        "prisma": "^6.19.1",
         "@school/trpc": "workspace:*",
         "@school/utils": "workspace:*",
         "@trpc/server": "catalog:",
@@ -68,7 +69,6 @@
         "eslint-plugin-prettier": "catalog:",
         "globals": "catalog:",
         "prettier": "catalog:",
-        "prisma": "^6.19.1",
         "tsc-alias": "^1.8.16",
         "typescript": "catalog:",
         "vitest": "catalog:"

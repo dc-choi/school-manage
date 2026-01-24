@@ -39,10 +39,13 @@ COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY --from=builder /app/packages/trpc/dist ./packages/trpc/dist
 COPY --from=builder /app/packages/utils/dist ./packages/utils/dist
 
-# Prisma 생성된 클라이언트 복사 (builder에서 이미 생성됨)
-COPY --from=builder /app/node_modules/.pnpm/@prisma+client*/node_modules/.prisma ./node_modules/.prisma
+# Prisma 클라이언트 생성
+RUN cd apps/api && pnpm prisma generate
 
 WORKDIR /app/apps/api
+
+# 환경변수 설정
+ENV NODE_ENV=production
 
 EXPOSE 4000
 
