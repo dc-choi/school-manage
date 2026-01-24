@@ -3,20 +3,20 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
     ctx: import("@school/trpc").Context;
     meta: object;
     errorShape: import("@trpc/server").DefaultErrorShape;
-    transformer: typeof superjson;
+    transformer: typeof import("superjson").default;
 }>, {
     health: import("@trpc/server").CreateRouterInner<import("@trpc/server").RootConfig<{
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         check: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _ctx_out: import("@school/trpc").Context;
             _input_in: typeof import("@trpc/server").unsetMarker;
@@ -32,14 +32,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         login: import("@trpc/server").BuildProcedure<"mutation", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: import("@school/trpc").Context;
@@ -59,14 +59,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         get: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -84,14 +84,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         list: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -109,7 +109,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -131,7 +131,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -153,7 +153,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -162,12 +162,12 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                name: string;
                 id: string;
+                name: string;
             };
             _input_out: {
-                name: string;
                 id: string;
+                name: string;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -177,7 +177,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -199,7 +199,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -221,7 +221,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -245,14 +245,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         list: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -284,7 +284,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -306,7 +306,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -315,21 +315,21 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -340,7 +340,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -350,22 +350,22 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             };
             _input_in: {
                 id: string;
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
                 id: string;
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -376,7 +376,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -398,7 +398,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -420,7 +420,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -442,7 +442,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -464,7 +464,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -486,7 +486,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -504,14 +504,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         update: import("@trpc/server").BuildProcedure<"mutation", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -522,20 +522,20 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             _input_in: {
                 year: number;
                 attendance: {
-                    data: string;
                     id: string;
                     month: number;
                     day: number;
+                    data: string;
                 }[];
                 isFull: boolean;
             };
             _input_out: {
                 year: number;
                 attendance: {
-                    data: string;
                     id: string;
                     month: number;
                     day: number;
+                    data: string;
                 }[];
                 isFull: boolean;
             };
@@ -547,7 +547,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -557,13 +557,13 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             };
             _input_in: {
                 groupId: string;
-                year: number;
                 month: number;
+                year: number;
             };
             _input_out: {
                 groupId: string;
-                year: number;
                 month: number;
+                year: number;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -573,7 +573,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -597,14 +597,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         excellent: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -626,7 +626,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -648,7 +648,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -670,7 +670,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -692,7 +692,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -714,7 +714,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -738,7 +738,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -762,7 +762,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -784,14 +784,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         holydays: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -814,14 +814,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         check: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _ctx_out: import("@school/trpc").Context;
             _input_in: typeof import("@trpc/server").unsetMarker;
@@ -837,14 +837,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         login: import("@trpc/server").BuildProcedure<"mutation", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: import("@school/trpc").Context;
@@ -864,14 +864,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         get: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -889,14 +889,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         list: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -914,7 +914,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -936,7 +936,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -958,7 +958,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -967,12 +967,12 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                name: string;
                 id: string;
+                name: string;
             };
             _input_out: {
-                name: string;
                 id: string;
+                name: string;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -982,7 +982,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1004,7 +1004,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1026,7 +1026,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1050,14 +1050,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         list: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1089,7 +1089,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1111,7 +1111,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1120,21 +1120,21 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -1145,7 +1145,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1155,22 +1155,22 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             };
             _input_in: {
                 id: string;
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
                 id: string;
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -1181,7 +1181,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1203,7 +1203,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1225,7 +1225,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1247,7 +1247,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1269,7 +1269,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1291,7 +1291,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1309,14 +1309,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         update: import("@trpc/server").BuildProcedure<"mutation", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1327,20 +1327,20 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             _input_in: {
                 year: number;
                 attendance: {
-                    data: string;
                     id: string;
                     month: number;
                     day: number;
+                    data: string;
                 }[];
                 isFull: boolean;
             };
             _input_out: {
                 year: number;
                 attendance: {
-                    data: string;
                     id: string;
                     month: number;
                     day: number;
+                    data: string;
                 }[];
                 isFull: boolean;
             };
@@ -1352,7 +1352,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1362,13 +1362,13 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
             };
             _input_in: {
                 groupId: string;
-                year: number;
                 month: number;
+                year: number;
             };
             _input_out: {
                 groupId: string;
-                year: number;
                 month: number;
+                year: number;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -1378,7 +1378,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1402,14 +1402,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         excellent: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1431,7 +1431,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1453,7 +1453,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1475,7 +1475,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1497,7 +1497,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1519,7 +1519,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1543,7 +1543,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1567,7 +1567,7 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1589,14 +1589,14 @@ export declare const trpc: import("node_modules/@trpc/react-query/dist/createTRP
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         holydays: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1619,20 +1619,20 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
     ctx: import("@school/trpc").Context;
     meta: object;
     errorShape: import("@trpc/server").DefaultErrorShape;
-    transformer: typeof superjson;
+    transformer: typeof import("superjson").default;
 }>, {
     health: import("@trpc/server").CreateRouterInner<import("@trpc/server").RootConfig<{
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         check: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _ctx_out: import("@school/trpc").Context;
             _input_in: typeof import("@trpc/server").unsetMarker;
@@ -1648,14 +1648,14 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         login: import("@trpc/server").BuildProcedure<"mutation", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: import("@school/trpc").Context;
@@ -1675,14 +1675,14 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         get: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1700,14 +1700,14 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         list: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1725,7 +1725,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1747,7 +1747,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1769,7 +1769,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1778,12 +1778,12 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                name: string;
                 id: string;
+                name: string;
             };
             _input_out: {
-                name: string;
                 id: string;
+                name: string;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -1793,7 +1793,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1815,7 +1815,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1837,7 +1837,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1861,14 +1861,14 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         list: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1900,7 +1900,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1922,7 +1922,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1931,21 +1931,21 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 res: import("express").Response<any, Record<string, any>>;
             };
             _input_in: {
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -1956,7 +1956,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -1966,22 +1966,22 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             };
             _input_in: {
                 id: string;
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _input_out: {
                 id: string;
-                groupId: string;
                 societyName: string;
-                description?: string | undefined;
+                groupId: string;
                 catholicName?: string | undefined;
                 age?: number | undefined;
                 contact?: number | undefined;
+                description?: string | undefined;
                 baptizedAt?: string | undefined;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
@@ -1992,7 +1992,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2014,7 +2014,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2036,7 +2036,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2058,7 +2058,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2080,7 +2080,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2102,7 +2102,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2120,14 +2120,14 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         update: import("@trpc/server").BuildProcedure<"mutation", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2138,20 +2138,20 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             _input_in: {
                 year: number;
                 attendance: {
-                    data: string;
                     id: string;
                     month: number;
                     day: number;
+                    data: string;
                 }[];
                 isFull: boolean;
             };
             _input_out: {
                 year: number;
                 attendance: {
-                    data: string;
                     id: string;
                     month: number;
                     day: number;
+                    data: string;
                 }[];
                 isFull: boolean;
             };
@@ -2163,7 +2163,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2173,13 +2173,13 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
             };
             _input_in: {
                 groupId: string;
-                year: number;
                 month: number;
+                year: number;
             };
             _input_out: {
                 groupId: string;
-                year: number;
                 month: number;
+                year: number;
             };
             _output_in: typeof import("@trpc/server").unsetMarker;
             _output_out: typeof import("@trpc/server").unsetMarker;
@@ -2189,7 +2189,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2213,14 +2213,14 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         excellent: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2242,7 +2242,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2264,7 +2264,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2286,7 +2286,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2308,7 +2308,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2330,7 +2330,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2354,7 +2354,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2378,7 +2378,7 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {
@@ -2400,14 +2400,14 @@ export declare const trpcClient: import("@trpc/client").TRPCClient<import("@trpc
         ctx: import("@school/trpc").Context;
         meta: object;
         errorShape: import("@trpc/server").DefaultErrorShape;
-        transformer: typeof superjson;
+        transformer: typeof import("superjson").default;
     }>, {
         holydays: import("@trpc/server").BuildProcedure<"query", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: import("@school/trpc").Context;
                 meta: object;
                 errorShape: import("@trpc/server").DefaultErrorShape;
-                transformer: typeof superjson;
+                transformer: typeof import("superjson").default;
             }>;
             _meta: object;
             _ctx_out: {

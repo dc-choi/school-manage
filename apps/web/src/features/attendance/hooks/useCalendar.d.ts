@@ -20,13 +20,13 @@ export declare function useCalendar(groupId: string, year: number, month: number
         };
         _input_in: {
             groupId: string;
-            year: number;
             month: number;
+            year: number;
         };
         _input_out: {
             groupId: string;
-            year: number;
             month: number;
+            year: number;
         };
         _output_in: typeof import("@trpc/server").unsetMarker;
         _output_out: typeof import("@trpc/server").unsetMarker;

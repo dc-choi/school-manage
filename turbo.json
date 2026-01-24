@@ -8,6 +8,10 @@
             "dependsOn": ["^build"],
             "outputs": ["dist/**"]
         },
+        "@school/web#build": {
+            "dependsOn": ["@school/api#build", "^build"],
+            "outputs": ["dist/**"]
+        },
         "start": {
             "dependsOn": ["^build", "^start"]
         },

@@ -107,7 +107,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web
-        run: pnpm --filter @school/web build
+        run: pnpm turbo build --filter=@school/web
 
       - name: Deploy to server via SCP
         uses: appleboy/scp-action@v0.1.7

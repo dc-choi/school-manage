@@ -23,7 +23,7 @@
     "include": ["src", "test", "vitest.setup.ts", "vite.config.ts"],
     "exclude": ["node_modules", "dist"],
     "references": [
-        { "path": "../../packages/trpc" },
-        { "path": "../api" }
+        { "path": "../../packages/utils" },
+        { "path": "../../packages/trpc" }
     ]
 }
