@@ -14,7 +14,6 @@
 - `docs/business/5_metrics/metrics.md` 핵심 지표
 - `docs/business/6_roadmap/roadmap.md` 단계별 확장 로드맵
 - `docs/business/7_pricing/pricing.md` 가격 가설/플랜
-- `docs/business/7_pricing/payment_research.md` 결제 주체 검증 기준
 - `docs/business/STATUS.md` 진행 현황
 
 ## 문제 배경

@@ -93,7 +93,7 @@ SDD 워크플로우(`docs/specs/WORKFLOW.md`)를 참고하되, 사업 문서용�
 ### 확인 항목
 - 다음 문서가 최신인지 확인: `docs/business/README.md`, `docs/business/2_bm/bm.md`, `docs/business/3_gtm/gtm.md`, `docs/business/5_metrics/metrics.md`, `docs/business/6_roadmap/roadmap.md`
 - 오픈 이슈/가정이 각 문서에 명시되어 있는지 점검
-- 진행 현황과 다음 행동은 인덱스 문서에서 확인: `docs/business/STATUS.md`, `docs/business/NEXT_ACTIONS.md`
+- 진행 현황과 다음 행동은 인덱스 문서에서 확인: `docs/business/STATUS.md`
 
 ## 검토/동기화
 - 문서 간 용어/가정/수치 충돌 여부 점검
