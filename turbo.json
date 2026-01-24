@@ -1,24 +1,36 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "ui": "tui",
-  "tasks": {
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", "build/**", ".next/**"]
-    },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "test": {
-      "dependsOn": ["^test"],
-      "outputs": ["coverage/**"]
-    },
-    "typecheck": {
-      "dependsOn": ["^typecheck"]
+    "$schema": "https://turbo.build/schema.json",
+    "ui": "tui",
+    "cacheDir": ".turbo/cache",
+    "globalDependencies": ["**/.env"],
+    "tasks": {
+        "build": {
+            "dependsOn": ["^build"],
+            "outputs": ["dist/**"]
+        },
+        "start": {
+            "dependsOn": ["^build", "^start"]
+        },
+        "typecheck": {
+            "dependsOn": ["^typecheck"]
+        },
+        "dev": {
+            "dependsOn": ["@school/trpc#build"],
+            "cache": false,
+            "persistent": true
+        },
+        "dev:trpc": {
+            "cache": false,
+            "persistent": true
+        },
+        "lint": {
+            "dependsOn": ["^lint"]
+        },
+        "test": {
+            "dependsOn": ["^test"]
+        },
+        "clean": {
+            "dependsOn": ["^clean"]
+        }
     }
-  }
 }

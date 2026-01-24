@@ -1,0 +1,26 @@
+{
+    "name": "@school/utils",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "devDependencies": {
+        "typescript": "catalog:",
+        "vitest": "^4.0.16"
+    },
+    "engines": {
+        "node": ">=24.0.0"
+    }
+}

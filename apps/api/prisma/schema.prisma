@@ -1,0 +1,71 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    // Driver Adapter 사용 시에도 prisma generate를 위해 url 필요 (런타임에는 adapter 사용)
+    url      = env("DATABASE_URL")
+}
+
+model Account {
+    id        BigInt    @id @default(autoincrement()) @map("_id")
+    name      String    @db.VarChar(50)
+    password  String    @db.VarChar(200)
+    createdAt DateTime  @map("create_at")
+    updatedAt DateTime? @map("update_at")
+    deletedAt DateTime? @map("delete_at")
+
+    groups Group[]
+
+    @@map("account")
+}
+
+model Group {
+    id        BigInt    @id @default(autoincrement()) @map("_id")
+    name      String    @db.VarChar(50)
+    createdAt DateTime  @map("create_at")
+    updatedAt DateTime? @map("update_at")
+    deletedAt DateTime? @map("delete_at")
+    accountId BigInt    @map("account_id")
+
+    account  Account   @relation(fields: [accountId], references: [id])
+    students Student[]
+
+    @@map("group")
+}
+
+model Student {
+    id           BigInt    @id @default(autoincrement()) @map("_id")
+    societyName  String    @map("society_name") @db.VarChar(50)
+    catholicName String?   @map("catholic_name") @db.VarChar(50)
+    gender       String?   @db.VarChar(10)
+    age          BigInt?
+    contact      BigInt?
+    description  String?   @db.Text
+    baptizedAt   String?   @map("baptized_at") @db.VarChar(10)
+    graduatedAt  DateTime? @map("graduated_at")
+    createdAt    DateTime  @map("create_at")
+    updatedAt    DateTime? @map("update_at")
+    deletedAt    DateTime? @map("delete_at")
+    groupId      BigInt    @map("group_id")
+
+    group       Group        @relation(fields: [groupId], references: [id])
+    attendances Attendance[]
+
+    @@map("student")
+}
+
+model Attendance {
+    id        BigInt    @id @default(autoincrement()) @map("_id")
+    date      String?   @db.VarChar(50)
+    content   String?   @db.VarChar(50)
+    createdAt DateTime  @map("create_at")
+    updatedAt DateTime? @map("update_at")
+    deletedAt DateTime? @map("delete_at")
+    studentId BigInt    @map("student_id")
+
+    student Student @relation(fields: [studentId], references: [id])
+
+    @@map("attendance")
+}

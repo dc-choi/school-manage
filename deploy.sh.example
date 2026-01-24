@@ -1,6 +1,0 @@
-﻿#!/bin/sh
-
-git pull origin develop
-yarn
-pm2 reload pm2-config.json
-pm2 ls

@@ -1,5 +1,21 @@
 {
-    "printWidth": 400,
+    "printWidth": 120,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
     "singleQuote": true,
-    "trailingComma": "es5"
+    "quoteProps": "consistent",
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "endOfLine": "lf",
+    "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+    "plugins": ["@trivago/prettier-plugin-sort-imports"],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true,
+    "rules": {
+        "builder-linebreak-between-statements": true,
+        "builder-linebreak-after-arguments": true,
+        "builder-linebreak-after-return": true
+    }
 }

@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "react-jsx",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": "./",
+        "paths": {
+            "~/*": ["./src/*"],
+            "@school/api/*": ["../api/dist/src/*"]
+        },
+        "composite": true,
+        "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+    },
+    "include": ["src", "test", "vitest.setup.ts", "vite.config.ts"],
+    "exclude": ["node_modules", "dist"],
+    "references": [
+        { "path": "../../packages/trpc" },
+        { "path": "../api" }
+    ]
+}

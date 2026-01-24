@@ -1,0 +1,41 @@
+{
+    "name": "@school/trpc",
+    "version": "0.0.1",
+    "description": "Shared tRPC types and router definitions",
+    "private": true,
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./types": {
+            "types": "./dist/types.d.ts"
+        }
+    },
+    "scripts": {
+        "dev": "tsc --watch",
+        "build": "tsc -b",
+        "lint": "eslint src",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@trpc/server": "^10.45.2",
+        "superjson": "^2.2.1",
+        "zod": "^3.23.8"
+    },
+    "devDependencies": {
+        "typescript": "catalog:",
+        "@types/node": "^18.0.0",
+        "@eslint/eslintrc": "catalog:",
+        "@eslint/js": "catalog:",
+        "@typescript-eslint/eslint-plugin": "catalog:",
+        "@typescript-eslint/parser": "catalog:",
+        "eslint": "catalog:",
+        "eslint-config-prettier": "catalog:",
+        "eslint-plugin-prettier": "catalog:",
+        "globals": "catalog:",
+        "prettier": "catalog:"
+    }
+}

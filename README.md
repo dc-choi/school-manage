@@ -1,50 +1,115 @@
 # school-manage program
-이 프로젝트는 [기존의 출석부 프로젝트](https://github.com/dc-choi/Attendance)를 보완하기 위해서 제작된 프로젝트입니다.
 
-## 문서(로드맵/가이드)
-권장 작업 순서: **아키텍처 → 타입 안정성 → 배포**
+이 프로젝트는 [기존의 출석부 프로젝트](https://github.com/dc-choi/Attendance)를 보완하기 위해 만든 **주일학교 운영 전반을 돕는 플랫폼**입니다.
 
-- `ARCHITECTURE_MONOREPO.md`: pnpm 모노레포 + Vite + tRPC 전환 로드맵(백엔드 아키텍처 개선 포함)
-- `TYPE_SAFETY_AUDIT.md`: 타입 안정성 이슈 진단 및 개선 우선순위(마이그레이션 체크리스트)
-- `DEPLOY_DOCKERHUB.md`: Docker Hub(private) 기반 백엔드 이미지 배포(분리 배포 기준)
-- `TESTING_VITEST.md`: 테스트 런너를 Vitest로 전환하는 플랜(ESM 친화)
+## 기술 스택
 
-## 주요 기능
+| 항목      | 기술                             |
+|---------|--------------------------------|
+| 런타임     | Node.js v24.x                  |
+| 패키지 매니저 | pnpm v10.x (모노레포)              |
+| 백엔드     | Express 4.22.1 + tRPC          |
+| ORM     | Prisma (MySQL)                 |
+| 프론트엔드   | Vite + React 19 + Tailwind CSS |
+| 테스트     | Vitest                         |
+
+## 문서
+
+| 문서               | 설명                            |
+|------------------|-------------------------------|
+| `CLAUDE.md`      | 개발 가이드 (Claude Code용)         |
+| `docs/business/` | 사업 문서 (문제 정의, BM, GTM, 로드맵 등) |
+| `docs/specs/`    | 제품 명세 (PRD, 기능 설계, SDD)       |
+
+## 제품 기능
+
+### 현재 제공
 - 로그인: 각 계정별로 로그인하여 계정에 속한 그룹을 관리할 수 있습니다.
 - 그룹 리스트: 주일학교 학생들이 속한 그룹을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
 - 학생 명단: 주일학교 학생들의 명단을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
 - 출석부: 주일학교 학생들의 출석을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
 - 통계: 각 계정별 우수한 학생들의 출석 현황을 간단하게 확인 할 수 있습니다.
 
+### 확장 예정
+- 행사(캠프/피정) 운영: 장소/일정/준비물/공지
+- 참가/동의서/비상연락망 관리
+- 커뮤니케이션 연동(알림/리마인드)
+- 교사/권한/조직 관리 강화
+- 운영 리포트/통계 확장
+
 ![데모](https://github.com/dc-choi/school_manage_back/blob/main/img/demo.gif)
 
 ## 시스템 구성도
 ![시스템 구성도](https://github.com/dc-choi/school_manage_back/blob/main/img/v2.0.0%20work%20flow.png)
 
-## 프로젝트 구조
+## 프로젝트 구조 (현재 - pnpm 모노레포)
 ```
-public // 정적 파일을 담아두는 폴더
- ├── css // 공통 css
- ├── img // 웹 페이지에 필요한 이미지 파일
- └── *.html // 정적 페이지
-src // 백엔드 소스코드 작성
- ├── app.ts // App Root
- ├── env.ts // 환경변수를 객체로서 사용하기 위한 file
- ├── app.router.ts // 각각 독립적인 요청과 API router를 합쳐주는 router
- ├── types // TS 타입 지정
- ├── common // API 공통 모듈
- ├── lib // 프로젝트 구성 모듈
- ├── models // Database Entity's
- └── api // api's
-        ├── api.router.ts // API router
-        └── functions folder (기능별 분류)
-                ├── function router // 기능에 대한 router
-                ├── function controller // router의 요청, 응답과 예외처리
-                ├── function service // 기능에 대한 비즈니스 로직
-                └── function repository // 기능에 필요한 Entity에 접근하는 로직
- test/integration // Api에 독립적인 테스트를 작성
- └── *.test.ts
+docs/
+  specs/                  # 제품 관점 SDD 문서
+  business/               # 사업 관점 문서
+public/                   # jQuery 기반 레거시 웹 페이지 (마이그레이션 완료)
+apps/
+  api/                    # Express + tRPC API 서버 (@school/api)
+    src/
+      app.ts              # App entry point + Bootstrap
+      app.router.ts       # tRPC AppRouter (도메인 라우터 병합)
+      domains/            # 도메인별 모듈 (Clean Architecture)
+        {domain}/
+          application/    # UseCase (비즈니스 로직, Prisma 직접 사용)
+          presentation/   # tRPC Router
+          utils/          # 도메인 전용 유틸 (선택)
+      global/             # 프로젝트 공통
+        config/           # 환경설정 (env.ts)
+        errors/           # 에러 코드/클래스
+        middleware/       # Express 미들웨어
+        utils/            # 공용 유틸리티
+      infrastructure/     # 외부 연동
+        database/         # Prisma
+        logger/           # 로깅
+        scheduler/        # 스케줄러 (연말 학년 변경)
+        trpc/             # tRPC Context
+    prisma/               # Prisma 스키마 및 마이그레이션
+    test/
+      helpers/            # 테스트 헬퍼 (mock-data, trpc-caller)
+      integration/        # 통합 테스트 (Vitest + Prisma mocking)
+  web/                    # Vite + React 웹 앱 (@school/web)
+    src/
+      components/         # UI 컴포넌트
+        common/           # 공통 컴포넌트 (Button, Input, Table, Pagination 등)
+        ui/               # shadcn/ui 컴포넌트
+        layout/           # 레이아웃 컴포넌트
+        forms/            # 폼 컴포넌트 (GroupForm, StudentForm)
+      features/           # 기능별 훅/컨텍스트
+        auth/             # 인증 (AuthProvider, ProtectedRoute)
+        attendance/       # 출석 훅
+        group/            # 그룹 훅
+        student/          # 학생 훅
+        statistics/       # 통계 훅
+      pages/              # 페이지 컴포넌트
+      routes/             # React Router 설정
+      lib/                # 유틸리티 (trpc, queryClient)
+      styles/             # 글로벌 스타일
+packages/
+  trpc/                   # 공유 tRPC 타입/라우터 (@school/trpc)
+    src/
+      schemas/            # Zod 스키마 (도메인별 Input/Output 타입)
+      routers/            # 공유 라우터 정의
+      types.ts            # 공유 타입
+      trpc.ts             # tRPC 인스턴스
+      context.ts          # 컨텍스트 타입
 ```
+
+## 구현 현황
+
+| 영역             | 상태    | 설명                                                                         |
+|----------------|-------|----------------------------------------------------------------------------|
+| **백엔드 API**    | ✅ 완료  | 7개 도메인 (auth, account, group, student, attendance, statistics, liturgical) |
+| **Prisma ORM** | ✅ 완료  | Sequelize → Prisma 마이그레이션 완료                                               |
+| **tRPC 통합**    | ✅ 완료  | 서버/클라이언트 연동, superjson transformer, Zod 스키마 중앙화                            |
+| **타입 안정성**     | ✅ 완료  | strict 모드, Input/Output 타입 중앙화, 인증 컨텍스트 타입 좁히기                             |
+| **웹 앱**        | ✅ 완료  | 달력 UI 출석부, Login, Group, Student, Statistics 페이지 구현, shadcn/ui 적용          |
+| **테스트**        | ✅ 완료  | Vitest 마이그레이션 완료, Prisma mocking 통합 테스트 (51개)                              |
+| **배포**         | ⏳ 미구현 | Docker Hub + Nginx 예정                                                      |
 
 ## ERD
 ![ERD](https://github.com/dc-choi/school_manage_back/blob/main/img/v2.0.0%20ERD.JPG)
