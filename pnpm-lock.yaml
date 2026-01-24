@@ -27,9 +27,15 @@ catalogs:
     '@types/express':
       specifier: ^4.17.25
       version: 4.17.25
+    '@types/express-serve-static-core':
+      specifier: ^4.19.8
+      version: 4.19.8
     '@types/node':
       specifier: ^24.10.9
       version: 24.10.9
+    '@types/qs':
+      specifier: ^6.14.0
+      version: 6.14.0
     '@typescript-eslint/eslint-plugin':
       specifier: ^8.34.0
       version: 8.53.1
@@ -150,6 +156,9 @@ importers:
       '@types/express':
         specifier: 'catalog:'
         version: 4.17.25
+      '@types/express-serve-static-core':
+        specifier: 'catalog:'
+        version: 4.19.8
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
@@ -159,6 +168,9 @@ importers:
       '@types/node-schedule':
         specifier: ^2.1.8
         version: 2.1.8
+      '@types/qs':
+        specifier: 'catalog:'
+        version: 6.14.0
       '@types/request-ip':
         specifier: ^0.0.41
         version: 0.0.41
@@ -330,13 +342,13 @@ importers:
         specifier: 'catalog:'
         version: 4.17.25
       '@types/express-serve-static-core':
-        specifier: ^4.19.8
+        specifier: 'catalog:'
         version: 4.19.8
       '@types/node':
         specifier: 'catalog:'
         version: 24.10.9
       '@types/qs':
-        specifier: ^6.14.0
+        specifier: 'catalog:'
         version: 6.14.0
       '@typescript-eslint/eslint-plugin':
         specifier: 'catalog:'
