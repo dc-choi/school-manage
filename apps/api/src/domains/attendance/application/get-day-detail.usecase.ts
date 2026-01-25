@@ -36,11 +36,12 @@ export class GetDayDetailUseCase {
         const holydaysResult = await holydaysUseCase.execute({ year });
         const holyday = holydaysResult.holydays.find((h) => h.date === date)?.name ?? null;
 
-        // 3. 그룹의 모든 학생 조회
+        // 3. 그룹의 모든 학생 조회 (졸업생 제외)
         const students = await database.student.findMany({
             where: {
                 groupId: BigInt(groupId),
                 deletedAt: null,
+                graduatedAt: null,
             },
             orderBy: {
                 societyName: 'asc',
