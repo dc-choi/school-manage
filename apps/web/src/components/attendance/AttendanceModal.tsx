@@ -10,6 +10,7 @@ import { cn } from '~/lib/utils';
 interface StudentAttendance {
     id: string;
     societyName: string;
+    catholicName?: string;
     mass: boolean;
     catechism: boolean;
 }
@@ -106,6 +107,7 @@ export function AttendanceModal({
                 return {
                     id: student.id,
                     societyName: student.societyName,
+                    catholicName: student.catholicName,
                     mass,
                     catechism,
                 };
@@ -180,36 +182,46 @@ export function AttendanceModal({
                         </div>
 
                         {/* 학생 목록 */}
-                        {studentAttendance.map((student) => (
-                            <div key={student.id} className="grid grid-cols-[1fr_60px_60px_50px] items-center gap-2">
-                                <Label className="font-normal">{student.societyName}</Label>
-                                <div className="flex justify-center">
-                                    <Checkbox
-                                        checked={student.mass}
-                                        onCheckedChange={(checked) =>
-                                            handleCheckChange(student.id, 'mass', checked as boolean)
-                                        }
-                                    />
-                                </div>
-                                <div className="flex justify-center">
-                                    <Checkbox
-                                        checked={student.catechism}
-                                        onCheckedChange={(checked) =>
-                                            handleCheckChange(student.id, 'catechism', checked as boolean)
-                                        }
-                                    />
-                                </div>
-                                <div
-                                    className={cn(
-                                        'text-center text-lg',
-                                        student.mass && student.catechism && 'text-green-600',
-                                        (student.mass || student.catechism) &&
-                                            !(student.mass && student.catechism) &&
-                                            'text-yellow-600',
-                                        !student.mass && !student.catechism && 'text-muted-foreground'
-                                    )}
-                                >
-                                    {getStatusSymbol(student.mass, student.catechism)}
+                        {studentAttendance.map((student, index) => (
+                            <div key={student.id}>
+                                {index > 0 && <div className="border-t border-border" />}
+                                <div className="grid grid-cols-[1fr_60px_60px_50px] items-center gap-2 py-2">
+                                    <div>
+                                        <Label className="font-normal">{student.societyName}</Label>
+                                        {student.catholicName && (
+                                            <span className="ml-2 text-xs text-muted-foreground">
+                                                ({student.catholicName})
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex justify-center">
+                                        <Checkbox
+                                            checked={student.mass}
+                                            onCheckedChange={(checked) =>
+                                                handleCheckChange(student.id, 'mass', checked as boolean)
+                                            }
+                                        />
+                                    </div>
+                                    <div className="flex justify-center">
+                                        <Checkbox
+                                            checked={student.catechism}
+                                            onCheckedChange={(checked) =>
+                                                handleCheckChange(student.id, 'catechism', checked as boolean)
+                                            }
+                                        />
+                                    </div>
+                                    <div
+                                        className={cn(
+                                            'text-center text-lg',
+                                            student.mass && student.catechism && 'text-green-600',
+                                            (student.mass || student.catechism) &&
+                                                !(student.mass && student.catechism) &&
+                                                'text-yellow-600',
+                                            !student.mass && !student.catechism && 'text-muted-foreground'
+                                        )}
+                                    >
+                                        {getStatusSymbol(student.mass, student.catechism)}
+                                    </div>
                                 </div>
                             </div>
                         ))}

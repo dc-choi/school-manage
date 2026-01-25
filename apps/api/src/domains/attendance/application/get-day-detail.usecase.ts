@@ -49,6 +49,7 @@ export class GetDayDetailUseCase {
             select: {
                 id: true,
                 societyName: true,
+                catholicName: true,
             },
         });
 
@@ -78,6 +79,7 @@ export class GetDayDetailUseCase {
         const studentDetails: StudentAttendanceDetail[] = students.map((student) => ({
             id: String(student.id),
             societyName: student.societyName ?? '',
+            catholicName: student.catholicName ?? undefined,
             content: attendanceMap.get(String(student.id)) ?? '',
         }));
 

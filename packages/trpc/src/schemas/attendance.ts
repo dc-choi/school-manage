@@ -92,6 +92,7 @@ export interface GetCalendarOutput {
 export interface StudentAttendanceDetail {
     id: string;
     societyName: string;
+    catholicName?: string; // 세례명
     content: string; // O, X, ?, 빈 문자열
 }
 
