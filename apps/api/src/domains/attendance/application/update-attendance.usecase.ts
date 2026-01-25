@@ -25,7 +25,7 @@ export class UpdateAttendanceUseCase {
                 // 출석 입력 (insert or update)
                 row = await this.updateAttendance(input.year, input.attendance);
             } else {
-                // 출석 삭제 (soft delete)
+                // 출석 삭제 (hard delete)
                 row = await this.deleteAttendance(input.year, input.attendance);
             }
 
@@ -90,7 +90,7 @@ export class UpdateAttendanceUseCase {
     }
 
     /**
-     * 출석 데이터 삭제 (soft delete)
+     * 출석 데이터 삭제 (hard delete)
      */
     private async deleteAttendance(year: number, attendance: AttendanceData[]): Promise<number> {
         return await database.$transaction(async (tx) => {
@@ -98,27 +98,13 @@ export class UpdateAttendanceUseCase {
 
             for (const item of attendance) {
                 const fullTime = await getFullTime(year, item.month, item.day);
-                const existing = await tx.attendance.findFirst({
+                const result = await tx.attendance.deleteMany({
                     where: {
                         studentId: BigInt(item.id),
                         date: fullTime,
-                        deletedAt: null,
                     },
                 });
-
-                if (existing !== null) {
-                    const result = await tx.attendance.updateMany({
-                        where: {
-                            date: fullTime,
-                            studentId: BigInt(item.id),
-                            deletedAt: null,
-                        },
-                        data: {
-                            deletedAt: getNowKST(),
-                        },
-                    });
-                    count += result.count;
-                }
+                count += result.count;
             }
             return count;
         });
