@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
@@ -60,6 +61,13 @@ export function LoginForm({ onSubmit, error, isLoading }: LoginFormProps) {
                     <Button type="submit" className="w-full" disabled={isLoading}>
                         {isLoading ? '로그인 중...' : '로그인'}
                     </Button>
+
+                    <div className="text-center">
+                        계정이 없으신가요?{' '}
+                        <Link to="/signup" className="font-medium text-primary underline-offset-4 hover:underline">
+                            회원가입
+                        </Link>
+                    </div>
                 </form>
             </CardContent>
         </Card>

@@ -1,4 +1,4 @@
-import { type RouteObject, createBrowserRouter, Navigate } from 'react-router-dom';
+import { Navigate, type RouteObject, createBrowserRouter } from 'react-router-dom';
 import { ProtectedRoute } from '~/features/auth';
 import {
     AttendancePage,
@@ -8,6 +8,7 @@ import {
     GroupDetailPage,
     GroupListPage,
     LoginPage,
+    SignupPage,
     StudentAddPage,
     StudentDetailPage,
     StudentListPage,
@@ -18,6 +19,10 @@ const routes: RouteObject[] = [
     {
         path: '/login',
         element: <LoginPage />,
+    },
+    {
+        path: '/signup',
+        element: <SignupPage />,
     },
     // Protected routes
     {

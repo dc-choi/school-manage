@@ -12,8 +12,8 @@ export { idSchema, pageSchema, searchOptionSchema, searchWordSchema } from './co
 // ============================================================
 
 // Auth 스키마
-export { loginInputSchema } from './auth';
-export type { LoginInput } from './auth';
+export { loginInputSchema, checkIdInputSchema, signupInputSchema } from './auth';
+export type { LoginInput, CheckIdInput, SignupInput } from './auth';
 
 // Group 스키마
 export {
@@ -74,7 +74,7 @@ export type { GetHolydaysInput } from './liturgical';
 // ============================================================
 
 // Auth 출력 타입
-export type { LoginOutput } from './auth';
+export type { LoginOutput, CheckIdOutput, SignupOutput } from './auth';
 
 // Account 출력 타입
 export type { GetAccountOutput } from './account';

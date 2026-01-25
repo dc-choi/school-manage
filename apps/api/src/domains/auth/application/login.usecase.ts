@@ -48,6 +48,7 @@ export class LoginUseCase {
         // 4. 결과 반환
         return {
             name: account.name,
+            displayName: account.displayName,
             accessToken,
         };
     }

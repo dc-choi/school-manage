@@ -23,6 +23,8 @@ export {
     searchOptionSchema,
     searchWordSchema,
     loginInputSchema,
+    checkIdInputSchema,
+    signupInputSchema,
     getGroupInputSchema,
     createGroupInputSchema,
     updateGroupInputSchema,
@@ -50,6 +52,8 @@ export {
 // 입력 타입 (Input)
 export type {
     LoginInput,
+    CheckIdInput,
+    SignupInput,
     GetGroupInput,
     CreateGroupInput,
     UpdateGroupInput,
@@ -79,6 +83,8 @@ export type {
 export type {
     // Auth
     LoginOutput,
+    CheckIdOutput,
+    SignupOutput,
     // Account
     GetAccountOutput,
     // Group

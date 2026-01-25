@@ -4,11 +4,11 @@
 
 ## 문서 현황 요약
 
-| 분류                                   | 완성도  | 상세                                                                                |
-|--------------------------------------|------|-----------------------------------------------------------------------------------|
-| **Current Functional**               | 100% | 5개 도메인 완전 문서화 + 구현 완료 (student-graduation → student-management 병합, statistics 통합) |
-| **Target Functional**                | 100% | 로드맵 1단계 완료 (그룹/학생 UI/UX 개선, 졸업 처리 모두 완료)                                          |
-| **Target Non-Functional**            | -    | DEPLOY 완료, SECURITY/PERFORMANCE 대기                                                 |
+| 분류                        | 완성도  | 상세                                                                                |
+|---------------------------|------|-----------------------------------------------------------------------------------|
+| **Current Functional**    | 100% | 5개 도메인 완전 문서화 + 구현 완료 (student-graduation → student-management 병합, statistics 통합) |
+| **Target Functional**     | 100% | 로드맵 1단계 완료 (그룹/학생 UI/UX 개선, 졸업 처리 모두 완료)                                          |
+| **Target Non-Functional** | -    | DEPLOY 완료, SECURITY/PERFORMANCE 대기                                                |
 
 ## 관련 문서
 
@@ -23,9 +23,9 @@
 
 ### PRD (제품 요구사항 문서)
 
-| 문서명           | 경로                                    |
-|---------------|---------------------------------------|
-| 주일학교 출석부 프로그램 | `docs/specs/prd/school-attendance.md` |
+| 문서명           | 경로                                    | 상태               | 비고                   |
+|---------------|---------------------------------------|------------------|----------------------|
+| 주일학교 출석부 프로그램 | `docs/specs/prd/school-attendance.md` | Approved (구현 완료) | 회원가입 포함 (로드맵 1단계) |
 
 ### Functional Design (기능 설계)
 
@@ -34,7 +34,7 @@
 
 | 도메인          | 경로                                                      | 포함 내용                                       |
 |--------------|---------------------------------------------------------|---------------------------------------------|
-| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리                                 |
+| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 (로드맵 1단계)                |
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 (로드맵 1단계)                        |
 | Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import (로드맵 1단계) |
 | Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                |
@@ -64,6 +64,7 @@
 | Statistics         | `features/statistics.md`            | `tasks/statistics.md`            | `development/statistics.md`             |
 
 > **Note**:
+> - Auth/Account 문서에 회원가입 (로드맵 1단계) 내용이 포함되어 있습니다.
 > - Attendance 문서에 달력 UI + 자동 저장 (로드맵 1단계) 내용이 포함되어 있습니다.
 > - Group 문서에 UI/UX 개선 + 일괄 삭제 (로드맵 1단계) 내용이 포함되어 있습니다.
 > - Student 문서에 UI/UX 개선 + 일괄 삭제/복구 + 졸업 처리 (로드맵 1단계) 내용이 포함되어 있습니다.
@@ -102,14 +103,6 @@
 - Feature: `docs/specs/target/functional/features/{name}.md`
 - Task: `docs/specs/target/functional/tasks/{name}.md`
 - Development: `docs/specs/target/functional/development/{name}.md`
-
-### DEPLOY (Non-Functional)
-
-| 우선순위 | 기능명                        | SDD 상태 | 비고                    |
-|------|----------------------------|--------|------------------------|
-| P0   | CD 파이프라인 (모노레포 변경 감지 배포) | ✅ 구현 완료 | SDD 문서 삭제됨 (Non-Functional 규칙) |
-
-> **구현된 파일**: `.dockerignore`, `Dockerfile`, `docker-compose.yml`, `.github/workflows/deploy.yml`, `nginx.conf.example`, `deploy.sh.example`
 
 ### SECURITY (Non-Functional)
 
