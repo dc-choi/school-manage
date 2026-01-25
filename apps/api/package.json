@@ -50,6 +50,7 @@
     "devDependencies": {
         "@eslint/eslintrc": "catalog:",
         "@eslint/js": "catalog:",
+        "@prisma/language-server": "6.19.0-hotfix.1",
         "@trivago/prettier-plugin-sort-imports": "catalog:",
         "@types/bcrypt": "^6.0.0",
         "@types/cookie-parser": "^1.4.10",
