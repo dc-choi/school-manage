@@ -3,8 +3,8 @@
  *
  * 그룹별 출석률 순위 TOP N 조회
  */
-import { countSundaysInYear, roundToDecimal } from '@school/utils';
 import type { TopGroupsOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/trpc';
+import { countSundaysInYear, roundToDecimal } from '@school/utils';
 import { database } from '~/infrastructure/database/database.js';
 
 type TopStatisticsInput = TopStatisticsSchemaInput & { accountId: string };

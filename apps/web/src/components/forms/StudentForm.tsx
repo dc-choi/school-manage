@@ -87,7 +87,9 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="societyName" className="text-lg">이름 (세례명)</Label>
+                        <Label htmlFor="societyName" className="text-lg">
+                            이름 (세례명)
+                        </Label>
                         <Input
                             id="societyName"
                             className="h-12 text-lg"
@@ -100,7 +102,9 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="catholicName" className="text-lg">세례명 (선택)</Label>
+                        <Label htmlFor="catholicName" className="text-lg">
+                            세례명 (선택)
+                        </Label>
                         <Input
                             id="catholicName"
                             className="h-12 text-lg"
@@ -112,7 +116,9 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="groupId" className="text-lg">그룹</Label>
+                        <Label htmlFor="groupId" className="text-lg">
+                            그룹
+                        </Label>
                         <Select
                             value={formData.groupId}
                             onValueChange={(value) => handleChange('groupId', value)}
@@ -133,7 +139,9 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="gender" className="text-lg">성별 (선택)</Label>
+                        <Label htmlFor="gender" className="text-lg">
+                            성별 (선택)
+                        </Label>
                         <Select
                             value={formData.gender ?? ''}
                             onValueChange={(value) => handleChange('gender', value as 'M' | 'F' | undefined)}
@@ -143,14 +151,20 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                                 <SelectValue placeholder="성별을 선택하세요" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="M" className="text-lg">남</SelectItem>
-                                <SelectItem value="F" className="text-lg">여</SelectItem>
+                                <SelectItem value="M" className="text-lg">
+                                    남
+                                </SelectItem>
+                                <SelectItem value="F" className="text-lg">
+                                    여
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="age" className="text-lg">나이 (선택)</Label>
+                        <Label htmlFor="age" className="text-lg">
+                            나이 (선택)
+                        </Label>
                         <Input
                             id="age"
                             type="number"
@@ -165,7 +179,9 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="contact" className="text-lg">연락처 (선택)</Label>
+                        <Label htmlFor="contact" className="text-lg">
+                            연락처 (선택)
+                        </Label>
                         <Input
                             id="contact"
                             type="number"
@@ -180,7 +196,9 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="baptizedAt" className="text-lg">세례일 (선택)</Label>
+                        <Label htmlFor="baptizedAt" className="text-lg">
+                            세례일 (선택)
+                        </Label>
                         <Input
                             id="baptizedAt"
                             className="h-12 text-lg"
@@ -192,7 +210,9 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="description" className="text-lg">비고 (선택)</Label>
+                        <Label htmlFor="description" className="text-lg">
+                            비고 (선택)
+                        </Label>
                         <Input
                             id="description"
                             className="h-12 text-lg"
@@ -204,7 +224,13 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2">
-                        <Button type="button" variant="outline" className="min-w-24" onClick={onCancel} disabled={isSubmitting}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="min-w-24"
+                            onClick={onCancel}
+                            disabled={isSubmitting}
+                        >
                             취소
                         </Button>
                         <Button type="submit" className="min-w-24" disabled={isSubmitting}>

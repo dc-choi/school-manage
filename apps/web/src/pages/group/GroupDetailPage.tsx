@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Table } from '~/components/common';
 import { MainLayout } from '~/components/layout';
@@ -143,9 +143,7 @@ export function GroupDetailPage() {
                     <CardHeader>
                         <CardTitle>학생 목록</CardTitle>
                         <CardDescription>
-                            {isLoading
-                                ? '로딩 중...'
-                                : `총 ${group?.students.length ?? 0}명의 학생이 있습니다.`}
+                            {isLoading ? '로딩 중...' : `총 ${group?.students.length ?? 0}명의 학생이 있습니다.`}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

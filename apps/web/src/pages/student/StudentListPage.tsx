@@ -15,13 +15,7 @@ import {
 } from '~/components/ui/alert-dialog';
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '~/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useStudents } from '~/features/student';
@@ -29,7 +23,9 @@ import { useStudents } from '~/features/student';
 export function StudentListPage() {
     const navigate = useNavigate();
     const [searchInput, setSearchInput] = useState('');
-    const [searchOptionInput, setSearchOptionInput] = useState<'all' | 'societyName' | 'catholicName' | 'baptizedAt'>('all');
+    const [searchOptionInput, setSearchOptionInput] = useState<'all' | 'societyName' | 'catholicName' | 'baptizedAt'>(
+        'all'
+    );
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [bulkAction, setBulkAction] = useState<'delete' | 'restore' | 'graduate' | 'cancelGraduation' | null>(null);
     const [deletedModalOpen, setDeletedModalOpen] = useState(false);
@@ -169,22 +165,18 @@ export function StudentListPage() {
     const isAllSelected = students.length > 0 && students.every((s) => selectedIds.has(s.id));
     const isSomeSelected = selectedIds.size > 0;
 
-    const isAllDeletedSelected = deletedStudents.length > 0 && deletedStudents.every((s) => deletedSelectedIds.has(s.id));
+    const isAllDeletedSelected =
+        deletedStudents.length > 0 && deletedStudents.every((s) => deletedSelectedIds.has(s.id));
     const isSomeDeletedSelected = deletedSelectedIds.size > 0;
 
-    const isAllGraduatedSelected = graduatedStudents.length > 0 && graduatedStudents.every((s) => graduatedSelectedIds.has(s.id));
+    const isAllGraduatedSelected =
+        graduatedStudents.length > 0 && graduatedStudents.every((s) => graduatedSelectedIds.has(s.id));
     const isSomeGraduatedSelected = graduatedSelectedIds.size > 0;
 
     const columns = [
         {
             key: 'select',
-            header: (
-                <Checkbox
-                    checked={isAllSelected}
-                    onCheckedChange={handleSelectAll}
-                    aria-label="전체 선택"
-                />
-            ),
+            header: <Checkbox checked={isAllSelected} onCheckedChange={handleSelectAll} aria-label="전체 선택" />,
             className: 'w-10',
             render: (row: (typeof students)[0]) => (
                 <Checkbox
@@ -233,7 +225,11 @@ export function StudentListPage() {
         },
         { key: 'societyName', header: '이름' },
         { key: 'catholicName', header: '세례명' },
-        { key: 'contact', header: '연락처', render: (row: (typeof graduatedStudents)[0]) => formatContact(row.contact) },
+        {
+            key: 'contact',
+            header: '연락처',
+            render: (row: (typeof graduatedStudents)[0]) => formatContact(row.contact),
+        },
         {
             key: 'graduatedAt',
             header: '졸업일',
@@ -305,21 +301,13 @@ export function StudentListPage() {
                 <div className="flex flex-wrap gap-2">
                     {/* 재학생 선택 시 - 졸업 처리 버튼 */}
                     {isSomeSelected && (
-                        <Button
-                            variant="secondary"
-                            onClick={() => setBulkAction('graduate')}
-                            disabled={isGraduating}
-                        >
+                        <Button variant="secondary" onClick={() => setBulkAction('graduate')} disabled={isGraduating}>
                             졸업 처리 ({selectedIds.size})
                         </Button>
                     )}
                     {/* 삭제 버튼 */}
                     {isSomeSelected && (
-                        <Button
-                            variant="destructive"
-                            onClick={() => setBulkAction('delete')}
-                            disabled={isBulkDeleting}
-                        >
+                        <Button variant="destructive" onClick={() => setBulkAction('delete')} disabled={isBulkDeleting}>
                             선택 삭제 ({selectedIds.size})
                         </Button>
                     )}
@@ -329,9 +317,7 @@ export function StudentListPage() {
                     <Button variant="destructive" onClick={() => setDeletedModalOpen(true)}>
                         삭제된 학생 ({deletedTotal})
                     </Button>
-                    <Button onClick={() => navigate('/students/new')}>
-                        학생 추가
-                    </Button>
+                    <Button onClick={() => navigate('/students/new')}>학생 추가</Button>
                 </div>
             </div>
 
@@ -356,8 +342,8 @@ export function StudentListPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>학생 삭제</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 삭제하시겠습니까?
-                            삭제된 학생은 &apos;삭제된 학생&apos; 버튼에서 복구할 수 있습니다.
+                            선택한 {selectedIds.size}명의 학생을 삭제하시겠습니까? 삭제된 학생은 &apos;삭제된 학생&apos;
+                            버튼에서 복구할 수 있습니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -374,18 +360,12 @@ export function StudentListPage() {
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>삭제된 학생 관리</DialogTitle>
-                        <DialogDescription>
-                            삭제된 학생을 선택하여 복구할 수 있습니다.
-                        </DialogDescription>
+                        <DialogDescription>삭제된 학생을 선택하여 복구할 수 있습니다.</DialogDescription>
                     </DialogHeader>
                     <div className="mt-4">
                         {isSomeDeletedSelected && (
                             <div className="mb-4">
-                                <Button
-                                    size="lg"
-                                    onClick={() => setBulkAction('restore')}
-                                    disabled={isRestoring}
-                                >
+                                <Button size="lg" onClick={() => setBulkAction('restore')} disabled={isRestoring}>
                                     선택 복구 ({deletedSelectedIds.size})
                                 </Button>
                             </div>
@@ -415,9 +395,7 @@ export function StudentListPage() {
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>졸업생 관리</DialogTitle>
-                        <DialogDescription>
-                            졸업생을 선택하여 졸업을 취소할 수 있습니다.
-                        </DialogDescription>
+                        <DialogDescription>졸업생을 선택하여 졸업을 취소할 수 있습니다.</DialogDescription>
                     </DialogHeader>
                     <div className="mt-4">
                         {isSomeGraduatedSelected && (
@@ -475,8 +453,8 @@ export function StudentListPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>졸업 처리</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 졸업 처리하시겠습니까?
-                            졸업 처리된 학생은 &apos;졸업생&apos; 필터에서 확인할 수 있습니다.
+                            선택한 {selectedIds.size}명의 학생을 졸업 처리하시겠습니까? 졸업 처리된 학생은
+                            &apos;졸업생&apos; 필터에서 확인할 수 있습니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -494,8 +472,8 @@ export function StudentListPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>졸업 취소</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {graduatedSelectedIds.size}명의 학생의 졸업을 취소하시겠습니까?
-                            재학생으로 복원됩니다.
+                            선택한 {graduatedSelectedIds.size}명의 학생의 졸업을 취소하시겠습니까? 재학생으로
+                            복원됩니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

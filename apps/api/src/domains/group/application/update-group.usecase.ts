@@ -4,8 +4,8 @@
  * 그룹 정보 수정
  */
 import type { GroupOutput, UpdateGroupInput as UpdateGroupSchemaInput } from '@school/trpc';
-import { TRPCError } from '@trpc/server';
 import { getNowKST } from '@school/utils';
+import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드

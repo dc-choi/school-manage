@@ -1,5 +1,5 @@
 import { formatDateKR } from '@school/utils';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
 import { Badge } from '~/components/ui/badge';
@@ -295,7 +295,8 @@ export function StudentDetailPage() {
                 id,
                 societyName: field === 'societyName' ? value : student.societyName,
                 catholicName: field === 'catholicName' ? value || undefined : student.catholicName,
-                gender: field === 'gender' ? (value as 'M' | 'F' | undefined) : student.gender as 'M' | 'F' | undefined,
+                gender:
+                    field === 'gender' ? (value as 'M' | 'F' | undefined) : (student.gender as 'M' | 'F' | undefined),
                 age: field === 'age' ? (value ? parseInt(value) : undefined) : student.age,
                 contact: field === 'contact' ? (value ? parseInt(value) : undefined) : student.contact,
                 groupId: field === 'groupId' ? value : student.groupId,
@@ -432,7 +433,9 @@ export function StudentDetailPage() {
                                 />
                                 {isDeleted && (
                                     <div className="flex items-center border-b py-4 last:border-b-0">
-                                        <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">삭제일</dt>
+                                        <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">
+                                            삭제일
+                                        </dt>
                                         <dd className="text-xl text-destructive">
                                             {formatDateKR(student!.deletedAt!)}
                                         </dd>

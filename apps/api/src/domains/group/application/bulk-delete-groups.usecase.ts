@@ -4,8 +4,8 @@
  * 그룹 일괄 삭제 (소프트 삭제)
  */
 import type { BulkDeleteGroupsInput, BulkDeleteGroupsOutput } from '@school/trpc';
-import { TRPCError } from '@trpc/server';
 import { getNowKST } from '@school/utils';
+import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 export class BulkDeleteGroupsUseCase {

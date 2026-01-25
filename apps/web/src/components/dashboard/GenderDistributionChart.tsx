@@ -1,7 +1,7 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { LoadingSpinner } from '~/components/common/LoadingSpinner';
 import type { GenderDistributionOutput } from '@school/trpc';
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { LoadingSpinner } from '~/components/common/LoadingSpinner';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 
 interface GenderDistributionChartProps {
     data?: GenderDistributionOutput;

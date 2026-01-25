@@ -1,7 +1,7 @@
+import type { GroupStatisticsOutput } from '@school/trpc';
+import { LoadingSpinner } from '~/components/common/LoadingSpinner';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
-import { LoadingSpinner } from '~/components/common/LoadingSpinner';
-import type { GroupStatisticsOutput } from '@school/trpc';
 
 interface GroupStatisticsTableProps {
     data?: GroupStatisticsOutput;

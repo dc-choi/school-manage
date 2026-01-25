@@ -3,14 +3,8 @@
  *
  * 모든 그룹의 주간/월간/연간 출석률 및 평균 출석 인원 조회
  */
-import {
-    countSundays,
-    formatDateCompact,
-    getThisWeekSaturday,
-    getThisWeekSunday,
-    roundToDecimal,
-} from '@school/utils';
 import type { GroupStatisticsOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
+import { countSundays, formatDateCompact, getThisWeekSaturday, getThisWeekSunday, roundToDecimal } from '@school/utils';
 import { database } from '~/infrastructure/database/database.js';
 
 type StatisticsInput = StatisticsSchemaInput & { accountId: string };

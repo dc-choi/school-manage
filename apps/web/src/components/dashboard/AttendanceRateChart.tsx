@@ -1,7 +1,7 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { LoadingSpinner } from '~/components/common/LoadingSpinner';
 import type { AttendanceRateOutput } from '@school/trpc';
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { LoadingSpinner } from '~/components/common/LoadingSpinner';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 
 interface AttendanceRateChartProps {
     weekly?: AttendanceRateOutput;

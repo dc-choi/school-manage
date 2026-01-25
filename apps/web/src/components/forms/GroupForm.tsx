@@ -48,7 +48,9 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="name" className="text-lg">그룹명</Label>
+                        <Label htmlFor="name" className="text-lg">
+                            그룹명
+                        </Label>
                         <Input
                             id="name"
                             className="h-12 text-lg"
@@ -60,7 +62,13 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
                     </div>
 
                     <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" className="min-w-24" onClick={onCancel} disabled={isSubmitting}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="min-w-24"
+                            onClick={onCancel}
+                            disabled={isSubmitting}
+                        >
                             취소
                         </Button>
                         <Button type="submit" className="min-w-24" disabled={isSubmitting}>

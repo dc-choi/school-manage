@@ -100,11 +100,7 @@ export function DashboardPage() {
                 </div>
 
                 {/* 그룹별 상세 통계 테이블 */}
-                <GroupStatisticsTable
-                    data={stats.groupStatistics}
-                    isLoading={stats.isLoading}
-                    error={hasError}
-                />
+                <GroupStatisticsTable data={stats.groupStatistics} isLoading={stats.isLoading} error={hasError} />
             </div>
         </MainLayout>
     );

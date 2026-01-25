@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { LoadingSpinner } from '~/components/common/LoadingSpinner';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 
 interface RankingItem {
     id: string;

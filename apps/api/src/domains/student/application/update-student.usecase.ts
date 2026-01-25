@@ -4,8 +4,8 @@
  * 학생 정보 수정
  */
 import type { UpdateStudentInput, UpdateStudentOutput } from '@school/trpc';
-import { TRPCError } from '@trpc/server';
 import { getNowKST } from '@school/utils';
+import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 export class UpdateStudentUseCase {

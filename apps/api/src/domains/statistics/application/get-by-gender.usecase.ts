@@ -3,8 +3,8 @@
  *
  * 성별 분포 조회
  */
-import { countSundaysInYear, roundToDecimal } from '@school/utils';
 import type { GenderDistributionOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
+import { countSundaysInYear, roundToDecimal } from '@school/utils';
 import { database } from '~/infrastructure/database/database.js';
 
 type StatisticsInput = StatisticsSchemaInput & { accountId: string };

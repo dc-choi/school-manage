@@ -21,7 +21,10 @@ export function Sidebar() {
         <aside className="flex w-20 flex-col border-r bg-muted/20 sm:w-80">
             {/* Logo */}
             <div className="flex h-20 items-center justify-center border-b">
-                <Link to="/" className="text-lg font-bold tracking-tight transition-colors hover:text-primary sm:text-xl">
+                <Link
+                    to="/"
+                    className="text-lg font-bold tracking-tight transition-colors hover:text-primary sm:text-xl"
+                >
                     <span className="sm:hidden">주일</span>
                     <span className="hidden sm:inline">주일학교 관리 프로그램</span>
                 </Link>

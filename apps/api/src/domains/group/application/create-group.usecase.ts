@@ -4,8 +4,8 @@
  * 새 그룹 생성
  */
 import type { CreateGroupInput as CreateGroupSchemaInput, GroupOutput } from '@school/trpc';
-import { TRPCError } from '@trpc/server';
 import { getNowKST } from '@school/utils';
+import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드
