@@ -18,6 +18,7 @@ export class GetGroupUseCase {
                 students: {
                     where: {
                         deletedAt: null,
+                        graduatedAt: null,
                     },
                     orderBy: {
                         societyName: 'asc',
