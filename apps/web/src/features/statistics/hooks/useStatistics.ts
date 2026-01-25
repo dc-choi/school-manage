@@ -11,25 +11,36 @@ export function useStatistics(year?: number) {
 }
 
 /**
+ * 대시보드 통계 필터
+ */
+export interface DashboardFilters {
+    year?: number;
+    month?: number;
+    week?: number;
+}
+
+/**
  * 대시보드 통계 훅
  * 주간/월간/연간 출석률, 성별 분포, TOP 그룹/학생 조회
  * 평균 출석 인원은 weekly/monthly/yearly의 avgAttendance 필드에서 추출
  */
-export function useDashboardStatistics(year?: number) {
+export function useDashboardStatistics(filters: DashboardFilters) {
+    const { year, month, week } = filters;
+
     // 출석률 조회 (주간/월간/연간) - avgAttendance 포함
-    const weeklyQuery = trpc.statistics.weekly.useQuery({ year });
-    const monthlyQuery = trpc.statistics.monthly.useQuery({ year });
+    const weeklyQuery = trpc.statistics.weekly.useQuery({ year, month, week });
+    const monthlyQuery = trpc.statistics.monthly.useQuery({ year, month });
     const yearlyQuery = trpc.statistics.yearly.useQuery({ year });
 
     // 성별 분포
-    const byGenderQuery = trpc.statistics.byGender.useQuery({ year });
+    const byGenderQuery = trpc.statistics.byGender.useQuery({ year, month, week });
 
     // TOP 그룹/학생
-    const topGroupsQuery = trpc.statistics.topGroups.useQuery({ year, limit: 5 });
-    const topOverallQuery = trpc.statistics.topOverall.useQuery({ year, limit: 5 });
+    const topGroupsQuery = trpc.statistics.topGroups.useQuery({ year, month, week, limit: 5 });
+    const topOverallQuery = trpc.statistics.topOverall.useQuery({ year, month, week, limit: 5 });
 
     // 그룹별 상세 통계
-    const groupStatisticsQuery = trpc.statistics.groupStatistics.useQuery({ year });
+    const groupStatisticsQuery = trpc.statistics.groupStatistics.useQuery({ year, month, week });
 
     const isLoading =
         weeklyQuery.isLoading ||

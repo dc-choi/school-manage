@@ -318,13 +318,13 @@ describe('useDashboardStatistics', () => {
 
 ### 테스트 케이스 체크리스트
 
-| 유형 | 테스트 항목 | 우선순위 |
-|------|------------|---------|
-| 훅 반환값 | 필수 프로퍼티 존재 확인 | 높음 |
-| 데이터 구조 | 중첩 객체/배열 구조 검증 | 높음 |
-| 로딩 상태 | `isLoading` 플래그 동작 | 중간 |
-| 에러 상태 | `error` 처리 동작 | 중간 |
-| 빈 데이터 | 데이터 없을 때 기본값 | 낮음 |
+| 유형     | 테스트 항목             | 우선순위 |
+|--------|--------------------|------|
+| 훅 반환값  | 필수 프로퍼티 존재 확인      | 높음   |
+| 데이터 구조 | 중첩 객체/배열 구조 검증     | 높음   |
+| 로딩 상태  | `isLoading` 플래그 동작 | 중간   |
+| 에러 상태  | `error` 처리 동작      | 중간   |
+| 빈 데이터  | 데이터 없을 때 기본값       | 낮음   |
 
 ### vitest.setup.ts 구성
 
@@ -394,18 +394,18 @@ export const trpcClient = trpc.createClient({
 
 현재 `public/` 폴더의 jQuery 기반 페이지들:
 
-| 기존 파일                | 마이그레이션 대상                              |
-|----------------------|----------------------------------------|
-| `index.html`         | `LoginPage.tsx`                        |
-| `main.html`          | `DashboardPage.tsx` (통계 포함)            |
-| `groupList.html`     | `GroupListPage.tsx`                    |
-| `groupAdd.html`      | `GroupAddPage.tsx`                     |
-| `groupModify.html`   | `GroupEditPage.tsx`, `GroupDetailPage.tsx` |
-| `studentList.html`   | `StudentListPage.tsx`                  |
-| `studentAdd.html`    | `StudentAddPage.tsx`                   |
+| 기존 파일                | 마이그레이션 대상                                      |
+|----------------------|------------------------------------------------|
+| `index.html`         | `LoginPage.tsx`                                |
+| `main.html`          | `DashboardPage.tsx` (통계 포함)                    |
+| `groupList.html`     | `GroupListPage.tsx`                            |
+| `groupAdd.html`      | `GroupAddPage.tsx`                             |
+| `groupModify.html`   | `GroupEditPage.tsx`, `GroupDetailPage.tsx`     |
+| `studentList.html`   | `StudentListPage.tsx`                          |
+| `studentAdd.html`    | `StudentAddPage.tsx`                           |
 | `studentModify.html` | `StudentEditPage.tsx`, `StudentDetailPage.tsx` |
-| `attendance.html`    | `CalendarPage.tsx`, `AttendancePage.tsx` |
-| `statistics.html`    | `DashboardPage.tsx` (통합됨)              |
+| `attendance.html`    | `CalendarPage.tsx`, `AttendancePage.tsx`       |
+| `statistics.html`    | `DashboardPage.tsx` (통합됨)                      |
 
 ## 관련 문서
 

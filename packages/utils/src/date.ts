@@ -118,6 +118,44 @@ export const getLastSundayOf = (year: number, month: number): Date => {
 };
 
 /**
+ * 해당 월의 주일(일요일) 수를 계산한다.
+ *
+ * @param year 연도
+ * @param month 월 (1-12)
+ * @returns 주일 수 (4 또는 5)
+ */
+export const getWeeksInMonth = (year: number, month: number): number => {
+    const firstSunday = getNthSundayOf(year, month, 1);
+    const lastSunday = getLastSundayOf(year, month);
+
+    // 첫 주일부터 마지막 주일까지의 주 수 계산
+    const diffTime = lastSunday.getTime() - firstSunday.getTime();
+    const diffWeeks = Math.round(diffTime / (7 * 24 * 60 * 60 * 1000));
+
+    return diffWeeks + 1;
+};
+
+/**
+ * 특정 월의 N번째 주일~토요일 범위를 반환한다.
+ *
+ * @param year 연도
+ * @param month 월 (1-12)
+ * @param weekNum 주차 (1-5)
+ * @returns { startDate: Date, endDate: Date } 일요일~토요일 범위
+ */
+export const getWeekRangeInMonth = (
+    year: number,
+    month: number,
+    weekNum: number
+): { startDate: Date; endDate: Date } => {
+    const sunday = getNthSundayOf(year, month, weekNum);
+    const saturday = new Date(sunday);
+    saturday.setDate(saturday.getDate() + 6);
+
+    return { startDate: sunday, endDate: saturday };
+};
+
+/**
  * 부활 대축일을 계산한다. (Anonymous Gregorian Algorithm)
  *
  * 부활 대축일 정의: 춘분(3월 21일) 이후 첫 보름달 다음 일요일

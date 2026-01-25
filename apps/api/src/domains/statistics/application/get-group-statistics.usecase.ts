@@ -4,7 +4,14 @@
  * 모든 그룹의 주간/월간/연간 출석률 및 평균 출석 인원 조회
  */
 import type { GroupStatisticsOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
-import { countSundays, formatDateCompact, getThisWeekSaturday, getThisWeekSunday, roundToDecimal } from '@school/utils';
+import {
+    countSundays,
+    formatDateCompact,
+    getThisWeekSaturday,
+    getThisWeekSunday,
+    getWeekRangeInMonth,
+    roundToDecimal,
+} from '@school/utils';
 import { database } from '~/infrastructure/database/database.js';
 
 type StatisticsInput = StatisticsSchemaInput & { accountId: string };
@@ -17,6 +24,7 @@ interface DateRange {
 export class GetGroupStatisticsUseCase {
     async execute(input: StatisticsInput): Promise<GroupStatisticsOutput> {
         const year = input.year ?? new Date().getFullYear();
+        const { month, week } = input;
         const accountId = BigInt(input.accountId);
 
         // 1. 계정 소속 그룹 조회
@@ -29,8 +37,8 @@ export class GetGroupStatisticsUseCase {
         });
 
         // 2. 기간 계산
-        const weeklyRange = this.getWeeklyRange();
-        const monthlyRange = this.getMonthlyRange(year);
+        const weeklyRange = this.getWeeklyRange(year, month, week);
+        const monthlyRange = this.getMonthlyRange(year, month);
         const yearlyRange = this.getYearlyRange(year);
 
         // 3. 각 그룹별 통계 계산
@@ -85,7 +93,12 @@ export class GetGroupStatisticsUseCase {
     /**
      * 주간 기간 계산
      */
-    private getWeeklyRange(): DateRange {
+    private getWeeklyRange(year: number, month?: number, week?: number): DateRange {
+        // 월과 주차가 모두 지정된 경우: 해당 월의 N번째 주
+        if (month && week) {
+            return getWeekRangeInMonth(year, month, week);
+        }
+        // 기본: 현재 주
         const now = new Date();
         return {
             startDate: getThisWeekSunday(now),
@@ -96,7 +109,15 @@ export class GetGroupStatisticsUseCase {
     /**
      * 월간 기간 계산
      */
-    private getMonthlyRange(year: number): DateRange {
+    private getMonthlyRange(year: number, month?: number): DateRange {
+        // 월이 지정된 경우: 해당 월
+        if (month) {
+            return {
+                startDate: new Date(year, month - 1, 1),
+                endDate: new Date(year, month, 0),
+            };
+        }
+        // 기본: 현재 월
         const now = new Date();
         return {
             startDate: new Date(year, now.getMonth(), 1),

@@ -14,19 +14,19 @@
 tRPC Router (presentation) -> UseCase (application) -> Prisma (DB)
 ```
 
-| 레이어 | 역할 | 위치 |
-|--------|------|------|
-| Presentation | tRPC procedure 정의, Zod 입력 검증 | `src/domains/{domain}/presentation/` |
-| Application | 비즈니스 로직 (UseCase), Prisma 직접 사용 | `src/domains/{domain}/application/` |
+| 레이어          | 역할                              | 위치                                   |
+|--------------|---------------------------------|--------------------------------------|
+| Presentation | tRPC procedure 정의, Zod 입력 검증    | `src/domains/{domain}/presentation/` |
+| Application  | 비즈니스 로직 (UseCase), Prisma 직접 사용 | `src/domains/{domain}/application/`  |
 
 > **Note**: Repository 레이어는 제거되었습니다. UseCase에서 Prisma를 직접 사용합니다.
 
 ### Procedure 종류
 
-| Procedure | 용도 | 인증 |
-|-----------|------|------|
-| `publicProcedure` | 공개 API (로그인 등) | 불필요 |
-| `protectedProcedure` | 보호된 API | 필요 |
+| Procedure            | 용도             | 인증  |
+|----------------------|----------------|-----|
+| `publicProcedure`    | 공개 API (로그인 등) | 불필요 |
+| `protectedProcedure` | 보호된 API        | 필요  |
 
 ## Directory Structure
 
@@ -171,9 +171,9 @@ export class CreateStudentUseCase {
 
 ### UseCase 타입 패턴
 
-| 패턴 | 사용 시점 | 예시 |
-|------|----------|------|
-| 직접 import | 스키마 Input과 UseCase Input이 동일 | `import type { GetStudentInput } from '@school/trpc'` |
+| 패턴         | 사용 시점                        | 예시                                                                         |
+|------------|------------------------------|----------------------------------------------------------------------------|
+| 직접 import  | 스키마 Input과 UseCase Input이 동일 | `import type { GetStudentInput } from '@school/trpc'`                      |
 | context 확장 | accountId 등 context 필드 추가 필요 | `type ListStudentsInput = ListStudentsSchemaInput & { accountId: string }` |
 
 ### 데이터 직렬화 (superjson)
@@ -356,16 +356,16 @@ pnpm prisma studio      # DB GUI
 
 > 모든 API는 `/trpc/*` 경로로 제공됩니다. REST API (`/api/*`)는 제거되었습니다.
 
-| Domain | Procedure | Type | 인증 |
-|--------|-----------|------|------|
-| auth | login | mutation | public |
-| account | get | query | protected |
-| group | list, get, create, update, delete, bulkDelete, attendance | query/mutation | protected |
-| student | list, get, create, update, delete, bulkDelete, restore, graduate, cancelGraduation, promote | query/mutation | protected |
-| attendance | update | mutation | protected |
-| statistics | excellent, weekly, monthly, yearly, byGender, topGroups, topOverall, groupStatistics | query | protected |
-| liturgical | holydays | query | protected |
-| health | check | query | public |
+| Domain     | Procedure                                                                                   | Type           | 인증        |
+|------------|---------------------------------------------------------------------------------------------|----------------|-----------|
+| auth       | login                                                                                       | mutation       | public    |
+| account    | get                                                                                         | query          | protected |
+| group      | list, get, create, update, delete, bulkDelete, attendance                                   | query/mutation | protected |
+| student    | list, get, create, update, delete, bulkDelete, restore, graduate, cancelGraduation, promote | query/mutation | protected |
+| attendance | update                                                                                      | mutation       | protected |
+| statistics | excellent, weekly, monthly, yearly, byGender, topGroups, topOverall, groupStatistics        | query          | protected |
+| liturgical | holydays                                                                                    | query          | protected |
+| health     | check                                                                                       | query          | public    |
 
 ## Testing
 
@@ -374,17 +374,17 @@ pnpm prisma studio      # DB GUI
 
 ### 테스트 구조
 
-| 프로젝트 | 위치 | Setup | 용도 |
-|---------|------|-------|------|
-| unit | `test/*.test.ts` | `vitest.setup.ts` | Prisma 모킹, 로직 검증 |
+| 프로젝트        | 위치                              | Setup                         | 용도                     |
+|-------------|---------------------------------|-------------------------------|------------------------|
+| unit        | `test/*.test.ts`                | `vitest.setup.ts`             | Prisma 모킹, 로직 검증       |
 | integration | `test/integration/**/*.test.ts` | `vitest.setup.integration.ts` | tRPC caller, Prisma 모킹 |
 
 ### 테스트 헬퍼
 
-| 헬퍼 | 용도 |
-|------|------|
+| 헬퍼                            | 용도                                    |
+|-------------------------------|---------------------------------------|
 | `test/helpers/trpc-caller.ts` | tRPC caller 생성 (public/authenticated) |
-| `test/helpers/mock-data.ts` | 결정적 mock 데이터 생성 |
+| `test/helpers/mock-data.ts`   | 결정적 mock 데이터 생성                       |
 
 ### tRPC Caller 테스트 방식
 
@@ -538,14 +538,14 @@ const txMock = {
 
 #### 테스트 케이스 필수 항목
 
-| 유형 | 필수 테스트 | 설명 |
-|------|------------|------|
-| 성공 케이스 | O | 정상 동작 검증 |
-| 미인증 에러 | O | `protectedProcedure`는 반드시 테스트 |
-| 입력 검증 에러 | △ | Zod 스키마 검증 실패 케이스 |
-| 권한 에러 | △ | 다른 계정 데이터 접근 시 |
-| Not Found | △ | 존재하지 않는 리소스 |
-| 빈 데이터 | △ | 데이터 없을 때 기본값 반환 |
+| 유형        | 필수 테스트 | 설명                            |
+|-----------|--------|-------------------------------|
+| 성공 케이스    | O      | 정상 동작 검증                      |
+| 미인증 에러    | O      | `protectedProcedure`는 반드시 테스트 |
+| 입력 검증 에러  | △      | Zod 스키마 검증 실패 케이스             |
+| 권한 에러     | △      | 다른 계정 데이터 접근 시                |
+| Not Found | △      | 존재하지 않는 리소스                   |
+| 빈 데이터     | △      | 데이터 없을 때 기본값 반환               |
 
 #### 성공 케이스 테스트
 

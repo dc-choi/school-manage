@@ -38,6 +38,8 @@ export const statisticsRouter = router({
             {
                 accountId: ctx.account.id,
                 year: input.year,
+                month: input.month,
+                week: input.week,
             },
             'weekly'
         );
@@ -52,6 +54,8 @@ export const statisticsRouter = router({
             {
                 accountId: ctx.account.id,
                 year: input.year,
+                month: input.month,
+                week: input.week,
             },
             'monthly'
         );
@@ -66,6 +70,8 @@ export const statisticsRouter = router({
             {
                 accountId: ctx.account.id,
                 year: input.year,
+                month: input.month,
+                week: input.week,
             },
             'yearly'
         );
@@ -79,6 +85,8 @@ export const statisticsRouter = router({
         return usecase.execute({
             accountId: ctx.account.id,
             year: input.year,
+            month: input.month,
+            week: input.week,
         });
     }),
 
@@ -90,6 +98,8 @@ export const statisticsRouter = router({
         return usecase.execute({
             accountId: ctx.account.id,
             year: input.year,
+            month: input.month,
+            week: input.week,
             limit: input.limit,
         });
     }),
@@ -102,6 +112,8 @@ export const statisticsRouter = router({
         return usecase.execute({
             accountId: ctx.account.id,
             year: input.year,
+            month: input.month,
+            week: input.week,
             limit: input.limit,
         });
     }),
@@ -114,6 +126,8 @@ export const statisticsRouter = router({
         return usecase.execute({
             accountId: ctx.account.id,
             year: input.year,
+            month: input.month,
+            week: input.week,
         });
     }),
 });

@@ -9,6 +9,8 @@ export {
     getNthSundayOf,
     getNthSaturdayOf,
     getLastSundayOf,
+    getWeeksInMonth,
+    getWeekRangeInMonth,
     calculateEaster,
 } from './date.js';
 

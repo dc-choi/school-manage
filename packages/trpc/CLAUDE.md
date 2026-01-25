@@ -71,10 +71,10 @@ export type { LoginOutput, StudentBase, StudentWithGroup, GroupOutput, ... } fro
 
 ### Procedure 종류
 
-| Procedure | 용도 | 인증 |
-|-----------|------|------|
-| `publicProcedure` | 공개 API | 불필요 |
-| `protectedProcedure` | 보호된 API | 필요 |
+| Procedure            | 용도      | 인증  |
+|----------------------|---------|-----|
+| `publicProcedure`    | 공개 API  | 불필요 |
+| `protectedProcedure` | 보호된 API | 필요  |
 
 ### Context 타입
 

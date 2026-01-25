@@ -4,7 +4,14 @@
  * 주간/월간/연간 출석률 조회
  */
 import type { AttendanceRateOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
-import { countSundays, formatDateCompact, getThisWeekSaturday, getThisWeekSunday, roundToDecimal } from '@school/utils';
+import {
+    countSundays,
+    formatDateCompact,
+    getThisWeekSaturday,
+    getThisWeekSunday,
+    getWeekRangeInMonth,
+    roundToDecimal,
+} from '@school/utils';
 import { database } from '~/infrastructure/database/database.js';
 
 type StatisticsInput = StatisticsSchemaInput & { accountId: string };
@@ -14,10 +21,11 @@ type Period = 'weekly' | 'monthly' | 'yearly';
 export class GetAttendanceRateUseCase {
     async execute(input: StatisticsInput, period: Period): Promise<AttendanceRateOutput> {
         const year = input.year ?? new Date().getFullYear();
+        const { month, week } = input;
         const accountId = BigInt(input.accountId);
 
         // 1. 기간 계산
-        const { startDate, endDate } = this.calculateDateRange(year, period);
+        const { startDate, endDate } = this.calculateDateRange(year, period, month, week);
         const startDateStr = formatDateCompact(startDate);
         const endDateStr = formatDateCompact(endDate);
 
@@ -100,10 +108,20 @@ export class GetAttendanceRateUseCase {
     /**
      * 기간 계산
      */
-    private calculateDateRange(year: number, period: Period): { startDate: Date; endDate: Date } {
+    private calculateDateRange(
+        year: number,
+        period: Period,
+        month?: number,
+        week?: number
+    ): { startDate: Date; endDate: Date } {
         const now = new Date();
 
         if (period === 'weekly') {
+            // 월과 주차가 모두 지정된 경우: 해당 월의 N번째 주
+            if (month && week) {
+                return getWeekRangeInMonth(year, month, week);
+            }
+            // 기본: 현재 주
             return {
                 startDate: getThisWeekSunday(now),
                 endDate: getThisWeekSaturday(now),
@@ -111,12 +129,20 @@ export class GetAttendanceRateUseCase {
         }
 
         if (period === 'monthly') {
+            // 월이 지정된 경우: 해당 월
+            if (month) {
+                return {
+                    startDate: new Date(year, month - 1, 1),
+                    endDate: new Date(year, month, 0), // 마지막 날
+                };
+            }
+            // 기본: 현재 월
             const startDate = new Date(year, now.getMonth(), 1);
-            const endDate = new Date(year, now.getMonth() + 1, 0); // 마지막 날
+            const endDate = new Date(year, now.getMonth() + 1, 0);
             return { startDate, endDate };
         }
 
-        // yearly
+        // yearly: 변경 없음
         return {
             startDate: new Date(year, 0, 1),
             endDate: new Date(year, 11, 31),

@@ -12,6 +12,8 @@ import {
     getNthSundayOf,
     getNthSaturdayOf,
     getLastSundayOf,
+    getWeeksInMonth,
+    getWeekRangeInMonth,
     calculateEaster,
 } from '../src/date.js';
 
@@ -382,6 +384,105 @@ describe('date 유틸리티', () => {
                     throw new Error(`부활 대축일이 3~4월이 아닙니다: ${year}년 ${month + 1}월 ${day}일`);
                 }
             }
+        });
+    });
+
+    describe('getWeeksInMonth', () => {
+        it('2024년 1월의 주일 수를 반환한다 (4개)', () => {
+            const result = getWeeksInMonth(2024, 1);
+            // 2024-01: 7, 14, 21, 28일이 일요일
+            expect(result).toBe(4);
+        });
+
+        it('2024년 9월의 주일 수를 반환한다 (5개)', () => {
+            const result = getWeeksInMonth(2024, 9);
+            // 2024-09: 1, 8, 15, 22, 29일이 일요일
+            expect(result).toBe(5);
+        });
+
+        it('2024년 3월의 주일 수를 반환한다 (5개)', () => {
+            const result = getWeeksInMonth(2024, 3);
+            // 2024-03: 3, 10, 17, 24, 31일이 일요일
+            expect(result).toBe(5);
+        });
+
+        it('2024년 6월의 주일 수를 반환한다 (5개)', () => {
+            const result = getWeeksInMonth(2024, 6);
+            // 2024-06: 2, 9, 16, 23, 30일이 일요일
+            expect(result).toBe(5);
+        });
+
+        it('2024년 2월의 주일 수를 반환한다 (4개)', () => {
+            const result = getWeeksInMonth(2024, 2);
+            // 2024-02: 4, 11, 18, 25일이 일요일
+            expect(result).toBe(4);
+        });
+
+        it('모든 월은 4개 또는 5개의 주일을 가진다', () => {
+            for (let month = 1; month <= 12; month++) {
+                const result = getWeeksInMonth(2024, month);
+                expect(result).toBeGreaterThanOrEqual(4);
+                expect(result).toBeLessThanOrEqual(5);
+            }
+        });
+    });
+
+    describe('getWeekRangeInMonth', () => {
+        it('2024년 1월 1주차 범위를 반환한다', () => {
+            const result = getWeekRangeInMonth(2024, 1, 1);
+
+            // 2024-01-07 (일요일) ~ 2024-01-13 (토요일)
+            expect(result.startDate.getDay()).toBe(0); // 일요일
+            expect(result.startDate.getDate()).toBe(7);
+            expect(result.endDate.getDay()).toBe(6); // 토요일
+            expect(result.endDate.getDate()).toBe(13);
+        });
+
+        it('2024년 1월 2주차 범위를 반환한다', () => {
+            const result = getWeekRangeInMonth(2024, 1, 2);
+
+            // 2024-01-14 (일요일) ~ 2024-01-20 (토요일)
+            expect(result.startDate.getDate()).toBe(14);
+            expect(result.endDate.getDate()).toBe(20);
+        });
+
+        it('2024년 9월 1주차 범위를 반환한다 (1일이 일요일)', () => {
+            const result = getWeekRangeInMonth(2024, 9, 1);
+
+            // 2024-09-01 (일요일) ~ 2024-09-07 (토요일)
+            expect(result.startDate.getDate()).toBe(1);
+            expect(result.endDate.getDate()).toBe(7);
+        });
+
+        it('2024년 9월 5주차 범위를 반환한다', () => {
+            const result = getWeekRangeInMonth(2024, 9, 5);
+
+            // 2024-09-29 (일요일) ~ 2024-10-05 (토요일)
+            expect(result.startDate.getDate()).toBe(29);
+            expect(result.startDate.getMonth()).toBe(8); // September
+            expect(result.endDate.getDate()).toBe(5);
+            expect(result.endDate.getMonth()).toBe(9); // October
+        });
+
+        it('시작일은 항상 일요일이다', () => {
+            for (let week = 1; week <= 4; week++) {
+                const result = getWeekRangeInMonth(2024, 1, week);
+                expect(result.startDate.getDay()).toBe(0);
+            }
+        });
+
+        it('종료일은 항상 토요일이다', () => {
+            for (let week = 1; week <= 4; week++) {
+                const result = getWeekRangeInMonth(2024, 1, week);
+                expect(result.endDate.getDay()).toBe(6);
+            }
+        });
+
+        it('시작일과 종료일 간격은 6일이다', () => {
+            const result = getWeekRangeInMonth(2024, 1, 1);
+            const diffTime = result.endDate.getTime() - result.startDate.getTime();
+            const diffDays = diffTime / (24 * 60 * 60 * 1000);
+            expect(diffDays).toBe(6);
         });
     });
 });

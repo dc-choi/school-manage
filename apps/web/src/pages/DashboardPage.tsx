@@ -1,3 +1,4 @@
+import { getWeeksInMonth } from '@school/utils';
 import { useMemo, useState } from 'react';
 import {
     AttendanceRateChart,
@@ -16,7 +17,14 @@ export function DashboardPage() {
     const { account } = useAuth();
     const currentYear = new Date().getFullYear();
     const [selectedYear, setSelectedYear] = useState(currentYear);
-    const stats = useDashboardStatistics(selectedYear);
+    const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
+    const [selectedWeek, setSelectedWeek] = useState<number | undefined>(undefined);
+
+    const stats = useDashboardStatistics({
+        year: selectedYear,
+        month: selectedMonth,
+        week: selectedWeek,
+    });
     const hasError = !!stats.error;
 
     const yearOptions = useMemo(() => {
@@ -26,6 +34,26 @@ export function DashboardPage() {
         }
         return years;
     }, [currentYear]);
+
+    const monthOptions = useMemo(() => {
+        const months = [{ value: '', label: '전체' }];
+        for (let m = 1; m <= 12; m++) {
+            months.push({ value: m.toString(), label: `${m}월` });
+        }
+        return months;
+    }, []);
+
+    const weekOptions = useMemo(() => {
+        if (!selectedMonth) {
+            return [{ value: '', label: '전체' }];
+        }
+        const weeksInMonth = getWeeksInMonth(selectedYear, selectedMonth);
+        const weeks = [{ value: '', label: '전체' }];
+        for (let w = 1; w <= weeksInMonth; w++) {
+            weeks.push({ value: w.toString(), label: `${w}주차` });
+        }
+        return weeks;
+    }, [selectedYear, selectedMonth]);
 
     const topGroupItems =
         stats.topGroups?.groups.map((g) => ({
@@ -47,21 +75,72 @@ export function DashboardPage() {
     return (
         <MainLayout title={`안녕하세요, ${account?.name}님!`}>
             <div className="space-y-4">
-                {/* 연도 선택 */}
-                <div className="flex items-center gap-2">
-                    <Label>통계 연도</Label>
-                    <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(Number(v))}>
-                        <SelectTrigger className="w-28">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {yearOptions.map((y) => (
-                                <SelectItem key={y.value} value={y.value}>
-                                    {y.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                {/* 연도/월/주차 선택 */}
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <Label>연도</Label>
+                        <Select
+                            value={selectedYear.toString()}
+                            onValueChange={(v) => {
+                                setSelectedYear(Number(v));
+                                setSelectedMonth(undefined);
+                                setSelectedWeek(undefined);
+                            }}
+                        >
+                            <SelectTrigger className="w-24">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {yearOptions.map((y) => (
+                                    <SelectItem key={y.value} value={y.value}>
+                                        {y.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Label>월</Label>
+                        <Select
+                            value={selectedMonth?.toString() ?? ''}
+                            onValueChange={(v) => {
+                                setSelectedMonth(v ? Number(v) : undefined);
+                                setSelectedWeek(undefined);
+                            }}
+                        >
+                            <SelectTrigger className="w-20">
+                                <SelectValue placeholder="전체" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {monthOptions.map((m) => (
+                                    <SelectItem key={m.value || 'all'} value={m.value || 'all'}>
+                                        {m.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Label>주차</Label>
+                        <Select
+                            value={selectedWeek?.toString() ?? ''}
+                            onValueChange={(v) => setSelectedWeek(v && v !== 'all' ? Number(v) : undefined)}
+                            disabled={!selectedMonth}
+                        >
+                            <SelectTrigger className="w-24">
+                                <SelectValue placeholder="전체" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {weekOptions.map((w) => (
+                                    <SelectItem key={w.value || 'all'} value={w.value || 'all'}>
+                                        {w.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
                 {/* 출석률 & 평균 출석 인원 차트 */}

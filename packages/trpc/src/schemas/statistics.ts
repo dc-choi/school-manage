@@ -19,6 +19,8 @@ export const getExcellentStudentsInputSchema = z.object({
  */
 export const statisticsInputSchema = z.object({
     year: z.number().int().positive().optional(),
+    month: z.number().int().min(1).max(12).optional(),
+    week: z.number().int().min(1).max(5).optional(),
 });
 
 /**
@@ -26,6 +28,8 @@ export const statisticsInputSchema = z.object({
  */
 export const topStatisticsInputSchema = z.object({
     year: z.number().int().positive().optional(),
+    month: z.number().int().min(1).max(12).optional(),
+    week: z.number().int().min(1).max(5).optional(),
     limit: z.number().int().positive().max(10).optional().default(5),
 });
 

@@ -4,6 +4,8 @@
  * 대시보드 통계 훅의 동작 검증
  */
 import { describe, expect, it, vi } from 'vitest';
+// 테스트 전에 훅 import (모킹 후에 import 해야 함)
+import { useDashboardStatistics, useStatistics } from '~/features/statistics/hooks/useStatistics';
 
 // tRPC 모킹
 vi.mock('~/lib/trpc', () => ({
@@ -114,9 +116,6 @@ vi.mock('~/lib/trpc', () => ({
     },
 }));
 
-// 테스트 전에 훅 import (모킹 후에 import 해야 함)
-import { useStatistics, useDashboardStatistics } from '~/features/statistics/hooks/useStatistics';
-
 describe('useStatistics', () => {
     it('useStatistics 훅이 excellentStudents를 반환한다', () => {
         const result = useStatistics(2024);
@@ -130,7 +129,7 @@ describe('useStatistics', () => {
 
 describe('useDashboardStatistics', () => {
     it('대시보드 통계 데이터를 반환한다', () => {
-        const result = useDashboardStatistics(2024);
+        const result = useDashboardStatistics({ year: 2024 });
 
         expect(result).toHaveProperty('weekly');
         expect(result).toHaveProperty('monthly');
@@ -144,7 +143,7 @@ describe('useDashboardStatistics', () => {
     });
 
     it('주간 출석률 데이터 구조가 올바르다', () => {
-        const result = useDashboardStatistics(2024);
+        const result = useDashboardStatistics({ year: 2024 });
 
         expect(result.weekly).toHaveProperty('attendanceRate');
         expect(result.weekly).toHaveProperty('avgAttendance');
@@ -155,7 +154,7 @@ describe('useDashboardStatistics', () => {
     });
 
     it('성별 분포 데이터 구조가 올바르다', () => {
-        const result = useDashboardStatistics(2024);
+        const result = useDashboardStatistics({ year: 2024 });
 
         expect(result.byGender).toHaveProperty('male');
         expect(result.byGender).toHaveProperty('female');
@@ -165,7 +164,7 @@ describe('useDashboardStatistics', () => {
     });
 
     it('그룹별 출석률 순위 데이터 구조가 올바르다', () => {
-        const result = useDashboardStatistics(2024);
+        const result = useDashboardStatistics({ year: 2024 });
 
         expect(result.topGroups).toHaveProperty('groups');
         expect(Array.isArray(result.topGroups?.groups)).toBe(true);
@@ -175,7 +174,7 @@ describe('useDashboardStatistics', () => {
     });
 
     it('전체 우수 학생 데이터 구조가 올바르다', () => {
-        const result = useDashboardStatistics(2024);
+        const result = useDashboardStatistics({ year: 2024 });
 
         expect(result.topOverall).toHaveProperty('students');
         expect(Array.isArray(result.topOverall?.students)).toBe(true);
@@ -186,7 +185,7 @@ describe('useDashboardStatistics', () => {
     });
 
     it('그룹별 상세 통계 데이터 구조가 올바르다', () => {
-        const result = useDashboardStatistics(2024);
+        const result = useDashboardStatistics({ year: 2024 });
 
         expect(result.groupStatistics).toHaveProperty('groups');
         expect(Array.isArray(result.groupStatistics?.groups)).toBe(true);
@@ -203,7 +202,7 @@ describe('useDashboardStatistics', () => {
     });
 
     it('isLoading이 false일 때 데이터가 로드된 상태', () => {
-        const result = useDashboardStatistics(2024);
+        const result = useDashboardStatistics({ year: 2024 });
 
         expect(result.isLoading).toBe(false);
         expect(result.error).toBeFalsy();

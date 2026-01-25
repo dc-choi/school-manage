@@ -102,15 +102,15 @@ packages/
 
 ## 구현 현황
 
-| 영역             | 상태    | 설명                                                                         |
-|----------------|-------|----------------------------------------------------------------------------|
-| **백엔드 API**    | ✅ 완료  | 7개 도메인 (auth, account, group, student, attendance, statistics, liturgical) |
-| **Prisma ORM** | ✅ 완료  | Sequelize → Prisma 마이그레이션 완료                                               |
-| **tRPC 통합**    | ✅ 완료  | 서버/클라이언트 연동, superjson transformer, Zod 스키마 중앙화                            |
-| **타입 안정성**     | ✅ 완료  | strict 모드, Input/Output 타입 중앙화, 인증 컨텍스트 타입 좁히기                             |
-| **웹 앱**        | ✅ 완료  | 달력 UI 출석부, Login, Group, Student, Statistics 페이지 구현, shadcn/ui 적용          |
-| **테스트**        | ✅ 완료  | Vitest 마이그레이션 완료, Prisma mocking 통합 테스트 (51개)                              |
-| **배포**         | ✅ 완료  | GitHub Actions CD + Docker Hub + Nginx                                       |
+| 영역             | 상태   | 설명                                                                         |
+|----------------|------|----------------------------------------------------------------------------|
+| **백엔드 API**    | ✅ 완료 | 7개 도메인 (auth, account, group, student, attendance, statistics, liturgical) |
+| **Prisma ORM** | ✅ 완료 | Sequelize → Prisma 마이그레이션 완료                                               |
+| **tRPC 통합**    | ✅ 완료 | 서버/클라이언트 연동, superjson transformer, Zod 스키마 중앙화                            |
+| **타입 안정성**     | ✅ 완료 | strict 모드, Input/Output 타입 중앙화, 인증 컨텍스트 타입 좁히기                             |
+| **웹 앱**        | ✅ 완료 | 달력 UI 출석부, Login, Group, Student, Statistics 페이지 구현, shadcn/ui 적용          |
+| **테스트**        | ✅ 완료 | Vitest 마이그레이션 완료, Prisma mocking 통합 테스트 (51개)                              |
+| **배포**         | ✅ 완료 | GitHub Actions CD + Docker Hub + Nginx                                     |
 
 ## ERD
 ![ERD](https://github.com/dc-choi/school_manage_back/blob/main/img/v2.0.0%20ERD.JPG)
