@@ -85,6 +85,7 @@ erDiagram
     Account {
         bigint id PK
         varchar name "로그인 ID"
+        varchar display_name "표시 이름"
         varchar password
         datetime created_at
         datetime updated_at
