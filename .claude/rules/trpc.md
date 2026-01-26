@@ -28,7 +28,8 @@ packages/trpc/src/
 │   ├── group.ts        # group 도메인 (Input + Output)
 │   ├── student.ts      # student 도메인 (Input + Output)
 │   ├── attendance.ts   # attendance 도메인 (Input + Output)
-│   └── statistics.ts   # statistics 도메인 (Input + Output)
+│   ├── statistics.ts   # statistics 도메인 (Input + Output)
+│   └── liturgical.ts   # liturgical 도메인 (Input + Output)
 └── routers/            # tRPC 라우터 정의 (health만)
 ```
 

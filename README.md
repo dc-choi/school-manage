@@ -15,167 +15,135 @@
 
 ## 문서
 
-| 문서               | 설명                            |
-|------------------|-------------------------------|
-| `CLAUDE.md`      | 개발 가이드 (Claude Code용)         |
-| `docs/business/` | 사업 문서 (문제 정의, BM, GTM, 로드맵 등) |
-| `docs/specs/`    | 제품 명세 (PRD, 기능 설계, SDD)       |
+| 문서               | 설명                             |
+|------------------|--------------------------------|
+| `.claude/`       | Claude Code 설정 (rules, skills) |
+| `docs/business/` | 사업 문서 (문제 정의, BM, GTM, 로드맵 등)  |
+| `docs/specs/`    | 제품 명세 (PRD, 기능 설계, SDD)        |
 
 ## 제품 기능
 
-### 현재 제공
-- 로그인: 각 계정별로 로그인하여 계정에 속한 그룹을 관리할 수 있습니다.
-- 그룹 리스트: 주일학교 학생들이 속한 그룹을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
-- 학생 명단: 주일학교 학생들의 명단(이름, 세례명, 성별, 나이, 연락처 등)을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
-- 졸업 관리: 학생들의 졸업 처리 및 졸업 취소를 일괄로 처리할 수 있습니다.
-- 출석부: 주일학교 학생들의 출석을 보고, 추가하고, 수정하고, 삭제할 수 있습니다.
-- 통계: 각 계정별 우수한 학생들의 출석 현황을 간단하게 확인 할 수 있습니다.
+| 기능    | 설명                                 |
+|-------|------------------------------------|
+| 인증    | 로그인, 회원가입                          |
+| 대시보드  | 출석률, 그룹별 통계, 우수 학생 현황              |
+| 그룹 관리 | 그룹 CRUD, 일괄 삭제                     |
+| 학생 관리 | 학생 CRUD, 일괄 삭제/복구, 졸업/졸업 취소        |
+| 출석부   | 달력 UI 기반 출석 조회/입력, 종교 일정(부활절 등) 표시 |
 
-### 확장 예정
-- 행사(캠프/피정) 운영: 장소/일정/준비물/공지
-- 참가/동의서/비상연락망 관리
-- 커뮤니케이션 연동(알림/리마인드)
-- 교사/권한/조직 관리 강화
-- 운영 리포트/통계 확장
+## 시스템 아키텍처
 
-![데모](https://github.com/dc-choi/school_manage_back/blob/main/img/demo.gif)
+```mermaid
+flowchart LR
+    User[사용자] -->|HTTPS| Nginx
 
-## 시스템 구성도
-![시스템 구성도](https://github.com/dc-choi/school_manage_back/blob/main/img/v2.0.0%20work%20flow.png)
+    subgraph Server[AWS Lightsail]
+        Nginx[Nginx<br/>리버스 프록시] -->|/api| API[Node.js<br/>Express + tRPC]
+        Nginx -->|정적 파일| Static[React SPA]
+        API -->|Prisma| DB[(MariaDB)]
+    end
 
-## 프로젝트 구조 (현재 - pnpm 모노레포)
+    subgraph CI/CD
+        GitHub[GitHub] -->|Push| Actions[GitHub Actions]
+        Actions -->|Build & Push| Docker[Docker Hub]
+        Docker -->|Pull| Server
+    end
 ```
-docs/
-  specs/                  # 제품 관점 SDD 문서
-  business/               # 사업 관점 문서
-public/                   # jQuery 기반 레거시 웹 페이지 (마이그레이션 완료)
+
+## 프로젝트 구조
+
+```
 apps/
   api/                    # Express + tRPC API 서버 (@school/api)
     src/
-      app.ts              # App entry point + Bootstrap
-      app.router.ts       # tRPC AppRouter (도메인 라우터 병합)
-      domains/            # 도메인별 모듈 (Clean Architecture)
-        {domain}/
-          application/    # UseCase (비즈니스 로직, Prisma 직접 사용)
-          presentation/   # tRPC Router
-          utils/          # 도메인 전용 유틸 (선택)
-      global/             # 프로젝트 공통
-        config/           # 환경설정 (env.ts)
-        errors/           # 에러 코드/클래스
-        middleware/       # Express 미들웨어
-        utils/            # 공용 유틸리티
-      infrastructure/     # 외부 연동
-        database/         # Prisma
-        logger/           # 로깅
-        scheduler/        # 스케줄러 (연말 학년 변경)
-        trpc/             # tRPC Context
+      domains/            # 도메인별 모듈 (UseCase + Router)
+      global/             # 공통 (config, errors, middleware)
+      infrastructure/     # 외부 연동 (database, logger, scheduler)
     prisma/               # Prisma 스키마 및 마이그레이션
-    test/
-      helpers/            # 테스트 헬퍼 (mock-data, trpc-caller)
-      integration/        # 통합 테스트 (Vitest + Prisma mocking)
+    test/                 # 통합 테스트
   web/                    # Vite + React 웹 앱 (@school/web)
     src/
-      components/         # UI 컴포넌트
-        common/           # 공통 컴포넌트 (Button, Input, Table, Pagination 등)
-        ui/               # shadcn/ui 컴포넌트
-        layout/           # 레이아웃 컴포넌트
-        forms/            # 폼 컴포넌트 (GroupForm, StudentForm)
-      features/           # 기능별 훅/컨텍스트
-        auth/             # 인증 (AuthProvider, ProtectedRoute)
-        attendance/       # 출석 훅
-        group/            # 그룹 훅
-        student/          # 학생 훅
-        statistics/       # 통계 훅
+      components/         # UI 컴포넌트 (common, ui, layout, forms)
+      features/           # 도메인별 훅
       pages/              # 페이지 컴포넌트
-      routes/             # React Router 설정
-      lib/                # 유틸리티 (trpc, queryClient)
-      styles/             # 글로벌 스타일
 packages/
-  trpc/                   # 공유 tRPC 타입/라우터 (@school/trpc)
-    src/
-      schemas/            # Zod 스키마 (도메인별 Input/Output 타입)
-      routers/            # 공유 라우터 정의
-      types.ts            # 공유 타입
-      trpc.ts             # tRPC 인스턴스
-      context.ts          # 컨텍스트 타입
+  trpc/                   # 공유 tRPC 타입/스키마 (@school/trpc)
+  utils/                  # 공유 유틸리티 (@school/utils)
+docs/
+  specs/                  # 제품 명세 (SDD)
+  business/               # 사업 문서
 ```
-
-## 구현 현황
-
-| 영역             | 상태   | 설명                                                                         |
-|----------------|------|----------------------------------------------------------------------------|
-| **백엔드 API**    | ✅ 완료 | 7개 도메인 (auth, account, group, student, attendance, statistics, liturgical) |
-| **Prisma ORM** | ✅ 완료 | Sequelize → Prisma 마이그레이션 완료                                               |
-| **tRPC 통합**    | ✅ 완료 | 서버/클라이언트 연동, superjson transformer, Zod 스키마 중앙화                            |
-| **타입 안정성**     | ✅ 완료 | strict 모드, Input/Output 타입 중앙화, 인증 컨텍스트 타입 좁히기                             |
-| **웹 앱**        | ✅ 완료 | 달력 UI 출석부, Login, Group, Student, Statistics 페이지 구현, shadcn/ui 적용          |
-| **테스트**        | ✅ 완료 | Vitest 마이그레이션 완료, Prisma mocking 통합 테스트 (51개)                              |
-| **배포**         | ✅ 완료 | GitHub Actions CD + Docker Hub + Nginx                                     |
 
 ## ERD
-![ERD](https://github.com/dc-choi/school_manage_back/blob/main/img/v2.0.0%20ERD.JPG)
 
-물리적 설계시에는 관계를 끊어놓았습니다. 사용자의 요구사항이 계속 바뀌므로 유연한 구조를 가져야겠다고 생각했습니다.
+```mermaid
+erDiagram
+    Account ||--o{ Group : has
+    Group ||--o{ Student : contains
+    Student ||--o{ Attendance : records
 
-```sql
-CREATE TABLE `account` (
-  `_id` bigint NOT NULL AUTO_INCREMENT COMMENT 'PK',
-  `name` varchar(50) NOT NULL COMMENT '사용자가 입력하는 ID',
-  `password` varchar(200) NOT NULL COMMENT '사용자가 입력하는 password',
-  `create_at` datetime NOT NULL COMMENT '생성일자',
-  `update_at` datetime NULL COMMENT '수정일자',
-  `delete_at` datetime NULL COMMENT '삭제일자',
-  PRIMARY KEY (`_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    Account {
+        bigint id PK
+        varchar name "로그인 ID"
+        varchar password
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
 
-CREATE TABLE `group` (
-  `_id` bigint NOT NULL AUTO_INCREMENT COMMENT 'PK',
-  `name` varchar(50) NOT NULL COMMENT '그룹명',
-  `create_at` datetime NOT NULL COMMENT '생성일자',
-  `update_at` datetime NULL COMMENT '수정일자',
-  `delete_at` datetime NULL COMMENT '삭제일자',
-  `account_id` bigint NOT NULL COMMENT '계정의 PK',
-  PRIMARY KEY (`_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    Group {
+        bigint id PK
+        varchar name "그룹명"
+        bigint account_id FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
 
-CREATE TABLE `student` (
-  `_id` bigint NOT NULL AUTO_INCREMENT COMMENT 'PK',
-  `society_name` varchar(50) NOT NULL COMMENT '이름',
-  `catholic_name` varchar(50) NULL COMMENT '세례명',
-  `gender` varchar(1) NULL COMMENT '성별 (M: 남, F: 여)',
-  `age` bigint NULL COMMENT '나이',
-  `contact` bigint NULL COMMENT '연락처',
-  `description` mediumtext COMMENT '상세 설명',
-  `baptized_at` varchar(10) NULL COMMENT '축일',
-  `create_at` datetime NOT NULL COMMENT '생성일자',
-  `update_at` datetime NULL COMMENT '수정일자',
-  `delete_at` datetime NULL COMMENT '삭제일자',
-  `graduated_at` datetime NULL COMMENT '졸업일자',
-  `group_id` bigint NOT NULL COMMENT '그룹의 PK',
-  PRIMARY KEY (`_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    Student {
+        bigint id PK
+        varchar society_name "이름"
+        varchar catholic_name "세례명"
+        varchar gender "M/F"
+        bigint age
+        bigint contact "연락처"
+        text description
+        varchar baptized_at "축일"
+        bigint group_id FK
+        datetime graduated_at
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
 
-CREATE TABLE `attendance` (
-  `_id` bigint NOT NULL AUTO_INCREMENT COMMENT 'PK',
-  `date` varchar(50) NULL COMMENT '출석일',
-  `content` varchar(50) NULL COMMENT '출석내용',
-  `create_at` datetime NOT NULL COMMENT '생성일자',
-  `update_at` datetime NULL COMMENT '수정일자',
-  `delete_at` datetime NULL COMMENT '삭제일자',
-  `student_id` bigint NOT NULL COMMENT '학생의 PK',
-  PRIMARY KEY (`_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    Attendance {
+        bigint id PK
+        varchar date "출석일"
+        varchar content "출석 내용"
+        bigint student_id FK
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
 ```
+
+> 물리적 설계 시 FK 제약조건 없이 논리적 관계만 유지 (유연한 스키마 변경 대응)
 
 <!--
 ## 출석부 프로그램 초기 화면 구성
 [오븐을 이용한 프로토타입](https://ovenapp.io/view/uUt1nneSOrTuih71pV814CGUcr6lRVKP/I6IRP) 
 -->
 
-## 개발기간
-22.02.19 ~ 현재 (첫 배포는 기획한지 2주만에 진행)
+## 개발 히스토리
 
-지금도 계속 서버를 유지보수중입니다.
+2022.02 ~ 현재 (운영 중)
+
+| 시기      | 마일스톤                                            |
+|---------|-------------------------------------------------|
+| 2022.02 | 프로젝트 시작                                         |
+| 2022.03 | 첫 배포(기획한지 2주만에 진행)                              |
+| 2025    | 모노레포 전환 (pnpm workspace + Turborepo)            |
+| 2026    | tRPC + React 19 마이그레이션, Prisma 전환, shadcn/ui 적용 |
 
 ## 만들게 된 계기
 주일학교 시스템상 매년 아이들의 출석을 기록해야 했고, 그에 따라 기존 엑셀로 된 출석부로는 매년 올해의 토요일, 일요일에 해당되는 부분을 일일히 알아보고 적어야하는 점이 너무 불편했습니다.
