@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm:*)",
+      "Bash(npm:*)",
+      "Bash(git:*)",
+      "Bash(tsc:*)",
+      "Bash(prisma:*)",
+      "Bash(vitest:*)",
+      "Bash(turbo:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Read(.env*)"
+    ]
+  },
+  "env": {
+    "NODE_ENV": "development",
+    "TZ": "Asia/Seoul"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm lint:fix && pnpm typecheck",
+            "timeout": 60,
+            "statusMessage": "Linting and type checking..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,10 +1,11 @@
-# CLAUDE.md - tRPC Package (@school/trpc)
+---
+paths:
+  - "packages/trpc/**"
+---
 
-> **용도**: tRPC 라우터, Zod 스키마, 공유 타입 정의 가이드
-> **언제 읽나**: API Input/Output 스키마 추가, tRPC 라우터 정의 시
-> **스킵 조건**: UI 컴포넌트, 문서 작업 시
+# tRPC Package Rules (@school/trpc)
 
-이 문서는 `packages/trpc/` 폴더에서 작업할 때 참고하는 tRPC 패키지 가이드입니다.
+tRPC 라우터, Zod 스키마, 공유 타입 정의 가이드입니다.
 
 ## 개요
 
@@ -29,8 +30,6 @@ packages/trpc/src/
 │   ├── attendance.ts   # attendance 도메인 (Input + Output)
 │   └── statistics.ts   # statistics 도메인 (Input + Output)
 └── routers/            # tRPC 라우터 정의 (health만)
-    ├── index.ts        # 라우터 export
-    └── health.ts
 ```
 
 > **Note**: 도메인별 라우터는 `@school/api`의 `src/domains/{domain}/presentation/`에 정의됩니다.
@@ -67,16 +66,7 @@ export type { LoginInput, CreateStudentInput, ... } from './schemas';
 export type { LoginOutput, StudentBase, StudentWithGroup, GroupOutput, ... } from './schemas';
 ```
 
-## tRPC 설정
-
-### Procedure 종류
-
-| Procedure            | 용도      | 인증  |
-|----------------------|---------|-----|
-| `publicProcedure`    | 공개 API  | 불필요 |
-| `protectedProcedure` | 보호된 API | 필요  |
-
-### Context 타입
+## Context 타입
 
 ```typescript
 // 기본 컨텍스트
@@ -94,82 +84,7 @@ interface AuthContext extends BaseContext {
 type Context = BaseContext & { account?: AccountInfo };
 ```
 
-> **Note**: `protectedProcedure`에서는 `isAuthenticated` 미들웨어가 타입 좁히기를 적용하여 `ctx.account`가 `AccountInfo` 타입으로 보장됩니다. 타입 단언(`as`) 없이 안전하게 사용 가능합니다.
-
-### Transformer (superjson)
-
-Date, BigInt 등 비-JSON 타입 자동 직렬화를 위해 superjson transformer가 적용되어 있습니다.
-
-```typescript
-import superjson from 'superjson';
-
-export const transformer = superjson;
-
-const t = initTRPC.context<Context>().create({
-    transformer: superjson,
-});
-```
-
-> **Note**: 서버/클라이언트가 동일 transformer를 사용해야 합니다. `@school/web`에서 동일한 superjson transformer가 적용되어 있습니다.
-
-## 라우터 작성 규칙
-
-### 새 라우터 추가
-
-1. `src/routers/` 폴더에 라우터 파일 생성
-2. `src/routers/index.ts`에서 병합
-
-```typescript
-// src/routers/example.ts
-import { router, protectedProcedure } from '../trpc';
-import { z } from 'zod';
-
-export const exampleRouter = router({
-    getItem: protectedProcedure
-        .input(z.object({ id: z.number() }))
-        .query(({ input, ctx }) => {
-            // 로직
-        }),
-});
-
-// src/routers/index.ts
-import { exampleRouter } from './example';
-
-export const appRouter = router({
-    example: exampleRouter,
-});
-```
-
-### 입력 검증
-
-- Zod 스키마 사용
-- `input()`으로 요청 데이터 검증
-
-```typescript
-.input(z.object({
-    id: z.number(),
-    name: z.string().min(1),
-}))
-```
-
-## 타입 공유
-
-### 클라이언트에서 사용
-
-```typescript
-import type { AppRouter } from '@school/trpc';
-import { createTRPCProxyClient } from '@trpc/client';
-
-const client = createTRPCProxyClient<AppRouter>({
-    // 설정
-});
-```
-
-### 서버에서 사용
-
-```typescript
-import { appRouter, router, protectedProcedure } from '@school/trpc';
-```
+> **Note**: `protectedProcedure`에서는 `ctx.account`가 `AccountInfo` 타입으로 보장됩니다.
 
 ## 스키마 타입 구조
 
@@ -195,6 +110,47 @@ interface StudentWithGroup extends StudentBase { groupName }
 // 응답 타입
 interface ListStudentsOutput { page, size, totalPage, students: StudentWithGroup[] }
 ```
+
+## 라우터 작성 규칙
+
+### 새 라우터 추가
+
+```typescript
+// src/routers/example.ts
+import { router, protectedProcedure } from '../trpc';
+import { z } from 'zod';
+
+export const exampleRouter = router({
+    getItem: protectedProcedure
+        .input(z.object({ id: z.number() }))
+        .query(({ input, ctx }) => {
+            // 로직
+        }),
+});
+
+// src/routers/index.ts
+import { exampleRouter } from './example';
+
+export const appRouter = router({
+    example: exampleRouter,
+});
+```
+
+## Transformer (superjson)
+
+Date, BigInt 등 비-JSON 타입 자동 직렬화를 위해 superjson transformer가 적용되어 있습니다.
+
+```typescript
+import superjson from 'superjson';
+
+export const transformer = superjson;
+
+const t = initTRPC.context<Context>().create({
+    transformer: superjson,
+});
+```
+
+> **Note**: 서버/클라이언트가 동일 transformer를 사용해야 합니다.
 
 ## 주의사항
 

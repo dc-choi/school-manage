@@ -1,10 +1,6 @@
 # CLAUDE.md
 
-> **용도**: 프로젝트 전체 개요, 모노레포 구조, 공통 명령어
-> **언제 읽나**: 프로젝트 처음 접근 시, 전체 구조 파악 필요 시
-> **스킵 조건**: 특정 앱/패키지 작업 시 (해당 폴더의 CLAUDE.md 참조)
-
-Claude Code (claude.ai/code)가 이 저장소에서 작업할 때 참고하는 가이드 문서입니다.
+Claude Code가 이 저장소에서 작업할 때 참고하는 가이드 문서입니다.
 
 ## Project Overview
 
@@ -34,7 +30,9 @@ school_back/
 ├── packages/
 │   ├── trpc/             # 공유 tRPC 타입/라우터 (@school/trpc)
 │   └── utils/            # 공유 유틸리티 함수 (@school/utils)
-├── docs/specs/           # SDD 문서
+├── docs/
+│   ├── business/         # 사업 문서
+│   └── specs/            # SDD 문서
 ├── turbo.json            # Turborepo 설정
 ├── pnpm-workspace.yaml   # pnpm workspace 설정
 └── tsconfig.build.json   # 루트 빌드용 TS Project References
@@ -46,42 +44,28 @@ school_back/
 @school/web → @school/trpc, @school/utils
 ```
 
-### 영역별 CLAUDE.md
+### 경로별 Rules
 
-| 경로                         | 설명                     |
-|----------------------------|------------------------|
-| `docs/business/CLAUDE.md`  | 사업 에이전트 가이드            |
-| `docs/specs/CLAUDE.md`     | PM/SDD 워크플로우, 문서 작성 규칙 |
-| `apps/api/CLAUDE.md`       | API 서버 아키텍처, 패턴, DB    |
-| `apps/web/CLAUDE.md`       | 웹 앱 구조, 라우팅, 컴포넌트      |
-| `packages/trpc/CLAUDE.md`  | tRPC 라우터 작성 규칙         |
-| `packages/utils/CLAUDE.md` | 공유 유틸리티 함수             |
+| 경로 패턴 | Rules 파일 | 설명 |
+|---------|-----------|------|
+| `apps/api/**` | `rules/api.md` | API 서버 아키텍처, UseCase 패턴, DB |
+| `apps/web/**` | `rules/web.md` | 웹 앱 구조, 라우팅, tRPC 클라이언트 |
+| `packages/trpc/**` | `rules/trpc.md` | tRPC 라우터 작성 규칙 |
+| `packages/utils/**` | `rules/utils.md` | 공유 유틸리티 함수 |
+| `docs/business/**` | `rules/business.md` | 사업 에이전트 가이드 |
+| `docs/specs/**` | `rules/specs.md` | PM/SDD 워크플로우, 문서 작성 규칙 |
 
 ## Development Environment
 
-| 항목      | 버전           | 비고                           |
-|---------|--------------|------------------------------|
+| 항목 | 버전 | 비고 |
+|------|------|------|
 | Node.js | **>=24.0.0** | ESM, import assertions 지원 필수 |
-| pnpm    | >=10.0.0     | workspace 사용                 |
-
-### 버전 관리
-- `.nvmrc`: Node.js 버전 명시 (`nvm use` 자동 적용)
-- `package.json#engines`: 런타임 버전 검증
+| pnpm | >=10.0.0 | workspace 사용 |
 
 ```bash
-# Node.js 버전 확인 및 설정
 nvm use              # .nvmrc 기준 자동 설정
 node --version       # v24.x.x 확인
 ```
-
-## Related Documents
-
-| 문서                          | 설명                        |
-|-----------------------------|---------------------------|
-| `README.md`                 | 프로젝트 소개, ERD, 개발 히스토리     |
-| `docs/business/README.md`   | 사업 문서 인덱스 (로드맵, 지표, 가격 등) |
-| `docs/specs/README.md`      | SDD 인덱스 (아키텍처/로드맵 포함)     |
-| `docs/specs/WORKFLOW.md`    | SDD 워크플로우 (작성자 + 검수자)     |
 
 ## Commands (Root)
 
@@ -93,9 +77,7 @@ pnpm start              # 프로덕션 서버 시작
 pnpm typecheck          # 타입 체크
 
 # 코드 품질
-pnpm lint               # ESLint 검사
 pnpm lint:fix           # ESLint 자동 수정
-pnpm prettier           # Prettier 검사
 pnpm prettier:fix       # Prettier 자동 수정
 
 # 정리
@@ -142,3 +124,12 @@ docs: 문서 수정 설명
 feature/<short-desc>
 fix/<short-desc>
 ```
+
+## Related Documents
+
+| 문서 | 설명 |
+|------|------|
+| `README.md` | 프로젝트 소개, ERD, 개발 히스토리 |
+| `docs/business/README.md` | 사업 문서 인덱스 (로드맵, 지표, 가격 등) |
+| `docs/specs/README.md` | SDD 인덱스 (아키텍처/로드맵 포함) |
+| `docs/specs/WORKFLOW.md` | SDD 워크플로우 (작성자 + 검수자) |

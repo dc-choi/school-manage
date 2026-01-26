@@ -134,10 +134,61 @@ FOR EACH item IN collection
 | 중복 데이터 | CONFLICT (409) | CONFLICT |
 | 서버 오류 | INTERNAL_SERVER_ERROR (500) | INTERNAL_SERVER_ERROR |
 
+## UI 명세 (프론트엔드)
+
+> 이 섹션은 웹 앱 UI 구현이 포함된 경우 작성합니다.
+> 참조: `.claude/rules/web.md` 디자인 가이드
+
+### 페이지/컴포넌트 구조
+
+```
+[PageName]Page.tsx
+├── Header (제목, 액션 버튼)
+├── [ContentSection]
+│   ├── [Component1]
+│   └── [Component2]
+└── Footer (선택)
+```
+
+### 사용 컴포넌트
+
+| 컴포넌트 | shadcn/ui | 용도 |
+|----------|-----------|------|
+| [컴포넌트명] | Button / Dialog / ... | [용도 설명] |
+
+### 레이아웃
+
+| 뷰포트 | 레이아웃 | 비고 |
+|--------|----------|------|
+| 모바일 (< 768px) | 단일 컬럼 | 풀 너비 |
+| 태블릿/데스크톱 (≥ 768px) | [N컬럼 / 사이드바] | [비고] |
+
+### 상태별 UI
+
+| 상태 | UI 표시 |
+|------|---------|
+| 로딩 | Loader2 스피너 중앙 배치 |
+| 에러 | 에러 메시지 (text-red-600) |
+| 빈 데이터 | 안내 문구 (text-muted-foreground) |
+| 성공 | [토스트 / 리다이렉트 / 인라인 메시지] |
+
+### 사용자 인터랙션
+
+| 액션 | 트리거 | 결과 |
+|------|--------|------|
+| [액션명] | 버튼 클릭 / 폼 제출 | [API 호출 / 상태 변경 / 네비게이션] |
+
+### 접근성 체크리스트
+
+- [ ] 폼 필드에 Label 연결
+- [ ] 버튼에 명확한 텍스트 / aria-label
+- [ ] 키보드 네비게이션 가능
+- [ ] 포커스 표시 유지
+
 ## 테스트 시나리오
 
 > 테스트 파일: `test/integration/[domain].test.ts`
-> 프레임워크: Mocha + Chai + Supertest
+> 프레임워크: Vitest
 
 ### 정상 케이스
 
