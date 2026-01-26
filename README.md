@@ -40,7 +40,7 @@ flowchart LR
     subgraph Server[AWS Lightsail]
         Nginx[Nginx<br/>리버스 프록시] -->|/api| API[Node.js<br/>Express + tRPC]
         Nginx -->|정적 파일| Static[React SPA]
-        API -->|Prisma| DB[(MariaDB)]
+        API -->|Prisma| DB[(MySQL)]
     end
 
     subgraph CI/CD
