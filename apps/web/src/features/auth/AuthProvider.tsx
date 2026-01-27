@@ -17,7 +17,7 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const [account, setAccount] = useState<AccountInfo | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 

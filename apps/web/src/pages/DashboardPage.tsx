@@ -1,5 +1,5 @@
 import { getWeeksInMonth } from '@school/utils';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     AttendanceRateChart,
     AvgAttendanceChart,
@@ -12,6 +12,7 @@ import { Label } from '~/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useAuth } from '~/features/auth';
 import { useDashboardStatistics } from '~/features/statistics';
+import { analytics } from '~/lib/analytics';
 
 export function DashboardPage() {
     const { account } = useAuth();
@@ -26,6 +27,11 @@ export function DashboardPage() {
         week: selectedWeek,
     });
     const hasError = !!stats.error;
+
+    // GA4 이벤트: 대시보드 진입
+    useEffect(() => {
+        analytics.trackDashboardViewed();
+    }, []);
 
     const yearOptions = useMemo(() => {
         const years = [];

@@ -17,6 +17,9 @@ export function useGroups() {
             if (data.isFirstGroup && data.daysSinceSignup !== undefined) {
                 analytics.trackFirstGroupCreated(data.daysSinceSignup);
             }
+
+            // GA4 이벤트: 그룹 생성
+            analytics.trackGroupCreated();
         },
     });
 
@@ -24,18 +27,27 @@ export function useGroups() {
         onSuccess: () => {
             utils.group.list.invalidate();
             utils.group.get.invalidate();
+
+            // GA4 이벤트: 그룹 수정
+            analytics.trackGroupUpdated();
         },
     });
 
     const deleteMutation = trpc.group.delete.useMutation({
         onSuccess: () => {
             utils.group.list.invalidate();
+
+            // GA4 이벤트: 그룹 삭제
+            analytics.trackGroupDeleted(1);
         },
     });
 
     const bulkDeleteMutation = trpc.group.bulkDelete.useMutation({
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
             utils.group.list.invalidate();
+
+            // GA4 이벤트: 그룹 일괄 삭제
+            analytics.trackGroupDeleted(variables.ids.length);
         },
     });
 

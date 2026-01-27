@@ -61,6 +61,34 @@ export class UpdateAttendanceUseCase {
             const uniqueStudentIds = new Set(input.attendance.map((a) => a.id));
             const studentCount = uniqueStudentIds.size;
 
+            // 측정 인프라: 출석 상세 정보 계산
+            let fullAttendanceCount = 0; // ◎ (미사+교리)
+            let massOnlyCount = 0; // ○ (미사만)
+            let catechismOnlyCount = 0; // △ (교리만)
+            let absentCount = 0; // - 또는 빈값
+
+            for (const item of input.attendance) {
+                switch (item.data) {
+                    case '◎':
+                        fullAttendanceCount++;
+                        break;
+                    case '○':
+                        massOnlyCount++;
+                        break;
+                    case '△':
+                        catechismOnlyCount++;
+                        break;
+                    case '-':
+                    case '':
+                    default:
+                        absentCount++;
+                        break;
+                }
+            }
+
+            const presentCount = fullAttendanceCount + massOnlyCount + catechismOnlyCount;
+            const attendanceRate = studentCount > 0 ? Math.round((presentCount / studentCount) * 100) : 0;
+
             return {
                 row,
                 isFull: input.isFull,
@@ -68,6 +96,11 @@ export class UpdateAttendanceUseCase {
                 isFirstAttendance,
                 daysSinceSignup,
                 studentCount,
+                fullAttendanceCount,
+                massOnlyCount,
+                catechismOnlyCount,
+                absentCount,
+                attendanceRate,
             };
         } catch (e) {
             throw new TRPCError({

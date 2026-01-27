@@ -5,9 +5,16 @@
  * - 회원가입 완료: analytics.trackSignUp()
  * - 로그인 성공: analytics.trackLogin()
  * - 첫 그룹 생성: analytics.trackFirstGroupCreated(daysSinceSignup)
+ * - 그룹 생성: analytics.trackGroupCreated()
+ * - 그룹 수정: analytics.trackGroupUpdated()
+ * - 그룹 삭제: analytics.trackGroupDeleted(count)
  * - 첫 학생 등록: analytics.trackFirstStudentRegistered(daysSinceSignup)
+ * - 학생 등록: analytics.trackStudentCreated()
+ * - 학생 수정: analytics.trackStudentUpdated()
+ * - 학생 삭제: analytics.trackStudentDeleted(count)
  * - 첫 출석 기록: analytics.trackFirstAttendanceRecorded(daysSinceSignup)
- * - 출석 저장 완료: analytics.trackAttendanceRecorded(studentCount)
+ * - 출석 저장 완료: analytics.trackAttendanceRecorded(params)
+ * - 대시보드 진입: analytics.trackDashboardViewed()
  */
 
 const isGtagAvailable = (): boolean => {
@@ -80,11 +87,81 @@ export const analytics = {
     /**
      * 출석 기록 이벤트
      * 트리거: 출석 저장 완료 시 (매 셀 변경이 아닌 저장 완료 시점)
-     * @param studentCount 출석 체크한 학생 수
+     * @param params 출석 상세 정보
      */
-    trackAttendanceRecorded: (studentCount: number): void => {
+    trackAttendanceRecorded: (params: {
+        studentCount: number;
+        fullAttendanceCount?: number;
+        massOnlyCount?: number;
+        catechismOnlyCount?: number;
+        absentCount?: number;
+        attendanceRate?: number;
+    }): void => {
         safeGtag('event', 'attendance_recorded', {
-            student_count: studentCount,
+            student_count: params.studentCount,
+            full_attendance_count: params.fullAttendanceCount,
+            mass_only_count: params.massOnlyCount,
+            catechism_only_count: params.catechismOnlyCount,
+            absent_count: params.absentCount,
+            attendance_rate: params.attendanceRate,
         });
+    },
+
+    /**
+     * 그룹 생성 이벤트
+     * 트리거: 그룹 생성 API 성공
+     */
+    trackGroupCreated: (): void => {
+        safeGtag('event', 'group_created');
+    },
+
+    /**
+     * 그룹 수정 이벤트
+     * 트리거: 그룹 수정 API 성공
+     */
+    trackGroupUpdated: (): void => {
+        safeGtag('event', 'group_updated');
+    },
+
+    /**
+     * 그룹 삭제 이벤트
+     * 트리거: 그룹 삭제 API 성공
+     * @param count 삭제된 그룹 수
+     */
+    trackGroupDeleted: (count: number): void => {
+        safeGtag('event', 'group_deleted', { count });
+    },
+
+    /**
+     * 학생 등록 이벤트
+     * 트리거: 학생 생성 API 성공
+     */
+    trackStudentCreated: (): void => {
+        safeGtag('event', 'student_created');
+    },
+
+    /**
+     * 학생 수정 이벤트
+     * 트리거: 학생 수정 API 성공
+     */
+    trackStudentUpdated: (): void => {
+        safeGtag('event', 'student_updated');
+    },
+
+    /**
+     * 학생 삭제 이벤트
+     * 트리거: 학생 삭제 API 성공
+     * @param count 삭제된 학생 수
+     */
+    trackStudentDeleted: (count: number): void => {
+        safeGtag('event', 'student_deleted', { count });
+    },
+
+    /**
+     * 대시보드 진입 이벤트
+     * 트리거: 대시보드 페이지 진입 시
+     */
+    trackDashboardViewed: (): void => {
+        safeGtag('event', 'dashboard_viewed');
     },
 };

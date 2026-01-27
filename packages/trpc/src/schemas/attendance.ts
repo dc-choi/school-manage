@@ -62,6 +62,16 @@ export interface UpdateAttendanceOutput {
     daysSinceSignup?: number;
     /** 저장된 출석 학생 수 (측정 인프라용) */
     studentCount?: number;
+    /** 완전 출석 수 - ◎ (측정 인프라용) */
+    fullAttendanceCount?: number;
+    /** 미사만 출석 수 - ○ (측정 인프라용) */
+    massOnlyCount?: number;
+    /** 교리만 출석 수 - △ (측정 인프라용) */
+    catechismOnlyCount?: number;
+    /** 결석 수 - 또는 빈값 (측정 인프라용) */
+    absentCount?: number;
+    /** 출석률 % (측정 인프라용) */
+    attendanceRate?: number;
 }
 
 /**

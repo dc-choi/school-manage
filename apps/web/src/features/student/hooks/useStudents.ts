@@ -63,6 +63,9 @@ export function useStudents(options: UseStudentsOptions = {}) {
             if (data.isFirstStudent && data.daysSinceSignup !== undefined) {
                 analytics.trackFirstStudentRegistered(data.daysSinceSignup);
             }
+
+            // GA4 이벤트: 학생 등록
+            analytics.trackStudentCreated();
         },
     });
 
@@ -70,18 +73,27 @@ export function useStudents(options: UseStudentsOptions = {}) {
         onSuccess: () => {
             utils.student.list.invalidate();
             utils.student.get.invalidate();
+
+            // GA4 이벤트: 학생 수정
+            analytics.trackStudentUpdated();
         },
     });
 
     const deleteMutation = trpc.student.delete.useMutation({
         onSuccess: () => {
             utils.student.list.invalidate();
+
+            // GA4 이벤트: 학생 삭제
+            analytics.trackStudentDeleted(1);
         },
     });
 
     const bulkDeleteMutation = trpc.student.bulkDelete.useMutation({
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
             utils.student.list.invalidate();
+
+            // GA4 이벤트: 학생 일괄 삭제
+            analytics.trackStudentDeleted(variables.ids.length);
         },
     });
 

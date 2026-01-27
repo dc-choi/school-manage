@@ -18,7 +18,14 @@ export function useAttendance(groupId: string, year?: number) {
 
             // GA4 이벤트: 출석 기록 (항상 전송)
             if (result.studentCount && result.studentCount > 0) {
-                analytics.trackAttendanceRecorded(result.studentCount);
+                analytics.trackAttendanceRecorded({
+                    studentCount: result.studentCount,
+                    fullAttendanceCount: result.fullAttendanceCount,
+                    massOnlyCount: result.massOnlyCount,
+                    catechismOnlyCount: result.catechismOnlyCount,
+                    absentCount: result.absentCount,
+                    attendanceRate: result.attendanceRate,
+                });
             }
         },
     });
