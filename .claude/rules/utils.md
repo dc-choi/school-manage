@@ -17,7 +17,7 @@ packages/utils/
 │   ├── format.ts     # 포맷팅 유틸리티
 │   ├── object.ts     # 객체 유틸리티
 │   └── math.ts       # 수학/계산 유틸리티
-├── test/             # 테스트 (92 cases)
+├── test/             # 테스트 (105 cases)
 ├── vitest.config.ts
 └── package.json
 ```

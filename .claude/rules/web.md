@@ -40,6 +40,7 @@ apps/web/src/
 │   └── statistics/hooks/
 ├── hooks/                      # 공통 커스텀 훅
 ├── lib/                        # 유틸리티 및 설정
+│   ├── analytics.ts            # GA4 이벤트 추적
 │   ├── trpc.ts                 # tRPC 클라이언트 설정
 │   ├── queryClient.ts          # TanStack Query 설정
 │   └── utils.ts                # 헬퍼 함수

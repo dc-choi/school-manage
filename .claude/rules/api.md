@@ -47,6 +47,7 @@ apps/api/src/
 │   ├── middleware/                 # Express 미들웨어
 │   └── utils/                      # 공용 유틸리티
 └── infrastructure/                 # 외부 연동
+    ├── analytics/                  # GA4 Measurement Protocol
     ├── database/                   # Prisma
     ├── logger/                     # 로거
     ├── scheduler/                  # 스케줄러

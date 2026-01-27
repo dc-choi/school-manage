@@ -32,6 +32,7 @@ school_back/
 │   └── utils/            # 공유 유틸리티 함수 (@school/utils)
 ├── docs/
 │   ├── business/         # 사업 문서
+│   ├── guides/           # 설정 가이드 (GA4 등)
 │   └── specs/            # SDD 문서
 ├── turbo.json            # Turborepo 설정
 ├── pnpm-workspace.yaml   # pnpm workspace 설정
@@ -54,7 +55,7 @@ school_back/
 | `packages/trpc/**`  | `rules/trpc.md`     | tRPC 라우터 작성 규칙                     |
 | `packages/utils/**` | `rules/utils.md`    | 공유 유틸리티 함수                         |
 | `docs/business/**`  | `rules/business.md` | 사업 에이전트 가이드                        |
-| `docs/specs/**`     | `rules/specs.md`    | PM/SDD 워크플로우, 문서 작성 규칙             |
+| `docs/specs/**`     | `rules/specs.md`    | SDD 워크플로우, 문서 작성 규칙               |
 
 ## Development Environment
 
@@ -148,5 +149,6 @@ fix/<short-desc>
 |---------------------------|---------------------------|
 | `README.md`               | 프로젝트 소개, ERD, 개발 히스토리     |
 | `docs/business/README.md` | 사업 문서 인덱스 (로드맵, 지표, 가격 등) |
+| `docs/guides/ga4-setup.md`| GA4 설정 가이드               |
 | `docs/specs/README.md`    | SDD 인덱스 (아키텍처/로드맵 포함)     |
 | `docs/specs/WORKFLOW.md`  | SDD 워크플로우 (작성자 + 검수자)     |

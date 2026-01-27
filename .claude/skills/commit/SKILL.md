@@ -22,7 +22,7 @@ description: 변경사항 분석 후 커밋 메시지 생성 및 커밋
 
 [선택] 상세 설명
 
-Co-Authored-By: Claude <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ### 타입 접두사 (선택)

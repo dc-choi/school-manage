@@ -19,7 +19,7 @@ description: 사업 에이전트 워크플로우 실행
 /business metrics      # 지표 설계
 /business roadmap      # 로드맵
 /business pricing      # 가격 정책
-/business handoff      # PM 에이전트 핸드오프
+/business handoff      # SDD 작성자 핸드오프
 ```
 
 ## 역할 정의
@@ -27,8 +27,7 @@ description: 사업 에이전트 워크플로우 실행
 | 역할 | 관점 | 질문 | 산출물 |
 |------|------|------|--------|
 | **사업 에이전트** | **Why** | "왜 이걸 해야 하는가?" | 문제 정의, 로드맵 |
-| PM 에이전트 | What | "무엇을 만들어야 하는가?" | PRD, 기능 설계 |
-| SDD 작성자 | How | "어떻게 구현할 것인가?" | Feature/Task/Dev |
+| SDD 작성자 | What + How | "무엇을/어떻게 구현할 것인가?" | PRD, 기능 설계, Task/Dev, 코드 |
 
 ## 문서 위치
 
@@ -98,7 +97,7 @@ description: 사업 에이전트 워크플로우 실행
 - 경쟁사 비교
 - **가설/근거/검증** 패턴 적용
 
-### 3. PM 에이전트 핸드오프
+### 3. SDD 작성자 핸드오프
 ```
 /business handoff
 ```
@@ -112,7 +111,7 @@ description: 사업 에이전트 워크플로우 실행
 #### 출력 형식
 ```markdown
 ---
-## PM 에이전트 핸드오프
+## SDD 작성자 핸드오프
 
 ### 문제 정의
 - 문서: `docs/business/...`
@@ -125,7 +124,7 @@ description: 사업 에이전트 워크플로우 실행
 - ...
 
 ### 다음 단계
-PM 에이전트가 PRD 작성 시작
+SDD 작성자가 PRD 작성 시작
 ---
 ```
 
