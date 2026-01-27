@@ -82,6 +82,7 @@ export type { GetAccountOutput } from './account';
 // Group 출력 타입
 export type {
     GroupOutput,
+    CreateGroupOutput,
     GetGroupOutput,
     ListGroupsOutput,
     AttendanceItem,

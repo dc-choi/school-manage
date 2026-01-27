@@ -6,6 +6,7 @@
 import type { GraduateStudentsInput, GraduateStudentsOutput, GraduatedStudent } from '@school/trpc';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
+import { ga4 } from '~/infrastructure/analytics/ga4.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type GraduateStudentsUseCaseInput = GraduateStudentsInput & { accountId: string };
@@ -15,7 +16,7 @@ export class GraduateStudentsUseCase {
         const { ids, accountId } = input;
 
         try {
-            return await database.$transaction(async (tx) => {
+            const result = await database.$transaction(async (tx) => {
                 // 본인 계정의 재학생만 조회
                 const students = await tx.student.findMany({
                     where: {
@@ -51,6 +52,13 @@ export class GraduateStudentsUseCase {
                     students: graduatedStudents,
                 };
             });
+
+            // GA4 이벤트: 졸업 처리 완료
+            if (result.graduatedCount > 0) {
+                await ga4.trackStudentGraduated(accountId, result.graduatedCount);
+            }
+
+            return result;
         } catch (e) {
             if (e instanceof TRPCError) {
                 throw e;

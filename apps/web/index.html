@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/jpeg" href="/logo.jpeg" />
     <title>주일학교 관리 프로그램</title>
+
+    <!-- Google Analytics (GA4) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=%VITE_GA4_MEASUREMENT_ID%"></script>
+    <script>
+      (function() {
+        var GA4_ID = '%VITE_GA4_MEASUREMENT_ID%';
+        if (GA4_ID && GA4_ID.indexOf('VITE_') === -1 && GA4_ID.indexOf('%') === -1) {
+          gtag('js', new Date());
+          gtag('config', GA4_ID);
+        }
+      })();
+    </script>
 </head>
 <body>
     <div id="root"></div>

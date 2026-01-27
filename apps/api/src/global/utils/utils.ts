@@ -9,6 +9,10 @@ export const getOsEnv = (key: string): string => {
     return process.env[key] as string;
 };
 
+export const getOsEnvOptional = (key: string, defaultValue = ''): string => {
+    return process.env[key] ?? defaultValue;
+};
+
 export const normalizePort = (port: string): number | string | boolean => {
     const parsedPort = parseInt(port, 10);
     if (isNaN(parsedPort)) {

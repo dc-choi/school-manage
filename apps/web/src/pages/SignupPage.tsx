@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/com
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { useAuth } from '~/features/auth';
+import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
 export function SignupPage() {
@@ -101,6 +102,10 @@ export function SignupPage() {
                 displayName,
                 password,
             });
+
+            // GA4 이벤트 전송
+            analytics.trackSignUp();
+
             // 자동 로그인
             sessionStorage.setItem('token', result.accessToken);
             // 대시보드로 이동 (페이지 새로고침으로 AuthProvider 초기화)

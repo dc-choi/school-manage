@@ -50,6 +50,7 @@ school_back/
 |---------|-----------|------|
 | `apps/api/**` | `rules/api.md` | API 서버 아키텍처, UseCase 패턴, DB |
 | `apps/web/**` | `rules/web.md` | 웹 앱 구조, 라우팅, tRPC 클라이언트 |
+| `apps/web/**` | `rules/design.md` | UI/UX 디자인 가이드, shadcn/ui, Tailwind |
 | `packages/trpc/**` | `rules/trpc.md` | tRPC 라우터 작성 규칙 |
 | `packages/utils/**` | `rules/utils.md` | 공유 유틸리티 함수 |
 | `docs/business/**` | `rules/business.md` | 사업 에이전트 가이드 |
@@ -67,6 +68,18 @@ nvm use              # .nvmrc 기준 자동 설정
 node --version       # v24.x.x 확인
 ```
 
+## Environment Variables (GA4 Analytics)
+
+측정 인프라용 환경변수입니다. 프로덕션 환경에서만 필수입니다.
+
+| 패키지 | 변수명 | 용도 |
+|--------|--------|------|
+| `@school/api` | `GA4_MEASUREMENT_ID` | GA4 측정 ID |
+| `@school/api` | `GA4_API_SECRET` | GA4 Measurement Protocol API 시크릿 |
+| `@school/web` | `VITE_GA4_MEASUREMENT_ID` | GA4 측정 ID (클라이언트) |
+
+> **Note**: 환경변수 미설정 시 GA4 이벤트 전송이 비활성화됩니다 (앱 정상 동작).
+
 ## Commands (Root)
 
 ```bash
@@ -74,10 +87,13 @@ node --version       # v24.x.x 확인
 pnpm build              # 모든 패키지 빌드 (turbo)
 pnpm dev                # 모든 앱 개발 서버 (병렬)
 pnpm start              # 프로덕션 서버 시작
+pnpm test               # 모든 패키지 테스트 실행
 pnpm typecheck          # 타입 체크
 
 # 코드 품질
+pnpm lint               # ESLint 검사
 pnpm lint:fix           # ESLint 자동 수정
+pnpm prettier           # Prettier 검사
 pnpm prettier:fix       # Prettier 자동 수정
 
 # 정리
@@ -91,7 +107,8 @@ tsc -b -v tsconfig.build.json   # 전체 의존성 순서대로 빌드
 
 ### Turborepo
 - `turbo.json`에서 태스크 의존성 정의
-- `start` 태스크는 `^build` 의존 (빌드 선행 보장)
+- `start` 태스크는 `^build`, `^start` 의존 (빌드 선행 보장)
+- `dev` 태스크는 `@school/trpc#build` 의존 (tRPC 패키지 빌드 후 실행)
 - 캐시: `.turbo/cache/`
 
 ### TypeScript Project References

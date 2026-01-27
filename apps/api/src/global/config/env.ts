@@ -1,7 +1,7 @@
 import pkg from '../../../package.json' with { type: 'json' };
 import dotenv from 'dotenv';
 import { join } from 'node:path';
-import { getOsEnv, normalizePort } from '~/global/utils/index.js';
+import { getOsEnv, getOsEnvOptional, normalizePort } from '~/global/utils/index.js';
 
 /**
  * Load .env file or for tests the .env.test file.
@@ -46,5 +46,9 @@ export const env = {
             access: getOsEnv('JWT_EXPIRE_ACCESS'),
             refresh: getOsEnv('JWT_EXPIRE_REFRESH'),
         },
+    },
+    ga4: {
+        measurementId: getOsEnvOptional('GA4_MEASUREMENT_ID'),
+        apiSecret: getOsEnvOptional('GA4_API_SECRET'),
     },
 };

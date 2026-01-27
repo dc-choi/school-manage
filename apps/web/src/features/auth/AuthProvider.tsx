@@ -1,5 +1,6 @@
 import type { AccountInfo } from '@school/trpc';
 import { type ReactNode, createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
 export interface AuthContextValue {
@@ -56,6 +57,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const result = await loginMutation.mutateAsync({ name, password });
             sessionStorage.setItem('token', result.accessToken);
             setAccount({ id: '', name: result.name }); // id는 account.get에서 가져옴
+
+            // GA4 이벤트 전송
+            analytics.trackLogin();
         },
         [loginMutation]
     );

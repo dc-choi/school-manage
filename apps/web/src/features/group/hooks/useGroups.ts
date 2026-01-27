@@ -1,4 +1,5 @@
 import type { CreateGroupInput, UpdateGroupInput } from '@school/trpc';
+import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
 export function useGroups() {
@@ -9,8 +10,13 @@ export function useGroups() {
     const getQuery = (id: string) => trpc.group.get.useQuery({ id }, { enabled: !!id });
 
     const createMutation = trpc.group.create.useMutation({
-        onSuccess: () => {
+        onSuccess: (data) => {
             utils.group.list.invalidate();
+
+            // GA4 이벤트: 첫 그룹 생성
+            if (data.isFirstGroup && data.daysSinceSignup !== undefined) {
+                analytics.trackFirstGroupCreated(data.daysSinceSignup);
+            }
         },
     });
 

@@ -72,6 +72,14 @@ export interface GroupOutput {
 }
 
 /**
+ * 그룹 생성 응답 (측정 인프라용 필드 포함)
+ */
+export interface CreateGroupOutput extends GroupOutput {
+    isFirstGroup?: boolean;
+    daysSinceSignup?: number;
+}
+
+/**
  * 그룹 상세 조회 응답 (학생 목록 포함, 로드맵 1단계)
  */
 export interface GetGroupOutput extends GroupOutput {

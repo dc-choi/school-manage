@@ -113,6 +113,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web
+        env:
+          VITE_GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
         run: pnpm turbo build --filter=@school/web
 
       - name: Deploy to server via SCP

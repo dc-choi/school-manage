@@ -58,9 +58,9 @@ export const studentRouter = router({
      * 학생 생성
      * POST /api/student -> trpc.student.create
      */
-    create: protectedProcedure.input(createStudentInputSchema).mutation(async ({ input }) => {
+    create: protectedProcedure.input(createStudentInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new CreateStudentUseCase();
-        return usecase.execute(input);
+        return usecase.execute(input, ctx.account.id);
     }),
 
     /**

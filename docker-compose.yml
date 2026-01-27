@@ -7,6 +7,8 @@ services:
       - .env.production
     ports:
       - "4000:4000"
+    volumes:
+      - ./logs:/app/apps/api/logs
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/trpc/health.check"]
       interval: 30s

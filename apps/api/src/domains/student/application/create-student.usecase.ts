@@ -9,8 +9,33 @@ import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 export class CreateStudentUseCase {
-    async execute(input: CreateStudentInput): Promise<CreateStudentOutput> {
+    async execute(input: CreateStudentInput, accountId: string): Promise<CreateStudentOutput> {
         try {
+            // 측정 인프라: 계정의 첫 학생인지 확인
+            const existingStudentCount = await database.student.count({
+                where: {
+                    group: {
+                        accountId: BigInt(accountId),
+                    },
+                    deletedAt: null,
+                },
+            });
+            const isFirstStudent = existingStudentCount === 0;
+
+            // 측정 인프라: 가입 후 경과일 계산
+            let daysSinceSignup: number | undefined;
+            if (isFirstStudent) {
+                const account = await database.account.findUnique({
+                    where: { id: BigInt(accountId) },
+                    select: { createdAt: true },
+                });
+                if (account?.createdAt) {
+                    const now = getNowKST();
+                    const diffMs = now.getTime() - account.createdAt.getTime();
+                    daysSinceSignup = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                }
+            }
+
             const student = await database.student.create({
                 data: {
                     societyName: input.societyName,
@@ -35,6 +60,9 @@ export class CreateStudentUseCase {
                 description: student.description ?? undefined,
                 groupId: String(student.groupId),
                 baptizedAt: student.baptizedAt ?? undefined,
+                // 측정 인프라용 필드
+                isFirstStudent,
+                daysSinceSignup,
             };
         } catch (e) {
             throw new TRPCError({

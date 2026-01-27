@@ -1,5 +1,6 @@
 import type { CreateStudentInput, UpdateStudentInput } from '@school/trpc';
 import { useState } from 'react';
+import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
 type DeleteFilter = 'active' | 'deleted' | 'all';
@@ -55,8 +56,13 @@ export function useStudents(options: UseStudentsOptions = {}) {
     });
 
     const createMutation = trpc.student.create.useMutation({
-        onSuccess: () => {
+        onSuccess: (data) => {
             utils.student.list.invalidate();
+
+            // GA4 이벤트: 첫 학생 등록
+            if (data.isFirstStudent && data.daysSinceSignup !== undefined) {
+                analytics.trackFirstStudentRegistered(data.daysSinceSignup);
+            }
         },
     });
 

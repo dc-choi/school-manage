@@ -89,6 +89,7 @@ export type {
     GetAccountOutput,
     // Group
     GroupOutput,
+    CreateGroupOutput,
     GetGroupOutput,
     ListGroupsOutput,
     AttendanceItem,

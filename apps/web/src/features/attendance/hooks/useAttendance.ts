@@ -1,4 +1,5 @@
 import type { AttendanceData } from '@school/trpc';
+import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
 export function useAttendance(groupId: string, year?: number) {
@@ -7,8 +8,18 @@ export function useAttendance(groupId: string, year?: number) {
     const { data, isLoading, error } = trpc.group.attendance.useQuery({ groupId, year }, { enabled: !!groupId });
 
     const updateMutation = trpc.attendance.update.useMutation({
-        onSuccess: () => {
+        onSuccess: (result) => {
             utils.group.attendance.invalidate({ groupId, year });
+
+            // GA4 이벤트: 첫 출석 기록
+            if (result.isFirstAttendance && result.daysSinceSignup !== undefined) {
+                analytics.trackFirstAttendanceRecorded(result.daysSinceSignup);
+            }
+
+            // GA4 이벤트: 출석 기록 (항상 전송)
+            if (result.studentCount && result.studentCount > 0) {
+                analytics.trackAttendanceRecorded(result.studentCount);
+            }
         },
     });
 

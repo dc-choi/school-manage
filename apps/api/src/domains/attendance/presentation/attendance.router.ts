@@ -19,9 +19,9 @@ export const attendanceRouter = router({
      * 출석 업데이트
      * PUT /api/attendance -> trpc.attendance.update
      */
-    update: protectedProcedure.input(updateAttendanceInputSchema).mutation(async ({ input }) => {
+    update: protectedProcedure.input(updateAttendanceInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new UpdateAttendanceUseCase();
-        return usecase.execute(input);
+        return usecase.execute(input, ctx.account.id);
     }),
 
     /**

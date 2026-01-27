@@ -10,7 +10,7 @@ import { getFullTime } from '~/global/utils/utils.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class UpdateAttendanceUseCase {
-    async execute(input: UpdateAttendanceInput): Promise<UpdateAttendanceOutput> {
+    async execute(input: UpdateAttendanceInput, accountId: string): Promise<UpdateAttendanceOutput> {
         if (!input.attendance || input.attendance.length <= 0) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
@@ -19,6 +19,34 @@ export class UpdateAttendanceUseCase {
         }
 
         try {
+            // 측정 인프라: 계정의 첫 출석인지 확인 (업데이트 전)
+            const existingAttendanceCount = await database.attendance.count({
+                where: {
+                    student: {
+                        group: {
+                            accountId: BigInt(accountId),
+                        },
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                },
+            });
+            const isFirstAttendance = existingAttendanceCount === 0;
+
+            // 측정 인프라: 가입 후 경과일 계산
+            let daysSinceSignup: number | undefined;
+            if (isFirstAttendance) {
+                const account = await database.account.findUnique({
+                    where: { id: BigInt(accountId) },
+                    select: { createdAt: true },
+                });
+                if (account?.createdAt) {
+                    const now = getNowKST();
+                    const diffMs = now.getTime() - account.createdAt.getTime();
+                    daysSinceSignup = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                }
+            }
+
             let row: number;
 
             if (input.isFull) {
@@ -29,9 +57,17 @@ export class UpdateAttendanceUseCase {
                 row = await this.deleteAttendance(input.year, input.attendance);
             }
 
+            // 측정 인프라: 저장된 학생 수 (고유 학생 ID 수)
+            const uniqueStudentIds = new Set(input.attendance.map((a) => a.id));
+            const studentCount = uniqueStudentIds.size;
+
             return {
                 row,
                 isFull: input.isFull,
+                // 측정 인프라용 필드
+                isFirstAttendance,
+                daysSinceSignup,
+                studentCount,
             };
         } catch (e) {
             throw new TRPCError({

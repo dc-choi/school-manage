@@ -141,13 +141,23 @@ export interface ListStudentsOutput {
 }
 
 /**
- * 학생 단일 조회/생성/수정/삭제 응답
+ * 학생 단일 조회/수정/삭제 응답
  * - 기존 API 호환성을 위해 StudentBase 사용 (groupName 미포함)
  */
 export type GetStudentOutput = StudentBase;
-export type CreateStudentOutput = StudentBase;
 export type UpdateStudentOutput = StudentBase;
 export type DeleteStudentOutput = StudentBase;
+
+/**
+ * 학생 생성 응답
+ * - 측정 인프라용 필드 포함 (선택적)
+ */
+export interface CreateStudentOutput extends StudentBase {
+    /** 이 계정의 첫 번째 학생인지 (측정 인프라용) */
+    isFirstStudent?: boolean;
+    /** 가입 후 경과일 (측정 인프라용) */
+    daysSinceSignup?: number;
+}
 
 /**
  * 학년 진급 응답 (기존 학생 졸업 처리 → 진급으로 이름 변경)
