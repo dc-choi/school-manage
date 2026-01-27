@@ -46,22 +46,22 @@ school_back/
 
 ### 경로별 Rules
 
-| 경로 패턴 | Rules 파일 | 설명 |
-|---------|-----------|------|
-| `apps/api/**` | `rules/api.md` | API 서버 아키텍처, UseCase 패턴, DB |
-| `apps/web/**` | `rules/web.md` | 웹 앱 구조, 라우팅, tRPC 클라이언트 |
-| `apps/web/**` | `rules/design.md` | UI/UX 디자인 가이드, shadcn/ui, Tailwind |
-| `packages/trpc/**` | `rules/trpc.md` | tRPC 라우터 작성 규칙 |
-| `packages/utils/**` | `rules/utils.md` | 공유 유틸리티 함수 |
-| `docs/business/**` | `rules/business.md` | 사업 에이전트 가이드 |
-| `docs/specs/**` | `rules/specs.md` | PM/SDD 워크플로우, 문서 작성 규칙 |
+| 경로 패턴               | Rules 파일            | 설명                                 |
+|---------------------|---------------------|------------------------------------|
+| `apps/api/**`       | `rules/api.md`      | API 서버 아키텍처, UseCase 패턴, DB        |
+| `apps/web/**`       | `rules/web.md`      | 웹 앱 구조, 라우팅, tRPC 클라이언트            |
+| `apps/web/**`       | `rules/design.md`   | UI/UX 디자인 가이드, shadcn/ui, Tailwind |
+| `packages/trpc/**`  | `rules/trpc.md`     | tRPC 라우터 작성 규칙                     |
+| `packages/utils/**` | `rules/utils.md`    | 공유 유틸리티 함수                         |
+| `docs/business/**`  | `rules/business.md` | 사업 에이전트 가이드                        |
+| `docs/specs/**`     | `rules/specs.md`    | PM/SDD 워크플로우, 문서 작성 규칙             |
 
 ## Development Environment
 
-| 항목 | 버전 | 비고 |
-|------|------|------|
+| 항목      | 버전           | 비고                           |
+|---------|--------------|------------------------------|
 | Node.js | **>=24.0.0** | ESM, import assertions 지원 필수 |
-| pnpm | >=10.0.0 | workspace 사용 |
+| pnpm    | >=10.0.0     | workspace 사용                 |
 
 ```bash
 nvm use              # .nvmrc 기준 자동 설정
@@ -72,11 +72,11 @@ node --version       # v24.x.x 확인
 
 측정 인프라용 환경변수입니다. 프로덕션 환경에서만 필수입니다.
 
-| 패키지 | 변수명 | 용도 |
-|--------|--------|------|
-| `@school/api` | `GA4_MEASUREMENT_ID` | GA4 측정 ID |
-| `@school/api` | `GA4_API_SECRET` | GA4 Measurement Protocol API 시크릿 |
-| `@school/web` | `VITE_GA4_MEASUREMENT_ID` | GA4 측정 ID (클라이언트) |
+| 패키지           | 변수명                       | 용도                               |
+|---------------|---------------------------|----------------------------------|
+| `@school/api` | `GA4_MEASUREMENT_ID`      | GA4 측정 ID                        |
+| `@school/api` | `GA4_API_SECRET`          | GA4 Measurement Protocol API 시크릿 |
+| `@school/web` | `VITE_GA4_MEASUREMENT_ID` | GA4 측정 ID (클라이언트)                |
 
 > **Note**: 환경변수 미설정 시 GA4 이벤트 전송이 비활성화됩니다 (앱 정상 동작).
 
@@ -144,9 +144,9 @@ fix/<short-desc>
 
 ## Related Documents
 
-| 문서 | 설명 |
-|------|------|
-| `README.md` | 프로젝트 소개, ERD, 개발 히스토리 |
+| 문서                        | 설명                        |
+|---------------------------|---------------------------|
+| `README.md`               | 프로젝트 소개, ERD, 개발 히스토리     |
 | `docs/business/README.md` | 사업 문서 인덱스 (로드맵, 지표, 가격 등) |
-| `docs/specs/README.md` | SDD 인덱스 (아키텍처/로드맵 포함) |
-| `docs/specs/WORKFLOW.md` | SDD 워크플로우 (작성자 + 검수자) |
+| `docs/specs/README.md`    | SDD 인덱스 (아키텍처/로드맵 포함)     |
+| `docs/specs/WORKFLOW.md`  | SDD 워크플로우 (작성자 + 검수자)     |

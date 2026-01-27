@@ -107,10 +107,10 @@
 
 ### SECURITY (Non-Functional)
 
-| 우선순위 | 기능명                 | SDD 상태 | 비고                              |
-|------|---------------------|--------|---------------------------------|
+| 우선순위 | 기능명                 | SDD 상태 | 비고                                  |
+|------|---------------------|--------|-------------------------------------|
 | P1   | Refresh token 인증 확장 | 완료     | Task/Development 작성됨 (Feature는 레거시) |
-| P1   | 계정 소유권 검증 강화        | 미작성    | PM 기능 설계부터 필요                   |
+| P1   | 계정 소유권 검증 강화        | 미작성    | PM 기능 설계부터 필요                       |
 
 **Refresh token 인증 확장:**
 - 기능 설계: `docs/specs/functional-design/auth-refresh-token.md`
@@ -128,15 +128,6 @@
 - Task: `docs/specs/target/non-functional/tasks/web-refactoring-optimization.md`
 - Development: `docs/specs/target/non-functional/development/web-refactoring-optimization.md`
 
-### MEASUREMENT (Non-Functional)
-
-| 우선순위 | 기능명    | 기능 설계                                               | SDD 상태 | 비고                              |
-|------|--------|-----------------------------------------------------|--------|---------------------------------|
-| P1   | 측정 인프라 | `docs/specs/functional-design/measurement-infrastructure.md` | **완료** | 로드맵 1단계, 서버 로깅 영속화 + GA4 연동 (클라이언트 + 서버) |
-
-> **완료**: 2026-01-28. SDD 문서는 non-functional이므로 삭제됨.
-> **설정 가이드**: `docs/guides/ga4-setup.md`
-
 ---
 
 ## Templates
@@ -146,7 +137,7 @@
 | 문서 유형       | 경로                                          |
 |-------------|---------------------------------------------|
 | PRD         | `docs/specs/templates/prd.md`               |
-| 기능 설계      | `docs/specs/templates/functional_design.md` |
+| 기능 설계       | `docs/specs/templates/functional_design.md` |
 | Task        | `docs/specs/templates/task.md`              |
 | Development | `docs/specs/templates/development.md`       |
 
