@@ -8,18 +8,20 @@
 |---------------------------|------|-----------------------------------------------------------------------------------|
 | **Current Functional**    | 100% | 5개 도메인 완전 문서화 + 구현 완료 (student-graduation → student-management 병합, statistics 통합) |
 | **Target Functional**     | 100% | 로드맵 1단계 완료 (그룹/학생 UI/UX 개선, 졸업 처리 모두 완료)                                          |
-| **Target Non-Functional** | -    | DEPLOY 완료, SECURITY/PERFORMANCE 대기                                                |
+| **Target Non-Functional** | -    | MEASUREMENT 완료, SECURITY/PERFORMANCE 대기                                           |
 
 ## 관련 문서
 
 | 문서                       | 설명                    |
 |--------------------------|-----------------------|
 | `docs/specs/WORKFLOW.md` | SDD 워크플로우 (작성자 + 검수자) |
-| `docs/specs/CLAUDE.md`   | SDD 가이드 + PM 에이전트 역할  |
+| `.claude/rules/specs.md` | SDD 가이드 + 역할 분리       |
 
 ---
 
-## PM 에이전트 산출물
+## PRD & 기능 설계
+
+> **작성자**: 작성자 세션 (PM 에이전트 역할 통합)
 
 ### PRD (제품 요구사항 문서)
 
@@ -55,13 +57,13 @@
 
 ### Functional
 
-| 기능명                | Feature                             | Task                             | Development                             |
-|--------------------|-------------------------------------|----------------------------------|-----------------------------------------|
-| Auth/Account       | `features/auth-account.md`          | `tasks/auth-account.md`          | `development/auth-account.md`           |
-| Group              | `features/group-management.md`      | `tasks/group-management.md`      | `development/group-management.md`       |
-| Student            | `features/student-management.md`    | `tasks/student-management.md`    | `development/student-management.md`     |
-| Attendance         | `features/attendance-management.md` | `tasks/attendance-management.md` | `development/attendance-management.md`  |
-| Statistics         | `features/statistics.md`            | `tasks/statistics.md`            | `development/statistics.md`             |
+| 기능명                | Task                             | Development                             |
+|--------------------|----------------------------------|-----------------------------------------|
+| Auth/Account       | `tasks/auth-account.md`          | `development/auth-account.md`           |
+| Group              | `tasks/group-management.md`      | `development/group-management.md`       |
+| Student            | `tasks/student-management.md`    | `development/student-management.md`     |
+| Attendance         | `tasks/attendance-management.md` | `development/attendance-management.md`  |
+| Statistics         | `tasks/statistics.md`            | `development/statistics.md`             |
 
 > **Note**:
 > - Auth/Account 문서에 회원가입 (로드맵 1단계) 내용이 포함되어 있습니다.
@@ -100,19 +102,18 @@
 | 출석 리포트 (주간/월간) | -                         | 대시보드 통계로 대체       |
 
 **SDD 문서 작성 시 경로:**
-- Feature: `docs/specs/target/functional/features/{name}.md`
 - Task: `docs/specs/target/functional/tasks/{name}.md`
-- Development: `docs/specs/target/functional/development/{name}.md`
+- Development: `docs/specs/target/functional/development/{name}-{role}.md` (role: backend, frontend, design)
 
 ### SECURITY (Non-Functional)
 
 | 우선순위 | 기능명                 | SDD 상태 | 비고                              |
 |------|---------------------|--------|---------------------------------|
-| P1   | Refresh token 인증 확장 | 완료     | Feature/Task/Development 모두 작성됨 |
+| P1   | Refresh token 인증 확장 | 완료     | Task/Development 작성됨 (Feature는 레거시) |
 | P1   | 계정 소유권 검증 강화        | 미작성    | PM 기능 설계부터 필요                   |
 
 **Refresh token 인증 확장:**
-- Feature: `docs/specs/target/non-functional/features/auth-refresh-token.md`
+- 기능 설계: `docs/specs/functional-design/auth-refresh-token.md`
 - Task: `docs/specs/target/non-functional/tasks/auth-refresh-token.md`
 - Development: `docs/specs/target/non-functional/development/auth-refresh-token.md`
 
@@ -123,30 +124,33 @@
 | P1   | 웹 앱 리팩토링/최적화 | 완료     | 코드 품질, 성능, 테스트 커버리지 개선 |
 
 **웹 앱 리팩토링/최적화:**
-- Feature: `docs/specs/target/non-functional/features/web-refactoring-optimization.md`
+- 기능 설계: `docs/specs/functional-design/web-refactoring-optimization.md`
 - Task: `docs/specs/target/non-functional/tasks/web-refactoring-optimization.md`
 - Development: `docs/specs/target/non-functional/development/web-refactoring-optimization.md`
+
+### MEASUREMENT (Non-Functional)
+
+| 우선순위 | 기능명    | 기능 설계                                               | SDD 상태 | 비고                              |
+|------|--------|-----------------------------------------------------|--------|---------------------------------|
+| P1   | 측정 인프라 | `docs/specs/functional-design/measurement-infrastructure.md` | **완료** | 로드맵 1단계, 서버 로깅 영속화 + GA4 연동 (클라이언트 + 서버) |
+
+> **완료**: 2026-01-28. SDD 문서는 non-functional이므로 삭제됨.
+> **설정 가이드**: `docs/guides/ga4-setup.md`
 
 ---
 
 ## Templates
 
-### PM 에이전트
+### 작성자 (PRD/기능 설계/SDD)
 
-| 문서 유형 | 경로                                          |
-|-------|---------------------------------------------|
-| PRD   | `docs/specs/templates/prd.md`               |
-| 기능 설계 | `docs/specs/templates/functional_design.md` |
+| 문서 유형       | 경로                                          |
+|-------------|---------------------------------------------|
+| PRD         | `docs/specs/templates/prd.md`               |
+| 기능 설계      | `docs/specs/templates/functional_design.md` |
+| Task        | `docs/specs/templates/task.md`              |
+| Development | `docs/specs/templates/development.md`       |
 
-### SDD 작성자
-
-| 문서 유형       | 경로                                    |
-|-------------|---------------------------------------|
-| Feature     | `docs/specs/templates/feature.md`     |
-| Task        | `docs/specs/templates/task.md`        |
-| Development | `docs/specs/templates/development.md` |
-
-### SDD 검수자
+### 검수자
 
 | 문서 유형  | 경로                               |
 |--------|----------------------------------|

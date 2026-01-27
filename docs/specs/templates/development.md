@@ -10,7 +10,6 @@
 
 - PRD: `docs/specs/prd/[prd-name].md`
 - 기능 설계: `docs/specs/functional-design/[design-name].md`
-- Feature: `docs/specs/{current|target}/{functional|non-functional}/features/[feature-name].md`
 - Task: `docs/specs/{current|target}/{functional|non-functional}/tasks/[task-name].md`
 
 ## 구현 대상 업무
