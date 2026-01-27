@@ -4,6 +4,10 @@
 문서 작성 흐름: 문제 식별 → 가설 → 검증
 작성 워크플로우: `docs/business/WORKFLOW.md`
 
+## 비전
+- **장기**: 가톨릭 교회 내 모든 모임을 위한 그룹 운영 플랫폼
+- **단기**: 주일학교 중고등부 대상 출석부 서비스로 PMF 검증
+
 ## 문서 목록
 - `docs/business/0_feedback/feedback.md` 사용자 피드백
 - `docs/business/1_market/market.md` 시장/고객/경쟁

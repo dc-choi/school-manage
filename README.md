@@ -66,6 +66,7 @@ apps/
       components/         # UI 컴포넌트 (common, ui, layout, forms)
       features/           # 도메인별 훅
       pages/              # 페이지 컴포넌트
+      routes/             # 라우트 정의
 packages/
   trpc/                   # 공유 tRPC 타입/스키마 (@school/trpc)
   utils/                  # 공유 유틸리티 (@school/utils)
