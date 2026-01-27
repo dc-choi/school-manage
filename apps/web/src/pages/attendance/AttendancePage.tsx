@@ -12,11 +12,18 @@ import { useGroups } from '~/features/group';
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
+/**
+ * 출석 상태 옵션
+ * ◎ = 출석 (미사+교리)
+ * ○ = 미사만
+ * △ = 교리만
+ * - = 결석
+ */
 const ATTENDANCE_OPTIONS = [
     { value: '', label: '-' },
-    { value: 'O', label: 'O' },
-    { value: 'X', label: 'X' },
-    { value: '?', label: '?' },
+    { value: '◎', label: '◎' },
+    { value: '○', label: '○' },
+    { value: '△', label: '△' },
 ];
 
 export function AttendancePage() {
