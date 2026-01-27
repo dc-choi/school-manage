@@ -167,14 +167,50 @@ VITE_GA4_MEASUREMENT_ID=G-PROD12345
 
 ### 클라이언트 이벤트 (gtag.js)
 
+#### 인증
+
 | 이벤트 | 트리거 | 파라미터 |
 |--------|--------|----------|
 | `sign_up` | 회원가입 완료 | `method: 'form'` |
 | `login` | 로그인 성공 | `method: 'form'` |
+
+#### 온보딩 (첫 사용)
+
+| 이벤트 | 트리거 | 파라미터 |
+|--------|--------|----------|
 | `first_group_created` | 첫 그룹 생성 | `days_since_signup` |
 | `first_student_registered` | 첫 학생 등록 | `days_since_signup` |
 | `first_attendance_recorded` | 첫 출석 기록 | `days_since_signup` |
-| `attendance_recorded` | 출석 저장 | `student_count` |
+
+#### 그룹 관리
+
+| 이벤트 | 트리거 | 파라미터 |
+|--------|--------|----------|
+| `group_created` | 그룹 생성 | - |
+| `group_updated` | 그룹 수정 | - |
+| `group_deleted` | 그룹 삭제 | `count` |
+
+#### 학생 관리
+
+| 이벤트 | 트리거 | 파라미터 |
+|--------|--------|----------|
+| `student_created` | 학생 등록 | - |
+| `student_updated` | 학생 수정 | - |
+| `student_deleted` | 학생 삭제 | `count` |
+
+#### 출석 관리
+
+| 이벤트 | 트리거 | 파라미터 |
+|--------|--------|----------|
+| `attendance_recorded` | 출석 저장 | `student_count`, `full_attendance_count`, `mass_only_count`, `catechism_only_count`, `absent_count`, `attendance_rate` |
+
+> 출석 상태: ◎(미사+교리), ○(미사만), △(교리만), -(결석)
+
+#### 페이지 뷰
+
+| 이벤트 | 트리거 | 파라미터 |
+|--------|--------|----------|
+| `dashboard_viewed` | 대시보드 진입 | - |
 
 ### 서버 이벤트 (Measurement Protocol)
 
