@@ -117,6 +117,16 @@
 - Task: `docs/specs/target/non-functional/tasks/auth-refresh-token.md`
 - Development: `docs/specs/target/non-functional/development/auth-refresh-token.md`
 
+### MEASUREMENT (Non-Functional)
+
+| 우선순위 | 기능명      | SDD 상태 | 비고                    |
+|------|----------|--------|----------------------|
+| P1   | 회원가입 알림 | **완료** | 신규 가입 시 운영자 메일 알림 |
+
+**회원가입 알림:**
+- 기능 설계: `docs/specs/functional-design/signup-notification.md`
+- 구현 완료: `apps/api/src/infrastructure/mail/`
+
 ### PERFORMANCE (Non-Functional)
 
 | 우선순위 | 기능명          | SDD 상태 | 비고                     |

@@ -51,4 +51,9 @@ export const env = {
         measurementId: getOsEnvOptional('GA4_MEASUREMENT_ID'),
         apiSecret: getOsEnvOptional('GA4_API_SECRET'),
     },
+    smtp: {
+        user: getOsEnvOptional('SMTP_USER'),
+        pass: getOsEnvOptional('SMTP_PASS'),
+        adminEmail: getOsEnvOptional('ADMIN_EMAIL'),
+    },
 };

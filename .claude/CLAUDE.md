@@ -69,9 +69,11 @@ nvm use              # .nvmrc 기준 자동 설정
 node --version       # v24.x.x 확인
 ```
 
-## Environment Variables (GA4 Analytics)
+## Environment Variables (측정 인프라)
 
 측정 인프라용 환경변수입니다. 프로덕션 환경에서만 필수입니다.
+
+### GA4 Analytics
 
 | 패키지           | 변수명                       | 용도                               |
 |---------------|---------------------------|----------------------------------|
@@ -79,7 +81,15 @@ node --version       # v24.x.x 확인
 | `@school/api` | `GA4_API_SECRET`          | GA4 Measurement Protocol API 시크릿 |
 | `@school/web` | `VITE_GA4_MEASUREMENT_ID` | GA4 측정 ID (클라이언트)                |
 
-> **Note**: 환경변수 미설정 시 GA4 이벤트 전송이 비활성화됩니다 (앱 정상 동작).
+### SMTP (회원가입 알림)
+
+| 패키지           | 변수명         | 용도                |
+|---------------|-------------|-------------------|
+| `@school/api` | `SMTP_USER` | Gmail 계정          |
+| `@school/api` | `SMTP_PASS` | Gmail 앱 비밀번호 (16자리) |
+| `@school/api` | `ADMIN_EMAIL` | 운영자 수신 주소        |
+
+> **Note**: 환경변수 미설정 시 해당 기능이 비활성화됩니다 (앱 정상 동작).
 
 ## Commands (Root)
 

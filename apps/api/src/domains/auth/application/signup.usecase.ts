@@ -10,6 +10,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { env } from '~/global/config/env.js';
 import { database } from '~/infrastructure/database/database.js';
+import { mailService } from '~/infrastructure/mail/mail.service.js';
 
 export class SignupUseCase {
     async execute(input: SignupInput): Promise<SignupOutput> {
@@ -44,7 +45,13 @@ export class SignupUseCase {
             },
         });
 
-        // 5. Access Token 생성
+        // 5. 회원가입 알림 메일 발송 (비동기, fire-and-forget)
+        mailService.sendSignupNotification({
+            displayName: account.displayName,
+            createdAt: account.createdAt,
+        });
+
+        // 6. Access Token 생성
         const payload = {
             id: String(account.id),
             name: account.name,
@@ -53,7 +60,7 @@ export class SignupUseCase {
             expiresIn: env.jwt.expire.access as jwt.SignOptions['expiresIn'],
         });
 
-        // 6. 결과 반환
+        // 7. 결과 반환
         return {
             name: account.name,
             displayName: account.displayName,
