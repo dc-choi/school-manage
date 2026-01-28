@@ -48,7 +48,6 @@ export class SignupUseCase {
         // 5. 회원가입 알림 메일 발송 (비동기, fire-and-forget)
         mailService.sendSignupNotification({
             displayName: account.displayName,
-            createdAt: account.createdAt,
         });
 
         // 6. Access Token 생성

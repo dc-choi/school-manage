@@ -41,7 +41,7 @@ export const mailService = {
      * 회원가입 알림 메일 발송
      * @param account 가입한 계정 정보
      */
-    async sendSignupNotification(account: { displayName: string; createdAt: Date }): Promise<void> {
+    async sendSignupNotification(account: { displayName: string }): Promise<void> {
         if (!this.isEnabled()) {
             logger.log('Mail disabled, skipping signup notification');
             return;

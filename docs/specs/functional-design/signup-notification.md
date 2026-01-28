@@ -57,7 +57,6 @@
 |-----|---|
 | 제목 | `[출석부] 신규 회원가입: {displayName}` |
 | 닉네임 | `displayName` |
-| 가입 일시 | `createdAt` (KST) |
 
 ### 메일 본문 예시
 
@@ -65,13 +64,10 @@
 신규 회원이 가입했습니다.
 
 - 닉네임: 홍길동
-- 가입 일시: 2026-01-28 14:30:25 (KST)
 
 ---
 출석부 프로그램
 ```
-
-> **Note**: 계정 ID(name)는 운영 목적상 불필요하므로 제외. 닉네임만 표시.
 
 > **향후 확장**: 본당명은 그룹 생성 시점에 파악 가능. 필요 시 "첫 그룹 생성 알림" 기능 추가 검토.
 
@@ -88,7 +84,6 @@
 interface MailService {
     sendSignupNotification(account: {
         displayName: string;
-        createdAt: Date;
     }): Promise<void>;
 }
 ```
