@@ -67,10 +67,10 @@ export const ga4 = {
                 body: JSON.stringify(payload),
             });
 
-            if (!response.ok) {
-                logger.err(`GA4 event failed: ${eventName}, status: ${response.status}`);
-            } else {
+            if (response.ok) {
                 logger.log(`GA4 event sent: ${eventName}`);
+            } else {
+                logger.err(`GA4 event failed: ${eventName}, status: ${response.status}`);
             }
         } catch (error) {
             logger.err(`GA4 event error: ${eventName}, error: ${error}`);
