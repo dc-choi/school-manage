@@ -1,5 +1,6 @@
 import type { CreateStudentInput, UpdateStudentInput } from '@school/trpc';
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
@@ -12,10 +13,27 @@ interface UseStudentsOptions {
     searchWord?: string;
     initialDeleteFilter?: DeleteFilter;
     initialGraduatedFilter?: GraduatedFilter;
+    syncPageWithUrl?: boolean;
 }
 
+const parsePageParam = (value: string | null): number => {
+    const parsed = parseInt(value ?? '', 10);
+    return parsed > 0 ? parsed : 1;
+};
+
 export function useStudents(options: UseStudentsOptions = {}) {
-    const [page, setPage] = useState(options.initialPage ?? 1);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const initialPage = options.syncPageWithUrl ? parsePageParam(searchParams.get('page')) : (options.initialPage ?? 1);
+
+    const [page, setPageState] = useState(initialPage);
+
+    const setPage = (newPage: number) => {
+        setPageState(newPage);
+        if (options.syncPageWithUrl) {
+            setSearchParams(newPage > 1 ? { page: String(newPage) } : {}, { replace: true });
+        }
+    };
     const [searchOption, setSearchOption] = useState(options.searchOption ?? 'all');
     const [searchWord, setSearchWord] = useState(options.searchWord ?? '');
     const [deleteFilter, setDeleteFilter] = useState<DeleteFilter>(options.initialDeleteFilter ?? 'active');

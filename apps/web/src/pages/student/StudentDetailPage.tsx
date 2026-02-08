@@ -318,7 +318,7 @@ export function StudentDetailPage() {
                     <CardContent className="pt-6">
                         <p className="text-center text-xl text-destructive">학생 정보를 불러오는데 실패했습니다.</p>
                         <div className="mt-4 flex justify-center">
-                            <Button size="lg" onClick={() => navigate('/students')}>
+                            <Button size="lg" onClick={() => navigate(-1)}>
                                 목록으로
                             </Button>
                         </div>
@@ -360,7 +360,7 @@ export function StudentDetailPage() {
                                 variant="outline"
                                 size="lg"
                                 className="flex-1 sm:flex-none"
-                                onClick={() => navigate('/students')}
+                                onClick={() => navigate(-1)}
                             >
                                 목록으로
                             </Button>

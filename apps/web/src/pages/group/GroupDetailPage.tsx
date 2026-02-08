@@ -60,7 +60,7 @@ export function GroupDetailPage() {
                     <CardContent className="pt-6">
                         <p className="text-center text-destructive">그룹을 불러오는데 실패했습니다.</p>
                         <div className="mt-4 flex justify-center">
-                            <Button size="lg" onClick={() => navigate('/groups')}>
+                            <Button size="lg" onClick={() => navigate(-1)}>
                                 목록으로
                             </Button>
                         </div>
@@ -130,7 +130,7 @@ export function GroupDetailPage() {
                                     variant="outline"
                                     size="lg"
                                     className="flex-1 sm:flex-none"
-                                    onClick={() => navigate('/groups')}
+                                    onClick={() => navigate(-1)}
                                 >
                                     목록으로
                                 </Button>

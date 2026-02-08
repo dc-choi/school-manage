@@ -45,7 +45,7 @@ export function StudentListPage() {
         isBulkDeleting,
         graduate,
         isGraduating,
-    } = useStudents({ initialDeleteFilter: 'active', initialGraduatedFilter: 'active' });
+    } = useStudents({ initialDeleteFilter: 'active', initialGraduatedFilter: 'active', syncPageWithUrl: true });
 
     // 삭제된 학생 목록
     const {
