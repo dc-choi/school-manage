@@ -9,11 +9,6 @@
 - 사업 문서: `docs/business/6_roadmap/roadmap.md`
 - 피드백: `docs/business/0_feedback/feedback.md`
 
-### CURRENT SDD (구현 완료)
-
-- Feature: `docs/specs/current/functional/features/attendance-management.md`
-- Task: `docs/specs/current/functional/tasks/attendance-management.md`
-- Development: `docs/specs/current/functional/development/attendance-management.md`
 
 ## 기능 범위
 
@@ -191,6 +186,91 @@
     "isFull": false
   }
 }
+```
+
+## 비즈니스 로직
+
+### 출석 조회
+
+```
+IF groupId is not a positive number THEN
+  throw BAD_REQUEST
+IF year is invalid THEN year = currentYear
+sunday/saturday = getYearDate(year)
+students = StudentRepository.findAll(groupId)
+attendances = AttendanceRepository.findAll(student_id in students)
+return { year, sunday, saturday, students, attendances }
+```
+
+### 출석 입력 (isFull=true)
+
+```
+FOR EACH item in attendance
+  date = YYYYMMDD from (year, month, day)
+  existing = AttendanceRepository.get(studentId, date)
+  IF existing is null THEN create
+  ELSE update content
+return number of created/updated rows
+```
+
+### 출석 삭제 (isFull=false)
+
+```
+FOR EACH item in attendance
+  date = YYYYMMDD from (year, month, day)
+  existing = AttendanceRepository.get(studentId, date)
+  IF existing is not null THEN delete
+return number of deleted rows
+```
+
+### 부활 대축일 계산 (Anonymous Gregorian Algorithm)
+
+```
+FUNCTION calculateEaster(year)
+  a = year % 19
+  b = year / 100 (정수 나눗셈)
+  c = year % 100
+  d = b / 4 (정수 나눗셈)
+  e = b % 4
+  f = (b + 8) / 25 (정수 나눗셈)
+  g = (b - f + 1) / 3 (정수 나눗셈)
+  h = (19 * a + b - d - g + 15) % 30
+  i = c / 4 (정수 나눗셈)
+  k = c % 4
+  l = (32 + 2 * e + 2 * i - h - k) % 7
+  m = (a + 11 * h + 22 * l) / 451 (정수 나눗셈)
+  month = (h + l - 7 * m + 114) / 31 (정수 나눗셈)
+  day = ((h + l - 7 * m + 114) % 31) + 1
+  RETURN date(year, month, day)
+```
+
+### 달력 데이터 조회 (로드맵 1단계)
+
+```
+FUNCTION getCalendarData(year, month, groupId, accountId)
+  group = findGroupByIdAndAccountId(groupId, accountId)
+  IF group == null THEN THROW FORBIDDEN
+  days = generateMonthDays(year, month)
+  holydays = getHolydaysForMonth(year, month)
+  attendanceData = getMonthlyAttendance(year, month, groupId)
+  totalStudents = countStudentsByGroupId(groupId)
+  FOR EACH day IN days
+    dayData = {
+      date, dayOfWeek,
+      attendance: { present: attendanceData[day.date]?.count ?? 0, total: totalStudents },
+      holyday: holydays[day.date] ?? null
+    }
+  RETURN { year, month, totalStudents, days }
+```
+
+### 출석 상태 계산 (로드맵 1단계)
+
+```
+FUNCTION calculateStatus(mass, catechism)
+  IF mass AND catechism THEN RETURN "◎"
+  ELSE IF mass AND NOT catechism THEN RETURN "○"
+  ELSE IF NOT mass AND catechism THEN RETURN "△"
+  ELSE RETURN "-"
 ```
 
 ## 권한/보안

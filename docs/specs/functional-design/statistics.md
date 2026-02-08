@@ -8,11 +8,6 @@
 - PRD: `docs/specs/prd/school-attendance.md`
 - 사업 문서: `docs/business/6_roadmap/roadmap.md`
 
-### CURRENT SDD
-
-- Feature: `docs/specs/current/functional/features/statistics.md`
-- Task: `docs/specs/current/functional/tasks/statistics.md`
-- Development: `docs/specs/current/functional/development/statistics.md`
 
 ## 기능 범위
 
@@ -208,6 +203,79 @@ ALTER TABLE student ADD COLUMN gender VARCHAR(10) NULL;
     { "id": "5", "societyName": "박영희", "groupName": "중2-1반", "score": 92 }
   ]
 }
+```
+
+## 비즈니스 로직
+
+### 우수 출석 학생 조회
+
+```
+FUNCTION getExcellentStudents(accountId, year)
+  # raw SQL로 점수 계산 (◎=2점, ○=1점, △=1점)
+  # 계정 소속 그룹의 학생만 대상
+  # 점수 높은 순 정렬, 상위 10명 반환
+  return { excellentStudents: [{ id, society_name, count }] }
+```
+
+### 출석률 계산
+
+```
+FUNCTION getAttendanceRate(accountId, year, period)
+  # 1. 기간 계산 (weekly/monthly/yearly)
+  startDate, endDate = calculatePeriodRange(year, period)
+
+  # 2. 계정 소속 그룹의 학생 조회
+  students = findStudentsByAccount(accountId)
+  totalStudents = students.count
+
+  # 3. 기간 내 출석 데이터 조회
+  attendances = findAttendancesByDateRange(students, startDate, endDate)
+
+  # 4. 출석 일수 계산 (해당 기간 내 주일/토요일 수)
+  totalDays = countSundaysAndSaturdays(startDate, endDate)
+
+  # 5. 출석률 = (출석 횟수 / (전체 학생 수 * 출석 일수)) * 100
+  expectedAttendances = totalStudents * totalDays
+  attendanceRate = (attendances.count / expectedAttendances) * 100
+
+  # 6. 평균 출석 인원
+  avgAttendance = attendances.count / totalDays
+
+  return { year, period, startDate, endDate, attendanceRate, avgAttendance, totalStudents }
+```
+
+### 성별 분포 계산
+
+```
+FUNCTION getGenderDistribution(accountId, year)
+  students = findStudentsByAccount(accountId)
+  maleStudents = students.filter(s => s.gender == "M")
+  femaleStudents = students.filter(s => s.gender == "F")
+  unknownStudents = students.filter(s => s.gender == null)
+
+  totalDays = countSundaysAndSaturdays(year)
+  FUNCTION calcRate(students, attendances)
+    IF students.count == 0 THEN RETURN 0
+    expected = students.count * totalDays
+    RETURN (attendances.count / expected) * 100
+
+  return { year, male: { count, rate }, female: { count, rate }, unknown: { count, rate } }
+```
+
+### 그룹 순위 계산
+
+```
+FUNCTION getTopGroups(accountId, year, limit)
+  groups = findGroupsByAccountId(accountId)
+  groupRates = []
+  FOR EACH group IN groups
+    students = findStudentsByGroupId(group.id)
+    IF students.count == 0 THEN CONTINUE
+    attendances = findAttendancesByYear(students, year)
+    rate = (attendances.count / (students.count * totalDays)) * 100
+    groupRates.add({ groupId, groupName, attendanceRate })
+  groupRates.sortDescending(by: attendanceRate)
+  return { year, groups: groupRates.take(limit) }
 ```
 
 ---

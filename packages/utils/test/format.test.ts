@@ -1,8 +1,8 @@
 /**
  * 포맷팅 유틸리티 테스트
  */
-import { describe, expect, it } from 'vitest';
 import { formatContact, formatDateCompact, formatDateISO } from '../src/format.js';
+import { describe, expect, it } from 'vitest';
 
 describe('format 유틸리티', () => {
     describe('formatContact', () => {

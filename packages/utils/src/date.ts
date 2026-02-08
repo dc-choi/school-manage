@@ -188,8 +188,7 @@ export const calculateEaster = (year: number): Date => {
     const yearRemainder = yearInCentury % 4;
 
     // 7. 보름달 이후 일요일까지의 일수
-    const daysToSunday =
-        (32 + 2 * leapCenturyRemainder + 2 * leapYearsInCentury - daysToFullMoon - yearRemainder) % 7;
+    const daysToSunday = (32 + 2 * leapCenturyRemainder + 2 * leapYearsInCentury - daysToFullMoon - yearRemainder) % 7;
 
     // 8. 예외 보정: 부활절이 4월 26일 이후가 되는 것 방지
     const aprilException = Math.floor((metonicCycle + 11 * daysToFullMoon + 22 * daysToSunday) / 451);

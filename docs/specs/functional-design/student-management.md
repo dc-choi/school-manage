@@ -8,11 +8,6 @@
 - PRD: `docs/specs/prd/school-attendance.md`
 - 사업 문서: `docs/business/6_roadmap/roadmap.md`
 
-### CURRENT SDD
-
-- Feature: `docs/specs/current/functional/features/student-management.md`
-- Task: `docs/specs/current/functional/tasks/student-management.md`
-- Development: `docs/specs/current/functional/development/student-management.md`
 
 ## 기능 범위
 
@@ -21,6 +16,7 @@
 | 기본 학생 관리 | 학생 CRUD, 목록, 검색 | 구현 완료 |
 | 일괄 삭제/복구 (로드맵 1단계) | 다중 선택 삭제, 소프트 삭제, 복구 | 구현 완료 |
 | 일괄 졸업 처리 (로드맵 1단계) | 다중 선택 졸업, 졸업 취소 | 구현 완료 |
+| 페이지네이션 상태 유지 (로드맵 1단계) | 상세→목록 복귀 시 페이지 유지 (URL 쿼리 파라미터) | 구현 완료 |
 | 엑셀 Import (로드맵 1단계) | 엑셀 파일 업로드로 학생 일괄 등록 | 미구현 |
 
 ## 흐름/상태
@@ -37,7 +33,7 @@
 **상세 페이지 플로우 (로드맵 1단계):**
 1. 학생 상세 페이지에서 학생 정보 확인
 2. 인라인 수정 가능 (이름, 세례명, 나이 등)
-3. 학생 목록으로 복귀
+3. 학생 목록으로 복귀 → **이전 페이지 번호 유지** (URL 쿼리 파라미터 기반)
 
 **일괄 삭제 플로우 (로드맵 1단계):**
 1. 학생 목록 화면에서 다중 선택 체크박스 활성화
@@ -69,12 +65,14 @@
 ### 상태 전이
 
 ```
-[학생 목록] → (학생 클릭) → [학생 상세]
+[학생 목록 (?page=N)] → (학생 클릭) → [학생 상세]
+[학생 상세] → (목록으로 복귀) → [학생 목록 (?page=N)] ← 페이지 유지
 [학생 상세] → (인라인 수정) → [학생 수정 완료] → [학생 상세]
-[학생 목록] → (학생 추가) → [학생 생성 완료] → [학생 목록]
+[학생 목록] → (학생 추가) → [학생 생성 완료] → [학생 목록 (?page=1)]
 [학생 목록] → (다중 선택 + 일괄 삭제) → [학생 소프트 삭제] → [학생 목록]
 [학생 목록 (삭제된 학생 필터)] → (복구) → [학생 목록 (재학생)]
 [학생 목록] → (졸업/진급) → [그룹 이동 완료] → [학생 목록]
+[학생 목록] → (검색/필터 변경) → [학생 목록 (?page=1)] ← 페이지 리셋
 ```
 
 ## UI/UX (해당 시)
@@ -101,7 +99,7 @@
 | 삭제 버튼 | 선택된 학생이 있을 때만 활성화 (재학생 필터에서만 표시) |
 | 복구 버튼 | 삭제된 학생 필터에서만 표시 |
 | 추가 버튼 | 신규 학생 등록 |
-| 페이지네이션 | 페이지당 10명 |
+| 페이지네이션 | 페이지당 10명, URL 쿼리 파라미터(`?page=N`)로 상태 동기화 |
 
 #### 버튼 배치
 
@@ -176,6 +174,45 @@
 | 권한 | 접근 가능 기능 |
 |------|---------------|
 | 인증된 사용자 | 본인 계정 그룹의 학생 전체 CRUD |
+
+## 페이지네이션 상태 유지 (로드맵 1단계)
+
+> 상세 페이지에서 목록으로 복귀 시 이전 페이지 번호를 유지합니다.
+
+### 현재 문제
+
+- 페이지네이션 상태가 React 로컬 state(`useState`)에만 존재
+- `navigate('/students')`로 복귀 시 컴포넌트가 다시 마운트되어 page=1로 리셋
+- 브라우저 뒤로가기에서도 동일한 문제 발생
+
+### 해결 방식: URL 쿼리 파라미터
+
+페이지 번호를 URL 쿼리 파라미터(`?page=N`)로 동기화합니다.
+
+**URL 형식:**
+```
+/students              → page=1 (기본값)
+/students?page=3       → page=3
+```
+
+### 동작 규칙
+
+| 상황 | URL 변화 | 페이지 |
+|------|----------|--------|
+| 목록 최초 진입 | `/students` | 1 (기본값) |
+| 페이지 변경 | `/students?page=3` | 3 |
+| 상세 → 목록 복귀 | `/students?page=3` (유지) | 3 |
+| 브라우저 뒤로가기 | 이전 URL 복원 | 유지 |
+| 검색/필터 변경 | `/students?page=1` | 1 (리셋) |
+| 학생 추가 완료 | `/students` | 1 (리셋) |
+| URL에 비정상 page | `/students` | 1 (기본값) |
+
+### 구현 방향
+
+1. **URL → State 동기화**: 컴포넌트 마운트 시 URL의 `page` 파라미터를 읽어 초기 페이지 설정
+2. **State → URL 동기화**: 페이지 변경 시 URL 쿼리 파라미터 업데이트 (`replace` 모드로 히스토리 누적 방지)
+3. **상세 페이지 이동**: `navigate(`/students/${id}`)` (현재 URL이 히스토리에 남음)
+4. **목록 복귀**: `navigate(-1)` 또는 `navigate('/students?page=N')` → 이전 URL 복원
 
 ## 데이터/도메인 변경
 
@@ -375,6 +412,112 @@
 }
 ```
 
+## 비즈니스 로직
+
+### 학생 목록 조회/검색
+
+```
+IF page is invalid THEN page = 1
+where = {
+  group_id in groupsByAccount(accountId),
+  delete_at is null,
+  optional filters by searchOption/searchWord
+}
+rows, count = StudentRepository.findAndCountAll(where, page, size=10)
+return { page, size, totalPage, students }
+```
+
+### 삭제 필터 적용 (로드맵 1단계)
+
+```
+IF onlyDeleted == true THEN
+  where.delete_at IS NOT NULL
+ELSE IF includeDeleted == true THEN
+  // delete_at 조건 없음 (전체)
+ELSE
+  where.delete_at = null (기본값: 재학생만)
+```
+
+### 학생 상세/생성/수정/삭제
+
+```
+IF studentId is not a positive number THEN
+  throw BAD_REQUEST("studentId is wrong")
+create:
+  insert student fields
+modify:
+  update all student fields by studentId
+delete:
+  set delete_at = now
+```
+
+### 학생 일괄 삭제 (로드맵 1단계)
+
+```
+IF studentIds is empty array THEN
+  throw BAD_REQUEST("studentIds is required")
+existingStudents = StudentRepository.findByIds(studentIds, delete_at is null)
+FOR EACH student IN existingStudents
+  set delete_at = now
+deletedCount = existingStudents.length
+return { deletedCount, students with id, societyName, deletedAt }
+```
+
+### 삭제된 학생 복구 (로드맵 1단계)
+
+```
+IF studentIds is empty array THEN
+  throw BAD_REQUEST("studentIds is required")
+existingStudents = StudentRepository.findByIds(studentIds, delete_at IS NOT NULL)
+FOR EACH student IN existingStudents
+  set delete_at = null
+restoredCount = existingStudents.length
+return { restoredCount }
+```
+
+### 진급 처리 (student.promote)
+
+```
+IF accountName == "초등부" THEN
+  map group names: 유치부->1학년->2학년->3학년->4학년->5학년->6학년->예비 중1
+  move students in each group to next group (age >= 8 only)
+ELSE IF accountName == "중고등부" THEN
+  move age 19 -> 고3, age 20 -> 성인
+ELSE
+  return 0
+```
+
+### 연례 나이 증가
+
+```
+매년 1월 1일 00:00에
+UPDATE student SET age = age + 1
+```
+
+### 졸업 처리 (로드맵 1단계)
+
+```
+입력: { ids: string[], accountId: string }
+1. 트랜잭션 시작
+2. 대상 학생 조회
+   조건: id IN ids AND graduatedAt IS NULL AND deletedAt IS NULL AND group.accountId = accountId
+3. FOR EACH student
+     SET graduatedAt = 현재시간(KST)
+4. 결과 반환: { graduatedCount }
+```
+
+### 졸업 취소 (로드맵 1단계)
+
+```
+입력: { ids: string[], accountId: string }
+1. 트랜잭션 시작
+2. 대상 학생 조회
+   조건: id IN ids AND graduatedAt IS NOT NULL AND deletedAt IS NULL AND group.accountId = accountId
+3. FOR EACH student
+     SET graduatedAt = NULL
+4. 결과 반환: { cancelledCount }
+```
+
 ## 권한/보안
 
 - **접근 제어**:
@@ -458,6 +601,10 @@
 5. **TC-UI-5**: 삭제 확인 모달 → 확인/취소 동작
 6. **TC-UI-6**: 삭제 필터 변경 → 목록 갱신
 7. **TC-UI-7**: 호버 효과 → 행에 마우스 올리면 하이라이트
+8. **TC-UI-8**: 3페이지에서 학생 상세 이동 → 목록 복귀 시 3페이지 유지
+9. **TC-UI-9**: 3페이지에서 브라우저 뒤로가기 → 3페이지 유지
+10. **TC-UI-10**: 검색/필터 변경 → 1페이지로 리셋
+11. **TC-UI-11**: URL에 `?page=abc` 입력 → 1페이지로 기본값 처리
 
 ## 의사결정 (로드맵 1단계)
 
@@ -646,8 +793,8 @@
 ---
 
 **작성일**: 2026-01-13
-**수정일**: 2026-01-25 (성별 필드 추가, graduated_at 필드 문서화)
+**수정일**: 2026-02-08 (페이지네이션 상태 유지 구현 완료)
 **작성자**: PM 에이전트
-**상태**: Approved (로드맵 1단계 - UI/UX 개선 + 일괄 삭제 + 졸업 처리)
+**상태**: Approved
 
 > **Note**: 기존 구현 완료된 기능은 Approved 상태이며, 엑셀 Import는 미구현 상태입니다.

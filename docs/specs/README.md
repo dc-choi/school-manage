@@ -4,11 +4,11 @@
 
 ## 문서 현황 요약
 
-| 분류                        | 완성도  | 상세                                                                                |
-|---------------------------|------|-----------------------------------------------------------------------------------|
-| **Current Functional**    | 100% | 5개 도메인 완전 문서화 + 구현 완료 (student-graduation → student-management 병합, statistics 통합) |
-| **Target Functional**     | 100% | 로드맵 1단계 완료 (그룹/학생 UI/UX 개선, 졸업 처리 모두 완료)                                          |
-| **Target Non-Functional** | -    | MEASUREMENT 완료, SECURITY/PERFORMANCE 대기                                           |
+| 분류                        | 완성도  | 상세                                                            |
+|---------------------------|------|---------------------------------------------------------------|
+| **Current Functional**    | 100% | 5개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
+| **Target Functional**     | 100% | 로드맵 1단계 완료 (그룹/학생 UI/UX 개선, 졸업 처리, 페이지네이션 상태 유지 모두 완료)        |
+| **Target Non-Functional** | -    | MEASUREMENT 완료, SECURITY/PERFORMANCE 대기                       |
 
 ## 관련 문서
 
@@ -34,13 +34,13 @@
 > **병합 규칙**: 기능 설계 문서는 SDD 문서와 동일하게 **도메인별 단일 문서**로 관리합니다.
 > 상세: `docs/specs/WORKFLOW.md` "기능 개선 시 문서 병합 절차" 참조
 
-| 도메인          | 경로                                                      | 포함 내용                                       |
-|--------------|---------------------------------------------------------|---------------------------------------------|
-| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 (로드맵 1단계)                |
-| Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 (로드맵 1단계)                        |
-| Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import (로드맵 1단계) |
-| Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                |
-| Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 학생 + 대시보드 통계 (로드맵 1단계)                |
+| 도메인          | 경로                                                      | 포함 내용                                                      |
+|--------------|---------------------------------------------------------|------------------------------------------------------------|
+| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 (로드맵 1단계)                               |
+| Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
+| Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) |
+| Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
+| Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 학생 + 대시보드 통계 (로드맵 1단계)                               |
 
 #### 보류 (Hold)
 
@@ -53,25 +53,16 @@
 ## CURRENT (구현 완료)
 
 > 이미 구현되어 운영 중인 기능입니다.
-> 경로: `docs/specs/current/functional/`
+> 기존 Task/Development 문서는 기능 설계(functional-design)에 비즈니스 로직이 병합된 후 삭제되었습니다.
+> 구현 완료된 기능의 SSoT(Single Source of Truth)는 **기능 설계 문서 + 코드베이스**입니다.
 
-### Functional
-
-| 기능명                | Task                             | Development                             |
-|--------------------|----------------------------------|-----------------------------------------|
-| Auth/Account       | `tasks/auth-account.md`          | `development/auth-account.md`           |
-| Group              | `tasks/group-management.md`      | `development/group-management.md`       |
-| Student            | `tasks/student-management.md`    | `development/student-management.md`     |
-| Attendance         | `tasks/attendance-management.md` | `development/attendance-management.md`  |
-| Statistics         | `tasks/statistics.md`            | `development/statistics.md`             |
-
-> **Note**:
-> - Auth/Account 문서에 회원가입 (로드맵 1단계) 내용이 포함되어 있습니다.
-> - Attendance 문서에 달력 UI + 자동 저장 (로드맵 1단계) 내용이 포함되어 있습니다.
-> - Group 문서에 UI/UX 개선 + 일괄 삭제 (로드맵 1단계) 내용이 포함되어 있습니다.
-> - Student 문서에 UI/UX 개선 + 일괄 삭제/복구 + 졸업 처리 (로드맵 1단계) 내용이 포함되어 있습니다.
-> - Statistics 문서에 기본 우수 학생 통계 + 대시보드 통계 (로드맵 1단계) 내용이 포함되어 있습니다.
-> - ui-center-alignment는 일회성 작업으로 삭제되었습니다.
+| 도메인          | 기능 설계                                                   |
+|--------------|---------------------------------------------------------|
+| Auth/Account | `docs/specs/functional-design/auth-account.md`          |
+| Group        | `docs/specs/functional-design/group-management.md`      |
+| Student      | `docs/specs/functional-design/student-management.md`    |
+| Attendance   | `docs/specs/functional-design/attendance-management.md` |
+| Statistics   | `docs/specs/functional-design/statistics.md`            |
 
 ---
 
@@ -83,16 +74,12 @@
 ### FUNCTIONAL (로드맵 1단계)
 
 > **상태**: 완료
-> **다음 단계**: 로드맵 2단계 기능 기획 및 PRD 작성
-
-| 우선순위 | 기능명  | 기능 설계 | SDD 상태 | 비고         |
-|------|------|-------|--------|------------|
-| -    | (없음) | -     | -      | 로드맵 1단계 완료 |
 
 > **완료된 항목** (current로 병합됨):
 > - 그룹 UI/UX 개선 (일괄 삭제 포함) → group-management에 병합
 > - 학생 UI/UX 개선 (일괄 삭제/복구 + 졸업 처리 포함) → student-management에 병합
 > - 대시보드 통계 → statistics에 병합
+> - 목록 페이지네이션 상태 유지 → student-management, group-management에 병합
 
 ### 보류 (Hold)
 

@@ -1,8 +1,8 @@
 /**
  * 객체 유틸리티 테스트
  */
-import { describe, expect, it } from 'vitest';
 import { prune } from '../src/object.js';
+import { describe, expect, it } from 'vitest';
 
 describe('object 유틸리티', () => {
     describe('prune', () => {

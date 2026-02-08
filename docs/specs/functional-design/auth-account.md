@@ -6,9 +6,6 @@
 ## 연결 문서
 
 - PRD: `docs/specs/prd/school-attendance.md` (회원가입 포함)
-- Feature: `docs/specs/current/functional/features/auth-account.md`
-- Task: `docs/specs/current/functional/tasks/auth-account.md`
-- Development: `docs/specs/current/functional/development/auth-account.md`
 
 ---
 
@@ -116,6 +113,34 @@ Authorization: Bearer <accessToken>
     "displayName": "표시명"
   }
 }
+```
+
+### 비즈니스 로직 (기본 인증)
+
+#### 로그인 처리
+
+```
+account = AccountRepository.findByName(id)
+IF account is null THEN
+  throw NOT_FOUND("ID NOT_FOUND")
+IF bcrypt.compare(password, account.password) is false THEN
+  throw UNAUTHORIZED("PW is NOT_MATCHED")
+accessToken = jwt.sign({ name, timeStamp }, secret, expiresIn)
+return { name, displayName, accessToken }
+```
+
+#### 토큰 파싱 및 계정 확인
+
+```
+IF Authorization header does not start with "Bearer" THEN
+  throw NOT_FOUND("TOKEN NOT_FOUND")
+payload = jwt.verify(token, secret)
+IF token is expired by timeStamp + expire THEN
+  throw UNAUTHORIZED("TOKEN is EXPIRE")
+account = AccountRepository.findByName(payload.name)
+IF account is null THEN
+  throw NOT_FOUND("ID NOT_FOUND")
+return { name }
 ```
 
 ### 예외/엣지 케이스 (기본 인증)
@@ -328,6 +353,45 @@ UPDATE account SET display_name = name WHERE display_name = '';
 }
 ```
 
+### 비즈니스 로직 (회원가입)
+
+#### ID 중복 확인 (auth.checkId)
+
+```
+normalizedName = name.toLowerCase()
+IF normalizedName does not match /^[a-z0-9]{4,20}$/ THEN
+  throw BAD_REQUEST("Invalid ID format")
+account = AccountRepository.findByName(normalizedName)
+IF account exists THEN
+  return { available: false }
+ELSE
+  return { available: true }
+```
+
+#### 회원가입 (auth.signup)
+
+```
+normalizedName = name.toLowerCase()
+IF normalizedName does not match /^[a-z0-9]{4,20}$/ THEN
+  throw BAD_REQUEST("ID는 4~20자의 영문 소문자/숫자만 가능합니다")
+IF displayName.length < 2 OR displayName.length > 20 THEN
+  throw BAD_REQUEST("이름은 2~20자로 입력해주세요")
+IF password.length < 8 THEN
+  throw BAD_REQUEST("비밀번호는 8자 이상이어야 합니다")
+existingAccount = AccountRepository.findByName(normalizedName)
+IF existingAccount exists THEN
+  throw CONFLICT("이미 사용 중인 아이디입니다")
+hashedPassword = bcrypt.hash(password, saltRounds=10)
+account = AccountRepository.create({
+  name: normalizedName,
+  displayName: displayName,
+  password: hashedPassword,
+  createdAt: now()
+})
+accessToken = jwt.sign({ id: account.id, name: account.name }, secret, expiresIn)
+return { name: account.name, displayName: account.displayName, accessToken }
+```
+
 ### 권한/보안
 
 - **접근 제어**:
@@ -382,6 +446,101 @@ UPDATE account SET display_name = name WHERE display_name = '';
 
 ---
 
+## 회원가입 알림 (로드맵 1단계)
+
+> 신규 회원가입 시 운영자에게 메일 알림을 발송합니다.
+
+### 배경
+
+- 신규 회원가입이 발생해도 운영자가 알 수 없음
+- 파일럿 확대 기회를 놓칠 수 있음
+- 마케팅 채널 효과 측정 어려움
+
+### 시스템 플로우
+
+```
+[사용자] 회원가입 요청
+    ↓
+[SignupUseCase] 계정 생성
+    ↓
+[SignupUseCase] 메일 발송 트리거 (비동기)
+    ↓
+[MailService] 운영자에게 알림 메일 발송
+    ↓
+[사용자] 회원가입 응답 수신 (메일 발송과 독립)
+```
+
+### 설계 원칙
+
+1. **비동기 처리**: 메일 발송이 회원가입 응답을 지연시키지 않음
+2. **실패 무해**: 메일 발송 실패 시 로그만 기록, 회원가입은 성공
+3. **단순 구현**: Nodemailer + Google SMTP (무료, 일 500건)
+
+### 메일 내용
+
+| 항목 | 값 |
+|-----|---|
+| 제목 | `[출석부] 신규 회원가입: {displayName}` |
+| 닉네임 | `displayName` |
+
+### 메일 본문 예시
+
+```
+신규 회원이 가입했습니다.
+
+- 닉네임: 홍길동
+
+---
+출석부 프로그램
+```
+
+### 내부 인터페이스
+
+```typescript
+interface MailService {
+    sendSignupNotification(account: {
+        displayName: string;
+    }): Promise<void>;
+}
+```
+
+### 인프라
+
+**신규 파일**
+
+```
+apps/api/src/infrastructure/mail/
+├── index.ts           # export
+├── mail.service.ts    # 메일 발송 서비스
+└── templates.ts       # 메일 템플릿
+```
+
+**환경변수**
+
+| 변수명 | 용도 | 필수 | 예시 |
+|-------|-----|-----|-----|
+| `SMTP_USER` | Gmail 계정 | Yes | `your-email@gmail.com` |
+| `SMTP_PASS` | Gmail 앱 비밀번호 | Yes | (16자리 앱 비밀번호) |
+| `ADMIN_EMAIL` | 운영자 수신 주소 | Yes | `admin@example.com` |
+
+> Google SMTP: `smtp.gmail.com:587`, 발신자: `SMTP_USER`, Gmail 앱 비밀번호 인증
+
+### 예외 케이스 (회원가입 알림)
+
+| 상황 | 처리 방법 |
+|-----|---------|
+| 환경변수 미설정 | 메일 발송 비활성화 (앱 정상 동작) |
+| SMTP 연결 실패 | 에러 로그 기록, 회원가입 성공 |
+| 메일 발송 타임아웃 | 에러 로그 기록, 회원가입 성공 (타임아웃 10초) |
+
+### 테스트 시나리오 (회원가입 알림)
+
+1. **TC-N1**: 환경변수 설정 시 회원가입 후 메일 발송
+2. **TC-NE1**: 환경변수 미설정 시 메일 발송 스킵, 회원가입 성공
+3. **TC-NE2**: SMTP 연결 실패 시 에러 로그 기록, 회원가입 성공
+
+---
+
 ## 공통 사항
 
 ### 권한별 접근
@@ -402,6 +561,6 @@ UPDATE account SET display_name = name WHERE display_name = '';
 ---
 
 **작성일**: 2026-01-13
-**최종 수정**: 2026-01-25
+**최종 수정**: 2026-02-08
 **작성자**: PM 에이전트
-**상태**: Approved (기본 인증 구현 완료, 회원가입 구현 완료)
+**상태**: Approved (기본 인증 구현 완료, 회원가입 구현 완료, 회원가입 알림 구현 완료)

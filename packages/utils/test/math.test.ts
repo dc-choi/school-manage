@@ -1,8 +1,8 @@
 /**
  * 수학/계산 유틸리티 테스트
  */
+import { calculateRate, roundToDecimal } from '../src/math.js';
 import { describe, expect, it } from 'vitest';
-import { roundToDecimal, calculateRate } from '../src/math.js';
 
 describe('math 유틸리티', () => {
     describe('roundToDecimal', () => {

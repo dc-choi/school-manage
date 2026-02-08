@@ -6,9 +6,6 @@
 ## 연결 문서
 
 - PRD: `docs/specs/prd/school-attendance.md`
-- Feature: `docs/specs/current/functional/features/group-management.md`
-- Task: `docs/specs/current/functional/tasks/group-management.md`
-- Development: `docs/specs/current/functional/development/group-management.md`
 
 ## 흐름/상태
 
@@ -25,6 +22,7 @@
 2. 그룹명 인라인 수정 가능
 3. 소속 학생 목록 조회
 4. 출석 현황 화면으로 이동
+5. 그룹 목록으로 복귀 → **이전 페이지 번호 유지** (페이지네이션 도입 시)
 
 **일괄 삭제 플로우 (로드맵 1단계):**
 1. 그룹 목록에서 다중 선택 체크박스 활성화
@@ -99,6 +97,21 @@
 | 권한 | 접근 가능 기능 |
 |------|---------------|
 | 인증된 사용자 | 본인 계정의 그룹 전체 CRUD |
+
+## 페이지네이션 상태 유지 (로드맵 1단계)
+
+> 현재 그룹 목록은 전체 로드 방식(페이지네이션 없음)입니다.
+> 계정당 그룹 수가 10개 이내로 페이지네이션이 불필요하지만, 향후 페이지네이션 도입 시 학생 관리와 동일한 URL 쿼리 파라미터 패턴을 적용합니다.
+
+### 현재 상태
+
+- 그룹 목록: 전체 로드 (`trpc.group.list.useQuery()`)
+- 페이지네이션 없음 → 상세 복귀 시 상태 유실 문제 미해당
+
+### 향후 방향
+
+- 그룹 수 증가 시 페이지네이션 도입
+- 도입 시 학생 관리와 동일한 URL 쿼리 파라미터 패턴 적용 (`/groups?page=N`)
 
 ## 데이터/도메인 변경
 
@@ -251,6 +264,76 @@
 }
 ```
 
+## 비즈니스 로직
+
+### 그룹 목록
+
+```
+accountId = token.account.id
+groups = GroupRepository.findAll(accountId, delete_at is null)
+return groups
+```
+
+### 그룹 상세 조회
+
+```
+IF groupId is not a positive number THEN
+  throw BAD_REQUEST("groupId is wrong")
+Fetch group by groupId where delete_at is null
+IF not found THEN throw NOT_FOUND
+return group
+```
+
+### 그룹 생성/수정/삭제
+
+```
+create:
+  insert { name, account_id }
+modify:
+  update { name, account_id } by groupId
+remove:
+  set delete_at = now by groupId
+```
+
+### 그룹 출석 현황 조회
+
+```
+IF groupId is not a positive number THEN
+  throw BAD_REQUEST
+IF year is invalid THEN year = currentYear
+sunday/saturday = getYearDate(year)
+students = StudentRepository.findAll(groupId)
+attendance = AttendanceRepository.findAll(student_id in students)
+return { year, sunday, saturday, students, attendance }
+```
+
+### 그룹 상세 조회 - 학생 목록 포함 (로드맵 1단계)
+
+```
+IF groupId is not a positive number THEN
+  throw BAD_REQUEST("groupId is wrong")
+Fetch group by groupId where delete_at is null
+IF not found THEN throw NOT_FOUND
+students = StudentRepository.findAll(groupId, delete_at is null)
+studentCount = students.length
+return { group with studentCount, students }
+```
+
+### 그룹 일괄 삭제 (로드맵 1단계)
+
+```
+IF groupIds is empty array THEN
+  throw BAD_REQUEST("groupIds is required")
+FOR EACH groupId IN groupIds
+  IF groupId is not a positive number THEN
+    skip (or throw BAD_REQUEST)
+existingGroups = GroupRepository.findByIds(groupIds, delete_at is null)
+FOR EACH group IN existingGroups
+  set delete_at = now
+deletedCount = existingGroups.length
+return { deletedCount }
+```
+
 ## 권한/보안
 
 - **접근 제어**:
@@ -319,8 +402,8 @@
 ---
 
 **작성일**: 2026-01-13
-**수정일**: 2026-01-22
+**수정일**: 2026-02-08 (페이지네이션 상태 유지 구현 완료)
 **작성자**: PM 에이전트
-**상태**: Approved (로드맵 1단계 - UI/UX 개선 추가)
+**상태**: Approved
 
 > **Note**: 기존 구현 완료된 기능은 Approved 상태이며, 로드맵 1단계로 표시된 항목은 신규 개발 필요.
