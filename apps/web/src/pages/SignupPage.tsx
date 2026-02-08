@@ -126,7 +126,7 @@ export function SignupPage() {
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl">회원가입</CardTitle>
-                    <CardDescription>주일학교 관리 시스템</CardDescription>
+                    <CardDescription>주일학교당 하나의 계정으로 관리합니다</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
