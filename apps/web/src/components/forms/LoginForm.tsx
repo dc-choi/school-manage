@@ -1,3 +1,4 @@
+import { BarChart3, ClipboardCheck, Users } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '~/components/ui/button';
@@ -24,7 +25,21 @@ export function LoginForm({ onSubmit, error, isLoading }: LoginFormProps) {
         <Card className="w-full max-w-md">
             <CardHeader className="text-center">
                 <CardTitle className="text-2xl">로그인</CardTitle>
-                <CardDescription>주일학교 관리 시스템</CardDescription>
+                <CardDescription>모임의 출석과 멤버를 한곳에서 관리하세요</CardDescription>
+                <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    <div className="flex items-center justify-center gap-2">
+                        <ClipboardCheck className="h-4 w-4" />
+                        <span>간편한 출석 체크와 자동 저장</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                        <Users className="h-4 w-4" />
+                        <span>그룹별 멤버 관리</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                        <BarChart3 className="h-4 w-4" />
+                        <span>출석 통계</span>
+                    </div>
+                </div>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
