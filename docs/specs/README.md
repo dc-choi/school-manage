@@ -7,7 +7,7 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 5개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
-| **Target Functional**     | 100% | 로드맵 1단계 완료 (그룹/학생 UI/UX 개선, 졸업 처리, 페이지네이션 상태 유지 모두 완료)        |
+| **Target Functional**     | 100% | 로드맵 1단계 완료 (서비스 소개/계정 모델 안내 포함, 모든 기능 항목 구현 완료)               |
 | **Target Non-Functional** | -    | MEASUREMENT 완료, SECURITY/PERFORMANCE 대기                       |
 
 ## 관련 문서
@@ -36,7 +36,7 @@
 
 | 도메인          | 경로                                                      | 포함 내용                                                      |
 |--------------|---------------------------------------------------------|------------------------------------------------------------|
-| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 (로드맵 1단계)                               |
+| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 (로드맵 1단계)             |
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
 | Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) |
 | Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
@@ -73,13 +73,14 @@
 
 ### FUNCTIONAL (로드맵 1단계)
 
-> **상태**: 완료
-
 > **완료된 항목** (current로 병합됨):
 > - 그룹 UI/UX 개선 (일괄 삭제 포함) → group-management에 병합
 > - 학생 UI/UX 개선 (일괄 삭제/복구 + 졸업 처리 포함) → student-management에 병합
 > - 대시보드 통계 → statistics에 병합
 > - 목록 페이지네이션 상태 유지 → student-management, group-management에 병합
+> - 로그인 서비스 소개 + 계정 모델 안내 → auth-account에 병합
+
+현재 진행 중인 항목 없음.
 
 ### 보류 (Hold)
 

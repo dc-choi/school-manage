@@ -31,8 +31,11 @@ Spec-Driven Development 워크플로우를 단계별로 실행합니다.
 
 ### /sdd 0 - 작업 선택
 1. `docs/specs/README.md` 확인
-2. TARGET 태스크 목록 출력
-3. 작업 선택 안내
+2. `docs/business/6_roadmap/roadmap.md` 로드맵 확인
+3. `docs/business/STATUS.md` 현 상태 확인
+4. 사업 에이전트 핸드오프의 참고 사업 문서 확인 (문서 경로 + 확인 포인트)
+5. TARGET 태스크 목록 출력
+6. 작업 선택 및 README.md 등록
 
 ### /sdd 1 - PRD 작성
 1. `docs/specs/templates/prd.md` 참조

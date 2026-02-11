@@ -94,11 +94,13 @@ docs/business/       PRD + 기능 설계              검수 + 승인
 
 **담당**: 작성자
 
-로드맵 기반으로 작업을 선택하고 README.md에 등록한다.
+로드맵과 사업 문서를 확인한 뒤 작업을 선택하고 README.md에 등록한다.
 
 1. **로드맵 확인**: `docs/business/6_roadmap/roadmap.md` 참조
-2. **작업 선택**: 우선순위/의존성 고려
-3. **README.md 등록**: `docs/specs/README.md`의 TARGET 섹션에 추가
+2. **현 상태 확인**: `docs/business/STATUS.md` 참조
+3. **참고 사업 문서 확인**: 사업 에이전트 핸드오프에서 지정한 문서와 확인 포인트 파악
+4. **작업 선택**: 우선순위/의존성 고려
+5. **README.md 등록**: `docs/specs/README.md`의 TARGET 섹션에 추가
 
 **등록 형식:**
 ```markdown
