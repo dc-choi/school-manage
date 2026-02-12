@@ -79,7 +79,7 @@
 > - 대시보드 통계 → statistics에 병합
 > - 목록 페이지네이션 상태 유지 → student-management, group-management에 병합
 > - 로그인 서비스 소개 + 계정 모델 안내 → auth-account에 병합
-> - UX 라이팅 범용화 ("학생"→"멤버") → `ux-writing-member.md` (비기능적 간소화 워크플로우)
+> - UX 라이팅 범용화 ("학생"→"멤버") — 비기능적 간소화 워크플로우, 코드가 SSoT
 > - 로그인 페이지 전환율 개선 → auth-account에 병합 (비기능적 간소화 워크플로우)
 >
 > **로드맵 1단계 + 전환율 개선 전체 완료.**
