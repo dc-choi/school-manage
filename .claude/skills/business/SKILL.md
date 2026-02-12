@@ -19,6 +19,7 @@ description: 사업 에이전트 워크플로우 실행
 /business metrics      # 지표 설계
 /business roadmap      # 로드맵
 /business pricing      # 가격 정책
+/business content      # 콘텐츠 마케터 서브 에이전트 호출
 /business handoff      # SDD 작성자 핸드오프
 ```
 
@@ -137,6 +138,36 @@ SDD 작성자가 PRD 작성 시작
 ---
 ```
 
+## 콘텐츠 마케터 서브 에이전트
+
+### /business content - 콘텐츠 제작
+```
+/business content                # 콘텐츠 현황 확인 및 다음 작업 안내
+/business content instagram      # 인스타그램 콘텐츠 제작
+/business content kakao          # 카카오톡 공유 에셋 제작
+```
+
+- **호출 방식**: Task 도구 (`subagent_type: general-purpose`)로 콘텐츠 마케터 서브 에이전트 실행
+- **서브 에이전트 규칙**: `.claude/rules/content.md`
+- **입력**: 사업 문서 (gtm.md, instagram.md, STATUS.md, bm.md)
+- **출력**: `docs/content/` 하위에 콘텐츠 초안 저장
+
+### 서브 에이전트 프롬프트 템플릿
+
+```
+너는 콘텐츠 마케터 서브 에이전트다.
+규칙: .claude/rules/content.md 를 읽고 역할을 숙지해라.
+
+입력 문서를 읽어라:
+- docs/business/3_gtm/gtm.md (포지셔닝 메시지)
+- docs/business/3_gtm/instagram.md (콘텐츠 전략)
+- docs/business/STATUS.md (현재 목표, 완료 기능)
+- docs/business/2_bm/bm.md (가치 제안)
+
+작업: [구체적인 콘텐츠 제작 지시]
+출력: docs/content/ 하위에 저장
+```
+
 ## 작성 규칙
 
 1. 모든 문서는 **한글로 작성**
@@ -148,4 +179,6 @@ SDD 작성자가 PRD 작성 시작
 ## 참조
 
 - 규칙: `.claude/rules/business.md`
+- 콘텐츠 규칙: `.claude/rules/content.md`
 - 인덱스: `docs/business/README.md`
+- 콘텐츠 인덱스: `docs/content/README.md`
