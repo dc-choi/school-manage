@@ -7,7 +7,7 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 5개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
-| **Target Functional**     | 100% | 로드맵 1단계 완료 (서비스 소개/계정 모델 안내 포함, 모든 기능 항목 구현 완료)               |
+| **Target Functional**     | 100% | 로드맵 1단계 전체 완료 (UX 라이팅 범용화 포함)                                  |
 | **Target Non-Functional** | -    | MEASUREMENT 완료, SECURITY/PERFORMANCE 대기                       |
 
 ## 관련 문서
@@ -40,7 +40,7 @@
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
 | Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) |
 | Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
-| Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 학생 + 대시보드 통계 (로드맵 1단계)                               |
+| Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 멤버 + 대시보드 통계 (로드맵 1단계)                               |
 
 #### 보류 (Hold)
 
@@ -79,8 +79,11 @@
 > - 대시보드 통계 → statistics에 병합
 > - 목록 페이지네이션 상태 유지 → student-management, group-management에 병합
 > - 로그인 서비스 소개 + 계정 모델 안내 → auth-account에 병합
+> - UX 라이팅 범용화 ("학생"→"멤버") → `ux-writing-member.md` (비기능적 간소화 워크플로우)
+>
+> **로드맵 1단계 전체 완료.**
 
-현재 진행 중인 항목 없음.
+(현재 TARGET Functional 항목 없음)
 
 ### 보류 (Hold)
 
