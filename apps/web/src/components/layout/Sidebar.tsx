@@ -6,7 +6,7 @@ const navItems = [
     { path: '/', label: '대시보드', icon: Home },
     { path: '/attendance', label: '출석부', icon: Calendar },
     { path: '/groups', label: '그룹 관리', icon: Users },
-    { path: '/students', label: '학생 관리', icon: UserCog },
+    { path: '/students', label: '멤버 관리', icon: UserCog },
 ];
 
 export function Sidebar() {

@@ -207,7 +207,7 @@ export function AttendancePage() {
                 <LoadingSpinner />
             ) : !attendanceData?.students?.length ? (
                 <Card>
-                    <CardContent className="py-8 text-center text-muted-foreground">학생이 없습니다.</CardContent>
+                    <CardContent className="py-8 text-center text-muted-foreground">멤버가 없습니다.</CardContent>
                 </Card>
             ) : (
                 <Card>

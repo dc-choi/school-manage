@@ -97,7 +97,7 @@ export function GroupListPage() {
                                 />
                             </TableHead>
                             <TableHead>그룹명</TableHead>
-                            <TableHead className="w-24 text-center">학생 수</TableHead>
+                            <TableHead className="w-24 text-center">인원</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

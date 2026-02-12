@@ -170,12 +170,12 @@ export function AttendanceModal({
                         <span className="ml-2">로딩 중...</span>
                     </div>
                 ) : students.length === 0 ? (
-                    <p className="py-8 text-center text-muted-foreground">학생이 없습니다.</p>
+                    <p className="py-8 text-center text-muted-foreground">멤버가 없습니다.</p>
                 ) : (
                     <div className="space-y-4">
                         {/* 테이블 헤더 */}
                         <div className="grid grid-cols-[1fr_60px_60px_50px] gap-2 border-b pb-2 text-sm font-medium">
-                            <div>학생명</div>
+                            <div>이름</div>
                             <div className="text-center">미사</div>
                             <div className="text-center">교리</div>
                             <div className="text-center">상태</div>

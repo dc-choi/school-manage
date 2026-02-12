@@ -141,9 +141,9 @@ export function GroupDetailPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>학생 목록</CardTitle>
+                        <CardTitle>멤버 목록</CardTitle>
                         <CardDescription>
-                            {isLoading ? '로딩 중...' : `총 ${group?.students.length ?? 0}명의 학생이 있습니다.`}
+                            {isLoading ? '로딩 중...' : `총 ${group?.students.length ?? 0}명의 멤버가 있습니다.`}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -152,7 +152,7 @@ export function GroupDetailPage() {
                             data={group?.students ?? []}
                             keyExtractor={(row) => row.id}
                             isLoading={isLoading}
-                            emptyMessage="등록된 학생이 없습니다."
+                            emptyMessage="등록된 멤버가 없습니다."
                         />
                     </CardContent>
                 </Card>

@@ -267,7 +267,7 @@ export function StudentListPage() {
     ];
 
     return (
-        <MainLayout title="학생 목록">
+        <MainLayout title="멤버 목록">
             <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                     <Select
@@ -315,9 +315,9 @@ export function StudentListPage() {
                         졸업생 ({graduatedTotal})
                     </Button>
                     <Button variant="destructive" onClick={() => setDeletedModalOpen(true)}>
-                        삭제된 학생 ({deletedTotal})
+                        삭제된 멤버 ({deletedTotal})
                     </Button>
-                    <Button onClick={() => navigate('/students/new')}>학생 추가</Button>
+                    <Button onClick={() => navigate('/students/new')}>멤버 추가</Button>
                 </div>
             </div>
 
@@ -326,7 +326,7 @@ export function StudentListPage() {
                 data={students}
                 keyExtractor={(row) => row.id}
                 isLoading={isLoading}
-                emptyMessage="등록된 학생이 없습니다."
+                emptyMessage="등록된 멤버가 없습니다."
                 onRowClick={(row) => navigate(`/students/${row.id}`)}
             />
 
@@ -340,9 +340,9 @@ export function StudentListPage() {
             <AlertDialog open={bulkAction === 'delete'} onOpenChange={(open) => !open && setBulkAction(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>학생 삭제</AlertDialogTitle>
+                        <AlertDialogTitle>멤버 삭제</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 삭제하시겠습니까? 삭제된 학생은 &apos;삭제된 학생&apos;
+                            선택한 {selectedIds.size}명의 멤버를 삭제하시겠습니까? 삭제된 멤버는 &apos;삭제된 멤버&apos;
                             버튼에서 복구할 수 있습니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -359,8 +359,8 @@ export function StudentListPage() {
             <Dialog open={deletedModalOpen} onOpenChange={setDeletedModalOpen}>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>삭제된 학생 관리</DialogTitle>
-                        <DialogDescription>삭제된 학생을 선택하여 복구할 수 있습니다.</DialogDescription>
+                        <DialogTitle>삭제된 멤버 관리</DialogTitle>
+                        <DialogDescription>삭제된 멤버를 선택하여 복구할 수 있습니다.</DialogDescription>
                     </DialogHeader>
                     <div className="mt-4">
                         {isSomeDeletedSelected && (
@@ -375,7 +375,7 @@ export function StudentListPage() {
                             data={deletedStudents}
                             keyExtractor={(row) => row.id}
                             isLoading={isDeletedLoading}
-                            emptyMessage="삭제된 학생이 없습니다."
+                            emptyMessage="삭제된 멤버가 없습니다."
                         />
                         {deletedTotalPage > 1 && (
                             <div className="mt-4">
@@ -433,9 +433,9 @@ export function StudentListPage() {
             <AlertDialog open={bulkAction === 'restore'} onOpenChange={(open) => !open && setBulkAction(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>학생 복구</AlertDialogTitle>
+                        <AlertDialogTitle>멤버 복구</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {deletedSelectedIds.size}명의 학생을 복구하시겠습니까?
+                            선택한 {deletedSelectedIds.size}명의 멤버를 복구하시겠습니까?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -453,7 +453,7 @@ export function StudentListPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>졸업 처리</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 졸업 처리하시겠습니까? 졸업 처리된 학생은
+                            선택한 {selectedIds.size}명의 멤버를 졸업 처리하시겠습니까? 졸업 처리된 멤버는
                             &apos;졸업생&apos; 필터에서 확인할 수 있습니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -472,7 +472,7 @@ export function StudentListPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>졸업 취소</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {graduatedSelectedIds.size}명의 학생의 졸업을 취소하시겠습니까? 재학생으로
+                            선택한 {graduatedSelectedIds.size}명의 멤버의 졸업을 취소하시겠습니까? 재학생으로
                             복원됩니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

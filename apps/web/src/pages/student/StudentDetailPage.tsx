@@ -313,10 +313,10 @@ export function StudentDetailPage() {
 
     if (error) {
         return (
-            <MainLayout title="학생 상세">
+            <MainLayout title="멤버 상세">
                 <Card>
                     <CardContent className="pt-6">
-                        <p className="text-center text-xl text-destructive">학생 정보를 불러오는데 실패했습니다.</p>
+                        <p className="text-center text-xl text-destructive">멤버 정보를 불러오는데 실패했습니다.</p>
                         <div className="mt-4 flex justify-center">
                             <Button size="lg" onClick={() => navigate(-1)}>
                                 목록으로
@@ -329,7 +329,7 @@ export function StudentDetailPage() {
     }
 
     return (
-        <MainLayout title="학생 상세">
+        <MainLayout title="멤버 상세">
             <div className="space-y-6">
                 <Card>
                     <CardHeader>

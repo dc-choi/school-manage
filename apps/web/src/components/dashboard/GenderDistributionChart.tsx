@@ -14,8 +14,8 @@ const COLORS = ['#3b82f6', '#ec4899', '#9ca3af'];
 export function GenderDistributionChart({ data, isLoading, error }: GenderDistributionChartProps) {
     const chartData = data
         ? [
-              { name: '남학생', value: data.male.count, rate: data.male.rate },
-              { name: '여학생', value: data.female.count, rate: data.female.rate },
+              { name: '남', value: data.male.count, rate: data.male.rate },
+              { name: '여', value: data.female.count, rate: data.female.rate },
               { name: '미지정', value: data.unknown.count, rate: data.unknown.rate },
           ].filter((item) => item.value > 0)
         : [];

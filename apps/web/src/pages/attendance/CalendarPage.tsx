@@ -185,7 +185,7 @@ export function CalendarPage() {
                             {calendarData.totalStudents > 0 && (
                                 <div className="mt-6 flex justify-center">
                                     <Badge variant="secondary" className="px-4 py-2 text-sm">
-                                        전체 학생 수: {calendarData.totalStudents}명
+                                        전체 인원: {calendarData.totalStudents}명
                                     </Badge>
                                 </div>
                             )}

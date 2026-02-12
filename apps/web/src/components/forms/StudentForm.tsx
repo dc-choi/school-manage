@@ -76,7 +76,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{submitLabel === '추가' ? '새 학생' : '학생 수정'}</CardTitle>
+                <CardTitle>{submitLabel === '추가' ? '새 멤버' : '멤버 수정'}</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">

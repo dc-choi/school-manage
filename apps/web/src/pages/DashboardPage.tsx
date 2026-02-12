@@ -177,7 +177,7 @@ export function DashboardPage() {
                         error={hasError}
                     />
                     <TopRankingCard
-                        title="전체 우수 출석 학생 TOP 5"
+                        title="전체 우수 출석 멤버 TOP 5"
                         items={topStudentItems}
                         isLoading={stats.isLoading}
                         error={hasError}
