@@ -87,6 +87,7 @@ export type {
     SignupOutput,
     // Account
     GetAccountOutput,
+    GetAccountCountOutput,
     // Group
     GroupOutput,
     CreateGroupOutput,

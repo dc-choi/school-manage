@@ -215,15 +215,12 @@ export function SignupPage() {
                         </div>
 
                         <Button type="submit" className="w-full" disabled={isLoading || !isFormValid()}>
-                            {isLoading ? '가입 중...' : '가입하기'}
+                            {isLoading ? '가입 중...' : '무료로 시작하기'}
                         </Button>
 
-                        <div className="text-center">
-                            이미 계정이 있으신가요?{' '}
-                            <Link to="/login" className="font-medium text-primary underline-offset-4 hover:underline">
-                                로그인
-                            </Link>
-                        </div>
+                        <Button variant="ghost" className="w-full" asChild>
+                            <Link to="/login">이미 계정이 있으신가요?</Link>
+                        </Button>
                     </form>
                 </CardContent>
             </Card>

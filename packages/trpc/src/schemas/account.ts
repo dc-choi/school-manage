@@ -13,3 +13,10 @@ export interface GetAccountOutput {
     id: string;
     name: string;
 }
+
+/**
+ * 계정 수 조회 응답
+ */
+export interface GetAccountCountOutput {
+    count: number;
+}

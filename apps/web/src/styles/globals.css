@@ -162,3 +162,19 @@ body {
     @apply bg-background text-foreground;
     }
 }
+
+/* 카드 진입 애니메이션 (로그인↔회원가입 전환) */
+.animate-card-in {
+    animation: card-in 200ms ease-out;
+}
+
+@keyframes card-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

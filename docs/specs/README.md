@@ -7,8 +7,8 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 5개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
-| **Target Functional**     | 100% | 로드맵 1단계 전체 완료 (UX 라이팅 범용화 포함)                                  |
-| **Target Non-Functional** | -    | MEASUREMENT 완료, SECURITY/PERFORMANCE 대기                       |
+| **Target Functional**     | 100% | 로드맵 1단계 + 전환율 개선 전체 완료                                          |
+| **Target Non-Functional** | -    | MEASUREMENT 완료, SECURITY 3건/PERFORMANCE 5건 등록                 |
 
 ## 관련 문서
 
@@ -36,7 +36,7 @@
 
 | 도메인          | 경로                                                      | 포함 내용                                                      |
 |--------------|---------------------------------------------------------|------------------------------------------------------------|
-| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 (로드맵 1단계)             |
+| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계)    |
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
 | Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) |
 | Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
@@ -80,10 +80,11 @@
 > - 목록 페이지네이션 상태 유지 → student-management, group-management에 병합
 > - 로그인 서비스 소개 + 계정 모델 안내 → auth-account에 병합
 > - UX 라이팅 범용화 ("학생"→"멤버") → `ux-writing-member.md` (비기능적 간소화 워크플로우)
+> - 로그인 페이지 전환율 개선 → auth-account에 병합 (비기능적 간소화 워크플로우)
 >
-> **로드맵 1단계 전체 완료.**
+> **로드맵 1단계 + 전환율 개선 전체 완료.**
 
-(현재 TARGET Functional 항목 없음)
+(현재 TARGET FUNCTIONAL 항목 없음)
 
 ### 보류 (Hold)
 
@@ -98,10 +99,20 @@
 
 ### SECURITY (Non-Functional)
 
-| 우선순위 | 기능명                 | SDD 상태 | 비고                                  |
-|------|---------------------|--------|-------------------------------------|
-| P1   | Refresh token 인증 확장 | 완료     | Task/Development 작성됨 (Feature는 레거시) |
-| P1   | 계정 소유권 검증 강화        | 미작성    | 기능 설계부터 필요                          |
+| 우선순위 | 기능명                  | SDD 상태 | 비고                                        |
+|------|----------------------|--------|-------------------------------------------|
+| P1   | 계정 소유권 검증 강화         | 미작성    | IDOR 취약점 - 모든 엔드포인트 accountId 검증 필요        |
+| P1   | CORS + Rate Limiting | 미작성    | CORS 화이트리스트 설정 + express-rate-limit 추가     |
+| P1   | Refresh token 인증 확장  | 완료     | Task/Development 작성됨, 구현 대기               |
+
+**계정 소유권 검증 강화:**
+- 프로덕션 데이터 노출 위험 (수평 권한 상승)
+- group/student/attendance 모든 get/update/delete 엔드포인트에서 accountId 검증 필요
+- 발견 위치: `apps/api/src/domains/group/presentation/group.router.ts:38` 등
+
+**CORS + Rate Limiting:**
+- `apps/api/src/app.ts` CORS import 주석 처리 상태 → 화이트리스트 설정 필요
+- Rate Limiting 미구현 → 로그인 브루트포스/API 남용 방어 필요
 
 **Refresh token 인증 확장:**
 - 기능 설계: `docs/specs/functional-design/auth-refresh-token.md`
@@ -120,11 +131,31 @@
 
 ### PERFORMANCE (Non-Functional)
 
-| 우선순위 | 기능명          | SDD 상태 | 비고                     |
-|------|--------------|--------|------------------------|
-| P1   | 웹 앱 리팩토링/최적화 | 완료     | 코드 품질, 성능, 테스트 커버리지 개선 |
+| 우선순위 | 기능명               | SDD 상태 | 비고                                         |
+|------|-------------------|--------|--------------------------------------------|
+| P1   | ErrorBoundary 추가  | 미작성    | React 앱 글로벌 크래시 방지, 사용자 친화적 에러 화면           |
+| P1   | 번들 최적화            | 미작성    | sourcemap 제거 + 코드 스플리팅 (현재 910KB)          |
+| P2   | StudentListPage 분리 | 미작성    | 489줄 → 하위 컴포넌트 분리 (3 테이블 + 4 모달 + 9 핸들러)  |
+| P2   | 웹 테스트 확대          | 미작성    | 커버리지 ~2% → 주요 페이지/훅 테스트 추가                 |
+| P2   | 웹 앱 리팩토링/최적화      | SDD 완료 | 상위 4건의 포괄 SDD (코드 품질, 성능, 테스트 커버리지 개선)    |
 
-**웹 앱 리팩토링/최적화:**
+**ErrorBoundary 추가:**
+- React 런타임 에러 시 전체 앱 화이트스크린 발생
+- 글로벌 ErrorBoundary + 페이지별 ErrorBoundary 필요
+
+**번들 최적화:**
+- `apps/web/vite.config.ts:26` sourcemap: true → 프로덕션에서 제거 필요
+- 라우트 기반 코드 스플리팅 (React.lazy + Suspense)
+
+**StudentListPage 분리:**
+- `apps/web/src/pages/student/StudentListPage.tsx` (489줄)
+- 3개 테이블 (활성/삭제/졸업) + 4개 모달 + 9개 핸들러 → 하위 컴포넌트로 분리
+
+**웹 테스트 확대:**
+- 현재 API 통합 테스트 6개 + 유틸 테스트 4개만 존재
+- 웹 컴포넌트/훅 테스트 거의 없음 (~2% 커버리지)
+
+**웹 앱 리팩토링/최적화 (포괄 SDD):**
 - 기능 설계: `docs/specs/functional-design/web-refactoring-optimization.md`
 - Task: `docs/specs/target/non-functional/tasks/web-refactoring-optimization.md`
 - Development: `docs/specs/target/non-functional/development/web-refactoring-optimization.md`
