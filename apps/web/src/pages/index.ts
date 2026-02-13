@@ -1,4 +1,5 @@
 export { DashboardPage } from './DashboardPage';
+export { LandingPage } from './LandingPage';
 export { LoginPage } from './LoginPage';
 export { SignupPage } from './SignupPage';
 export { GroupListPage, GroupDetailPage, GroupAddPage } from './group';

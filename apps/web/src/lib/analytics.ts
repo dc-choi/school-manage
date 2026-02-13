@@ -15,6 +15,9 @@
  * - 첫 출석 기록: analytics.trackFirstAttendanceRecorded(daysSinceSignup)
  * - 출석 저장 완료: analytics.trackAttendanceRecorded(params)
  * - 대시보드 진입: analytics.trackDashboardViewed()
+ * - 랜딩 페이지 진입: analytics.trackLandingView()
+ * - 랜딩 CTA 클릭: analytics.trackLandingCtaClick(position)
+ * - 랜딩 로그인 클릭: analytics.trackLandingLoginClick()
  */
 
 const isGtagAvailable = (): boolean => {
@@ -163,5 +166,30 @@ export const analytics = {
      */
     trackDashboardViewed: (): void => {
         safeGtag('event', 'dashboard_viewed');
+    },
+
+    /**
+     * 랜딩 페이지 진입 이벤트
+     * 트리거: 랜딩 페이지 마운트 시 (useEffect)
+     */
+    trackLandingView: (): void => {
+        safeGtag('event', 'landing_view');
+    },
+
+    /**
+     * 랜딩 CTA 클릭 이벤트
+     * 트리거: CTA 버튼 클릭 시
+     * @param position 클릭 위치 (hero: 히어로 CTA, bottom: 하단 CTA)
+     */
+    trackLandingCtaClick: (position: 'hero' | 'bottom'): void => {
+        safeGtag('event', 'landing_cta_click', { position });
+    },
+
+    /**
+     * 랜딩 로그인 클릭 이벤트
+     * 트리거: 로그인 링크 클릭 시
+     */
+    trackLandingLoginClick: (): void => {
+        safeGtag('event', 'landing_login_click');
     },
 };

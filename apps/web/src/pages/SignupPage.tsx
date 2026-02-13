@@ -127,15 +127,12 @@ export function SignupPage() {
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl">회원가입</CardTitle>
-                    <CardDescription>모임 하나당 계정 하나로 관리합니다</CardDescription>
+                    <CardDescription>우리 모임 출석부, 여기서 시작해요</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="mb-4 flex gap-2 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
                         <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                        <span>
-                            모임당 하나의 계정으로 출석, 멤버, 통계를 관리합니다. 운영자가 여러 명이면 같은 계정을
-                            공유하세요.
-                        </span>
+                        <span>모임 하나당 계정 하나로 관리해요. 선생님이 여러 명이면 같은 계정을 공유하시면 돼요.</span>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">

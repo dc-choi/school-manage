@@ -7,6 +7,7 @@ import {
     GroupAddPage,
     GroupDetailPage,
     GroupListPage,
+    LandingPage,
     LoginPage,
     SignupPage,
     StudentAddPage,
@@ -23,6 +24,10 @@ const routes: RouteObject[] = [
     {
         path: '/signup',
         element: <SignupPage />,
+    },
+    {
+        path: '/landing',
+        element: <LandingPage />,
     },
     // Protected routes
     {

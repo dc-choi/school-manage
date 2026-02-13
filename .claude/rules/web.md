@@ -147,6 +147,7 @@ import { useMyHook } from '~/features/{domain}/hooks/useMyHook';
 
 | 경로 | 페이지 | 인증 필요 |
 |------|--------|----------|
+| `/landing` | `LandingPage` | No |
 | `/login` | `LoginPage` | No |
 | `/` | `DashboardPage` | Yes |
 | `/groups` | `GroupListPage` | Yes |
