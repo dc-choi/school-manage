@@ -11,6 +11,7 @@
 ## 문서 목록
 - `docs/business/0_feedback/feedback.md` 사용자 피드백
 - `docs/business/1_market/market.md` 시장/고객/경쟁
+- `docs/business/1_market/competitive-analysis.md` 경쟁사 상세 분석
 - `docs/business/2_bm/bm.md` BM/수익 구조
 - `docs/business/3_gtm/gtm.md` 유통/세일즈/온보딩
 - `docs/business/3_gtm/instagram.md` 인스타그램 운영 계획

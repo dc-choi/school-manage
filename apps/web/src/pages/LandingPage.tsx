@@ -431,10 +431,10 @@ export function LandingPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            <main>
+            <main className="break-keep">
                 {/* ① Hero — 첫 화면은 즉시 표시 */}
                 <section className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gradient-to-b from-primary/8 to-background px-6 text-center">
-                    <h1 className="text-5xl font-bold leading-snug tracking-tight sm:text-6xl lg:text-7xl">
+                    <h1 className="text-4xl font-bold leading-snug tracking-tight text-balance sm:text-5xl lg:text-7xl">
                         종이 출석부, 엑셀 정리
                         <br />폰 하나로 바꿔보세요
                     </h1>
@@ -450,7 +450,9 @@ export function LandingPage() {
                         id="pain-points"
                         className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 text-center"
                     >
-                        <h2 className="text-3xl font-bold sm:text-4xl lg:text-5xl">혹시 이런 주일, 보내고 계신가요?</h2>
+                        <h2 className="text-2xl font-bold text-balance sm:text-4xl lg:text-5xl">
+                            혹시 이런 주일, 보내고 계신가요?
+                        </h2>
                         <div className="flex flex-col gap-10">
                             {PAIN_POINTS.map((point) => (
                                 <div key={point.quote} className="flex flex-col gap-2">
@@ -474,7 +476,7 @@ export function LandingPage() {
                         id="features"
                         className="flex min-h-screen flex-col items-center justify-center gap-12 bg-muted/30 px-6 text-center"
                     >
-                        <h2 className="text-3xl font-bold sm:text-4xl lg:text-5xl">
+                        <h2 className="text-2xl font-bold text-balance sm:text-4xl lg:text-5xl">
                             종이와 엑셀 대신, 이렇게 바뀌어요
                         </h2>
                         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2">
@@ -496,7 +498,7 @@ export function LandingPage() {
                         id="screenshot"
                         className="flex min-h-screen flex-col items-center justify-center gap-8 px-6 text-center"
                     >
-                        <h2 className="text-3xl font-bold sm:text-4xl lg:text-5xl">직접 체험해보세요</h2>
+                        <h2 className="text-2xl font-bold text-balance sm:text-4xl lg:text-5xl">직접 체험해보세요</h2>
                         <p className="text-base text-muted-foreground sm:text-lg">출석 체크하면 바로 반영돼요</p>
                         <p className="text-base text-muted-foreground sm:text-base">실제 데이터는 아니에요!</p>
                         <InteractiveDemo />
@@ -511,8 +513,8 @@ export function LandingPage() {
                         className="flex min-h-screen flex-col items-center justify-center gap-10 bg-gradient-to-t from-primary/8 to-background px-6 text-center"
                     >
                         {countData && countData.count > 0 && (
-                            <div className="flex items-center gap-3 text-xl font-medium sm:text-2xl">
-                                <Users className="h-7 w-7 text-primary" />
+                            <div className="flex flex-col items-center gap-2 text-lg font-medium text-balance sm:flex-row sm:gap-3 sm:text-2xl">
+                                <Users className="h-7 w-7 shrink-0 text-primary" />
                                 <span>{countData.count}개 단체가 이미 폰으로 출석 관리 중이에요</span>
                             </div>
                         )}
