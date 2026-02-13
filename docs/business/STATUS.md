@@ -108,7 +108,7 @@
 |-----|-------------|----------------------|-----|-----------------------------|
 | 🔴  | SECURITY    | 계정 소유권 검증 강화         | 미작성 | IDOR 취약점 - 프로덕션 데이터 노출 위험   |
 | 🔴  | SECURITY    | CORS + Rate Limiting | 미작성 | CORS 비활성, Rate Limiting 없음  |
-| 🔴  | SECURITY    | Refresh Token 구현     | 대기  | SDD 완료, 구현만 필요              |
+| 🔴  | SECURITY    | Refresh Token 구현     | 미작성 | 재명세 예정                      |
 | 🟡  | PERFORMANCE | ErrorBoundary 추가     | 미작성 | React 앱 크래시 시 화이트스크린        |
 | 🟡  | PERFORMANCE | 번들 최적화               | 미작성 | sourcemap 프로덕션 노출, 910KB 번들 |
 | 🟢  | PERFORMANCE | StudentListPage 분리   | 미작성 | 489줄 단일 컴포넌트 (3 테이블 + 4 모달) |
