@@ -69,9 +69,15 @@ nvm use              # .nvmrc 기준 자동 설정
 node --version       # v24.x.x 확인
 ```
 
-## Environment Variables (측정 인프라)
+## Environment Variables
 
-측정 인프라용 환경변수입니다. 프로덕션 환경에서만 필수입니다.
+선택적 환경변수입니다. 미설정 시 해당 기능이 비활성화됩니다.
+
+### CORS
+
+| 패키지           | 변수명          | 용도                              |
+|---------------|--------------|----------------------------------|
+| `@school/api` | `CORS_ORIGIN` | 허용할 웹 origin (미설정 시 same-origin) |
 
 ### GA4 Analytics
 
@@ -90,6 +96,11 @@ node --version       # v24.x.x 확인
 | `@school/api` | `ADMIN_EMAIL` | 운영자 수신 주소        |
 
 > **Note**: 환경변수 미설정 시 해당 기능이 비활성화됩니다 (앱 정상 동작).
+
+### 보안 참고
+
+- **CORS**: `CORS_ORIGIN` 미설정 시 same-origin만 허용 (`apps/api/src/app.ts`)
+- **Rate Limiting**: 전체 API 100회/분, 인증 엔드포인트 10회/분 (IP 기준, `express-rate-limit`)
 
 ## Commands (Root)
 
@@ -139,6 +150,10 @@ tsc -b -v tsconfig.build.json   # 전체 의존성 순서대로 빌드
 - **함수 선언**: 화살표 함수 사용 (React 컴포넌트, 클래스 메서드 제외)
 
 ## Commit & Branch Conventions
+
+### Commit 단위
+- **기능 단위 커밋**: 하나의 커밋에 하나의 기능만 포함
+- 여러 기능이 변경된 경우 기능별로 분리하여 커밋
 
 ### Commit Message
 ```
