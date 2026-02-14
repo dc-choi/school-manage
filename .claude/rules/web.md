@@ -151,7 +151,9 @@ import { useMyHook } from '~/features/{domain}/hooks/useMyHook';
 | `/landing` | `LandingPage` | No | No |
 | `/login` | `LoginPage` | No | No |
 | `/signup` | `SignupPage` | No | No |
+| `/reset-password` | `ResetPasswordPage` | No | No |
 | `/consent` | `ConsentPage` | Yes (내부 체크) | No |
+| `/settings` | `SettingsPage` | Yes | Yes |
 | `/` | `DashboardPage` | Yes | Yes |
 | `/groups` | `GroupListPage` | Yes | Yes |
 | `/groups/new` | `GroupAddPage` | Yes | Yes |
@@ -161,3 +163,26 @@ import { useMyHook } from '~/features/{domain}/hooks/useMyHook';
 | `/students/:id` | `StudentDetailPage` | Yes | Yes |
 | `/attendance` | `CalendarPage` | Yes | Yes |
 | `/attendance/table` | `AttendancePage` | Yes | Yes |
+
+## React 성능 규칙
+
+### Re-render 최적화
+
+- 파생 상태는 렌더링 중 계산 — `useState` + `useEffect`로 동기화하지 않음
+- `useMemo`에 단순 표현식 넣지 않음 — 오버헤드가 더 큼
+- 비긴급 UI 업데이트에 `useTransition` 사용
+- `useRef`로 빈번히 변하는 transient 값 관리 (re-render 불필요 시)
+- 이벤트 핸들러에서 사이드 이펙트 실행 — Effect로 감싸지 않음
+- `useState` lazy initializer 사용 (비용이 큰 초기값: `useState(() => expensiveCompute())`)
+
+### 렌더링 성능
+
+- `&&` 대신 삼항(`? … : null`) 사용 — falsy 값 `0`, `NaN`이 DOM에 렌더링되는 것 방지
+- 정적 JSX를 컴포넌트 바깥으로 추출 (매 렌더링마다 재생성 방지)
+- 50개 이상 리스트는 가상화(virtualization) 고려
+
+### JS 성능
+
+- `Array.includes()` 대신 `Set` 사용 (O(1) 탐색)
+- `.sort()` 대신 `.toSorted()` (원본 배열 불변)
+- 루프 내 반복 프로퍼티 접근은 변수에 캐싱
