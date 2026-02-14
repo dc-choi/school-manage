@@ -41,20 +41,6 @@
     --sidebar-ring: oklch(0.708 0 0);
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    min-height: 100vh;
-}
-
-#root {
-    min-height: 100vh;
-}
-
 @theme inline {
     /* Breakpoints */
     --breakpoint-sm: 640px;
@@ -156,10 +142,17 @@ body {
 
 @layer base {
   * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
     @apply border-border outline-ring/50;
     }
   body {
+    min-height: 100vh;
     @apply bg-background text-foreground;
+    }
+  #root {
+    min-height: 100vh;
     }
 }
 
