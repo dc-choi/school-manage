@@ -9,6 +9,7 @@ export interface AuthContextValue {
     isAuthenticated: boolean;
     privacyAgreedAt: Date | null;
     login: (name: string, password: string) => Promise<void>;
+    restoreAccount: (name: string, password: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -24,6 +25,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const [isLoading, setIsLoading] = useState(true);
 
     const loginMutation = trpc.auth.login.useMutation();
+    const restoreMutation = trpc.auth.restoreAccount.useMutation();
 
     // 토큰 존재 여부 확인
     const hasToken = typeof window !== 'undefined' && !!sessionStorage.getItem('token');
@@ -44,7 +46,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         // 토큰이 있고 fetch가 완료되면
         if (!isAccountFetching) {
             if (accountData) {
-                setAccount({ id: accountData.id, name: accountData.name });
+                setAccount({ id: accountData.id, name: accountData.name, displayName: accountData.displayName });
                 setPrivacyAgreedAt(accountData.privacyAgreedAt ?? null);
             } else {
                 // 토큰이 있지만 계정 정보를 가져오지 못함 (토큰 만료 등)
@@ -60,12 +62,23 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         async (name: string, password: string) => {
             const result = await loginMutation.mutateAsync({ name, password });
             sessionStorage.setItem('token', result.accessToken);
-            setAccount({ id: '', name: result.name }); // id는 account.get에서 가져옴
+            setAccount({ id: '', name: result.name, displayName: result.displayName });
 
             // GA4 이벤트 전송
             analytics.trackLogin();
         },
         [loginMutation]
+    );
+
+    const restoreAccount = useCallback(
+        async (name: string, password: string) => {
+            const result = await restoreMutation.mutateAsync({ name, password });
+            sessionStorage.setItem('token', result.accessToken);
+            setAccount({ id: '', name: result.name, displayName: result.displayName });
+
+            analytics.trackLogin();
+        },
+        [restoreMutation]
     );
 
     const logout = useCallback(() => {
@@ -81,9 +94,10 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             isAuthenticated: !!account,
             privacyAgreedAt,
             login,
+            restoreAccount,
             logout,
         }),
-        [account, isLoading, privacyAgreedAt, login, logout]
+        [account, isLoading, privacyAgreedAt, login, restoreAccount, logout]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

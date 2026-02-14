@@ -69,7 +69,13 @@ export function Header() {
                                 </Button>
                             ))}
                             <Separator className="my-2" />
-                            <div className="px-4 py-2 text-sm text-muted-foreground">{account?.name}</div>
+                            <Button
+                                variant="ghost"
+                                className="justify-start"
+                                onClick={() => handleNavClick('/settings')}
+                            >
+                                {account?.name}
+                            </Button>
                             <Button variant="outline" onClick={handleLogout}>
                                 로그아웃
                             </Button>
@@ -99,14 +105,24 @@ export function Header() {
 
                 {/* Desktop user menu */}
                 <div className="ml-auto hidden items-center gap-4 md:flex">
-                    <span className="text-sm text-muted-foreground">{account?.name}</span>
+                    <Link
+                        to="/settings"
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                        {account?.name}
+                    </Link>
                     <Button variant="outline" size="sm" onClick={handleLogout}>
                         로그아웃
                     </Button>
                 </div>
 
                 {/* Mobile user name */}
-                <span className="ml-auto text-sm text-muted-foreground md:hidden">{account?.name}</span>
+                <Link
+                    to="/settings"
+                    className="ml-auto text-sm text-muted-foreground transition-colors hover:text-foreground md:hidden"
+                >
+                    {account?.name}
+                </Link>
             </div>
         </header>
     );

@@ -61,11 +61,11 @@ export function createPublicCaller() {
  * const result = await caller.account.get();
  * ```
  */
-export function createAuthenticatedCaller(accountId: string, accountName: string) {
+export function createAuthenticatedCaller(accountId: string, accountName: string, displayName?: string) {
     const ctx: AuthContext = {
         req: createMockRequest(),
         res: createMockResponse(),
-        account: { id: accountId, name: accountName },
+        account: { id: accountId, name: accountName, displayName: displayName ?? accountName },
         privacyAgreedAt: new Date(),
     };
     return createCaller(ctx);

@@ -3,7 +3,7 @@
  *
  * Nodemailer + Google SMTP를 사용한 메일 발송 서비스
  */
-import { signupNotificationTemplate } from './templates.ts';
+import { signupNotificationTemplate, temporaryPasswordTemplate } from './templates.ts';
 import nodemailer from 'nodemailer';
 import { env } from '~/global/config/env.js';
 import { logger } from '~/infrastructure/logger/logger.js';
@@ -62,6 +62,38 @@ export const mailService = {
             logger.log(`Signup notification sent: ${account.displayName}`);
         } catch (error) {
             logger.err(`Signup notification failed: ${account.displayName}, error: ${error}`);
+        }
+    },
+
+    /**
+     * 임시 비밀번호 메일 발송 (동기)
+     * @param to 수신자 이메일
+     * @param tempPassword 임시 비밀번호
+     * @returns 발송 성공 여부
+     */
+    async sendTemporaryPassword(to: string, tempPassword: string): Promise<boolean> {
+        if (!this.isEnabled()) {
+            logger.log('Mail disabled, skipping temporary password');
+            return false;
+        }
+
+        const { subject, text } = temporaryPasswordTemplate(tempPassword);
+
+        try {
+            const transporter = this.createTransporter();
+
+            await transporter.sendMail({
+                from: env.smtp.user,
+                to,
+                subject,
+                text,
+            });
+
+            logger.log(`Temporary password sent to: ${to}`);
+            return true;
+        } catch (error) {
+            logger.err(`Temporary password send failed: ${to}, error: ${error}`);
+            return false;
         }
     },
 };

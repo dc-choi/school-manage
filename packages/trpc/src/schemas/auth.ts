@@ -38,10 +38,28 @@ export const signupInputSchema = z.object({
     }),
 });
 
+/**
+ * 비밀번호 재설정 입력 스키마
+ */
+export const resetPasswordInputSchema = z.object({
+    name: z.string().min(1, 'ID는 필수입니다'),
+    email: z.string().email('올바른 이메일 형식이 아닙니다'),
+});
+
+/**
+ * 계정 복원 입력 스키마
+ */
+export const restoreAccountInputSchema = z.object({
+    name: z.string().min(1, 'Name is required'),
+    password: z.string().min(1, 'Password is required'),
+});
+
 // 입력 타입 export
 export type LoginInput = z.infer<typeof loginInputSchema>;
 export type CheckIdInput = z.infer<typeof checkIdInputSchema>;
 export type SignupInput = z.infer<typeof signupInputSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordInputSchema>;
+export type RestoreAccountInput = z.infer<typeof restoreAccountInputSchema>;
 
 // ============================================================
 // 출력 타입 (Output Types)
@@ -67,6 +85,23 @@ export interface CheckIdOutput {
  * 회원가입 응답
  */
 export interface SignupOutput {
+    name: string;
+    displayName: string;
+    accessToken: string;
+}
+
+/**
+ * 비밀번호 재설정 응답
+ */
+export interface ResetPasswordOutput {
+    success: boolean;
+    emailFailed?: boolean;
+}
+
+/**
+ * 계정 복원 응답
+ */
+export interface RestoreAccountOutput {
     name: string;
     displayName: string;
     accessToken: string;

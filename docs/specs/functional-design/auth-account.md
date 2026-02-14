@@ -7,6 +7,7 @@
 
 - PRD: `docs/specs/prd/school-attendance.md` (회원가입 포함)
 - PRD: `docs/specs/prd/privacy-consent.md` (개인정보 제공동의)
+- PRD: `docs/specs/prd/account-self-management.md` (계정 자기 관리)
 
 ---
 
@@ -466,7 +467,7 @@ account.get → privacyAgreedAt: null 확인
 | 1 | 수집 항목 | 가. 계정 정보: 아이디, 이름(닉네임), 비밀번호(암호화) / 나. 학생 정보: 이름, 세례명, 성별, 나이, 연락처, 세례일, 메모, 출석 기록 |
 | 2 | 수집 목적 | 가. 계정 정보: 서비스 회원 식별 및 인증 / 나. 학생 정보: 출석부 관리 서비스 제공 |
 | 3 | 민감정보 처리 | 세례명·세례일은 종교 관련 민감정보, 선택 입력, 출석 관리 목적으로만 사용 |
-| 4 | 보유 기간 | 회원 탈퇴 시까지 (탈퇴 후 계정 및 관련 학생 정보 지체 없이 파기) |
+| 4 | 보유 기간 | 회원 탈퇴 시까지 (탈퇴 시 계정 및 관련 학생 정보 즉시 비활성화 처리, 비활성화 후 2년 이내 파기) |
 | 5 | 위탁/제3자 제공 | 없음 |
 | 6 | 이용자 권리 | 동의 철회, 열람·정정·삭제 요청 가능 |
 | 7 | 사용자(교사) 책임 | 학생 정보는 사용자 책임 하에 수집·관리, 학생/보호자 동의는 교사 본인 책임 |
@@ -552,15 +553,273 @@ account.get → privacyAgreedAt: null 확인
 
 ---
 
+## 계정 자기 관리 (로드맵 2단계)
+
+> PRD: `docs/specs/prd/account-self-management.md`
+> 사업 근거: `docs/business/6_roadmap/roadmap.md` (2단계 P0)
+
+### 배경
+
+- 비밀번호 분실 시 운영자 개입 필요, 이름 변경/계정 탈퇴 불가
+- 개인정보 처리방침 "동의 철회, 삭제 요청 가능" 이행을 위한 탈퇴 기능 필수
+
+### 사용자 플로우
+
+**비밀번호 재설정** (비인증 상태):
+
+```
+/login → "비밀번호 찾기" 클릭 → /reset-password
+   ↓
+아이디 + 이메일 입력 → "임시 비밀번호 발송" 클릭
+   ↓
+auth.resetPassword API 호출
+   ↓ (계정 존재 확인 → 임시 비밀번호 생성 → bcrypt 해싱 → DB 업데이트 → 이메일 발송)
+성공 메시지 표시 → /login으로 이동
+   ↓
+임시 비밀번호로 로그인 → /settings에서 비밀번호 변경
+```
+
+**비밀번호 변경** (인증 상태):
+
+```
+/settings → 비밀번호 변경 섹션
+   ↓
+현재 비밀번호 + 새 비밀번호 + 새 비밀번호 확인 입력
+   ↓
+account.changePassword API 호출
+   ↓ (현재 비밀번호 검증 → 새 비밀번호 bcrypt 해싱 → DB 업데이트)
+성공 메시지 → 세션 클리어 → /login 리다이렉트 (새 비밀번호로 재로그인)
+```
+
+**이름 변경** (인증 상태):
+
+```
+/settings → 이름 변경 섹션
+   ↓
+새 이름 입력 → "저장" 클릭
+   ↓
+account.updateProfile API 호출 → 성공 메시지
+```
+
+**계정 탈퇴** (인증 상태):
+
+```
+/settings → 위험 영역 섹션 → "계정 삭제" 클릭
+   ↓
+AlertDialog: "모든 데이터가 삭제됩니다. 삭제 후 2년 이내에 동일한 아이디와 비밀번호로 로그인하면 계정을 복원할 수 있습니다."
+   ↓
+비밀번호 입력 → "삭제" 클릭
+   ↓
+account.deleteAccount API 호출
+   ↓ (비밀번호 검증 → 출석 → 학생 → 그룹 → 계정 순서로 소프트 삭제)
+세션 클리어 → /login 리다이렉트
+```
+
+**계정 복원** (비인증 상태):
+
+```
+/login → 삭제된 계정으로 로그인 시도 → auth.login에서 ACCOUNT_DELETED 에러 반환
+   ↓
+프론트엔드에서 복원 확인 다이얼로그 표시
+   ↓
+auth.restoreAccount API 호출
+   ↓ (비밀번호 검증 → 2년 이내 확인 → 트랜잭션 내 cascade 복원 → JWT 발급)
+자동 로그인 → 대시보드 이동
+```
+
+### 상태 전이
+
+```
+[인증됨] → (비밀번호 변경) → [세션 만료] → [비인증]
+[인증됨] → (이름 변경) → [인증됨] (프로필 갱신)
+[인증됨] → (계정 탈퇴) → [계정 삭제됨] → [비인증]
+[비인증] → (비밀번호 재설정) → [비인증] (이메일 발송 완료)
+[계정 삭제됨] → (로그인 시도) → (복원 확인) → [인증됨] (cascade 복원)
+[계정 삭제됨] → (2년 경과) → [복원 불가]
+```
+
+### 라우팅
+
+| 경로 | 컴포넌트 | 인증 | 비고 |
+|------|----------|------|------|
+| `/settings` | SettingsPage | consented | 계정 설정 (MainLayout) |
+| `/reset-password` | ResetPasswordPage | **불필요** (public) | 비밀번호 재설정 (AuthLayout) |
+
+### UI/UX
+
+**계정 설정 페이지 (`/settings`)**
+
+MainLayout 사용 (사이드바 + 헤더). 3개 섹션으로 구성.
+
+```
+┌─────────────────────────────────────────┐
+│  계정 설정                               │
+│                                         │
+│  ── 이름 변경 ──────────────────────────  │
+│  이름        [현재 이름        ] [저장]   │
+│                                         │
+│  ── 비밀번호 변경 ──────────────────────  │
+│  현재 비밀번호  [                ]        │
+│  새 비밀번호    [                ]        │
+│  비밀번호 확인  [                ]        │
+│                            [변경하기]    │
+│                                         │
+│  ── 위험 영역 ──────────────────────────  │
+│  계정을 삭제하면 모든 데이터가 영구 삭제됩니다.│
+│                         [계정 삭제]      │
+└─────────────────────────────────────────┘
+```
+
+- 이름 변경: 인라인 수정 (Input + 저장 버튼)
+- 비밀번호 변경: 3개 필드 (현재/새/확인) + 변경 버튼
+- 위험 영역: 붉은 테두리, destructive 버튼
+
+**비밀번호 재설정 페이지 (`/reset-password`)**
+
+AuthLayout 사용 (로그인과 동일한 레이아웃).
+
+```
+┌─────────────────────────────────────────┐
+│  비밀번호 찾기                            │
+│                                         │
+│  아이디    [                ]             │
+│  이메일    [                ]             │
+│                                         │
+│  [ 임시 비밀번호 발송 ]                   │
+│                                         │
+│  로그인으로 돌아가기                       │
+└─────────────────────────────────────────┘
+```
+
+- 발송 성공: "임시 비밀번호가 이메일로 발송되었습니다" 메시지
+- 발송 실패: 에러 메시지 표시
+- 계정 미존재 시에도 동일한 성공 메시지 표시 (계정 존재 여부 노출 방지)
+
+**헤더 프로필 링크**
+
+- 헤더의 사용자 프로필 영역(아이콘 + displayName)을 클릭하면 `/settings`로 이동
+- 별도 사이드바 메뉴 없이 헤더 프로필 링크로 접근
+
+### API/인터페이스
+
+| 프로시저 | 타입 | 인증 | 동의 필요 | 설명 |
+|----------|------|------|-----------|------|
+| `auth.resetPassword` | mutation | **public** | - | 비밀번호 재설정 (임시 비밀번호 발송) |
+| `auth.restoreAccount` | mutation | **public** | - | 삭제된 계정 복원 (2년 이내) |
+| `account.changePassword` | mutation | consented | O | 비밀번호 변경 |
+| `account.updateProfile` | mutation | consented | O | 이름 변경 |
+| `account.deleteAccount` | mutation | consented | O | 계정 탈퇴 (소프트 삭제) |
+
+**auth.resetPassword (신규)**
+
+- 요청: `name` (string, 필수), `email` (string, 이메일 형식, 필수)
+- 동작: 계정 조회 → 임시 비밀번호 생성 (영문+숫자 12자) → 이메일 발송 (동기) → 성공 시 bcrypt 해싱 → DB 업데이트
+- 응답: `{ success: true }` (계정 미존재 시에도 동일 응답 — 존재 여부 노출 방지), 메일 발송 실패 시 `{ success: false, emailFailed: true }`
+- 에러: 계정 미존재 → 성공 응답 (보안), SMTP 실패 → `emailFailed: true` 반환 (재시도 유도)
+
+**auth.restoreAccount (신규)**
+
+- 요청: `name` (string, 필수), `password` (string, 필수)
+- 동작: 삭제된 계정 조회 → 비밀번호 검증 → 2년 이내 확인 → 트랜잭션 내 cascade 복원 (계정 → 그룹 → 학생 → 출석) → JWT 발급
+- 응답: `name`, `displayName`, `accessToken` (JWT) — 복원 후 자동 로그인
+- 에러: 404 계정 미존재, 401 비밀번호 불일치, 403 복원 기간 경과
+
+**account.changePassword (신규)**
+
+- 요청: `currentPassword` (string, 필수), `newPassword` (string, 8자 이상, 필수)
+- 동작: 현재 비밀번호 검증 → 새 비밀번호 bcrypt 해싱 → DB 업데이트
+- 응답: `{ success: true }`
+- 에러: 401 현재 비밀번호 불일치
+
+**account.updateProfile (신규)**
+
+- 요청: `displayName` (string, 2~20자, 필수)
+- 동작: displayName 업데이트
+- 응답: `{ displayName: string }`
+- 에러: 400 유효성 오류
+
+**account.deleteAccount (신규)**
+
+- 요청: `password` (string, 필수)
+- 동작: 비밀번호 검증 → 트랜잭션 내에서 출석 → 학생 → 그룹 → 계정 순서로 소프트 삭제
+- 응답: `{ success: true }`
+- 에러: 401 비밀번호 불일치
+
+### 비즈니스 로직
+
+**비밀번호 재설정**:
+1. name으로 계정 조회 (deletedAt: null)
+2. 계정 미존재 시 → 성공 응답 반환 (계정 존재 여부 노출 방지)
+3. 임시 비밀번호 생성: `crypto.randomBytes(6).toString('hex')` → 12자 영숫자
+4. 이메일 발송 (**동기**, 실패 시 기존 비밀번호 유지 → `{ success: false, emailFailed: true }` 반환)
+5. 발송 성공 시에만 bcrypt 해싱 (saltRounds=10) → DB 업데이트 (password, updatedAt)
+
+**계정 삭제 (cascade 소프트 삭제)**:
+```
+트랜잭션 {
+  1. 비밀번호 검증
+  2. 해당 계정의 그룹 ID 목록 조회
+  3. 해당 그룹들의 학생 ID 목록 조회
+  4. UPDATE attendance SET deletedAt WHERE studentId IN (학생 ID 목록)
+  5. UPDATE student SET deletedAt WHERE groupId IN (그룹 ID 목록)
+  6. UPDATE group SET deletedAt WHERE accountId = 계정 ID
+  7. UPDATE account SET deletedAt WHERE id = 계정 ID
+}
+```
+
+### 권한/보안
+
+- `auth.resetPassword`: 공개 (rate limiting 권장)
+- `account.changePassword`, `account.updateProfile`, `account.deleteAccount`: consentedProcedure (인증 + 동의 필수)
+- 비밀번호 재설정 시 계정 존재 여부 미노출 (타이밍 공격 미고려, 소규모 서비스)
+- 계정 삭제 시 비밀번호 재확인 필수
+
+### 예외/엣지 케이스
+
+| 상황 | 처리 방법 |
+|------|----------|
+| 존재하지 않는 ID로 재설정 요청 | 성공 응답 반환 (보안) |
+| SMTP 미설정/발송 실패 | `{ success: false, emailFailed: true }` 반환 (재시도 유도) |
+| 현재 비밀번호 불일치 (변경/탈퇴) | 401 UNAUTHORIZED |
+| 새 비밀번호 유효성 오류 | 400 BAD_REQUEST |
+| displayName 유효성 오류 | 400 BAD_REQUEST |
+| 계정 삭제 중 DB 오류 | 트랜잭션 롤백, 500 에러 |
+| 이미 삭제된 계정으로 요청 | 401 (토큰 검증 실패) |
+| 삭제된 계정으로 로그인 시도 | ACCOUNT_DELETED 에러 → 프론트에서 복원 다이얼로그 표시 |
+| 복원 기간(2년) 경과 | 403 FORBIDDEN |
+| 복원 시 비밀번호 불일치 | 401 UNAUTHORIZED |
+
+### 측정/모니터링
+
+| 이벤트 | 설명 |
+|--------|------|
+| `password_reset_requested` | 비밀번호 재설정 요청 (성공 여부 무관) |
+| `password_changed` | 비밀번호 변경 완료 |
+| `display_name_changed` | 이름 변경 완료 |
+| `account_deleted` | 계정 탈퇴 완료 |
+
+### 테스트 시나리오
+
+1. **TC-SM1**: 존재하는 계정으로 비밀번호 재설정 요청 → 성공 응답, 임시 비밀번호로 로그인 가능
+2. **TC-SM2**: 존재하지 않는 계정으로 재설정 → 동일한 성공 응답 (보안)
+3. **TC-SM3**: 현재 비밀번호로 비밀번호 변경 → 새 비밀번호로 로그인 가능
+4. **TC-SM4**: 잘못된 현재 비밀번호로 변경 시도 → 401
+5. **TC-SM5**: displayName 변경 → 변경된 이름 반환
+6. **TC-SM6**: 비밀번호 확인 후 계정 삭제 → 계정/그룹/학생/출석 전체 소프트 삭제
+7. **TC-SM7**: 잘못된 비밀번호로 탈퇴 시도 → 401
+8. **TC-SME1**: SMTP 미설정/발송 실패 시 재설정 요청 → `{ success: false, emailFailed: true }` 반환
+
+---
+
 ## 공통 사항
 
 ### 권한별 접근
 
 | 권한 | 접근 가능 기능 |
 |------|---------------|
-| 비인증 | 랜딩 페이지, 로그인, 회원가입, ID 중복 확인, 계정 수 조회 |
+| 비인증 | 랜딩 페이지, 로그인, 회원가입, ID 중복 확인, 계정 수 조회, **비밀번호 재설정**, **계정 복원** |
 | 인증 + 미동의 | 계정 정보 조회, 개인정보 동의 |
-| 인증 + 동의 완료 | 모든 보호된 기능 |
+| 인증 + 동의 완료 | 모든 보호된 기능, **계정 설정 (비밀번호 변경, 이름 변경, 탈퇴)** |
 
 ### 성능/제약
 
@@ -568,7 +827,6 @@ account.get → privacyAgreedAt: null 확인
 - 제약 사항:
   - Access Token만 사용 (Refresh Token 미지원)
   - 토큰 만료 시 재로그인 필요
-  - 비밀번호 찾기 미지원 (1단계)
 
 ---
 

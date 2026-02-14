@@ -12,8 +12,14 @@ export { idSchema, pageSchema, searchOptionSchema, searchWordSchema } from './co
 // ============================================================
 
 // Auth 스키마
-export { loginInputSchema, checkIdInputSchema, signupInputSchema } from './auth';
-export type { LoginInput, CheckIdInput, SignupInput } from './auth';
+export {
+    loginInputSchema,
+    checkIdInputSchema,
+    signupInputSchema,
+    resetPasswordInputSchema,
+    restoreAccountInputSchema,
+} from './auth';
+export type { LoginInput, CheckIdInput, SignupInput, ResetPasswordInput, RestoreAccountInput } from './auth';
 
 // Group 스키마
 export {
@@ -73,11 +79,22 @@ export type { GetHolydaysInput } from './liturgical';
 // 출력 타입 (Output)
 // ============================================================
 
+// Account 스키마
+export { changePasswordInputSchema, updateProfileInputSchema, deleteAccountInputSchema } from './account';
+export type { ChangePasswordInput, UpdateProfileInput, DeleteAccountInput } from './account';
+
 // Auth 출력 타입
-export type { LoginOutput, CheckIdOutput, SignupOutput } from './auth';
+export type { LoginOutput, CheckIdOutput, SignupOutput, ResetPasswordOutput, RestoreAccountOutput } from './auth';
 
 // Account 출력 타입
-export type { GetAccountOutput, AgreePrivacyOutput, GetAccountCountOutput } from './account';
+export type {
+    GetAccountOutput,
+    AgreePrivacyOutput,
+    GetAccountCountOutput,
+    ChangePasswordOutput,
+    UpdateProfileOutput,
+    DeleteAccountOutput,
+} from './account';
 
 // Group 출력 타입
 export type {

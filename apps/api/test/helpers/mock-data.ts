@@ -23,6 +23,7 @@ export function createMockAccount(overrides: Partial<MockAccount> = {}): MockAcc
     return {
         id: nextId(),
         name: '테스트계정',
+        displayName: '테스트계정',
         password: TEST_PASSWORD_HASH,
         createdAt: new Date(),
         updatedAt: null,
@@ -91,6 +92,7 @@ export function getTestAccount(): MockAccount {
     return createMockAccount({
         id: BigInt(1),
         name: '중고등부',
+        displayName: '중고등부',
         password: TEST_PASSWORD_HASH,
     });
 }
@@ -111,6 +113,7 @@ export function resetIdCounter(): void {
 export interface MockAccount {
     id: bigint;
     name: string;
+    displayName: string;
     password: string;
     createdAt: Date;
     updatedAt: Date | null;

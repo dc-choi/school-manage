@@ -34,7 +34,7 @@ export const createContext = async ({ req, res }: CreateExpressContextOptions): 
         // DB에서 privacyAgreedAt 조회 (PK 단일 필드 조회, 부하 최소)
         const account = await database.account.findFirst({
             where: { id: BigInt(decoded.id), deletedAt: null },
-            select: { privacyAgreedAt: true },
+            select: { displayName: true, privacyAgreedAt: true },
         });
 
         return {
@@ -42,6 +42,7 @@ export const createContext = async ({ req, res }: CreateExpressContextOptions): 
             account: {
                 id: decoded.id,
                 name: decoded.name,
+                displayName: account?.displayName ?? decoded.name,
             },
             privacyAgreedAt: account?.privacyAgreedAt ?? null,
         };

@@ -10,6 +10,8 @@ import {
     GroupListPage,
     LandingPage,
     LoginPage,
+    ResetPasswordPage,
+    SettingsPage,
     SignupPage,
     StudentAddPage,
     StudentDetailPage,
@@ -33,6 +35,10 @@ const routes: RouteObject[] = [
     {
         path: '/consent',
         element: <ConsentPage />,
+    },
+    {
+        path: '/reset-password',
+        element: <ResetPasswordPage />,
     },
     // Protected routes
     {
@@ -114,6 +120,14 @@ const routes: RouteObject[] = [
         element: (
             <ProtectedRoute>
                 <AttendancePage />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/settings',
+        element: (
+            <ProtectedRoute>
+                <SettingsPage />
             </ProtectedRoute>
         ),
     },

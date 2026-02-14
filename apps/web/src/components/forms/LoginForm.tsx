@@ -61,6 +61,15 @@ export function LoginForm({ onSubmit, error, isLoading }: LoginFormProps) {
                         {isLoading ? '로그인 중...' : '로그인'}
                     </Button>
 
+                    <div className="text-center">
+                        <Link
+                            to="/reset-password"
+                            className="text-sm text-muted-foreground underline hover:text-foreground"
+                        >
+                            비밀번호를 잊으셨나요?
+                        </Link>
+                    </div>
+
                     <Button variant="outline" className="w-full" asChild>
                         <Link to="/signup">아직 계정이 없으신가요?</Link>
                     </Button>

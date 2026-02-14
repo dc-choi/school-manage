@@ -11,7 +11,7 @@ export class GetAccountUseCase {
     async execute(account: AccountInfo): Promise<GetAccountOutput> {
         const found = await database.account.findFirst({
             where: { id: BigInt(account.id), deletedAt: null },
-            select: { id: true, name: true, privacyAgreedAt: true },
+            select: { id: true, name: true, displayName: true, privacyAgreedAt: true },
         });
 
         if (!found) {
@@ -21,10 +21,13 @@ export class GetAccountUseCase {
             });
         }
 
+        const { id, name, displayName, privacyAgreedAt } = found;
+
         return {
-            id: String(found.id),
-            name: found.name,
-            privacyAgreedAt: found.privacyAgreedAt,
+            id: String(id),
+            name,
+            displayName,
+            privacyAgreedAt,
         };
     }
 }

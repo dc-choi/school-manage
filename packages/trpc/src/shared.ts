@@ -11,4 +11,5 @@
 export interface AccountInfo {
     id: string;
     name: string;
+    displayName: string;
 }

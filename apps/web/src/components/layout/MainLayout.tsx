@@ -1,7 +1,7 @@
 import { Sidebar } from './Sidebar';
 import { LogOut, User } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '~/components/ui/button';
 import { useAuth } from '~/features/auth';
 
@@ -38,12 +38,15 @@ export function MainLayout({ children, title }: MainLayoutProps) {
 
                         {/* 사용자 정보 & 로그아웃 */}
                         <div className="flex items-center gap-6 mr-12">
-                            <div className="flex items-center gap-3 rounded-full bg-muted/50 py-2 pl-3 pr-5">
+                            <Link
+                                to="/settings"
+                                className="flex items-center gap-3 rounded-full bg-muted/50 py-2 pl-3 pr-5 transition-colors hover:bg-muted"
+                            >
                                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
                                     <User className="h-5 w-5 text-primary" />
                                 </div>
-                                <span className="text-base font-medium">{account?.name}</span>
-                            </div>
+                                <span className="text-base font-medium">{account?.displayName}</span>
+                            </Link>
                             <Button
                                 variant="ghost"
                                 size="sm"

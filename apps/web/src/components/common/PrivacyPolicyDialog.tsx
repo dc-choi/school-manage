@@ -29,7 +29,7 @@ export const PrivacyPolicyContent = () => (
         </div>
         <div>
             <p className="font-medium text-foreground">4. 보유 및 이용 기간</p>
-            <p>회원 탈퇴 시까지 (탈퇴 후 계정 및 관련 학생 정보를 지체 없이 파기)</p>
+            <p>회원 탈퇴 시까지 (탈퇴 시 계정 및 관련 학생 정보 즉시 비활성화 처리, 비활성화 후 2년 이내 파기)</p>
         </div>
         <div>
             <p className="font-medium text-foreground">5. 개인정보 위탁 및 제3자 제공</p>
