@@ -38,6 +38,7 @@
         "dotenv": "^17.2.3",
         "express": "^4.22.1",
         "express-http-context": "^2.0.1",
+        "express-rate-limit": "^8.2.1",
         "http-status": "^2.1.0",
         "jsonwebtoken": "^9.0.3",
         "node-schedule": "^2.1.0",

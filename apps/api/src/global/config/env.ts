@@ -56,4 +56,7 @@ export const env = {
         pass: getOsEnvOptional('SMTP_PASS'),
         adminEmail: getOsEnvOptional('ADMIN_EMAIL'),
     },
+    cors: {
+        origin: getOsEnvOptional('CORS_ORIGIN'),
+    },
 };

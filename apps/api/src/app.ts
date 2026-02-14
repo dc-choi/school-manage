@@ -1,10 +1,11 @@
-// import cors from 'cors';
 import pkg from '../package.json' with { type: 'json' };
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import tracer from 'cls-rtracer';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import express, { type Express } from 'express';
 import context from 'express-http-context';
+import rateLimit from 'express-rate-limit';
 import schedule from 'node-schedule';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,21 +39,36 @@ export const createApp = (): Express => {
     app.use(express.json({ limit: '10mb' }));
     app.use(express.raw({ limit: '10mb' }));
 
-    // 지금은 Web과 Server 통신간 CORS가 걸릴일이 없음.
-    // function getOrigins() {
-    //     const origins = [env.app.web.url];
-    //     if (env.app.dev.web.url) {
-    //         origins.push(env.app.dev.web.url);
-    //     }
-    //     return origins;
-    // }
+    // CORS
+    const corsOrigin = env.cors.origin;
+    app.use(
+        cors({
+            origin: corsOrigin || false, // 미설정 시 same-origin만 허용
+            credentials: true,
+        })
+    );
 
-    // // https://1004lucifer.blogspot.com/2019/04/axios-response-headers-content.html
-    // app.use(cors( {
-    //     origin: getOrigins(),
-    //     exposedHeaders: ['Content-Disposition'],
-    //     credentials: true
-    // }));
+    // Rate Limiting — 전체 API: IP당 100회/분
+    app.use(
+        rateLimit({
+            windowMs: 60 * 1000,
+            limit: 100,
+            standardHeaders: 'draft-7',
+            legacyHeaders: false,
+        })
+    );
+
+    // Rate Limiting — 인증 엔드포인트: IP당 10회/분
+    app.use(
+        '/trpc/auth',
+        rateLimit({
+            windowMs: 60 * 1000,
+            limit: 10,
+            standardHeaders: 'draft-7',
+            legacyHeaders: false,
+            message: { error: 'Too many requests. Please try again later.' },
+        })
+    );
 
     // 요청 트레이싱
     app.use(tracer.expressMiddleware());
