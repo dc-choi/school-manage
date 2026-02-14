@@ -3,16 +3,16 @@
  *
  * 학생 관련 procedure 정의
  */
-import { BulkDeleteStudentsUseCase } from '../application/bulk-delete-students.usecase.js';
-import { CancelGraduationUseCase } from '../application/cancel-graduation.usecase.js';
-import { CreateStudentUseCase } from '../application/create-student.usecase.js';
-import { DeleteStudentUseCase } from '../application/delete-student.usecase.js';
-import { GetStudentUseCase } from '../application/get-student.usecase.js';
-import { GraduateStudentsUseCase } from '../application/graduate-students.usecase.js';
-import { ListStudentsUseCase } from '../application/list-students.usecase.js';
-import { PromoteStudentsUseCase } from '../application/promote-students.usecase.js';
-import { RestoreStudentsUseCase } from '../application/restore-students.usecase.js';
-import { UpdateStudentUseCase } from '../application/update-student.usecase.js';
+import { BulkDeleteStudentsUseCase } from '../application/bulk-delete-students.usecase.ts';
+import { CancelGraduationUseCase } from '../application/cancel-graduation.usecase.ts';
+import { CreateStudentUseCase } from '../application/create-student.usecase.ts';
+import { DeleteStudentUseCase } from '../application/delete-student.usecase.ts';
+import { GetStudentUseCase } from '../application/get-student.usecase.ts';
+import { GraduateStudentsUseCase } from '../application/graduate-students.usecase.ts';
+import { ListStudentsUseCase } from '../application/list-students.usecase.ts';
+import { PromoteStudentsUseCase } from '../application/promote-students.usecase.ts';
+import { RestoreStudentsUseCase } from '../application/restore-students.usecase.ts';
+import { UpdateStudentUseCase } from '../application/update-student.usecase.ts';
 import {
     bulkDeleteStudentsInputSchema,
     cancelGraduationInputSchema,

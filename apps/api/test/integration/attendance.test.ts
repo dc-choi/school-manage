@@ -3,9 +3,9 @@
  *
  * Mock 데이터를 사용하여 출석 프로시저 테스트
  */
-import { mockPrismaClient } from '../../vitest.setup.js';
-import { createMockAttendance, createMockGroup, createMockStudent, getTestAccount } from '../helpers/mock-data.js';
-import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.js';
+import { mockPrismaClient } from '../../vitest.setup.ts';
+import { createMockAttendance, createMockGroup, createMockStudent, getTestAccount } from '../helpers/mock-data.ts';
+import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.ts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('attendance 통합 테스트', () => {

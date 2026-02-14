@@ -3,9 +3,9 @@
  *
  * 인증 관련 procedure 정의
  */
-import { CheckIdUseCase } from '../application/check-id.usecase.js';
-import { LoginUseCase } from '../application/login.usecase.js';
-import { SignupUseCase } from '../application/signup.usecase.js';
+import { CheckIdUseCase } from '../application/check-id.usecase.ts';
+import { LoginUseCase } from '../application/login.usecase.ts';
+import { SignupUseCase } from '../application/signup.usecase.ts';
 import { checkIdInputSchema, loginInputSchema, publicProcedure, router, signupInputSchema } from '@school/trpc';
 
 export const authRouter = router({

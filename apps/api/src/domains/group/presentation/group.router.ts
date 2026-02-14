@@ -3,13 +3,13 @@
  *
  * 그룹 관련 procedure 정의
  */
-import { BulkDeleteGroupsUseCase } from '../application/bulk-delete-groups.usecase.js';
-import { CreateGroupUseCase } from '../application/create-group.usecase.js';
-import { DeleteGroupUseCase } from '../application/delete-group.usecase.js';
-import { GetGroupAttendanceUseCase } from '../application/get-group-attendance.usecase.js';
-import { GetGroupUseCase } from '../application/get-group.usecase.js';
-import { ListGroupsUseCase } from '../application/list-groups.usecase.js';
-import { UpdateGroupUseCase } from '../application/update-group.usecase.js';
+import { BulkDeleteGroupsUseCase } from '../application/bulk-delete-groups.usecase.ts';
+import { CreateGroupUseCase } from '../application/create-group.usecase.ts';
+import { DeleteGroupUseCase } from '../application/delete-group.usecase.ts';
+import { GetGroupAttendanceUseCase } from '../application/get-group-attendance.usecase.ts';
+import { GetGroupUseCase } from '../application/get-group.usecase.ts';
+import { ListGroupsUseCase } from '../application/list-groups.usecase.ts';
+import { UpdateGroupUseCase } from '../application/update-group.usecase.ts';
 import {
     bulkDeleteGroupsInputSchema,
     consentedProcedure,

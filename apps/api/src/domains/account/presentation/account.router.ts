@@ -3,9 +3,9 @@
  *
  * 계정 관련 procedure 정의
  */
-import { AgreePrivacyUseCase } from '../application/agree-privacy.usecase.js';
-import { CountAccountsUseCase } from '../application/count-accounts.usecase.js';
-import { GetAccountUseCase } from '../application/get-account.usecase.js';
+import { AgreePrivacyUseCase } from '../application/agree-privacy.usecase.ts';
+import { CountAccountsUseCase } from '../application/count-accounts.usecase.ts';
+import { GetAccountUseCase } from '../application/get-account.usecase.ts';
 import { protectedProcedure, publicProcedure, router } from '@school/trpc';
 
 export const accountRouter = router({

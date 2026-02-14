@@ -1,6 +1,6 @@
-import { ApiCode } from '../errors/api.code.js';
-import { ApiError } from '../errors/api.error.js';
-import { ApiMessage } from '../errors/api.message.js';
+import { ApiCode } from '../errors/api.code.ts';
+import { ApiError } from '../errors/api.error.ts';
+import { ApiMessage } from '../errors/api.message.ts';
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { logger } from '~/infrastructure/logger/logger.js';

@@ -3,9 +3,9 @@
  *
  * 출석 관련 procedure 정의
  */
-import { GetCalendarUseCase } from '../application/get-calendar.usecase.js';
-import { GetDayDetailUseCase } from '../application/get-day-detail.usecase.js';
-import { UpdateAttendanceUseCase } from '../application/update-attendance.usecase.js';
+import { GetCalendarUseCase } from '../application/get-calendar.usecase.ts';
+import { GetDayDetailUseCase } from '../application/get-day-detail.usecase.ts';
+import { UpdateAttendanceUseCase } from '../application/update-attendance.usecase.ts';
 import {
     consentedProcedure,
     getCalendarInputSchema,

@@ -3,7 +3,7 @@
  *
  * Nodemailer + Google SMTP를 사용한 메일 발송 서비스
  */
-import { signupNotificationTemplate } from './templates.js';
+import { signupNotificationTemplate } from './templates.ts';
 import nodemailer from 'nodemailer';
 import { env } from '~/global/config/env.js';
 import { logger } from '~/infrastructure/logger/logger.js';

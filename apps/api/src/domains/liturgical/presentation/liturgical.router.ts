@@ -3,7 +3,7 @@
  *
  * 천주교 전례력 관련 procedure 정의
  */
-import { GetHolydaysUseCase } from '../application/get-holydays.usecase.js';
+import { GetHolydaysUseCase } from '../application/get-holydays.usecase.ts';
 import { consentedProcedure, getHolydaysInputSchema, router } from '@school/trpc';
 
 export const liturgicalRouter = router({

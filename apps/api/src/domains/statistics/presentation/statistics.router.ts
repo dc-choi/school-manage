@@ -3,12 +3,12 @@
  *
  * 통계 관련 procedure 정의
  */
-import { GetAttendanceRateUseCase } from '../application/get-attendance-rate.usecase.js';
-import { GetByGenderUseCase } from '../application/get-by-gender.usecase.js';
-import { GetExcellentStudentsUseCase } from '../application/get-excellent-students.usecase.js';
-import { GetGroupStatisticsUseCase } from '../application/get-group-statistics.usecase.js';
-import { GetTopGroupsUseCase } from '../application/get-top-groups.usecase.js';
-import { GetTopOverallUseCase } from '../application/get-top-overall.usecase.js';
+import { GetAttendanceRateUseCase } from '../application/get-attendance-rate.usecase.ts';
+import { GetByGenderUseCase } from '../application/get-by-gender.usecase.ts';
+import { GetExcellentStudentsUseCase } from '../application/get-excellent-students.usecase.ts';
+import { GetGroupStatisticsUseCase } from '../application/get-group-statistics.usecase.ts';
+import { GetTopGroupsUseCase } from '../application/get-top-groups.usecase.ts';
+import { GetTopOverallUseCase } from '../application/get-top-overall.usecase.ts';
 import {
     consentedProcedure,
     getExcellentStudentsInputSchema,

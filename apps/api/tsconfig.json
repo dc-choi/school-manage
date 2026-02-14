@@ -10,6 +10,7 @@
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "target": "ESNext",
+        "rewriteRelativeImportExtensions": true,
         "sourceMap": true,
         "outDir": "./dist",
         "baseUrl": "./",

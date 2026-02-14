@@ -3,9 +3,9 @@
  *
  * Mock 데이터를 사용하여 계정 프로시저 테스트
  */
-import { mockPrismaClient } from '../../vitest.setup.js';
-import { getTestAccount } from '../helpers/mock-data.js';
-import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.js';
+import { mockPrismaClient } from '../../vitest.setup.ts';
+import { getTestAccount } from '../helpers/mock-data.ts';
+import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.ts';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('account 통합 테스트', () => {
