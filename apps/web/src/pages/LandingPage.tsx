@@ -371,9 +371,18 @@ function ScrollDownHint({ targetId }: { targetId: string }) {
     );
 }
 
-function FadeInSection({ children, className }: { children: ReactNode; className?: string }) {
+function FadeInSection({
+    children,
+    className,
+    onVisible,
+}: {
+    children: ReactNode;
+    className?: string;
+    onVisible?: () => void;
+}) {
     const ref = useRef<HTMLDivElement>(null);
     const [isVisible, setIsVisible] = useState(false);
+    const tracked = useRef(false);
 
     useEffect(() => {
         const el = ref.current;
@@ -382,13 +391,17 @@ function FadeInSection({ children, className }: { children: ReactNode; className
         const observer = new IntersectionObserver(
             ([entry]) => {
                 setIsVisible(entry.isIntersecting);
+                if (entry.isIntersecting && !tracked.current) {
+                    tracked.current = true;
+                    onVisible?.();
+                }
             },
             { threshold: 0.2 }
         );
 
         observer.observe(el);
         return () => observer.disconnect();
-    }, []);
+    }, [onVisible]);
 
     return (
         <div
@@ -414,6 +427,7 @@ export function LandingPage() {
 
     useEffect(() => {
         analytics.trackLandingView();
+        analytics.trackLandingSectionView('hero');
     }, []);
 
     if (isAuthenticated && !isAuthLoading) {
@@ -435,17 +449,18 @@ export function LandingPage() {
                 {/* ① Hero — 첫 화면은 즉시 표시 */}
                 <section className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gradient-to-b from-primary/8 to-background px-6 text-center">
                     <h1 className="text-4xl font-bold leading-snug tracking-tight text-balance sm:text-5xl lg:text-7xl">
-                        종이 출석부, 엑셀 정리
-                        <br />폰 하나로 바꿔보세요
+                        주일학교 교리교사를 위한
+                        <br />
+                        출석·멤버 관리 도구
                     </h1>
                     <p className="text-xl text-muted-foreground sm:text-2xl">
-                        출석 체크부터 통계까지, 한곳에서 다 돼요.
+                        엑셀 대신, 한곳에서. 달력에서 탭 한 번이면 출석 완료.
                     </p>
                     <ScrollDownHint targetId="pain-points" />
                 </section>
 
                 {/* ② Pain Points — 공감 */}
-                <FadeInSection>
+                <FadeInSection onVisible={() => analytics.trackLandingSectionView('pain-points')}>
                     <section
                         id="pain-points"
                         className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 text-center"
@@ -471,7 +486,7 @@ export function LandingPage() {
                 </FadeInSection>
 
                 {/* ③ Features — 솔루션 */}
-                <FadeInSection>
+                <FadeInSection onVisible={() => analytics.trackLandingSectionView('features')}>
                     <section
                         id="features"
                         className="flex min-h-screen flex-col items-center justify-center gap-12 bg-muted/30 px-6 text-center"
@@ -492,8 +507,8 @@ export function LandingPage() {
                     </section>
                 </FadeInSection>
 
-                {/* 인터랙티브 데모 */}
-                <FadeInSection>
+                {/* ④ 인터랙티브 데모 */}
+                <FadeInSection onVisible={() => analytics.trackLandingSectionView('demo')}>
                     <section
                         id="screenshot"
                         className="flex min-h-screen flex-col items-center justify-center gap-8 px-6 text-center"
@@ -506,8 +521,8 @@ export function LandingPage() {
                     </section>
                 </FadeInSection>
 
-                {/* ④ Social Proof + Final CTA */}
-                <FadeInSection>
+                {/* ⑤ Social Proof + Final CTA */}
+                <FadeInSection onVisible={() => analytics.trackLandingSectionView('cta')}>
                     <section
                         id="cta"
                         className="flex min-h-screen flex-col items-center justify-center gap-10 bg-gradient-to-t from-primary/8 to-background px-6 text-center"
@@ -515,13 +530,13 @@ export function LandingPage() {
                         {countData && countData.count > 0 && (
                             <div className="flex flex-col items-center gap-2 text-lg font-medium text-balance sm:flex-row sm:gap-3 sm:text-2xl">
                                 <Users className="h-7 w-7 shrink-0 text-primary" />
-                                <span>{countData.count}개 단체가 이미 폰으로 출석 관리 중이에요</span>
+                                <span>{countData.count}개 단체가 이미 사용하고 있어요</span>
                             </div>
                         )}
                         <p className="text-lg text-muted-foreground sm:text-xl">
                             무료로 시작할 수 있어요. 30초면 충분해요.
                             <br />
-                            이번 주일부터 폰 하나로 출석 관리해보세요.
+                            이번 주일부터 써보세요.
                         </p>
                         <Button size="lg" className="px-8 py-6 text-lg" onClick={handleBottomCtaClick}>
                             지금 시작해보기
@@ -535,7 +550,7 @@ export function LandingPage() {
 
             {/* Footer */}
             <footer className="px-6 py-12 text-center text-sm text-muted-foreground">
-                &copy; 2022 주일학교 관리 프로그램
+                &copy; 2022 주일학교 출석부
             </footer>
         </div>
     );

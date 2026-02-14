@@ -16,6 +16,7 @@
  * - 출석 저장 완료: analytics.trackAttendanceRecorded(params)
  * - 대시보드 진입: analytics.trackDashboardViewed()
  * - 랜딩 페이지 진입: analytics.trackLandingView()
+ * - 랜딩 섹션 조회: analytics.trackLandingSectionView(section)
  * - 랜딩 CTA 클릭: analytics.trackLandingCtaClick(position)
  * - 랜딩 로그인 클릭: analytics.trackLandingLoginClick()
  */
@@ -174,6 +175,15 @@ export const analytics = {
      */
     trackLandingView: (): void => {
         safeGtag('event', 'landing_view');
+    },
+
+    /**
+     * 랜딩 섹션 조회 이벤트
+     * 트리거: 각 섹션이 뷰포트에 진입할 때 (1회만)
+     * @param section 섹션 이름 (hero, pain-points, features, demo, cta)
+     */
+    trackLandingSectionView: (section: string): void => {
+        safeGtag('event', 'landing_section_view', { section });
     },
 
     /**

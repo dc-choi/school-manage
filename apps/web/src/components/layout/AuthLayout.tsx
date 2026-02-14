@@ -20,11 +20,12 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <div className="hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background lg:flex lg:w-1/2 lg:flex-col lg:items-center lg:justify-center lg:gap-12 lg:p-16">
                 <div className="max-w-lg space-y-6 text-center">
                     <h1 className="text-5xl font-bold leading-snug tracking-tight xl:text-6xl">
-                        종이 출석부, 엑셀 정리
-                        <br />폰 하나로 바꿔보세요
+                        주일학교 교리교사를 위한
+                        <br />
+                        출석·멤버 관리 도구
                     </h1>
                     <p className="text-xl text-muted-foreground xl:text-2xl">
-                        출석 체크부터 통계까지, 한곳에서 다 돼요.
+                        엑셀 대신, 한곳에서. 달력에서 탭 한 번이면 출석 완료.
                     </p>
                 </div>
 
@@ -40,7 +41,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 {countData && countData.count > 0 && (
                     <div className="flex items-center gap-3 text-lg text-muted-foreground xl:text-xl">
                         <Users className="h-6 w-6" />
-                        <span>{countData.count}개 단체가 이미 폰으로 출석 관리 중이에요</span>
+                        <span>{countData.count}개 단체가 이미 사용하고 있어요</span>
                     </div>
                 )}
             </div>
@@ -49,11 +50,11 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <div className="flex w-full flex-col items-center justify-center p-4 lg:w-1/2">
                 {/* 모바일 히어로 (compact) */}
                 <div className="mb-6 space-y-2 text-center lg:hidden">
-                    <h1 className="text-2xl font-bold tracking-tight">종이 출석부, 엑셀 정리 — 폰 하나로 바꿔보세요</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">주일학교 교리교사를 위한 출석·멤버 관리 도구</h1>
                     {countData && countData.count > 0 && (
                         <div className="flex items-center justify-center gap-2 text-base text-muted-foreground">
                             <Users className="h-5 w-5" />
-                            <span>{countData.count}개 단체가 이미 폰으로 출석 관리 중이에요</span>
+                            <span>{countData.count}개 단체가 이미 사용하고 있어요</span>
                         </div>
                     )}
                 </div>
