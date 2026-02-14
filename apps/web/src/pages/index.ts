@@ -1,3 +1,4 @@
+export { ConsentPage } from './ConsentPage';
 export { DashboardPage } from './DashboardPage';
 export { LandingPage } from './LandingPage';
 export { LoginPage } from './LoginPage';

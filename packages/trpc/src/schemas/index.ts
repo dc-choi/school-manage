@@ -77,7 +77,7 @@ export type { GetHolydaysInput } from './liturgical';
 export type { LoginOutput, CheckIdOutput, SignupOutput } from './auth';
 
 // Account 출력 타입
-export type { GetAccountOutput, GetAccountCountOutput } from './account';
+export type { GetAccountOutput, AgreePrivacyOutput, GetAccountCountOutput } from './account';
 
 // Group 출력 타입
 export type {

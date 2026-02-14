@@ -112,8 +112,9 @@ export const trpcClient = trpc.createClient({
 1. **로그인**: `POST /api/auth/login` → `accessToken` 수신
 2. **토큰 저장**: `sessionStorage.setItem('token', accessToken)`
 3. **API 요청**: tRPC httpBatchLink에서 Authorization 헤더 자동 추가
-4. **인증 체크**: `AuthProvider`에서 토큰 유효성 검증
-5. **로그아웃**: `sessionStorage.clear()` → `/login`으로 리다이렉트
+4. **인증 체크**: `AuthProvider`에서 토큰 유효성 검증 + `privacyAgreedAt` 상태 관리
+5. **동의 체크**: `ProtectedRoute`에서 `privacyAgreedAt` null → `/consent` 리다이렉트
+6. **로그아웃**: `sessionStorage.clear()` → `/login`으로 리다이렉트
 
 ## Testing
 
@@ -145,18 +146,18 @@ import { useMyHook } from '~/features/{domain}/hooks/useMyHook';
 
 ## 라우트 구조
 
-| 경로 | 페이지 | 인증 필요 |
-|------|--------|----------|
-| `/landing` | `LandingPage` | No |
-| `/login` | `LoginPage` | No |
-| `/` | `DashboardPage` | Yes |
-| `/groups` | `GroupListPage` | Yes |
-| `/groups/new` | `GroupAddPage` | Yes |
-| `/groups/:id` | `GroupDetailPage` | Yes |
-| `/groups/:id/edit` | `GroupEditPage` | Yes |
-| `/students` | `StudentListPage` | Yes |
-| `/students/new` | `StudentAddPage` | Yes |
-| `/students/:id` | `StudentDetailPage` | Yes |
-| `/students/:id/edit` | `StudentEditPage` | Yes |
-| `/attendance` | `CalendarPage` | Yes |
-| `/attendance/table` | `AttendancePage` | Yes |
+| 경로 | 페이지 | 인증 필요 | 동의 필요 |
+|------|--------|----------|----------|
+| `/landing` | `LandingPage` | No | No |
+| `/login` | `LoginPage` | No | No |
+| `/signup` | `SignupPage` | No | No |
+| `/consent` | `ConsentPage` | Yes (내부 체크) | No |
+| `/` | `DashboardPage` | Yes | Yes |
+| `/groups` | `GroupListPage` | Yes | Yes |
+| `/groups/new` | `GroupAddPage` | Yes | Yes |
+| `/groups/:id` | `GroupDetailPage` | Yes | Yes |
+| `/students` | `StudentListPage` | Yes | Yes |
+| `/students/new` | `StudentAddPage` | Yes | Yes |
+| `/students/:id` | `StudentDetailPage` | Yes | Yes |
+| `/attendance` | `CalendarPage` | Yes | Yes |
+| `/attendance/table` | `AttendancePage` | Yes | Yes |

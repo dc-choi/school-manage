@@ -1,9 +1,11 @@
 import { Info } from 'lucide-react';
-import { type FormEvent, useCallback, useState } from 'react';
+import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { PrivacyPolicyDialog } from '~/components/common/PrivacyPolicyDialog';
 import { AuthLayout } from '~/components/layout';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Checkbox } from '~/components/ui/checkbox';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { useAuth } from '~/features/auth';
@@ -21,9 +23,15 @@ export function SignupPage() {
     const [idCheckResult, setIdCheckResult] = useState<{ checked: boolean; available: boolean } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingId, setIsCheckingId] = useState(false);
+    const [privacyAgreed, setPrivacyAgreed] = useState(false);
 
     const utils = trpc.useUtils();
     const signupMutation = trpc.auth.signup.useMutation();
+
+    // GA4: 동의 UI 노출
+    useEffect(() => {
+        analytics.trackPrivacyConsentShown('signup');
+    }, []);
 
     // 이미 로그인된 경우 대시보드로 리다이렉트
     if (isAuthenticated && !isAuthLoading) {
@@ -76,6 +84,7 @@ export function SignupPage() {
         if (password.length < 8) return false;
         if (password !== passwordConfirm) return false;
         if (!idCheckResult?.available) return false;
+        if (!privacyAgreed) return false;
         return true;
     };
 
@@ -102,10 +111,12 @@ export function SignupPage() {
                 name,
                 displayName,
                 password,
+                privacyAgreed: true as const,
             });
 
             // GA4 이벤트 전송
             analytics.trackSignUp();
+            analytics.trackPrivacyConsentAgreed('signup');
 
             // 자동 로그인
             sessionStorage.setItem('token', result.accessToken);
@@ -209,6 +220,28 @@ export function SignupPage() {
                             {passwordConfirm && password !== passwordConfirm && (
                                 <p className="text-sm text-destructive">비밀번호가 일치하지 않습니다</p>
                             )}
+                        </div>
+
+                        {/* 개인정보 동의 */}
+                        <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="privacy-agreed"
+                                    checked={privacyAgreed}
+                                    onCheckedChange={(checked) => setPrivacyAgreed(checked === true)}
+                                />
+                                <Label htmlFor="privacy-agreed" className="cursor-pointer text-sm">
+                                    개인정보 수집·이용에 동의합니다 (필수)
+                                </Label>
+                            </div>
+                            <PrivacyPolicyDialog>
+                                <button
+                                    type="button"
+                                    className="text-xs text-muted-foreground underline hover:text-foreground"
+                                >
+                                    개인정보 처리방침 보기
+                                </button>
+                            </PrivacyPolicyDialog>
                         </div>
 
                         <Button type="submit" className="w-full" disabled={isLoading || !isFormValid()}>

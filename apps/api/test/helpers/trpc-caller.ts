@@ -66,6 +66,7 @@ export function createAuthenticatedCaller(accountId: string, accountName: string
         req: createMockRequest(),
         res: createMockResponse(),
         account: { id: accountId, name: accountName },
+        privacyAgreedAt: new Date(),
     };
     return createCaller(ctx);
 }

@@ -7,6 +7,7 @@ export interface AuthContextValue {
     account: AccountInfo | null;
     isLoading: boolean;
     isAuthenticated: boolean;
+    privacyAgreedAt: Date | null;
     login: (name: string, password: string) => Promise<void>;
     logout: () => void;
 }
@@ -19,6 +20,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const [account, setAccount] = useState<AccountInfo | null>(null);
+    const [privacyAgreedAt, setPrivacyAgreedAt] = useState<Date | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const loginMutation = trpc.auth.login.useMutation();
@@ -43,10 +45,12 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         if (!isAccountFetching) {
             if (accountData) {
                 setAccount({ id: accountData.id, name: accountData.name });
+                setPrivacyAgreedAt(accountData.privacyAgreedAt ?? null);
             } else {
                 // 토큰이 있지만 계정 정보를 가져오지 못함 (토큰 만료 등)
                 sessionStorage.removeItem('token');
                 setAccount(null);
+                setPrivacyAgreedAt(null);
             }
             setIsLoading(false);
         }
@@ -67,6 +71,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const logout = useCallback(() => {
         sessionStorage.removeItem('token');
         setAccount(null);
+        setPrivacyAgreedAt(null);
     }, []);
 
     const value = useMemo(
@@ -74,10 +79,11 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             account,
             isLoading,
             isAuthenticated: !!account,
+            privacyAgreedAt,
             login,
             logout,
         }),
-        [account, isLoading, login, logout]
+        [account, isLoading, privacyAgreedAt, login, logout]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

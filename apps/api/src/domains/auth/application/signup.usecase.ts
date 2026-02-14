@@ -42,6 +42,7 @@ export class SignupUseCase {
                 displayName: input.displayName,
                 password: hashedPassword,
                 createdAt: getNowKST(),
+                privacyAgreedAt: getNowKST(),
             },
         });
 

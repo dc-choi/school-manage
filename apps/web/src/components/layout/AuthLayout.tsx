@@ -20,12 +20,14 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <div className="hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background lg:flex lg:w-1/2 lg:flex-col lg:items-center lg:justify-center lg:gap-12 lg:p-16">
                 <div className="max-w-lg space-y-6 text-center">
                     <h1 className="text-5xl font-bold leading-snug tracking-tight xl:text-6xl">
-                        주일학교 교리교사를 위한
+                        매주 일요일,
                         <br />
-                        출석·멤버 관리 도구
+                        이거 하나면 됩니다
                     </h1>
-                    <p className="text-xl text-muted-foreground xl:text-2xl">
-                        엑셀 대신, 한곳에서. 달력에서 탭 한 번이면 출석 완료.
+                    <p className="text-2xl text-muted-foreground xl:text-3xl">
+                        <span className="font-semibold text-foreground">출석, 축일, 멤버 현황</span>까지.
+                        <br />
+                        주일학교 교리교사를 위한 주간 도구.
                     </p>
                 </div>
 
@@ -50,7 +52,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <div className="flex w-full flex-col items-center justify-center p-4 lg:w-1/2">
                 {/* 모바일 히어로 (compact) */}
                 <div className="mb-6 space-y-2 text-center lg:hidden">
-                    <h1 className="text-2xl font-bold tracking-tight">주일학교 교리교사를 위한 출석·멤버 관리 도구</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">매주 일요일, 이거 하나면 됩니다</h1>
                     {countData && countData.count > 0 && (
                         <div className="flex items-center justify-center gap-2 text-base text-muted-foreground">
                             <Users className="h-5 w-5" />

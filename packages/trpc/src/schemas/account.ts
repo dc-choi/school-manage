@@ -12,6 +12,14 @@
 export interface GetAccountOutput {
     id: string;
     name: string;
+    privacyAgreedAt: Date | null;
+}
+
+/**
+ * 개인정보 동의 응답
+ */
+export interface AgreePrivacyOutput {
+    privacyAgreedAt: Date;
 }
 
 /**

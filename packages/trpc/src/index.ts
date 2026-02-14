@@ -14,7 +14,15 @@ export type { AccountInfo } from './shared';
 export type { AppRouter } from './routers';
 
 // tRPC 유틸리티
-export { router, publicProcedure, protectedProcedure, middleware, transformer, createCallerFactory } from './trpc';
+export {
+    router,
+    publicProcedure,
+    protectedProcedure,
+    consentedProcedure,
+    middleware,
+    transformer,
+    createCallerFactory,
+} from './trpc';
 
 // Zod 스키마 (Input)
 export {
@@ -87,6 +95,7 @@ export type {
     SignupOutput,
     // Account
     GetAccountOutput,
+    AgreePrivacyOutput,
     GetAccountCountOutput,
     // Group
     GroupOutput,

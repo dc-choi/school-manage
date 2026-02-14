@@ -33,6 +33,9 @@ export const signupInputSchema = z.object({
         .regex(/^[a-zA-Z0-9]+$/, 'ID는 영문자와 숫자만 사용 가능합니다'),
     displayName: z.string().min(2, '이름은 2자 이상이어야 합니다').max(20, '이름은 20자 이하여야 합니다'),
     password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다'),
+    privacyAgreed: z.literal(true, {
+        errorMap: () => ({ message: '개인정보 수집·이용에 동의해야 합니다' }),
+    }),
 });
 
 // 입력 타입 export

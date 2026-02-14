@@ -19,6 +19,7 @@ export interface BaseContext {
  */
 export interface Context extends BaseContext {
     account?: AccountInfo;
+    privacyAgreedAt?: Date | null;
 }
 
 /**
@@ -26,4 +27,5 @@ export interface Context extends BaseContext {
  */
 export interface AuthContext extends BaseContext {
     account: AccountInfo;
+    privacyAgreedAt?: Date | null;
 }

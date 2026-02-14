@@ -53,7 +53,7 @@ export type { Context, AuthContext, BaseContext } from './context';
 export type { AccountInfo } from './shared';
 
 // tRPC 유틸리티
-export { router, publicProcedure, protectedProcedure, middleware, transformer } from './trpc';
+export { router, publicProcedure, protectedProcedure, consentedProcedure, middleware, transformer } from './trpc';
 
 // AppRouter
 export { appRouter } from './routers';
@@ -79,13 +79,15 @@ interface BaseContext {
 // 인증된 컨텍스트
 interface AuthContext extends BaseContext {
     account: AccountInfo;  // { id: string, name: string }
+    privacyAgreedAt?: Date | null;
 }
 
 // 통합 컨텍스트
-type Context = BaseContext & { account?: AccountInfo };
+type Context = BaseContext & { account?: AccountInfo; privacyAgreedAt?: Date | null };
 ```
 
 > **Note**: `protectedProcedure`에서는 `ctx.account`가 `AccountInfo` 타입으로 보장됩니다.
+> `consentedProcedure`는 `protectedProcedure` + 개인정보 동의 검증 미들웨어로, `ctx.privacyAgreedAt`이 존재해야 통과합니다.
 
 ## 스키마 타입 구조
 
@@ -114,15 +116,23 @@ interface ListStudentsOutput { page, size, totalPage, students: StudentWithGroup
 
 ## 라우터 작성 규칙
 
+### Procedure 종류
+
+| Procedure | 용도 | 인증 | 동의 |
+|-----------|------|------|------|
+| `publicProcedure` | 공개 API (로그인 등) | 불필요 | 불필요 |
+| `protectedProcedure` | 인증만 필요 (account.get, account.agreePrivacy) | 필요 | 불필요 |
+| `consentedProcedure` | 도메인 API (group, student, attendance 등) | 필요 | 필요 |
+
 ### 새 라우터 추가
 
 ```typescript
 // src/routers/example.ts
-import { router, protectedProcedure } from '../trpc';
+import { router, consentedProcedure } from '../trpc';
 import { z } from 'zod';
 
 export const exampleRouter = router({
-    getItem: protectedProcedure
+    getItem: consentedProcedure
         .input(z.object({ id: z.number() }))
         .query(({ input, ctx }) => {
             // 로직

@@ -51,6 +51,7 @@ const isAuthenticated = middleware(async (opts) => {
         req: ctx.req,
         res: ctx.res,
         account: ctx.account,
+        privacyAgreedAt: ctx.privacyAgreedAt,
     };
 
     return opts.next({
@@ -62,6 +63,29 @@ const isAuthenticated = middleware(async (opts) => {
  * 보호된 프로시저 (인증 필수)
  */
 export const protectedProcedure = publicProcedure.use(isAuthenticated);
+
+/**
+ * 개인정보 동의 확인 미들웨어
+ *
+ * context에서 privacyAgreedAt을 확인하여 미동의 시 403 반환
+ */
+const requiresPrivacyConsent = middleware(async (opts) => {
+    const { ctx } = opts;
+
+    if (!ctx.privacyAgreedAt) {
+        throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'FORBIDDEN: 개인정보 동의가 필요합니다',
+        });
+    }
+
+    return opts.next();
+});
+
+/**
+ * 동의 완료 프로시저 (인증 + 개인정보 동의 필수)
+ */
+export const consentedProcedure = protectedProcedure.use(requiresPrivacyConsent);
 
 /**
  * createCaller 팩토리

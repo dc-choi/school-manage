@@ -3,6 +3,7 @@ import { ProtectedRoute } from '~/features/auth';
 import {
     AttendancePage,
     CalendarPage,
+    ConsentPage,
     DashboardPage,
     GroupAddPage,
     GroupDetailPage,
@@ -28,6 +29,10 @@ const routes: RouteObject[] = [
     {
         path: '/landing',
         element: <LandingPage />,
+    },
+    {
+        path: '/consent',
+        element: <ConsentPage />,
     },
     // Protected routes
     {

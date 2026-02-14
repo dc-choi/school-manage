@@ -202,4 +202,28 @@ export const analytics = {
     trackLandingLoginClick: (): void => {
         safeGtag('event', 'landing_login_click');
     },
+
+    /**
+     * 개인정보 동의 UI 노출 이벤트
+     * 트리거: 동의 UI 표시 시 (signup 또는 consent 페이지)
+     */
+    trackPrivacyConsentShown: (source: 'signup' | 'consent'): void => {
+        safeGtag('event', 'privacy_consent_shown', { source });
+    },
+
+    /**
+     * 개인정보 동의 완료 이벤트
+     * 트리거: 동의 완료 시 (가입 성공 또는 소급 동의)
+     */
+    trackPrivacyConsentAgreed: (source: 'signup' | 'consent'): void => {
+        safeGtag('event', 'privacy_consent_agreed', { source });
+    },
+
+    /**
+     * 개인정보 동의 거부 이벤트
+     * 트리거: consent 페이지에서 거부 확인 시
+     */
+    trackPrivacyConsentDeclined: (): void => {
+        safeGtag('event', 'privacy_consent_declined');
+    },
 };

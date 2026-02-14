@@ -15,7 +15,8 @@ model Account {
     password    String    @db.VarChar(200)
     createdAt   DateTime  @map("create_at")
     updatedAt   DateTime? @map("update_at")
-    deletedAt   DateTime? @map("delete_at")
+    deletedAt       DateTime? @map("delete_at")
+    privacyAgreedAt DateTime? @map("privacy_agreed_at")
 
     groups Group[]
 

@@ -16,12 +16,12 @@ import { UpdateStudentUseCase } from '../application/update-student.usecase.js';
 import {
     bulkDeleteStudentsInputSchema,
     cancelGraduationInputSchema,
+    consentedProcedure,
     createStudentInputSchema,
     deleteStudentInputSchema,
     getStudentInputSchema,
     graduateStudentsInputSchema,
     listStudentsInputSchema,
-    protectedProcedure,
     restoreStudentsInputSchema,
     router,
     updateStudentInputSchema,
@@ -32,7 +32,7 @@ export const studentRouter = router({
      * 학생 목록 조회 (페이지네이션, 검색, 삭제 필터)
      * GET /api/student -> trpc.student.list
      */
-    list: protectedProcedure.input(listStudentsInputSchema).query(async ({ input, ctx }) => {
+    list: consentedProcedure.input(listStudentsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new ListStudentsUseCase();
         return usecase.execute({
             accountId: ctx.account.id,
@@ -49,7 +49,7 @@ export const studentRouter = router({
      * 단일 학생 조회
      * GET /api/student/:studentId -> trpc.student.get
      */
-    get: protectedProcedure.input(getStudentInputSchema).query(async ({ input }) => {
+    get: consentedProcedure.input(getStudentInputSchema).query(async ({ input }) => {
         const usecase = new GetStudentUseCase();
         return usecase.execute(input);
     }),
@@ -58,7 +58,7 @@ export const studentRouter = router({
      * 학생 생성
      * POST /api/student -> trpc.student.create
      */
-    create: protectedProcedure.input(createStudentInputSchema).mutation(async ({ input, ctx }) => {
+    create: consentedProcedure.input(createStudentInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new CreateStudentUseCase();
         return usecase.execute(input, ctx.account.id);
     }),
@@ -67,7 +67,7 @@ export const studentRouter = router({
      * 학생 수정
      * PUT /api/student/:studentId -> trpc.student.update
      */
-    update: protectedProcedure.input(updateStudentInputSchema).mutation(async ({ input }) => {
+    update: consentedProcedure.input(updateStudentInputSchema).mutation(async ({ input }) => {
         const usecase = new UpdateStudentUseCase();
         return usecase.execute(input);
     }),
@@ -76,7 +76,7 @@ export const studentRouter = router({
      * 학생 삭제
      * DELETE /api/student/:studentId -> trpc.student.delete
      */
-    delete: protectedProcedure.input(deleteStudentInputSchema).mutation(async ({ input }) => {
+    delete: consentedProcedure.input(deleteStudentInputSchema).mutation(async ({ input }) => {
         const usecase = new DeleteStudentUseCase();
         return usecase.execute(input);
     }),
@@ -85,7 +85,7 @@ export const studentRouter = router({
      * 학생 일괄 삭제 (로드맵 1단계)
      * POST /api/student/bulk-delete -> trpc.student.bulkDelete
      */
-    bulkDelete: protectedProcedure.input(bulkDeleteStudentsInputSchema).mutation(async ({ input, ctx }) => {
+    bulkDelete: consentedProcedure.input(bulkDeleteStudentsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new BulkDeleteStudentsUseCase();
         return usecase.execute(input, ctx.account.id);
     }),
@@ -94,7 +94,7 @@ export const studentRouter = router({
      * 학생 복구 (로드맵 1단계)
      * POST /api/student/restore -> trpc.student.restore
      */
-    restore: protectedProcedure.input(restoreStudentsInputSchema).mutation(async ({ input, ctx }) => {
+    restore: consentedProcedure.input(restoreStudentsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new RestoreStudentsUseCase();
         return usecase.execute(input, ctx.account.id);
     }),
@@ -103,7 +103,7 @@ export const studentRouter = router({
      * 학생 일괄 졸업 처리 (graduatedAt 설정)
      * POST /api/student/graduate -> trpc.student.graduate
      */
-    graduate: protectedProcedure.input(graduateStudentsInputSchema).mutation(async ({ input, ctx }) => {
+    graduate: consentedProcedure.input(graduateStudentsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new GraduateStudentsUseCase();
         return usecase.execute({
             ids: input.ids,
@@ -115,7 +115,7 @@ export const studentRouter = router({
      * 학생 졸업 취소 (graduatedAt을 null로)
      * POST /api/student/cancelGraduation -> trpc.student.cancelGraduation
      */
-    cancelGraduation: protectedProcedure.input(cancelGraduationInputSchema).mutation(async ({ input, ctx }) => {
+    cancelGraduation: consentedProcedure.input(cancelGraduationInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new CancelGraduationUseCase();
         return usecase.execute({
             ids: input.ids,
@@ -129,7 +129,7 @@ export const studentRouter = router({
      * 현재: 단일 계정 내 그룹 이동
      * 향후: 본당 내 계정 간 졸업생 데이터 이관 (예: 초등부 → 중고등부)
      */
-    promote: protectedProcedure.mutation(async ({ ctx }) => {
+    promote: consentedProcedure.mutation(async ({ ctx }) => {
         const usecase = new PromoteStudentsUseCase();
         return usecase.execute({
             accountId: ctx.account.id,
