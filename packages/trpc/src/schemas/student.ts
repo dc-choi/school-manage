@@ -34,7 +34,10 @@ export const createStudentInputSchema = z.object({
     contact: z.number().optional(),
     description: z.string().optional(),
     groupId: idSchema,
-    baptizedAt: z.string().optional(),
+    baptizedAt: z
+        .string()
+        .regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/, '축일은 MM/DD 형식으로 입력해주세요.')
+        .optional(),
 });
 
 /**
@@ -49,7 +52,10 @@ export const updateStudentInputSchema = z.object({
     contact: z.number().optional(),
     description: z.string().optional(),
     groupId: idSchema,
-    baptizedAt: z.string().optional(),
+    baptizedAt: z
+        .string()
+        .regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/, '축일은 MM/DD 형식으로 입력해주세요.')
+        .optional(),
 });
 
 /**

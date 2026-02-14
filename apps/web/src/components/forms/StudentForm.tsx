@@ -26,6 +26,14 @@ interface StudentFormProps {
     submitLabel: string;
 }
 
+// 기존 YYYY-MM-DD 데이터를 MM/DD로 변환
+const toFeastDayFormat = (value?: string): string => {
+    if (!value) return '';
+    const match = value.match(/^\d{4}-(\d{2})-(\d{2})$/);
+    if (match) return `${match[1]}/${match[2]}`;
+    return value;
+};
+
 export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitting, submitLabel }: StudentFormProps) {
     const [formData, setFormData] = useState<StudentFormData>({
         societyName: initialData?.societyName ?? '',
@@ -35,7 +43,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
         contact: initialData?.contact,
         description: initialData?.description ?? '',
         groupId: initialData?.groupId ?? '',
-        baptizedAt: initialData?.baptizedAt ?? '',
+        baptizedAt: toFeastDayFormat(initialData?.baptizedAt),
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -53,6 +61,10 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
         }
         if (!formData.groupId) {
             newErrors.groupId = '그룹을 선택해주세요.';
+        }
+        const baptizedAtValue = formData.baptizedAt?.trim();
+        if (baptizedAtValue && !/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/.test(baptizedAtValue)) {
+            newErrors.baptizedAt = 'MM/DD 형식으로 입력해주세요. (예: 03/19)';
         }
 
         if (Object.keys(newErrors).length > 0) {
@@ -197,16 +209,28 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
 
                     <div className="space-y-2">
                         <Label htmlFor="baptizedAt" className="text-lg">
-                            세례일 (선택)
+                            축일 (선택)
                         </Label>
                         <Input
                             id="baptizedAt"
                             className="h-12 text-lg"
                             value={formData.baptizedAt ?? ''}
-                            onChange={(e) => handleChange('baptizedAt', e.target.value)}
-                            placeholder="YYYY-MM-DD"
+                            onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, '');
+                                let formatted = '';
+                                if (digits.length >= 2) {
+                                    formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4);
+                                } else {
+                                    formatted = digits;
+                                }
+                                handleChange('baptizedAt', formatted);
+                            }}
+                            placeholder="MM/DD"
+                            maxLength={5}
+                            inputMode="numeric"
                             disabled={isSubmitting}
                         />
+                        {errors.baptizedAt && <p className="text-base text-destructive">{errors.baptizedAt}</p>}
                     </div>
 
                     <div className="space-y-2">
