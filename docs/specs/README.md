@@ -6,9 +6,9 @@
 
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
-| **Current Functional**    | 100% | 5개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
-| **Target Functional**     | -    | 셀프 온보딩 1건 잔여 (로드맵 1단계)                                        |
-| **Target Non-Functional** | -    | SECURITY 1/3, MEASUREMENT 1/1, PERFORMANCE 2/7 완료             |
+| **Current Functional**    | 100% | 6개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
+| **Target Functional**     | -    | 2단계 1건 (계정 자기 관리)                                            |
+| **Target Non-Functional** | -    | SECURITY 2건, PERFORMANCE 5건 미착수                              |
 
 ## 관련 문서
 
@@ -28,19 +28,21 @@
 | 문서명           | 경로                                    | 상태               | 비고                |
 |---------------|---------------------------------------|------------------|-------------------|
 | 주일학교 출석부 프로그램 | `docs/specs/prd/school-attendance.md` | Approved (구현 완료) | 회원가입 포함 (로드맵 1단계) |
+| 개인정보 제공동의     | `docs/specs/prd/privacy-consent.md`   | Approved (구현 완료) | 로드맵 2단계           |
 
 ### Functional Design (기능 설계)
 
 > **병합 규칙**: 기능 설계 문서는 SDD 문서와 동일하게 **도메인별 단일 문서**로 관리합니다.
 > 상세: `docs/specs/WORKFLOW.md` "기능 개선 시 문서 병합 절차" 참조
 
-| 도메인          | 경로                                                      | 포함 내용                                                            |
-|--------------|---------------------------------------------------------|------------------------------------------------------------------|
-| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 + 랜딩 페이지 (로드맵 1단계) |
-| Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                              |
-| Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계)       |
-| Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                                     |
-| Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 멤버 + 대시보드 통계 (로드맵 1단계)                                     |
+| 도메인          | 경로                                                      | 포함 내용                                                      |
+|--------------|---------------------------------------------------------|------------------------------------------------------------|
+| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 (로드맵 2단계) |
+| Landing      | `docs/specs/functional-design/landing-page.md`          | 랜딩 페이지 + 포지셔닝 개선 (로드맵 1단계)                                 |
+| Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
+| Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) |
+| Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
+| Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 멤버 + 대시보드 통계 (로드맵 1단계)                               |
 
 #### 보류 (Hold)
 
@@ -59,6 +61,7 @@
 | 도메인          | 기능 설계                                                   |
 |--------------|---------------------------------------------------------|
 | Auth/Account | `docs/specs/functional-design/auth-account.md`          |
+| Landing      | `docs/specs/functional-design/landing-page.md`          |
 | Group        | `docs/specs/functional-design/group-management.md`      |
 | Student      | `docs/specs/functional-design/student-management.md`    |
 | Attendance   | `docs/specs/functional-design/attendance-management.md` |
@@ -71,7 +74,7 @@
 > 개선/이행 예정인 기능입니다.
 > 경로: `docs/specs/target/`
 
-### FUNCTIONAL (로드맵 1단계)
+### FUNCTIONAL (로드맵 1단계 — 완료)
 
 > **완료된 항목** (current로 병합됨):
 > - 그룹 UI/UX 개선 (일괄 삭제 포함) → group-management에 병합
@@ -81,11 +84,23 @@
 > - 로그인 서비스 소개 + 계정 모델 안내 → auth-account에 병합
 > - UX 라이팅 범용화 ("학생"→"멤버") — 비기능적 간소화 워크플로우, 코드가 SSoT
 > - 로그인 페이지 전환율 개선 → auth-account에 병합 (비기능적 간소화 워크플로우)
-> - 랜딩 페이지 도입 → auth-account에 병합
+> - 랜딩 페이지 도입 → landing-page.md로 분리
+> - ~~셀프 온보딩~~ → **제거** (온보딩 UX가 아닌 가치 체감이 문제 — 주간 허브 포지셔닝 전환으로 대체)
 
-| 우선순위 | 기능명    | SDD 상태 | 비고                                             |
-|------|--------|--------|------------------------------------------------|
-| P0   | 셀프 온보딩 | 미착수    | 가입→그룹 생성→멤버 등록→첫 출석까지 (④ 담당). 고덕동/돈암동 실제 이탈 관찰 |
+### FUNCTIONAL (로드맵 2단계 — 유저 확장 + 가톨릭 특화)
+
+> **완료된 항목** (current로 병합됨):
+> - 개인정보 제공동의 → auth-account에 병합
+
+| 우선순위 | 기능명          | SDD 상태 | 비고                                         |
+|------|--------------|--------|--------------------------------------------|
+| P0   | 계정 자기 관리     | 미착수    | 비밀번호 찾기/변경, 계정 정보 수정 등 사용자 자립 기능           |
+| P0   | 랜딩 페이지 FAQ   | 미착수    | `/landing` 하단에 FAQ 아코디언 추가 (CS 부담 감소, 전환율 개선) |
+| P1   | 세례명 축일자 명단   | 미착수    | 학생 세례명 필드 + 성인 축일 DB → 이달의 축일자 자동 표시       |
+| P1   | 전례 시기/전례력 달력 | 미착수    | 현재 전례 시기 표시 (대림/사순/부활 등) + 주요 축일/대축일 달력 연동 |
+| P1   | 미사 참례 확인     | 미착수    | 학생별 미사 참례 횟수 기록 (첫영성체 준비 필수 조건)            |
+| P2   | 가정 통신문 자동 생성 | 미착수    | 월별 출석/일정/공지 템플릿 기반 PDF/이미지 내보내기            |
+| P2   | 반편성 자동화      | 미착수    | 신학기 학년 진급 시 반 자동 재배정, 교사-반 매칭              |
 
 ### 보류 (Hold)
 
@@ -103,7 +118,6 @@
 | 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
 |------|----------------------|--------|------------------------------------------------------|
 | P1   | 계정 소유권 검증 강화         | 미작성    | IDOR 취약점 - 모든 엔드포인트 accountId 검증 필요                  |
-| P1   | CORS + Rate Limiting | **완료** | CORS 화이트리스트 + express-rate-limit (전체 100/분, 인증 10/분) |
 | P1   | Refresh token 인증 확장  | 미작성    | 재명세 예정                                               |
 
 **계정 소유권 검증 강화:**
@@ -111,28 +125,13 @@
 - group/student/attendance 모든 get/update/delete 엔드포인트에서 accountId 검증 필요
 - 발견 위치: `apps/api/src/domains/group/presentation/group.router.ts:38` 등
 
-**CORS + Rate Limiting:**
-- 구현 완료: `apps/api/src/app.ts` (CORS + express-rate-limit)
-- 기능 설계: `docs/specs/functional-design/cors-rate-limiting.md`
-
 **Refresh token 인증 확장:**
 - 재명세 예정
-
-### MEASUREMENT (Non-Functional)
-
-| 우선순위 | 기능명     | SDD 상태 | 비고                |
-|------|---------|--------|-------------------|
-| P1   | 회원가입 알림 | **완료** | 신규 가입 시 운영자 메일 알림 |
-
-**회원가입 알림:**
-- 구현 완료: `apps/api/src/infrastructure/mail/` (간소화 워크플로우, 코드가 SSoT)
 
 ### PERFORMANCE (Non-Functional)
 
 | 우선순위 | 기능명                | SDD 상태 | 비고                                       |
 |------|--------------------|--------|------------------------------------------|
-| P1   | 랜딩 페이지 포지셔닝 개선     | **완료** | GTM 교리교사 메시지 기반 포지셔닝, CTA/Footer 간소화     |
-| P1   | 랜딩 페이지 반응형 타이포그래피  | **완료** | break-keep + text-balance + 모바일 폰트 축소    |
 | P1   | ErrorBoundary 추가   | 미작성    | React 앱 글로벌 크래시 방지, 사용자 친화적 에러 화면        |
 | P1   | 번들 최적화             | 미작성    | sourcemap 제거 + 코드 스플리팅 (현재 910KB)        |
 | P2   | StudentListPage 분리 | 미작성    | 489줄 → 하위 컴포넌트 분리 (3 테이블 + 4 모달 + 9 핸들러) |
