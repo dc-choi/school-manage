@@ -61,7 +61,7 @@
 | 이번 주 출석 현황 | 출석한 학생 수 / 전체 (예: 45/50명) |
 | 성별 분포 | 남/여 출석 비율 (막대 또는 원형) |
 | 그룹별 출석률 순위 | 출석률 높은 그룹 TOP 5 |
-| 그룹별 우수 학생 | 각 그룹마다 TOP 5 |
+| 그룹별 상세 통계 | 각 그룹 주간/월간/연간 출석률 + 평균 인원 |
 | 전체 우수 출석 학생 | 전체 TOP 5 |
 
 ### 데이터/도메인 변경
@@ -75,14 +75,13 @@ Student 테이블에 `gender` 필드 (varchar(10), nullable) 추가됨.
 | 프로시저 | 타입 | 설명 |
 |----------|------|------|
 | `statistics.excellent` | query | 우수 출석 학생 TOP 10 |
-| `statistics.weekly` | query | 주간 출석률 |
-| `statistics.monthly` | query | 월간 출석률 |
-| `statistics.yearly` | query | 연간 출석률 |
-| `statistics.avgAttendance` | query | 평균 출석 인원 (주간/월간/연간) |
+| `statistics.weekly` | query | 주간 출석률 + 평균 출석 인원 |
+| `statistics.monthly` | query | 월간 출석률 + 평균 출석 인원 |
+| `statistics.yearly` | query | 연간 출석률 + 평균 출석 인원 |
 | `statistics.byGender` | query | 성별 출석 분포 |
 | `statistics.topGroups` | query | 그룹별 출석률 순위 TOP 5 |
-| `statistics.topByGroup` | query | 각 그룹별 우수 학생 TOP 5 |
 | `statistics.topOverall` | query | 전체 우수 출석 학생 TOP 5 |
+| `statistics.groupStatistics` | query | 그룹별 상세 통계 (주간/월간/연간 출석률 + 평균 출석 인원) |
 
 ### 주요 필드
 
@@ -93,18 +92,18 @@ Student 테이블에 `gender` 필드 (varchar(10), nullable) 추가됨.
 | `monthly` | year(number) | year, attendanceRate |
 | `byGender` | year(number) | year, male/female/unknown(count, rate) |
 | `topGroups` | year(number), limit(number) | year, groups(array: groupId, groupName, attendanceRate) |
-| `topByGroup` | year(number), limit(number) | year, groups(array: groupId, groupName, students) |
 | `topOverall` | year(number), limit(number) | year, students(array: id, societyName, groupName, score) |
+| `groupStatistics` | year(number) | groups(array: groupId, groupName, weekly/monthly/yearly 출석률 + 평균 인원) |
 
 ## 비즈니스 로직
 
 | 기능 | 동작 요약 |
 |------|----------|
 | 우수 출석 학생 | raw SQL로 ◎=2점, ○=1점, △=1점 합산 → 계정 소속 학생만, 점수 높은 순 TOP 10 |
-| 출석률 | 기간별 출석 횟수 / (전체 학생 수 × 주일·토요일 수) × 100 |
-| 평균 출석 인원 | 기간 내 출석 횟수 / 주일·토요일 수 |
+| 출석률 + 평균 출석 인원 | 기간별 출석 횟수 / (전체 학생 수 × 주일·토요일 수) × 100, 평균 인원 = 출석 횟수 / 주일·토요일 수 |
 | 성별 분포 | 성별로 학생 분류 → 각 성별 출석률 계산 (미지정은 "unknown") |
 | 그룹 순위 | 각 그룹별 출석률 계산 → 내림차순 정렬, limit 적용 |
+| 그룹별 상세 통계 | 각 그룹의 주간/월간/연간 출석률 + 평균 출석 인원을 한 번에 반환 |
 
 ## 권한/보안
 
@@ -146,4 +145,4 @@ Student 테이블에 `gender` 필드 (varchar(10), nullable) 추가됨.
 **작성일**: 2026-01-13
 **수정일**: 2026-02-12 (문서 축약 - 동작 명세 수준으로 정리)
 **작성자**: PM 에이전트
-**상태**: Approved (API 구현 완료)
+**상태**: Approved (구현 완료)

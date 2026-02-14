@@ -7,8 +7,8 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 6개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
-| **Target Functional**     | -    | 2단계 1건 (계정 자기 관리)                                            |
-| **Target Non-Functional** | -    | SECURITY 2건, PERFORMANCE 5건 미착수                              |
+| **Target Functional**     | -    | 2단계 미착수 5건                                                    |
+| **Target Non-Functional** | -    | SECURITY 2건, PERFORMANCE 6건 미착수                              |
 
 ## 관련 문서
 
@@ -29,7 +29,7 @@
 |---------------|---------------------------------------|------------------|-------------------|
 | 주일학교 출석부 프로그램 | `docs/specs/prd/school-attendance.md` | Approved (구현 완료) | 회원가입 포함 (로드맵 1단계) |
 | 개인정보 제공동의     | `docs/specs/prd/privacy-consent.md`   | Approved (구현 완료) | 로드맵 2단계           |
-| 계정 자기 관리       | `docs/specs/prd/account-self-management.md` | Draft | 로드맵 2단계           |
+| 계정 자기 관리       | `docs/specs/prd/account-self-management.md` | Approved (구현 완료) | 로드맵 2단계           |
 
 ### Functional Design (기능 설계)
 
@@ -38,7 +38,7 @@
 
 | 도메인          | 경로                                                      | 포함 내용                                                      |
 |--------------|---------------------------------------------------------|------------------------------------------------------------|
-| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 (로드맵 2단계) |
+| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 + 계정 자기 관리 (로드맵 2단계) |
 | Landing      | `docs/specs/functional-design/landing-page.md`          | 랜딩 페이지 + 포지셔닝 개선 (로드맵 1단계)                                 |
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
 | Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) |
@@ -92,10 +92,10 @@
 
 > **완료된 항목** (current로 병합됨):
 > - 개인정보 제공동의 → auth-account에 병합
+> - 계정 자기 관리 → auth-account에 병합
 
 | 우선순위 | 기능명          | SDD 상태 | 비고                                         |
 |------|--------------|--------|--------------------------------------------|
-| P0   | 계정 자기 관리     | **SDD 진행 중** | 비밀번호 찾기/변경, 계정 정보 수정 등 사용자 자립 기능           |
 | P0   | 랜딩 페이지 FAQ   | 미착수    | `/landing` 하단에 FAQ 아코디언 추가 (CS 부담 감소, 전환율 개선) |
 | P1   | 세례명 축일자 명단   | 미착수    | 학생 세례명 필드 + 성인 축일 DB → 이달의 축일자 자동 표시       |
 | P1   | 전례 시기/전례력 달력 | 미착수    | 현재 전례 시기 표시 (대림/사순/부활 등) + 주요 축일/대축일 달력 연동 |
@@ -137,7 +137,16 @@
 | P1   | 번들 최적화             | 미작성    | sourcemap 제거 + 코드 스플리팅 (현재 910KB)        |
 | P2   | StudentListPage 분리 | 미작성    | 489줄 → 하위 컴포넌트 분리 (3 테이블 + 4 모달 + 9 핸들러) |
 | P2   | 웹 테스트 확대           | 미작성    | 커버리지 ~2% → 주요 페이지/훅 테스트 추가               |
+| P2   | 폼 접근성/UX 가이드 준수   | 미작성    | autocomplete, aria-label, placeholder 등 design.md 규칙 준수 |
 | P2   | 웹 앱 리팩토링/최적화       | SDD 완료 | 상위 4건의 포괄 SDD (코드 품질, 성능, 테스트 커버리지 개선)   |
+
+**폼 접근성/UX 가이드 준수:**
+- SettingsPage 비밀번호 입력: `autocomplete` 속성 누락 (`current-password`, `new-password`)
+- ResetPasswordPage: `spellCheck={false}`, `autocomplete` 속성 누락
+- 모바일 로그아웃 버튼: icon-only 상태에서 `aria-label` 누락
+- 전체 placeholder: trailing `…` 미사용 (design.md 규칙: `"이름을 입력하세요…"`)
+- Loader2 스피너: `aria-label` 또는 `role="status"` 누락
+- `bcrypt.hash` saltRounds 상수 주석 불일치 (`10` vs `12`)
 
 **ErrorBoundary 추가:**
 - React 런타임 에러 시 전체 앱 화이트스크린 발생

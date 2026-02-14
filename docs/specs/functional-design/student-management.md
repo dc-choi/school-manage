@@ -319,6 +319,6 @@ URL 형식: `/students` (page=1 기본), `/students?page=3`
 **작성일**: 2026-01-13
 **수정일**: 2026-02-12 (문서 축약 - 동작 명세 수준으로 정리)
 **작성자**: PM 에이전트
-**상태**: Approved
+**상태**: Approved (구현 완료)
 
-> **Note**: 엑셀 Import는 미구현 상태입니다.
+> **Note**: 엑셀 Import는 Hold 상태입니다 (`docs/specs/README.md` 보류 항목 참조).

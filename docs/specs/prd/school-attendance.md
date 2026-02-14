@@ -52,7 +52,7 @@
 
 - **현재 스코프 외**:
   - Refresh Token (Access Token만 사용)
-  - 계정 수정/삭제 (DB 직접 관리)
+  - ~~계정 수정/삭제 (DB 직접 관리)~~ → `prd/account-self-management.md`에서 구현 완료
   - 다중 계정 권한 관리
   - 행사(캠프/피정) 운영
   - 알림/리마인드 기능
@@ -121,7 +121,7 @@
   - 비밀번호 입력 (8자 이상) + 확인
   - 가입 성공 시 자동 로그인 → 대시보드 이동
   - 로그인 화면에 회원가입 링크 추가
-- [ ] **목록 페이지네이션 상태 유지**: 상세 페이지에서 목록으로 복귀 시 이전 페이지 유지
+- [x] **목록 페이지네이션 상태 유지**: 상세 페이지에서 목록으로 복귀 시 이전 페이지 유지
   - 학생 목록: 상세→목록 복귀 시 기존 페이지 번호 유지
   - 그룹 목록: 상세→목록 복귀 시 기존 페이지 번호 유지
   - URL 쿼리 파라미터로 페이지 상태 동기화 (`?page=N`)
@@ -143,7 +143,7 @@
 
 ### 제외 (Out)
 
-- 계정 자체 관리 (생성/수정/삭제)
+- ~~계정 자체 관리 (생성/수정/삭제)~~ → `prd/account-self-management.md`에서 구현 완료
 - 다중 권한 체계 (관리자/교사/뷰어 등)
 - 실시간 알림
 - 모바일 앱
@@ -152,7 +152,7 @@
 
 - **제약**:
   - 모든 API 응답은 HTTP 200으로 내려가며 `code` 필드로 성공/실패 구분
-  - 계정 수정/삭제는 DB 직접 접근으로만 가능
+  - ~~계정 수정/삭제는 DB 직접 접근으로만 가능~~ → 계정 자기 관리 기능으로 해소
 - **가정**:
   - 사용자는 현대적인 웹 브라우저 사용
   - 동시 접속자 수는 소규모 (수십 명 이내)
@@ -191,15 +191,11 @@
   - `docs/specs/functional-design/student-management.md` (일괄 삭제/복구 + 졸업 처리 + 엑셀 Import 포함)
   - `docs/specs/functional-design/attendance-management.md` (달력 UI + 자동 저장 포함)
   - `docs/specs/functional-design/statistics.md` (우수 출석 + 대시보드 통계 포함)
-- Feature (구현 완료):
-  - `docs/specs/current/functional/features/auth-account.md`
-  - `docs/specs/current/functional/features/group-management.md`
-  - `docs/specs/current/functional/features/student-management.md`
-  - `docs/specs/current/functional/features/attendance-management.md`
-  - `docs/specs/current/functional/features/statistics.md`
+- PRD: `docs/specs/prd/privacy-consent.md` (개인정보 제공동의)
+- PRD: `docs/specs/prd/account-self-management.md` (계정 자기 관리)
 
 ---
 
 **작성일**: 2026-01-13
 **작성자**: PM 에이전트
-**상태**: Approved
+**상태**: Approved (구현 완료)

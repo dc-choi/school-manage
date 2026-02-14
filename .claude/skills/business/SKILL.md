@@ -144,7 +144,6 @@ SDD 작성자가 PRD 작성 시작
 ```
 /business content                # 콘텐츠 현황 확인 및 다음 작업 안내
 /business content instagram      # 인스타그램 콘텐츠 제작
-/business content kakao          # 카카오톡 공유 에셋 제작
 ```
 
 - **호출 방식**: Task 도구 (`subagent_type: general-purpose`)로 콘텐츠 마케터 서브 에이전트 실행
