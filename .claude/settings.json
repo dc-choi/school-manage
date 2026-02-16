@@ -16,7 +16,8 @@
   },
   "env": {
     "NODE_ENV": "development",
-    "TZ": "Asia/Seoul"
+    "TZ": "Asia/Seoul",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "hooks": {
     "PostToolUse": [

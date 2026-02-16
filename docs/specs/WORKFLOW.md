@@ -268,6 +268,8 @@ docs/specs/target/{functional|non-functional}/development/
 
 작성자가 모든 역할의 구현을 수행합니다.
 
+> **Agent Teams 대안**: 백엔드 + 프론트엔드 동시 구현 시, Agent Teams를 활용하여 병렬 구현이 가능합니다. 상세: [`AGENT-TEAMS.md`](AGENT-TEAMS.md) "Phase 2: 구현 팀" 참조
+
 **구현 순서:**
 1. Backend (API, DB) - `api.md` 기준
 2. Frontend (UI, 연동) - `web.md`, `design.md` 기준
@@ -283,6 +285,8 @@ docs/specs/target/{functional|non-functional}/development/
 ## 6단계: 정적 분석/최종 리뷰
 
 **담당**: 검수자
+
+> **Agent Teams 대안**: 백엔드/프론트엔드 양쪽 변경이 있을 때, Agent Teams로 교차 리뷰가 가능합니다. 상세: [`AGENT-TEAMS.md`](AGENT-TEAMS.md) "Phase 3: 리뷰 팀" 참조
 
 **흐름:**
 - 승인 → 상태: Approved
