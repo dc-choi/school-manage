@@ -132,6 +132,7 @@ export type {
     GetCalendarOutput,
     StudentAttendanceDetail,
     GetDayDetailOutput,
+    HasAttendanceOutput,
 } from './attendance';
 
 // Statistics 출력 타입

@@ -141,6 +141,7 @@ export type {
     GetCalendarOutput,
     StudentAttendanceDetail,
     GetDayDetailOutput,
+    HasAttendanceOutput,
     // Statistics
     ExcellentStudent,
     GetExcellentStudentsOutput,

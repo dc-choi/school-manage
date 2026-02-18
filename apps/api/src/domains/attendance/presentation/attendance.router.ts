@@ -5,6 +5,7 @@
  */
 import { GetCalendarUseCase } from '../application/get-calendar.usecase.ts';
 import { GetDayDetailUseCase } from '../application/get-day-detail.usecase.ts';
+import { HasAttendanceUseCase } from '../application/has-attendance.usecase.ts';
 import { UpdateAttendanceUseCase } from '../application/update-attendance.usecase.ts';
 import {
     consentedProcedure,
@@ -15,6 +16,14 @@ import {
 } from '@school/trpc';
 
 export const attendanceRouter = router({
+    /**
+     * 출석 기록 존재 여부 확인
+     * GET /api/attendance/hasAttendance -> trpc.attendance.hasAttendance
+     */
+    hasAttendance: consentedProcedure.query(async ({ ctx }) => {
+        const usecase = new HasAttendanceUseCase();
+        return usecase.execute(ctx.account.id);
+    }),
     /**
      * 출석 업데이트
      * PUT /api/attendance -> trpc.attendance.update

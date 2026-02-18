@@ -120,3 +120,10 @@ export interface GetDayDetailOutput {
     holyday: string | null;
     students: StudentAttendanceDetail[];
 }
+
+/**
+ * 출석 기록 존재 여부 응답
+ */
+export interface HasAttendanceOutput {
+    hasAttendance: boolean;
+}
