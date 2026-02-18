@@ -52,7 +52,7 @@ export const createApp = (): Express => {
     app.use(
         rateLimit({
             windowMs: 60 * 1000,
-            limit: 100,
+            limit: 200,
             standardHeaders: 'draft-7',
             legacyHeaders: false,
         })
