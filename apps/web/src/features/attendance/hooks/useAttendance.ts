@@ -10,6 +10,7 @@ export function useAttendance(groupId: string, year?: number) {
     const updateMutation = trpc.attendance.update.useMutation({
         onSuccess: (result) => {
             utils.group.attendance.invalidate({ groupId, year });
+            utils.statistics.weekly.invalidate();
 
             // GA4 이벤트: 첫 출석 기록
             if (result.isFirstAttendance && result.daysSinceSignup !== undefined) {
