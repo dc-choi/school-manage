@@ -18,43 +18,6 @@ vi.mock('~/lib/trpc', () => ({
                     error: null,
                 })),
             },
-            weekly: {
-                useQuery: vi.fn(() => ({
-                    data: {
-                        attendanceRate: 85.5,
-                        avgAttendance: 25.5,
-                        startDate: '2024-01-21',
-                        endDate: '2024-01-27',
-                    },
-                    isLoading: false,
-                    error: null,
-                })),
-            },
-            monthly: {
-                useQuery: vi.fn(() => ({
-                    data: {
-                        attendanceRate: 80.0,
-                        avgAttendance: 24.0,
-                        startDate: '2024-01-01',
-                        endDate: '2024-01-31',
-                    },
-                    isLoading: false,
-                    error: null,
-                })),
-            },
-            yearly: {
-                useQuery: vi.fn(() => ({
-                    data: {
-                        attendanceRate: 75.0,
-                        avgAttendance: 23.5,
-                        year: 2024,
-                        startDate: '2024-01-01',
-                        endDate: '2024-12-31',
-                    },
-                    isLoading: false,
-                    error: null,
-                })),
-            },
             byGender: {
                 useQuery: vi.fn(() => ({
                     data: {
@@ -62,19 +25,6 @@ vi.mock('~/lib/trpc', () => ({
                         male: { count: 15, rate: 50 },
                         female: { count: 12, rate: 40 },
                         unknown: { count: 3, rate: 10 },
-                    },
-                    isLoading: false,
-                    error: null,
-                })),
-            },
-            topGroups: {
-                useQuery: vi.fn(() => ({
-                    data: {
-                        year: 2024,
-                        groups: [
-                            { groupId: '1', groupName: '1반', attendanceRate: 95 },
-                            { groupId: '2', groupName: '2반', attendanceRate: 90 },
-                        ],
                     },
                     isLoading: false,
                     error: null,
@@ -131,26 +81,11 @@ describe('useDashboardStatistics', () => {
     it('대시보드 통계 데이터를 반환한다', () => {
         const result = useDashboardStatistics({ year: 2024 });
 
-        expect(result).toHaveProperty('weekly');
-        expect(result).toHaveProperty('monthly');
-        expect(result).toHaveProperty('yearly');
         expect(result).toHaveProperty('byGender');
-        expect(result).toHaveProperty('topGroups');
         expect(result).toHaveProperty('topOverall');
         expect(result).toHaveProperty('groupStatistics');
         expect(result).toHaveProperty('isLoading');
         expect(result).toHaveProperty('error');
-    });
-
-    it('주간 출석률 데이터 구조가 올바르다', () => {
-        const result = useDashboardStatistics({ year: 2024 });
-
-        expect(result.weekly).toHaveProperty('attendanceRate');
-        expect(result.weekly).toHaveProperty('avgAttendance');
-        expect(result.weekly).toHaveProperty('startDate');
-        expect(result.weekly).toHaveProperty('endDate');
-        expect(result.weekly?.attendanceRate).toBe(85.5);
-        expect(result.weekly?.avgAttendance).toBe(25.5);
     });
 
     it('성별 분포 데이터 구조가 올바르다', () => {
@@ -161,16 +96,6 @@ describe('useDashboardStatistics', () => {
         expect(result.byGender).toHaveProperty('unknown');
         expect(result.byGender?.male.count).toBe(15);
         expect(result.byGender?.female.count).toBe(12);
-    });
-
-    it('그룹별 출석률 순위 데이터 구조가 올바르다', () => {
-        const result = useDashboardStatistics({ year: 2024 });
-
-        expect(result.topGroups).toHaveProperty('groups');
-        expect(Array.isArray(result.topGroups?.groups)).toBe(true);
-        expect(result.topGroups?.groups[0]).toHaveProperty('groupId');
-        expect(result.topGroups?.groups[0]).toHaveProperty('groupName');
-        expect(result.topGroups?.groups[0]).toHaveProperty('attendanceRate');
     });
 
     it('전체 우수 학생 데이터 구조가 올바르다', () => {

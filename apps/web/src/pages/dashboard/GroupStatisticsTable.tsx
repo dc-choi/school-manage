@@ -1,7 +1,52 @@
-import type { GroupStatisticsOutput } from '@school/trpc';
+import type { GroupStatisticsItem, GroupStatisticsOutput } from '@school/trpc';
+import { roundToDecimal } from '@school/utils';
 import { LoadingSpinner } from '~/components/common/LoadingSpinner';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
+
+const computeWeightedRate = (
+    groups: GroupStatisticsItem[],
+    totalStudents: number,
+    period: 'weekly' | 'monthly' | 'yearly'
+): number => {
+    if (totalStudents === 0) return 0;
+    const weightedSum = groups.reduce((sum, g) => sum + g[period].attendanceRate * g.totalStudents, 0);
+    return roundToDecimal(weightedSum / totalStudents, 1);
+};
+
+function TotalRow({ groups }: { groups: GroupStatisticsItem[] }) {
+    const totalStudents = groups.reduce((sum, g) => sum + g.totalStudents, 0);
+
+    const weeklyRate = computeWeightedRate(groups, totalStudents, 'weekly');
+    const monthlyRate = computeWeightedRate(groups, totalStudents, 'monthly');
+    const yearlyRate = computeWeightedRate(groups, totalStudents, 'yearly');
+
+    const weeklyAvg = roundToDecimal(
+        groups.reduce((sum, g) => sum + g.weekly.avgAttendance, 0),
+        1
+    );
+    const monthlyAvg = roundToDecimal(
+        groups.reduce((sum, g) => sum + g.monthly.avgAttendance, 0),
+        1
+    );
+    const yearlyAvg = roundToDecimal(
+        groups.reduce((sum, g) => sum + g.yearly.avgAttendance, 0),
+        1
+    );
+
+    return (
+        <TableRow className="border-t-2 font-bold">
+            <TableCell>총계</TableCell>
+            <TableCell className="text-center tabular-nums">{totalStudents}명</TableCell>
+            <TableCell className="text-center tabular-nums">{weeklyRate}%</TableCell>
+            <TableCell className="text-center tabular-nums">{monthlyRate}%</TableCell>
+            <TableCell className="text-center tabular-nums">{yearlyRate}%</TableCell>
+            <TableCell className="text-center tabular-nums">{weeklyAvg}명</TableCell>
+            <TableCell className="text-center tabular-nums">{monthlyAvg}명</TableCell>
+            <TableCell className="text-center tabular-nums">{yearlyAvg}명</TableCell>
+        </TableRow>
+    );
+}
 
 interface GroupStatisticsTableProps {
     data?: GroupStatisticsOutput;
@@ -40,15 +85,28 @@ export function GroupStatisticsTable({ data, isLoading, error }: GroupStatistics
                             {data.groups.map((group) => (
                                 <TableRow key={group.groupId}>
                                     <TableCell className="font-medium">{group.groupName}</TableCell>
-                                    <TableCell className="text-center">{group.totalStudents}명</TableCell>
-                                    <TableCell className="text-center">{group.weekly.attendanceRate}%</TableCell>
-                                    <TableCell className="text-center">{group.monthly.attendanceRate}%</TableCell>
-                                    <TableCell className="text-center">{group.yearly.attendanceRate}%</TableCell>
-                                    <TableCell className="text-center">{group.weekly.avgAttendance}명</TableCell>
-                                    <TableCell className="text-center">{group.monthly.avgAttendance}명</TableCell>
-                                    <TableCell className="text-center">{group.yearly.avgAttendance}명</TableCell>
+                                    <TableCell className="text-center tabular-nums">{group.totalStudents}명</TableCell>
+                                    <TableCell className="text-center tabular-nums">
+                                        {group.weekly.attendanceRate}%
+                                    </TableCell>
+                                    <TableCell className="text-center tabular-nums">
+                                        {group.monthly.attendanceRate}%
+                                    </TableCell>
+                                    <TableCell className="text-center tabular-nums">
+                                        {group.yearly.attendanceRate}%
+                                    </TableCell>
+                                    <TableCell className="text-center tabular-nums">
+                                        {group.weekly.avgAttendance}명
+                                    </TableCell>
+                                    <TableCell className="text-center tabular-nums">
+                                        {group.monthly.avgAttendance}명
+                                    </TableCell>
+                                    <TableCell className="text-center tabular-nums">
+                                        {group.yearly.avgAttendance}명
+                                    </TableCell>
                                 </TableRow>
                             ))}
+                            <TotalRow groups={data.groups} />
                         </TableBody>
                     </Table>
                 ) : (

@@ -23,6 +23,8 @@
  * - 온보딩 체크리스트 표시: analytics.trackOnboardingChecklistShown(step)
  * - 온보딩 단계 CTA 클릭: analytics.trackOnboardingStepClicked(step)
  * - 온보딩 완료: analytics.trackOnboardingCompleted(daysSinceSignup)
+ * - 전례 카드 노출: analytics.trackLiturgicalCardViewed()
+ * - 축일자 카드 노출: analytics.trackPatronFeastCardViewed()
  */
 
 const isGtagAvailable = (): boolean => {
@@ -267,5 +269,21 @@ export const analytics = {
      */
     trackPrivacyConsentDeclined: (): void => {
         safeGtag('event', 'privacy_consent_declined');
+    },
+
+    /**
+     * 전례 카드 노출 이벤트
+     * 트리거: 전례 카드 데이터 로드 성공 시 (useEffect, 1회)
+     */
+    trackLiturgicalCardViewed: (): void => {
+        safeGtag('event', 'liturgical_card_viewed');
+    },
+
+    /**
+     * 축일자 카드 노출 이벤트
+     * 트리거: 축일자 카드 데이터 로드 성공 시 (useEffect, 1회)
+     */
+    trackPatronFeastCardViewed: (): void => {
+        safeGtag('event', 'patron_feast_card_viewed');
     },
 };
