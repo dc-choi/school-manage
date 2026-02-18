@@ -19,6 +19,10 @@
  * - 랜딩 섹션 조회: analytics.trackLandingSectionView(section)
  * - 랜딩 CTA 클릭: analytics.trackLandingCtaClick(position)
  * - 랜딩 로그인 클릭: analytics.trackLandingLoginClick()
+ * - 랜딩 FAQ 클릭: analytics.trackLandingFaqClick(question)
+ * - 온보딩 체크리스트 표시: analytics.trackOnboardingChecklistShown(step)
+ * - 온보딩 단계 CTA 클릭: analytics.trackOnboardingStepClicked(step)
+ * - 온보딩 완료: analytics.trackOnboardingCompleted(daysSinceSignup)
  */
 
 const isGtagAvailable = (): boolean => {
@@ -180,7 +184,7 @@ export const analytics = {
     /**
      * 랜딩 섹션 조회 이벤트
      * 트리거: 각 섹션이 뷰포트에 진입할 때 (1회만)
-     * @param section 섹션 이름 (hero, pain-points, features, demo, cta)
+     * @param section 섹션 이름 (hero, pain-points, features, demo, cta, faq)
      */
     trackLandingSectionView: (section: string): void => {
         safeGtag('event', 'landing_section_view', { section });
@@ -201,6 +205,44 @@ export const analytics = {
      */
     trackLandingLoginClick: (): void => {
         safeGtag('event', 'landing_login_click');
+    },
+
+    /**
+     * 랜딩 FAQ 클릭 이벤트
+     * 트리거: FAQ 아코디언 항목 열기 시
+     * @param question 클릭한 질문 텍스트
+     */
+    trackLandingFaqClick: (question: string): void => {
+        safeGtag('event', 'landing_faq_click', { question });
+    },
+
+    /**
+     * 온보딩 체크리스트 표시 이벤트
+     * 트리거: 체크리스트 컴포넌트 마운트 시 (useEffect, 1회)
+     * @param step 현재 진행할 단계 번호
+     */
+    trackOnboardingChecklistShown: (step: number): void => {
+        safeGtag('event', 'onboarding_checklist_shown', { step });
+    },
+
+    /**
+     * 온보딩 단계 CTA 클릭 이벤트
+     * 트리거: 단계별 CTA 버튼 클릭 시
+     * @param step 클릭한 단계 번호
+     */
+    trackOnboardingStepClicked: (step: number): void => {
+        safeGtag('event', 'onboarding_step_clicked', { step });
+    },
+
+    /**
+     * 온보딩 완료 이벤트
+     * 트리거: 3단계 모두 완료 시 (1회)
+     * @param daysSinceSignup 가입 후 경과일
+     */
+    trackOnboardingCompleted: (daysSinceSignup: number): void => {
+        safeGtag('event', 'onboarding_completed', {
+            days_since_signup: daysSinceSignup,
+        });
     },
 
     /**

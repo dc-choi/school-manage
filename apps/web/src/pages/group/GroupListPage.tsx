@@ -105,6 +105,8 @@ export function GroupListPage() {
                             <TableRow>
                                 <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
                                     등록된 그룹이 없습니다.
+                                    <br />
+                                    그룹을 만들면 멤버를 등록할 수 있어요.
                                 </TableCell>
                             </TableRow>
                         ) : (

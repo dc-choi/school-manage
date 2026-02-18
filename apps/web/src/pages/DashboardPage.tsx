@@ -1,5 +1,7 @@
 import { getWeeksInMonth } from '@school/utils';
+import { Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     AttendanceRateChart,
     AvgAttendanceChart,
@@ -8,13 +10,127 @@ import {
     TopRankingCard,
 } from '~/components/dashboard';
 import { MainLayout } from '~/components/layout';
+import { Button } from '~/components/ui/button';
+import { Card } from '~/components/ui/card';
 import { Label } from '~/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useAuth } from '~/features/auth';
 import { useDashboardStatistics } from '~/features/statistics';
+import { useOnboardingStatus } from '~/hooks/useOnboardingStatus';
 import { analytics } from '~/lib/analytics';
 
-export function DashboardPage() {
+const ONBOARDING_STEPS = [
+    {
+        step: 1,
+        title: '그룹 만들기',
+        description: '반이나 모임을 만들어보세요',
+        ctaLabel: '그룹 추가',
+        ctaPath: '/groups/new',
+    },
+    {
+        step: 2,
+        title: '멤버 등록하기',
+        description: '멤버를 추가하면 출석 체크를 시작할 수 있어요',
+        ctaLabel: '멤버 추가',
+        ctaPath: '/students/new',
+    },
+    {
+        step: 3,
+        title: '출석 체크하기',
+        description: '날짜를 선택하고 출석을 체크해보세요',
+        ctaLabel: '출석부 열기',
+        ctaPath: '/attendance',
+    },
+];
+
+function OnboardingChecklist({
+    currentStep,
+    hasGroups,
+    hasStudents,
+    hasAttendance,
+}: {
+    currentStep: 1 | 2 | 3;
+    hasGroups: boolean;
+    hasStudents: boolean;
+    hasAttendance: boolean;
+}) {
+    const navigate = useNavigate();
+    const completedFlags = [hasGroups, hasStudents, hasAttendance];
+
+    useEffect(() => {
+        sessionStorage.setItem(ONBOARDING_FLAG_KEY, 'true');
+        analytics.trackOnboardingChecklistShown(currentStep);
+    }, [currentStep]);
+
+    return (
+        <div className="mx-auto max-w-lg space-y-6">
+            <div className="text-center">
+                <h2 className="text-2xl font-bold">시작하기 가이드</h2>
+                <p className="mt-2 text-muted-foreground">3단계만 완료하면 바로 사용할 수 있어요</p>
+            </div>
+
+            <ol className="space-y-3">
+                {ONBOARDING_STEPS.map((item, index) => {
+                    const isCompleted = completedFlags[index];
+                    const isCurrent = item.step === currentStep;
+
+                    return (
+                        <li key={item.step}>
+                            <Card
+                                className={`flex items-center gap-4 p-4 ${
+                                    isCurrent ? 'border-primary' : isCompleted ? 'bg-muted' : ''
+                                }`}
+                            >
+                                {/* 아이콘/번호 */}
+                                <div
+                                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                                        isCompleted
+                                            ? 'bg-primary text-primary-foreground'
+                                            : isCurrent
+                                              ? 'bg-primary text-primary-foreground'
+                                              : 'bg-muted text-muted-foreground'
+                                    }`}
+                                >
+                                    {isCompleted ? (
+                                        <Check className="h-4 w-4" aria-hidden="true" />
+                                    ) : (
+                                        <span className="text-sm font-medium">{item.step}</span>
+                                    )}
+                                </div>
+
+                                {/* 텍스트 */}
+                                <div className="flex-1">
+                                    <p
+                                        className={`font-medium ${
+                                            isCompleted ? 'line-through text-muted-foreground' : ''
+                                        }`}
+                                    >
+                                        {item.title}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                                </div>
+
+                                {/* CTA */}
+                                {isCurrent ? (
+                                    <Button
+                                        onClick={() => {
+                                            analytics.trackOnboardingStepClicked(item.step);
+                                            navigate(item.ctaPath);
+                                        }}
+                                    >
+                                        {item.ctaLabel}
+                                    </Button>
+                                ) : null}
+                            </Card>
+                        </li>
+                    );
+                })}
+            </ol>
+        </div>
+    );
+}
+
+function DashboardContent() {
     const { account } = useAuth();
     const currentYear = new Date().getFullYear();
     const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -187,6 +303,48 @@ export function DashboardPage() {
                 {/* 그룹별 상세 통계 테이블 */}
                 <GroupStatisticsTable data={stats.groupStatistics} isLoading={stats.isLoading} error={hasError} />
             </div>
+        </MainLayout>
+    );
+}
+
+const ONBOARDING_FLAG_KEY = 'onboarding_checklist_shown';
+
+export function DashboardPage() {
+    const { account } = useAuth();
+    const onboarding = useOnboardingStatus();
+
+    // 온보딩 완료 감지: 체크리스트가 표시된 적 있고(sessionStorage 플래그) 완료 상태로 전환 시 1회 발생
+    useEffect(() => {
+        if (!onboarding.isLoading && onboarding.isOnboardingComplete) {
+            if (sessionStorage.getItem(ONBOARDING_FLAG_KEY)) {
+                analytics.trackOnboardingCompleted(0);
+                sessionStorage.removeItem(ONBOARDING_FLAG_KEY);
+            }
+        }
+    }, [onboarding.isLoading, onboarding.isOnboardingComplete]);
+
+    if (onboarding.isLoading) {
+        return (
+            <MainLayout title={`안녕하세요, ${account?.name}님!`}>
+                <div className="flex justify-center p-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                </div>
+            </MainLayout>
+        );
+    }
+
+    if (onboarding.isError || onboarding.isOnboardingComplete) {
+        return <DashboardContent />;
+    }
+
+    return (
+        <MainLayout title={`안녕하세요, ${account?.name}님!`}>
+            <OnboardingChecklist
+                currentStep={onboarding.currentStep as 1 | 2 | 3}
+                hasGroups={onboarding.hasGroups}
+                hasStudents={onboarding.hasStudents}
+                hasAttendance={onboarding.hasAttendance}
+            />
         </MainLayout>
     );
 }

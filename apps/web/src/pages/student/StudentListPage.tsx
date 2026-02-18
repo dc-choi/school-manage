@@ -326,7 +326,7 @@ export function StudentListPage() {
                 data={students}
                 keyExtractor={(row) => row.id}
                 isLoading={isLoading}
-                emptyMessage="등록된 멤버가 없습니다."
+                emptyMessage="등록된 멤버가 없습니다. 멤버를 등록하면 출석 체크를 시작할 수 있어요."
                 onRowClick={(row) => navigate(`/students/${row.id}`)}
             />
 
