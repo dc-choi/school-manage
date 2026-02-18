@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '~/components/ui/accordion';
 import { Button } from '~/components/ui/button';
 import { useAuth } from '~/features/auth';
 import { analytics } from '~/lib/analytics';
@@ -30,6 +31,37 @@ const PAIN_POINTS = [
     {
         quote: '이번 달 축일이 누구더라...?',
         desc: '축일 따로 찾고, 연락처 따로 확인하고... 매번 반복',
+    },
+];
+
+const FAQ_ITEMS = [
+    {
+        question: '정말 무료인가요?',
+        answer: '네, 모든 기능을 무료로 사용할 수 있어요. 지금 제공되는 핵심 기능은 앞으로도 무료로 유지됩니다.',
+    },
+    {
+        question: '개인정보는 안전한가요?',
+        answer: '개인정보 처리방침에 따라 최소한의 정보만 수집하고, 제3자에게 제공하지 않아요.',
+    },
+    {
+        question: '선생님이 여러 명인데, 각각 가입해야 하나요?',
+        answer: '아니요. 모임 하나당 계정 하나를 만들고, 선생님들이 같은 계정을 공유하시면 돼요.',
+    },
+    {
+        question: '가입하면 뭘 먼저 해야 하나요?',
+        answer: '가입 후 ① 그룹(반)을 만들고 ② 멤버를 등록하면 ③ 출석 체크를 시작할 수 있어요. 3분이면 충분해요.',
+    },
+    {
+        question: '스마트폰에서도 쓸 수 있나요?',
+        answer: '네, 웹 기반이라 스마트폰, 태블릿, PC 어디서든 사용할 수 있어요. 앱 설치는 필요 없어요.',
+    },
+    {
+        question: '가톨릭 주일학교만 쓸 수 있나요?',
+        answer: '주일학교 운영에 최적화되어 있지만, 출석 관리가 필요한 모임이면 어디든 사용할 수 있어요.',
+    },
+    {
+        question: '기존에 쓰던 출석 데이터를 옮길 수 있나요?',
+        answer: '현재는 직접 입력 방식이에요. 대량 등록 기능은 준비 중입니다.',
     },
 ];
 
@@ -630,6 +662,35 @@ export function LandingPage() {
                         <Button variant="ghost" className="text-base sm:text-lg" asChild onClick={handleLoginClick}>
                             <Link to="/login">이미 계정이 있으신가요?</Link>
                         </Button>
+                    </section>
+                </FadeInSection>
+
+                {/* ⑥ FAQ */}
+                <FadeInSection onVisible={() => analytics.trackLandingSectionView('faq')}>
+                    <section className="py-20 px-6">
+                        <h2 className="text-3xl font-bold text-center mb-8">자주 묻는 질문</h2>
+                        <Accordion
+                            type="single"
+                            collapsible
+                            className="max-w-2xl mx-auto"
+                            onValueChange={(value) => {
+                                if (value) {
+                                    const item = FAQ_ITEMS[Number(value)];
+                                    if (item) {
+                                        analytics.trackLandingFaqClick(item.question);
+                                    }
+                                }
+                            }}
+                        >
+                            {FAQ_ITEMS.map((item, index) => (
+                                <AccordionItem key={index} value={String(index)}>
+                                    <AccordionTrigger>{item.question}</AccordionTrigger>
+                                    <AccordionContent>
+                                        <p className="text-muted-foreground">{item.answer}</p>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
                     </section>
                 </FadeInSection>
             </main>
