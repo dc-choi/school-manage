@@ -19,7 +19,7 @@ export const checkIdInputSchema = z.object({
         .string()
         .min(4, 'ID는 4자 이상이어야 합니다')
         .max(20, 'ID는 20자 이하여야 합니다')
-        .regex(/^[a-zA-Z0-9]+$/, 'ID는 영문자와 숫자만 사용 가능합니다'),
+        .regex(/^[a-z0-9]+$/, 'ID는 영문 소문자와 숫자만 사용 가능합니다'),
 });
 
 /**
@@ -30,7 +30,7 @@ export const signupInputSchema = z.object({
         .string()
         .min(4, 'ID는 4자 이상이어야 합니다')
         .max(20, 'ID는 20자 이하여야 합니다')
-        .regex(/^[a-zA-Z0-9]+$/, 'ID는 영문자와 숫자만 사용 가능합니다'),
+        .regex(/^[a-z0-9]+$/, 'ID는 영문 소문자와 숫자만 사용 가능합니다'),
     displayName: z.string().min(2, '이름은 2자 이상이어야 합니다').max(20, '이름은 20자 이하여야 합니다'),
     password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다'),
     privacyAgreed: z.literal(true, {

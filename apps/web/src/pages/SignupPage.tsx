@@ -138,7 +138,7 @@ export function SignupPage() {
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl">회원가입</CardTitle>
-                    <CardDescription>우리 모임 출석부, 여기서 시작해요</CardDescription>
+                    <CardDescription>출석부터 축일까지, 한곳에서</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="mb-4 flex gap-2 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
@@ -155,7 +155,10 @@ export function SignupPage() {
 
                         {/* ID */}
                         <div className="space-y-2">
-                            <Label htmlFor="name">아이디</Label>
+                            <div className="flex items-baseline gap-2">
+                                <Label htmlFor="name">아이디</Label>
+                                <span className="text-xs text-muted-foreground">영문 소문자/숫자, 4~20자</span>
+                            </div>
                             <div className="flex gap-2">
                                 <Input
                                     id="name"
@@ -163,8 +166,10 @@ export function SignupPage() {
                                     value={name}
                                     onChange={(e) => handleNameChange(e.target.value)}
                                     required
-                                    placeholder="4~20자, 영문 소문자/숫자"
+                                    placeholder="아이디를 입력하세요…"
                                     className="flex-1"
+                                    spellCheck={false}
+                                    autoComplete="username"
                                 />
                                 <Button
                                     type="button"
@@ -182,27 +187,35 @@ export function SignupPage() {
 
                         {/* 이름 */}
                         <div className="space-y-2">
-                            <Label htmlFor="displayName">이름</Label>
+                            <div className="flex items-baseline gap-2">
+                                <Label htmlFor="displayName">이름</Label>
+                                <span className="text-xs text-muted-foreground">2~20자, 모임에서 표시되는 이름</span>
+                            </div>
                             <Input
                                 id="displayName"
                                 type="text"
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
                                 required
-                                placeholder="2~20자"
+                                placeholder="이름을 입력하세요…"
+                                autoComplete="name"
                             />
                         </div>
 
                         {/* 비밀번호 */}
                         <div className="space-y-2">
-                            <Label htmlFor="password">비밀번호</Label>
+                            <div className="flex items-baseline gap-2">
+                                <Label htmlFor="password">비밀번호</Label>
+                                <span className="text-xs text-muted-foreground">8자 이상</span>
+                            </div>
                             <Input
                                 id="password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                placeholder="8자 이상"
+                                placeholder="비밀번호를 입력하세요…"
+                                autoComplete="new-password"
                             />
                         </div>
 
@@ -215,7 +228,8 @@ export function SignupPage() {
                                 value={passwordConfirm}
                                 onChange={(e) => setPasswordConfirm(e.target.value)}
                                 required
-                                placeholder="비밀번호를 다시 입력하세요"
+                                placeholder="비밀번호를 다시 입력하세요…"
+                                autoComplete="new-password"
                             />
                             {passwordConfirm && password !== passwordConfirm && (
                                 <p className="text-sm text-destructive">비밀번호가 일치하지 않습니다</p>
