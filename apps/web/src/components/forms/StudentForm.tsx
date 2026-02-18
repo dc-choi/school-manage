@@ -100,7 +100,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
 
                     <div className="space-y-2">
                         <Label htmlFor="societyName" className="text-lg">
-                            이름 (세례명)
+                            이름
                         </Label>
                         <Input
                             id="societyName"
