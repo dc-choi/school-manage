@@ -107,7 +107,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             className="h-12 text-lg"
                             value={formData.societyName}
                             onChange={(e) => handleChange('societyName', e.target.value)}
-                            placeholder="이름을 입력하세요"
+                            placeholder="이름을 입력하세요…"
                             disabled={isSubmitting}
                         />
                         {errors.societyName && <p className="text-base text-destructive">{errors.societyName}</p>}
@@ -122,7 +122,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             className="h-12 text-lg"
                             value={formData.catholicName ?? ''}
                             onChange={(e) => handleChange('catholicName', e.target.value)}
-                            placeholder="세례명을 입력하세요"
+                            placeholder="세례명을 입력하세요…"
                             disabled={isSubmitting}
                         />
                     </div>
@@ -137,7 +137,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             disabled={isSubmitting}
                         >
                             <SelectTrigger id="groupId" className="h-12 text-lg">
-                                <SelectValue placeholder="그룹을 선택하세요" />
+                                <SelectValue placeholder="그룹을 선택하세요…" />
                             </SelectTrigger>
                             <SelectContent>
                                 {groups.map((g) => (
@@ -160,7 +160,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             disabled={isSubmitting}
                         >
                             <SelectTrigger id="gender" className="h-12 text-lg">
-                                <SelectValue placeholder="성별을 선택하세요" />
+                                <SelectValue placeholder="성별을 선택하세요…" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="M" className="text-lg">
@@ -185,7 +185,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             onChange={(e) =>
                                 handleChange('age', e.target.value ? parseInt(e.target.value, 10) : undefined)
                             }
-                            placeholder="나이를 입력하세요"
+                            placeholder="나이를 입력하세요…"
                             disabled={isSubmitting}
                         />
                     </div>
@@ -202,7 +202,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             onChange={(e) =>
                                 handleChange('contact', e.target.value ? parseInt(e.target.value, 10) : undefined)
                             }
-                            placeholder="연락처를 입력하세요 (숫자만)"
+                            placeholder="연락처를 입력하세요 (숫자만)…"
                             disabled={isSubmitting}
                         />
                     </div>
@@ -242,7 +242,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             className="h-12 text-lg"
                             value={formData.description ?? ''}
                             onChange={(e) => handleChange('description', e.target.value)}
-                            placeholder="비고를 입력하세요"
+                            placeholder="비고를 입력하세요…"
                             disabled={isSubmitting}
                         />
                     </div>

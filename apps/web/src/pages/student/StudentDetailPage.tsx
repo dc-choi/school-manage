@@ -1,5 +1,5 @@
+import { EditableField } from './EditableField';
 import { formatDateKR } from '@school/utils';
-import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
 import { Badge } from '~/components/ui/badge';
@@ -8,276 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useGroups } from '~/features/group';
-import { useStudent, useStudents } from '~/features/student/hooks/useStudents';
-
-interface EditableFieldProps {
-    label: string;
-    value: string;
-    onSave: (value: string) => void;
-    type?: 'text' | 'number';
-    disabled?: boolean;
-    placeholder?: string;
-}
-
-function EditableField({ label, value, onSave, type = 'text', disabled, placeholder }: EditableFieldProps) {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editValue, setEditValue] = useState(value);
-
-    useEffect(() => {
-        setEditValue(value);
-    }, [value]);
-
-    const handleSave = () => {
-        onSave(editValue);
-        setIsEditing(false);
-    };
-
-    const handleCancel = () => {
-        setEditValue(value);
-        setIsEditing(false);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') handleSave();
-        if (e.key === 'Escape') handleCancel();
-    };
-
-    return (
-        <div className="flex items-center border-b py-4 last:border-b-0">
-            <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">{label}</dt>
-            <dd className="flex-1 text-xl">
-                {isEditing ? (
-                    <div className="flex items-center gap-2">
-                        <Input
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            type={type}
-                            placeholder={placeholder}
-                            autoFocus
-                        />
-                        <Button onClick={handleSave} className="min-w-24">
-                            저장
-                        </Button>
-                        <Button variant="outline" onClick={handleCancel} className="min-w-24">
-                            취소
-                        </Button>
-                    </div>
-                ) : (
-                    <span
-                        className={`rounded px-2 py-1 ${disabled ? '' : 'cursor-pointer hover:bg-muted/50'}`}
-                        onClick={() => !disabled && setIsEditing(true)}
-                        title={disabled ? undefined : '클릭하여 수정'}
-                    >
-                        {value || '-'}
-                    </span>
-                )}
-            </dd>
-        </div>
-    );
-}
-
-interface ContactFieldProps {
-    label: string;
-    value: number | undefined;
-    onSave: (value: string) => void;
-    disabled?: boolean;
-}
-
-function ContactField({ label, value, onSave, disabled }: ContactFieldProps) {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editValue, setEditValue] = useState('');
-
-    // 숫자로 저장된 값을 11자리 문자열로 변환 (앞에 0 붙이기)
-    const displayValue = value ? String(value).padStart(11, '0') : '';
-    const formattedValue = displayValue
-        ? `${displayValue.slice(0, 3)}-${displayValue.slice(3, 7)}-${displayValue.slice(7)}`
-        : '-';
-
-    useEffect(() => {
-        setEditValue(displayValue);
-    }, [displayValue]);
-
-    const handleSave = () => {
-        onSave(editValue);
-        setIsEditing(false);
-    };
-
-    const handleCancel = () => {
-        setEditValue(displayValue);
-        setIsEditing(false);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') handleSave();
-        if (e.key === 'Escape') handleCancel();
-    };
-
-    return (
-        <div className="flex items-center border-b py-4 last:border-b-0">
-            <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">{label}</dt>
-            <dd className="flex-1 text-xl">
-                {isEditing ? (
-                    <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                            <Input
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value.replace(/[^0-9]/g, ''))}
-                                onKeyDown={handleKeyDown}
-                                placeholder="01012345678"
-                                autoFocus
-                            />
-                            <Button onClick={handleSave} className="min-w-24">
-                                저장
-                            </Button>
-                            <Button variant="outline" onClick={handleCancel} className="min-w-24">
-                                취소
-                            </Button>
-                        </div>
-                        <p className="text-base text-muted-foreground">- 없이 숫자만 입력하세요</p>
-                    </div>
-                ) : (
-                    <span
-                        className={`rounded px-2 py-1 ${disabled ? '' : 'cursor-pointer hover:bg-muted/50'}`}
-                        onClick={() => !disabled && setIsEditing(true)}
-                        title={disabled ? undefined : '클릭하여 수정'}
-                    >
-                        {formattedValue}
-                    </span>
-                )}
-            </dd>
-        </div>
-    );
-}
-
-interface GroupSelectFieldProps {
-    label: string;
-    value: string;
-    groupName: string;
-    groups: { id: string; name: string }[];
-    onSave: (groupId: string) => void;
-    disabled?: boolean;
-}
-
-interface GenderSelectFieldProps {
-    label: string;
-    value: string | undefined;
-    onSave: (gender: string) => void;
-    disabled?: boolean;
-}
-
-function GenderSelectField({ label, value, onSave, disabled }: GenderSelectFieldProps) {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editValue, setEditValue] = useState(value ?? '');
-
-    useEffect(() => {
-        setEditValue(value ?? '');
-    }, [value]);
-
-    const handleSave = () => {
-        onSave(editValue);
-        setIsEditing(false);
-    };
-
-    const handleCancel = () => {
-        setEditValue(value ?? '');
-        setIsEditing(false);
-    };
-
-    const displayValue = value === 'M' ? '남' : value === 'F' ? '여' : '-';
-
-    return (
-        <div className="flex items-center border-b py-4 last:border-b-0">
-            <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">{label}</dt>
-            <dd className="flex-1 text-xl">
-                {isEditing ? (
-                    <div className="flex items-center gap-2">
-                        <Select value={editValue} onValueChange={setEditValue}>
-                            <SelectTrigger className="w-48">
-                                <SelectValue placeholder="성별 선택" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="M">남</SelectItem>
-                                <SelectItem value="F">여</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Button onClick={handleSave} className="min-w-24">
-                            저장
-                        </Button>
-                        <Button variant="outline" onClick={handleCancel} className="min-w-24">
-                            취소
-                        </Button>
-                    </div>
-                ) : (
-                    <span
-                        className={`rounded px-2 py-1 ${disabled ? '' : 'cursor-pointer hover:bg-muted/50'}`}
-                        onClick={() => !disabled && setIsEditing(true)}
-                        title={disabled ? undefined : '클릭하여 수정'}
-                    >
-                        {displayValue}
-                    </span>
-                )}
-            </dd>
-        </div>
-    );
-}
-
-function GroupSelectField({ label, value, groupName, groups, onSave, disabled }: GroupSelectFieldProps) {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editValue, setEditValue] = useState(value);
-
-    useEffect(() => {
-        setEditValue(value);
-    }, [value]);
-
-    const handleSave = () => {
-        onSave(editValue);
-        setIsEditing(false);
-    };
-
-    const handleCancel = () => {
-        setEditValue(value);
-        setIsEditing(false);
-    };
-
-    return (
-        <div className="flex items-center border-b py-4 last:border-b-0">
-            <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">{label}</dt>
-            <dd className="flex-1 text-xl">
-                {isEditing ? (
-                    <div className="flex items-center gap-2">
-                        <Select value={editValue} onValueChange={setEditValue}>
-                            <SelectTrigger className="w-48">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {groups.map((g) => (
-                                    <SelectItem key={g.id} value={g.id}>
-                                        {g.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Button onClick={handleSave} className="min-w-24">
-                            저장
-                        </Button>
-                        <Button variant="outline" onClick={handleCancel} className="min-w-24">
-                            취소
-                        </Button>
-                    </div>
-                ) : (
-                    <span
-                        className={`rounded px-2 py-1 ${disabled ? '' : 'cursor-pointer hover:bg-muted/50'}`}
-                        onClick={() => !disabled && setIsEditing(true)}
-                        title={disabled ? undefined : '클릭하여 수정'}
-                    >
-                        {groupName || '-'}
-                    </span>
-                )}
-            </dd>
-        </div>
-    );
-}
+import { useStudent, useStudents } from '~/features/student';
 
 export function StudentDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -307,6 +38,15 @@ export function StudentDetailPage() {
             console.error('Failed to update student:', e);
         }
     };
+
+    // 연락처 표시값 변환
+    const contactRaw = student?.contact ? String(student.contact).padStart(11, '0') : '';
+    const contactDisplay = contactRaw
+        ? `${contactRaw.slice(0, 3)}-${contactRaw.slice(3, 7)}-${contactRaw.slice(7)}`
+        : '-';
+
+    // 성별 표시값 변환
+    const genderDisplay = student?.gender === 'M' ? '남' : student?.gender === 'F' ? '여' : '-';
 
     // 그룹 이름 찾기
     const groupName = groups.find((g) => g.id === student?.groupId)?.name ?? student?.groupId ?? '';
@@ -392,11 +132,23 @@ export function StudentDetailPage() {
                                     onSave={(v) => handleUpdate('catholicName', v)}
                                     disabled={isDeleted}
                                 />
-                                <GenderSelectField
+                                <EditableField
                                     label="성별"
-                                    value={student?.gender}
+                                    value={student?.gender ?? ''}
+                                    displayValue={genderDisplay}
                                     onSave={(v) => handleUpdate('gender', v)}
                                     disabled={isDeleted}
+                                    renderInput={({ value, onChange }) => (
+                                        <Select value={value} onValueChange={onChange}>
+                                            <SelectTrigger className="w-48">
+                                                <SelectValue placeholder="성별 선택" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="M">남</SelectItem>
+                                                <SelectItem value="F">여</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    )}
                                 />
                                 <EditableField
                                     label="나이"
@@ -405,19 +157,43 @@ export function StudentDetailPage() {
                                     type="number"
                                     disabled={isDeleted}
                                 />
-                                <ContactField
+                                <EditableField
                                     label="연락처"
-                                    value={student?.contact}
+                                    value={contactRaw}
+                                    displayValue={contactDisplay}
                                     onSave={(v) => handleUpdate('contact', v)}
                                     disabled={isDeleted}
+                                    hint="- 없이 숫자만 입력하세요"
+                                    renderInput={({ value, onChange, onKeyDown }) => (
+                                        <Input
+                                            value={value}
+                                            onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
+                                            onKeyDown={onKeyDown}
+                                            placeholder="01012345678"
+                                            autoFocus
+                                        />
+                                    )}
                                 />
-                                <GroupSelectField
+                                <EditableField
                                     label="그룹"
                                     value={student?.groupId ?? ''}
-                                    groupName={groupName}
-                                    groups={groups}
+                                    displayValue={groupName}
                                     onSave={(v) => handleUpdate('groupId', v)}
                                     disabled={isDeleted}
+                                    renderInput={({ value, onChange }) => (
+                                        <Select value={value} onValueChange={onChange}>
+                                            <SelectTrigger className="w-48">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {groups.map((g) => (
+                                                    <SelectItem key={g.id} value={g.id}>
+                                                        {g.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
                                 />
                                 <EditableField
                                     label="세례일"
