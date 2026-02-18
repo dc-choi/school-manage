@@ -79,3 +79,6 @@ typings/
 # Compiled test files
 **/vitest.*.js
 **/vitest.**.d.js
+
+# Stray compiled JS in src directories
+**/src/**/*.js
