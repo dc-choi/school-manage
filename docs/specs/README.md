@@ -7,7 +7,7 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 6개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
-| **Target Functional**     | -    | 2단계 미착수 5건                                                    |
+| **Target Functional**     | -    | 2단계 SDD 진행 중 1건, 미착수 4건                                      |
 | **Target Non-Functional** | -    | SECURITY 2건, PERFORMANCE 6건 미착수                              |
 
 ## 관련 문서
@@ -31,6 +31,8 @@
 | 주일학교 출석부 프로그램 | `docs/specs/prd/school-attendance.md` | Approved (구현 완료) | 회원가입 포함 (로드맵 1단계) |
 | 개인정보 제공동의     | `docs/specs/prd/privacy-consent.md`   | Approved (구현 완료) | 로드맵 2단계           |
 | 계정 자기 관리       | `docs/specs/prd/account-self-management.md` | Approved (구현 완료) | 로드맵 2단계           |
+| 랜딩 페이지 FAQ     | `docs/specs/prd/landing-faq.md`             | Approved (구현 완료)  | 로드맵 2단계           |
+| 셀프 온보딩 (최소 가이드) | `docs/specs/prd/self-onboarding.md`         | Approved (구현 완료) | 로드맵 2단계           |
 
 ### Functional Design (기능 설계)
 
@@ -39,8 +41,8 @@
 
 | 도메인          | 경로                                                      | 포함 내용                                                      |
 |--------------|---------------------------------------------------------|------------------------------------------------------------|
-| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 + 계정 자기 관리 (로드맵 2단계) |
-| Landing      | `docs/specs/functional-design/landing-page.md`          | 랜딩 페이지 + 포지셔닝 개선 (로드맵 1단계)                                 |
+| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 + 계정 자기 관리 + 셀프 온보딩 (로드맵 2단계) |
+| Landing      | `docs/specs/functional-design/landing-page.md`          | 랜딩 페이지 + 포지셔닝 개선 (로드맵 1단계) + FAQ 섹션 (로드맵 2단계)              |
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
 | Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) |
 | Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
@@ -87,19 +89,20 @@
 > - UX 라이팅 범용화 ("학생"→"멤버") — 비기능적 간소화 워크플로우, 코드가 SSoT
 > - 로그인 페이지 전환율 개선 → auth-account에 병합 (비기능적 간소화 워크플로우)
 > - 랜딩 페이지 도입 → landing-page.md로 분리
-> - ~~셀프 온보딩~~ → **제거** (온보딩 UX가 아닌 가치 체감이 문제 — 주간 허브 포지셔닝 전환으로 대체)
+> - ~~셀프 온보딩~~ → ~~제거~~ → **2단계로 재편입** (가치 체감 + 개념 이해도 문제 공존 — 최소 가이드 방식으로 범위 축소)
 
 ### FUNCTIONAL (로드맵 2단계 — 유저 확장 + 가톨릭 특화)
 
 > **완료된 항목** (current로 병합됨):
 > - 개인정보 제공동의 → auth-account에 병합
 > - 계정 자기 관리 → auth-account에 병합
+> - 랜딩 페이지 FAQ → landing-page에 병합
+> - 셀프 온보딩 (최소 가이드) → auth-account에 병합
 
 | 우선순위 | 기능명          | SDD 상태 | 비고                                         |
 |------|--------------|--------|--------------------------------------------|
-| P0   | 랜딩 페이지 FAQ   | 미착수    | `/landing` 하단에 FAQ 아코디언 추가 (CS 부담 감소, 전환율 개선) |
 | P1   | 세례명 축일자 명단   | 미착수    | 학생 세례명 필드 + 성인 축일 DB → 이달의 축일자 자동 표시       |
-| P1   | 전례 시기/전례력 달력 | 미착수    | 현재 전례 시기 표시 (대림/사순/부활 등) + 주요 축일/대축일 달력 연동 |
+| P1   | 전례 시기/전례력 달력 | **SDD 진행 중** | 현재 전례 시기 표시 (대림/사순/부활 등) + 주요 축일/대축일 달력 연동 |
 | P1   | 미사 참례 확인     | 미착수    | 학생별 미사 참례 횟수 기록 (첫영성체 준비 필수 조건)            |
 | P2   | 가정 통신문 자동 생성 | 미착수    | 월별 출석/일정/공지 템플릿 기반 PDF/이미지 내보내기            |
 | P2   | 반편성 자동화      | 미착수    | 신학기 학년 진급 시 반 자동 재배정, 교사-반 매칭              |
