@@ -50,7 +50,7 @@ export class LoginUseCase {
             });
         }
 
-        // 2. 비밀번호 검증: bcrypt.hashSync(password, 12)로 만들어낸 패스워드끼리 비교.
+        // 2. 비밀번호 검증: bcrypt.hashSync(password, 10)로 만들어낸 패스워드끼리 비교.
         const isPasswordValid = bcrypt.compareSync(input.password, account.password);
         if (!isPasswordValid) {
             throw new TRPCError({

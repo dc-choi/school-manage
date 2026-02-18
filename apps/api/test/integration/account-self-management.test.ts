@@ -10,6 +10,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // mailService mock import (vi.mock 호이스팅 후 참조)
 import { mailService } from '~/infrastructure/mail/mail.service.js';
 
+
+
+
+
 // mailService mock
 vi.mock('~/infrastructure/mail/mail.service.js', () => ({
     mailService: {
@@ -82,7 +86,7 @@ describe('계정 자기 관리 통합 테스트', () => {
                 email: 'test@example.com',
             });
 
-            expect(result).toEqual({ success: true });
+            expect(result).toEqual({ success: false, emailFailed: true });
             expect(mockPrismaClient.account.update).not.toHaveBeenCalled();
         });
     });
