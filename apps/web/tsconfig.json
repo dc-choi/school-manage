@@ -22,7 +22,7 @@
         "declarationDir": "dist",
         "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
     },
-    "include": ["src", "test", "vitest.setup.ts", "vite.config.ts"],
+    "include": ["src", "test", "vitest.setup.ts"],
     "exclude": ["node_modules", "dist"],
     "references": [
         { "path": "../../packages/utils" },

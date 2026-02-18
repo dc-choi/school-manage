@@ -23,6 +23,34 @@ export default defineConfig({
 
     build: {
         outDir: 'dist',
-        sourcemap: true,
+        sourcemap: false,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (!id.includes('node_modules')) return;
+                    if (
+                        id.includes('/react-dom/') ||
+                        id.includes('/react-router') ||
+                        id.includes('/scheduler/') ||
+                        (id.includes('/react/') && !id.includes('react-query'))
+                    ) {
+                        return 'vendor-react';
+                    }
+                    if (
+                        id.includes('@radix-ui') ||
+                        id.includes('radix-ui') ||
+                        id.includes('lucide-react') ||
+                        id.includes('tailwind-merge') ||
+                        id.includes('class-variance-authority') ||
+                        id.includes('clsx')
+                    ) {
+                        return 'vendor-ui';
+                    }
+                    if (id.includes('@tanstack') || id.includes('@trpc') || id.includes('superjson')) {
+                        return 'vendor-query';
+                    }
+                },
+            },
+        },
     },
 });

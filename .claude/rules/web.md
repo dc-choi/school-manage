@@ -116,6 +116,53 @@ export const trpcClient = trpc.createClient({
 5. **동의 체크**: `ProtectedRoute`에서 `privacyAgreedAt` null → `/consent` 리다이렉트
 6. **로그아웃**: `sessionStorage.clear()` → `/login`으로 리다이렉트
 
+## 코드 스플리팅
+
+라우트 기반 코드 스플리팅으로 초기 번들 크기를 최소화합니다.
+
+| 그룹 | 페이지 | 방식 |
+|------|--------|------|
+| eager (초기 번들) | LandingPage, LoginPage, SignupPage | `pages/index.ts` barrel export |
+| lazy | 나머지 12개 페이지 | `React.lazy` + `Suspense` (routes/index.tsx) |
+
+```tsx
+// lazy 패턴 (named export → default export 변환)
+const DashboardPage = lazy(() => import('~/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+```
+
+| vendor 청크 | 포함 패키지 |
+|-------------|-----------|
+| `vendor-react` | react, react-dom, react-router-dom, scheduler |
+| `vendor-ui` | @radix-ui, lucide-react, tailwind-merge, cva, clsx |
+| `vendor-query` | @tanstack/react-query, @trpc, superjson |
+
+- `LoadingFallback` (`components/common/LoadingFallback.tsx`): Suspense fallback 전용
+- 프로덕션 sourcemap: **비활성** (`vite.config.ts` → `sourcemap: false`)
+
+## ErrorBoundary 구조
+
+2단계 ErrorBoundary로 렌더링 에러를 격리합니다.
+
+```
+main.tsx
+  GlobalErrorBoundary          ← 1단계: Provider 에러 포착
+    StrictMode
+      trpc.Provider
+        QueryClientProvider
+          AuthProvider
+            App (RouterProvider)
+              Layout route       ← 2단계: 라우트 에러 포착 (errorElement)
+                각 페이지
+```
+
+| 컴포넌트 | 위치 | 역할 |
+|---------|------|------|
+| `GlobalErrorBoundary` | `components/common/GlobalErrorBoundary.tsx` | 최외곽 class component (`componentDidCatch`) |
+| `RouteErrorFallback` | `components/common/RouteErrorFallback.tsx` | 라우트 에러 UI (`useRouteError()`, MainLayout 유지) |
+
+- **비동기 에러** (API 호출 실패): 기존 tRPC error 처리 유지 (ErrorBoundary 대상 아님)
+- **이벤트 핸들러 에러**: React 제약으로 ErrorBoundary 대상 아님
+
 ## Testing
 
 - **프레임워크**: Vitest + jsdom
