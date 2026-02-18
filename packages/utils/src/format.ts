@@ -44,3 +44,17 @@ export const formatDateKR = (date: Date | string | null | undefined, fallback = 
     if (isNaN(d.getTime())) return fallback;
     return d.toLocaleDateString('ko-KR');
 };
+
+const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
+
+/**
+ * ISO 날짜 문자열을 "M/D (요일)" 형식으로 변환한다.
+ * @param dateStr YYYY-MM-DD 형식 문자열
+ * @returns 포맷팅된 문자열 (예: "4/5 (일)")
+ */
+export const formatDateShortKR = (dateStr: string): string => {
+    const [, month, day] = dateStr.split('-');
+    const date = new Date(dateStr + 'T00:00:00');
+    const dayName = DAY_NAMES[date.getDay()];
+    return `${Number(month)}/${Number(day)} (${dayName})`;
+};

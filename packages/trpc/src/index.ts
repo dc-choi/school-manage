@@ -53,6 +53,7 @@ export {
     restoreStudentsInputSchema,
     graduateStudentsInputSchema,
     cancelGraduationInputSchema,
+    feastDayListInputSchema,
     updateAttendanceInputSchema,
     getCalendarInputSchema,
     getDayDetailInputSchema,
@@ -60,6 +61,7 @@ export {
     statisticsInputSchema,
     topStatisticsInputSchema,
     getHolydaysInputSchema,
+    getSeasonInputSchema,
 } from './schemas';
 
 // 입력 타입 (Input)
@@ -87,6 +89,7 @@ export type {
     RestoreStudentsInput,
     GraduateStudentsInput,
     CancelGraduationInput,
+    FeastDayListInput,
     AttendanceData,
     UpdateAttendanceInput,
     GetCalendarInput,
@@ -95,6 +98,7 @@ export type {
     StatisticsInput,
     TopStatisticsInput,
     GetHolydaysInput,
+    GetSeasonInput,
 } from './schemas';
 
 // 출력 타입 (Output)
@@ -134,6 +138,8 @@ export type {
     GraduatedStudent,
     GraduateStudentsOutput,
     CancelGraduationOutput,
+    FeastDayStudentItem,
+    FeastDayListOutput,
     // Attendance
     UpdateAttendanceOutput,
     CalendarDayAttendance,
@@ -156,4 +162,5 @@ export type {
     // Liturgical
     Holyday,
     GetHolydaysOutput,
+    GetSeasonOutput,
 } from './schemas';

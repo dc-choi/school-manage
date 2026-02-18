@@ -50,6 +50,7 @@ export {
     restoreStudentsInputSchema,
     graduateStudentsInputSchema,
     cancelGraduationInputSchema,
+    feastDayListInputSchema,
 } from './student';
 export type {
     ListStudentsInput,
@@ -61,6 +62,7 @@ export type {
     RestoreStudentsInput,
     GraduateStudentsInput,
     CancelGraduationInput,
+    FeastDayListInput,
 } from './student';
 
 // Attendance 스키마
@@ -72,8 +74,8 @@ export { getExcellentStudentsInputSchema, statisticsInputSchema, topStatisticsIn
 export type { GetExcellentStudentsInput, StatisticsInput, TopStatisticsInput } from './statistics';
 
 // Liturgical 스키마
-export { getHolydaysInputSchema } from './liturgical';
-export type { GetHolydaysInput } from './liturgical';
+export { getHolydaysInputSchema, getSeasonInputSchema } from './liturgical';
+export type { GetHolydaysInput, GetSeasonInput } from './liturgical';
 
 // ============================================================
 // 출력 타입 (Output)
@@ -122,6 +124,8 @@ export type {
     GraduatedStudent,
     GraduateStudentsOutput,
     CancelGraduationOutput,
+    FeastDayStudentItem,
+    FeastDayListOutput,
 } from './student';
 
 // Attendance 출력 타입
@@ -150,4 +154,4 @@ export type {
 } from './statistics';
 
 // Liturgical 출력 타입
-export type { Holyday, GetHolydaysOutput } from './liturgical';
+export type { Holyday, GetHolydaysOutput, GetSeasonOutput } from './liturgical';

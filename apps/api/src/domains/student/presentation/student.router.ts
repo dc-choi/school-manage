@@ -7,6 +7,7 @@ import { BulkDeleteStudentsUseCase } from '../application/bulk-delete-students.u
 import { CancelGraduationUseCase } from '../application/cancel-graduation.usecase.ts';
 import { CreateStudentUseCase } from '../application/create-student.usecase.ts';
 import { DeleteStudentUseCase } from '../application/delete-student.usecase.ts';
+import { GetFeastDayListUseCase } from '../application/get-feast-day-list.usecase.ts';
 import { GetStudentUseCase } from '../application/get-student.usecase.ts';
 import { GraduateStudentsUseCase } from '../application/graduate-students.usecase.ts';
 import { ListStudentsUseCase } from '../application/list-students.usecase.ts';
@@ -19,6 +20,7 @@ import {
     consentedProcedure,
     createStudentInputSchema,
     deleteStudentInputSchema,
+    feastDayListInputSchema,
     getStudentInputSchema,
     graduateStudentsInputSchema,
     listStudentsInputSchema,
@@ -43,6 +45,15 @@ export const studentRouter = router({
             onlyDeleted: input.onlyDeleted,
             graduated: input.graduated,
         });
+    }),
+
+    /**
+     * 축일자 목록 조회 (지정 월에 축일이 있는 재학생)
+     * GET /api/student/feastDayList -> trpc.student.feastDayList
+     */
+    feastDayList: consentedProcedure.input(feastDayListInputSchema).query(async ({ input, ctx }) => {
+        const usecase = new GetFeastDayListUseCase();
+        return usecase.execute({ month: input.month, accountId: ctx.account.id });
     }),
 
     /**

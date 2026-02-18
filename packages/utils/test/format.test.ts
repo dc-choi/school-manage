@@ -1,7 +1,7 @@
 /**
  * 포맷팅 유틸리티 테스트
  */
-import { formatContact, formatDateCompact, formatDateISO } from '../src/format.js';
+import { formatContact, formatDateCompact, formatDateISO, formatDateShortKR } from '../src/format.js';
 import { describe, expect, it } from 'vitest';
 
 describe('format 유틸리티', () => {
@@ -124,6 +124,46 @@ describe('format 유틸리티', () => {
             const result = formatDateISO(date);
 
             expect(result).toBe('2024-02-29');
+        });
+    });
+
+    describe('formatDateShortKR', () => {
+        it('날짜를 "M/D (요일)" 형식으로 변환한다', () => {
+            // 2026-04-05 = 일요일
+            const result = formatDateShortKR('2026-04-05');
+
+            expect(result).toBe('4/5 (일)');
+        });
+
+        it('한 자리 월/일을 앞자리 0 없이 표시한다', () => {
+            // 2026-01-04 = 일요일
+            const result = formatDateShortKR('2026-01-04');
+
+            expect(result).toBe('1/4 (일)');
+        });
+
+        it('두 자리 월/일을 올바르게 표시한다', () => {
+            // 2026-12-25 = 금요일
+            const result = formatDateShortKR('2026-12-25');
+
+            expect(result).toBe('12/25 (금)');
+        });
+
+        it('각 요일을 올바르게 표시한다', () => {
+            // 2026-02-16 = 월요일
+            expect(formatDateShortKR('2026-02-16')).toBe('2/16 (월)');
+            // 2026-02-17 = 화요일
+            expect(formatDateShortKR('2026-02-17')).toBe('2/17 (화)');
+            // 2026-02-18 = 수요일
+            expect(formatDateShortKR('2026-02-18')).toBe('2/18 (수)');
+            // 2026-02-19 = 목요일
+            expect(formatDateShortKR('2026-02-19')).toBe('2/19 (목)');
+            // 2026-02-20 = 금요일
+            expect(formatDateShortKR('2026-02-20')).toBe('2/20 (금)');
+            // 2026-02-21 = 토요일
+            expect(formatDateShortKR('2026-02-21')).toBe('2/21 (토)');
+            // 2026-02-22 = 일요일
+            expect(formatDateShortKR('2026-02-22')).toBe('2/22 (일)');
         });
     });
 });

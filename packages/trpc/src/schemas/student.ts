@@ -93,6 +93,13 @@ export const cancelGraduationInputSchema = z.object({
     ids: z.array(idSchema).min(1, 'At least one student id is required').max(100, 'Maximum 100 students allowed'),
 });
 
+/**
+ * 축일자 목록 조회 입력 스키마
+ */
+export const feastDayListInputSchema = z.object({
+    month: z.number().int().min(1).max(12),
+});
+
 // 입력 타입 export
 export type ListStudentsInput = z.infer<typeof listStudentsInputSchema>;
 export type GetStudentInput = z.infer<typeof getStudentInputSchema>;
@@ -103,6 +110,7 @@ export type BulkDeleteStudentsInput = z.infer<typeof bulkDeleteStudentsInputSche
 export type RestoreStudentsInput = z.infer<typeof restoreStudentsInputSchema>;
 export type GraduateStudentsInput = z.infer<typeof graduateStudentsInputSchema>;
 export type CancelGraduationInput = z.infer<typeof cancelGraduationInputSchema>;
+export type FeastDayListInput = z.infer<typeof feastDayListInputSchema>;
 
 // ============================================================
 // 출력 타입 (Output Types)
@@ -211,4 +219,21 @@ export interface CancelGraduationOutput {
     success: boolean;
     cancelledCount: number;
     students: GraduatedStudent[];
+}
+
+/**
+ * 축일자 학생 항목
+ */
+export interface FeastDayStudentItem {
+    societyName: string;
+    catholicName: string;
+    baptizedAt: string;
+    groupName: string;
+}
+
+/**
+ * 축일자 목록 조회 응답
+ */
+export interface FeastDayListOutput {
+    students: FeastDayStudentItem[];
 }
