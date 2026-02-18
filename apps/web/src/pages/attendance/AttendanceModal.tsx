@@ -166,7 +166,7 @@ export function AttendanceModal({
 
                 {isLoading ? (
                     <div className="flex items-center justify-center py-8">
-                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
                         <span className="ml-2">로딩 중...</span>
                     </div>
                 ) : students.length === 0 ? (
@@ -230,7 +230,7 @@ export function AttendanceModal({
                         <div className="flex items-center justify-end gap-2 border-t pt-4 text-sm">
                             {saveStatus === 'saving' && (
                                 <>
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                                     <span>저장 중...</span>
                                 </>
                             )}

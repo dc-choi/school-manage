@@ -81,7 +81,9 @@ export function ResetPasswordPage() {
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="아이디를 입력하세요"
+                                    placeholder="아이디를 입력하세요…"
+                                    autoComplete="username"
+                                    spellCheck={false}
                                 />
                             </div>
 
@@ -92,7 +94,9 @@ export function ResetPasswordPage() {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="임시 비밀번호를 받을 이메일"
+                                    placeholder="임시 비밀번호를 받을 이메일…"
+                                    autoComplete="email"
+                                    spellCheck={false}
                                 />
                             </div>
 

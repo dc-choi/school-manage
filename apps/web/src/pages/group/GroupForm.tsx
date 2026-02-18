@@ -56,7 +56,7 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
                             className="h-12 text-lg"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="그룹명을 입력하세요"
+                            placeholder="그룹명을 입력하세요…"
                             disabled={isSubmitting}
                         />
                     </div>

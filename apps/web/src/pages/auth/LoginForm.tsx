@@ -41,7 +41,9 @@ export function LoginForm({ onSubmit, error, isLoading }: LoginFormProps) {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            placeholder="아이디를 입력하세요"
+                            placeholder="아이디를 입력하세요…"
+                            autoComplete="username"
+                            spellCheck={false}
                         />
                     </div>
 
@@ -53,7 +55,8 @@ export function LoginForm({ onSubmit, error, isLoading }: LoginFormProps) {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            placeholder="비밀번호를 입력하세요"
+                            placeholder="비밀번호를 입력하세요…"
+                            autoComplete="current-password"
                         />
                     </div>
 

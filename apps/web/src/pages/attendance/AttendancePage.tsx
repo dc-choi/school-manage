@@ -180,7 +180,7 @@ export function AttendancePage() {
                 <div className="flex items-center gap-2 text-sm">
                     {saveStatus === 'saving' && (
                         <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                             <span>저장 중...</span>
                         </>
                     )}
