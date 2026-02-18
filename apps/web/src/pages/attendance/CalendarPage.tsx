@@ -1,8 +1,8 @@
+import { AttendanceModal } from './AttendanceModal';
+import { CalendarGrid } from './CalendarGrid';
+import { CalendarHeader } from './CalendarHeader';
 import type { AttendanceData } from '@school/trpc';
 import { useCallback, useEffect, useState } from 'react';
-import { AttendanceModal } from '~/components/attendance/AttendanceModal';
-import { CalendarGrid } from '~/components/attendance/CalendarGrid';
-import { CalendarHeader } from '~/components/attendance/CalendarHeader';
 import { LoadingSpinner } from '~/components/common';
 import { MainLayout } from '~/components/layout';
 import { Badge } from '~/components/ui/badge';

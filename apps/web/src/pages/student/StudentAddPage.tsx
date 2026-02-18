@@ -1,6 +1,6 @@
+import { StudentForm } from './StudentForm';
 import { useNavigate } from 'react-router-dom';
 import { LoadingSpinner } from '~/components/common';
-import { StudentForm } from '~/components/forms/StudentForm';
 import { MainLayout } from '~/components/layout';
 import { useGroups } from '~/features/group';
 import { useStudents } from '~/features/student';

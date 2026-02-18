@@ -1,5 +1,5 @@
+import { GroupForm } from './GroupForm';
 import { useNavigate } from 'react-router-dom';
-import { GroupForm } from '~/components/forms/GroupForm';
 import { MainLayout } from '~/components/layout';
 import { useGroups } from '~/features/group';
 

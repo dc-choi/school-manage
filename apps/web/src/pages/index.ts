@@ -1,10 +1,6 @@
-export { ConsentPage } from './ConsentPage';
-export { DashboardPage } from './DashboardPage';
-export { LandingPage } from './LandingPage';
-export { LoginPage } from './LoginPage';
-export { ResetPasswordPage } from './ResetPasswordPage';
-export { SettingsPage } from './SettingsPage';
-export { SignupPage } from './SignupPage';
-export { GroupListPage, GroupDetailPage, GroupAddPage } from './group';
-export { StudentListPage, StudentDetailPage, StudentAddPage } from './student';
-export { AttendancePage, CalendarPage } from './attendance';
+// Eager imports — 마케팅 퍼널 진입점 (인스타 → /landing → /signup → /login)
+export { LandingPage } from './landing/LandingPage';
+export { LoginPage } from './auth/LoginPage';
+export { SignupPage } from './auth/SignupPage';
+
+// 나머지 페이지는 routes/index.tsx에서 React.lazy로 지연 로딩

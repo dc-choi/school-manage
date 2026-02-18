@@ -1,6 +1,6 @@
+import { LoginForm } from './LoginForm';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { LoginForm } from '~/components/forms/LoginForm';
 import { AuthLayout } from '~/components/layout';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
