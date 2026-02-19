@@ -196,7 +196,7 @@ export function StudentDetailPage() {
                                     )}
                                 />
                                 <EditableField
-                                    label="세례일"
+                                    label="축일"
                                     value={student?.baptizedAt ?? ''}
                                     onSave={(v) => handleUpdate('baptizedAt', v)}
                                     disabled={isDeleted}
