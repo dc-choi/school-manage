@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 7개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
 | **Target Functional**     | -    | 2단계 미착수 3건                                                    |
-| **Target Non-Functional** | -    | SECURITY 2건, PERFORMANCE 1건 미착수                              |
+| **Target Non-Functional** | -    | SEO/BRANDING 1건, SECURITY 2건, PERFORMANCE 1건 미착수            |
 
 ## 관련 문서
 
@@ -108,6 +108,20 @@
 
 **Refresh token 인증 확장:**
 - 재명세 예정
+
+### SEO/BRANDING (Non-Functional)
+
+| 우선순위 | 기능명                  | SDD 상태 | 비고                                              |
+|------|----------------------|--------|--------------------------------------------------|
+| P1   | 랜딩 메타 태그 + 브랜딩 정비   | 미착수    | OG 태그/description 없음 → 인스타/카톡 공유 미리보기 빈약        |
+
+**랜딩 메타 태그 + 브랜딩 정비:**
+- OG 태그(og:title, og:description, og:image) 없음 → 인스타/카톡 링크 공유 시 미리보기 미표시
+- `<meta description>` 없음 → 검색엔진 설명 누락
+- `<title>` "주일학교 관리 프로그램" → 브랜딩 미반영
+- favicon이 JPEG (비표준) → 표준 형식 정비
+- footer 연도 "2022" → 갱신 필요
+- 기능 설계: `docs/specs/functional-design/landing-page.md`에 병합 (간소화 워크플로우)
 
 ### PERFORMANCE (Non-Functional)
 
