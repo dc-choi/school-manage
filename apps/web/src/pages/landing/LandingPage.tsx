@@ -243,7 +243,7 @@ export function LandingPage() {
 
             {/* Footer */}
             <footer className="px-6 py-12 text-center text-sm text-muted-foreground">
-                &copy; 2022 주일학교 출석부
+                &copy; 2022–{new Date().getFullYear()} 주일학교 출석부
             </footer>
         </div>
     );

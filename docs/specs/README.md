@@ -44,7 +44,7 @@
 | 도메인          | 경로                                                      | 포함 내용                                                      |
 |--------------|---------------------------------------------------------|------------------------------------------------------------|
 | Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 + 계정 자기 관리 + 셀프 온보딩 (로드맵 2단계) |
-| Landing      | `docs/specs/functional-design/landing-page.md`          | 랜딩 페이지 + 포지셔닝 개선 (로드맵 1단계) + FAQ 섹션 (로드맵 2단계)              |
+| Landing      | `docs/specs/functional-design/landing-page.md`          | 랜딩 페이지 + 포지셔닝 개선 (로드맵 1단계) + FAQ 섹션 + 메타 태그/브랜딩 정비 (로드맵 2단계) |
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
 | Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) + 이달의 축일자 목록 (로드맵 2단계) |
 | Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
