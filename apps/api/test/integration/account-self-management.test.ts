@@ -10,10 +10,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // mailService mock import (vi.mock 호이스팅 후 참조)
 import { mailService } from '~/infrastructure/mail/mail.service.js';
 
-
-
-
-
 // mailService mock
 vi.mock('~/infrastructure/mail/mail.service.js', () => ({
     mailService: {
