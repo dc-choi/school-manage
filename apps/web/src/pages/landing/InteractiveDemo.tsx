@@ -206,7 +206,7 @@ export function InteractiveDemo() {
                 </p>
             </div>
 
-            {/* 오른쪽 패널: 멤버 정보 ↔ 출석 체크 전환 */}
+            {/* 오른쪽 패널: 학생 정보 ↔ 출석 체크 전환 */}
             <div className="w-full max-w-sm rounded-2xl border bg-background shadow-xl">
                 {selectedDate ? (
                     <>
@@ -304,13 +304,13 @@ export function InteractiveDemo() {
                     </>
                 ) : (
                     <>
-                        {/* 멤버 관리 헤더 */}
+                        {/* 학생 관리 헤더 */}
                         <div className="border-b px-5 py-4">
-                            <h3 className="text-base font-semibold">멤버 정보</h3>
+                            <h3 className="text-base font-semibold">학생 정보</h3>
                             <p className="text-xs text-muted-foreground">정보를 수정해보세요</p>
                         </div>
 
-                        {/* 멤버 정보 */}
+                        {/* 학생 정보 */}
                         <div className="px-5 py-4">
                             <div className="mb-2 grid grid-cols-[1fr_1fr_1fr_1fr_24px] gap-1.5 border-b pb-2 text-xs font-medium text-muted-foreground">
                                 <span>이름</span>
@@ -376,7 +376,7 @@ export function InteractiveDemo() {
                                 className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed py-2 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
                             >
                                 <Plus className="h-4 w-4" />
-                                멤버 추가
+                                학생 추가
                             </button>
                         </div>
                     </>

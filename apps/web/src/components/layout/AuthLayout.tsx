@@ -25,7 +25,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                         이거 하나면 됩니다
                     </h1>
                     <p className="text-2xl text-muted-foreground xl:text-3xl">
-                        <span className="font-semibold text-foreground">출석, 축일, 멤버 현황</span>까지.
+                        <span className="font-semibold text-foreground">출석, 축일, 학생 현황</span>까지.
                         <br />
                         주일학교 교리교사를 위한 주간 도구.
                     </p>

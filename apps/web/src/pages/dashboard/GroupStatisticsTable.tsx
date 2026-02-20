@@ -58,7 +58,7 @@ export function GroupStatisticsTable({ data, isLoading, error }: GroupStatistics
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-base">그룹별 통계</CardTitle>
+                <CardTitle className="text-base">학년별 통계</CardTitle>
             </CardHeader>
             <CardContent>
                 {isLoading ? (
@@ -71,7 +71,7 @@ export function GroupStatisticsTable({ data, isLoading, error }: GroupStatistics
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="whitespace-nowrap">그룹명</TableHead>
+                                <TableHead className="whitespace-nowrap">학년명</TableHead>
                                 <TableHead className="whitespace-nowrap text-center">인원</TableHead>
                                 <TableHead className="whitespace-nowrap text-center">주간 출석률</TableHead>
                                 <TableHead className="whitespace-nowrap text-center">월간 출석률</TableHead>

@@ -69,7 +69,7 @@ export function DeletedStudentsModal({
         },
         { key: 'societyName', header: '이름' },
         { key: 'catholicName', header: '세례명' },
-        { key: 'groupName', header: '그룹' },
+        { key: 'groupName', header: '학년' },
         {
             key: 'deletedAt',
             header: '삭제일',
@@ -82,8 +82,8 @@ export function DeletedStudentsModal({
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>삭제된 멤버 관리</DialogTitle>
-                        <DialogDescription>삭제된 멤버를 선택하여 복구할 수 있습니다.</DialogDescription>
+                        <DialogTitle>삭제된 학생 관리</DialogTitle>
+                        <DialogDescription>삭제된 학생을 선택하여 복구할 수 있습니다.</DialogDescription>
                     </DialogHeader>
                     <div className="mt-4">
                         {isSomeSelected && (
@@ -98,7 +98,7 @@ export function DeletedStudentsModal({
                             data={students}
                             keyExtractor={(row) => row.id}
                             isLoading={isLoading}
-                            emptyMessage="삭제된 멤버가 없습니다."
+                            emptyMessage="삭제된 학생이 없습니다."
                         />
                         {totalPage > 1 && (
                             <div className="mt-4">
@@ -116,9 +116,9 @@ export function DeletedStudentsModal({
             <AlertDialog open={confirmRestore} onOpenChange={setConfirmRestore}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>멤버 복구</AlertDialogTitle>
+                        <AlertDialogTitle>학생 복구</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 멤버를 복구하시겠습니까?
+                            선택한 {selectedIds.size}명의 학생을 복구하시겠습니까?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

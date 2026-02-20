@@ -107,7 +107,7 @@ export function CalendarPage() {
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                             {/* 그룹 선택 */}
                             <div className="flex items-center gap-4">
-                                <span className="text-sm font-medium text-muted-foreground">그룹 선택</span>
+                                <span className="text-sm font-medium text-muted-foreground">학년 선택</span>
                                 <Select
                                     value={selectedGroupId}
                                     onValueChange={(value) => {
@@ -115,7 +115,7 @@ export function CalendarPage() {
                                     }}
                                 >
                                     <SelectTrigger className="w-48">
-                                        <SelectValue placeholder="그룹을 선택하세요" />
+                                        <SelectValue placeholder="학년을 선택하세요" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {groups.map((g) => (
@@ -148,7 +148,7 @@ export function CalendarPage() {
                 {!selectedGroupId ? (
                     <Card>
                         <CardContent className="flex h-96 items-center justify-center">
-                            <p className="text-lg text-muted-foreground">그룹을 선택해주세요.</p>
+                            <p className="text-lg text-muted-foreground">학년을 선택해주세요.</p>
                         </CardContent>
                     </Card>
                 ) : calendarLoading ? (

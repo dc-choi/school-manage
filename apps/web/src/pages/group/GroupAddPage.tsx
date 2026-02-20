@@ -13,7 +13,7 @@ export function GroupAddPage() {
     };
 
     return (
-        <MainLayout title="그룹 추가">
+        <MainLayout title="학년 추가">
             <div className="mx-auto max-w-md">
                 <GroupForm
                     onSubmit={handleSubmit}

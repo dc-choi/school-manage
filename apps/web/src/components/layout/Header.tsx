@@ -7,8 +7,8 @@ import { useAuth } from '~/features/auth';
 
 const navItems = [
     { path: '/', label: '대시보드' },
-    { path: '/groups', label: '그룹 관리' },
-    { path: '/students', label: '멤버 관리' },
+    { path: '/groups', label: '학년 관리' },
+    { path: '/students', label: '학생 관리' },
     { path: '/attendance', label: '출석부' },
 ];
 

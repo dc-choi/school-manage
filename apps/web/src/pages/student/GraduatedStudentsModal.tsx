@@ -126,7 +126,7 @@ export function GraduatedStudentsModal({
                     <AlertDialogHeader>
                         <AlertDialogTitle>졸업 취소</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 멤버의 졸업을 취소하시겠습니까? 재학생으로 복원됩니다.
+                            선택한 {selectedIds.size}명의 학생의 졸업을 취소하시겠습니까? 재학생으로 복원됩니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

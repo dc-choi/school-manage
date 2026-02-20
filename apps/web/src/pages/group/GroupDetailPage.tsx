@@ -55,10 +55,10 @@ export function GroupDetailPage() {
 
     if (error) {
         return (
-            <MainLayout title="그룹 상세">
+            <MainLayout title="학년 상세">
                 <Card>
                     <CardContent className="pt-6">
-                        <p className="text-center text-destructive">그룹을 불러오는데 실패했습니다.</p>
+                        <p className="text-center text-destructive">학년을 불러오는데 실패했습니다.</p>
                         <div className="mt-4 flex justify-center">
                             <Button size="lg" onClick={() => navigate(-1)}>
                                 목록으로
@@ -86,7 +86,7 @@ export function GroupDetailPage() {
     ];
 
     return (
-        <MainLayout title="그룹 상세">
+        <MainLayout title="학년 상세">
             <div className="space-y-6">
                 <Card>
                     <CardHeader>
@@ -121,7 +121,7 @@ export function GroupDetailPage() {
                                         <CardTitle className="text-2xl">
                                             {isLoading ? '로딩 중...' : group?.name}
                                         </CardTitle>
-                                        <CardDescription>그룹 정보 (클릭하여 수정)</CardDescription>
+                                        <CardDescription>학년 정보 (클릭하여 수정)</CardDescription>
                                     </div>
                                 )}
                             </div>
@@ -141,9 +141,9 @@ export function GroupDetailPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>멤버 목록</CardTitle>
+                        <CardTitle>학생 목록</CardTitle>
                         <CardDescription>
-                            {isLoading ? '로딩 중...' : `총 ${group?.students.length ?? 0}명의 멤버가 있습니다.`}
+                            {isLoading ? '로딩 중...' : `총 ${group?.students.length ?? 0}명의 학생이 있습니다.`}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -152,7 +152,7 @@ export function GroupDetailPage() {
                             data={group?.students ?? []}
                             keyExtractor={(row) => row.id}
                             isLoading={isLoading}
-                            emptyMessage="등록된 멤버가 없습니다."
+                            emptyMessage="등록된 학생이 없습니다."
                         />
                     </CardContent>
                 </Card>

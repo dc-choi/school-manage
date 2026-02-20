@@ -142,10 +142,10 @@ export function AttendancePage() {
             <div className="mb-6 flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
                 <div className="grid grid-cols-2 gap-6 sm:flex sm:gap-6">
                     <div className="space-y-2">
-                        <Label>그룹</Label>
+                        <Label>학년</Label>
                         <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
                             <SelectTrigger className="w-full sm:w-40">
-                                <SelectValue placeholder="그룹 선택" />
+                                <SelectValue placeholder="학년 선택" />
                             </SelectTrigger>
                             <SelectContent>
                                 {groups.map((g) => (
@@ -201,13 +201,13 @@ export function AttendancePage() {
 
             {!selectedGroupId ? (
                 <Card>
-                    <CardContent className="py-8 text-center text-muted-foreground">그룹을 선택해주세요.</CardContent>
+                    <CardContent className="py-8 text-center text-muted-foreground">학년을 선택해주세요.</CardContent>
                 </Card>
             ) : attendanceLoading ? (
                 <LoadingSpinner />
             ) : !attendanceData?.students?.length ? (
                 <Card>
-                    <CardContent className="py-8 text-center text-muted-foreground">멤버가 없습니다.</CardContent>
+                    <CardContent className="py-8 text-center text-muted-foreground">학생이 없습니다.</CardContent>
                 </Card>
             ) : (
                 <Card>

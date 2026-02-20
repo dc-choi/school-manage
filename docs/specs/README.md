@@ -6,7 +6,7 @@
 
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
-| **Current Functional**    | 100% | 7개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
+| **Current Functional**    | 100% | 8개 도메인 기능 설계에 통합 (Task/Development → functional-design 병합 완료) |
 | **Target Functional**     | -    | 2단계 미착수 3건                                                    |
 | **Target Non-Functional** | -    | SEO/BRANDING 1건, SECURITY 2건, PERFORMANCE 1건 미착수            |
 
@@ -48,8 +48,9 @@
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
 | Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) + 이달의 축일자 목록 (로드맵 2단계) |
 | Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
-| Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 멤버 + 대시보드 통계 (로드맵 1단계) + 그룹별 통계 총계 행 (로드맵 2단계)       |
+| Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 학생 + 대시보드 통계 (로드맵 1단계) + 학년별 통계 총계 행 (로드맵 2단계)       |
 | Liturgical   | `docs/specs/functional-design/liturgical-calendar.md`   | 전례 시기 계산 + 대시보드 전례 카드 (로드맵 2단계)                            |
+| 도메인 용어 변경    | `docs/specs/functional-design/domain-terminology-change.md` | 그룹→학년, 멤버→학생 UI 라벨 변경 (로드맵 2단계, 횡단 관심사)                    |
 
 ---
 
@@ -68,6 +69,7 @@
 | Attendance   | `docs/specs/functional-design/attendance-management.md` |
 | Statistics   | `docs/specs/functional-design/statistics.md`            |
 | Liturgical   | `docs/specs/functional-design/liturgical-calendar.md`   |
+| 도메인 용어 변경    | `docs/specs/functional-design/domain-terminology-change.md` |
 
 ---
 
@@ -80,7 +82,7 @@
 
 | 우선순위 | 기능명          | SDD 상태 | 비고                                         |
 |------|--------------|--------|--------------------------------------------|
-| P0   | 도메인 용어 변경    | **진행 중** | 그룹→학년, 멤버→학생 (이탈 데이터 기반 UX 개선)            |
+| ~~P0~~   | ~~도메인 용어 변경~~    | **구현 완료** | 그룹→학년, 멤버→학생 (이탈 데이터 기반 UX 개선)            |
 | P1   | 미사 참례 확인     | 미착수    | 학생별 미사 참례 횟수 기록 (첫영성체 준비 필수 조건)            |
 | P2   | 가정 통신문 자동 생성 | 미착수    | 월별 출석/일정/공지 템플릿 기반 PDF/이미지 내보내기            |
 | P2   | 반편성 자동화      | 미착수    | 신학기 학년 진급 시 반 자동 재배정, 교사-반 매칭              |

@@ -55,7 +55,7 @@ export function GroupListPage() {
 
     if (isLoading) {
         return (
-            <MainLayout title="그룹 목록">
+            <MainLayout title="학년 목록">
                 <Card className="flex h-40 items-center justify-center">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                 </Card>
@@ -64,7 +64,7 @@ export function GroupListPage() {
     }
 
     return (
-        <MainLayout title="그룹 목록">
+        <MainLayout title="학년 목록">
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
                 <div className="flex gap-2">
                     {selectedIds.size > 0 && (
@@ -78,7 +78,7 @@ export function GroupListPage() {
                     )}
                 </div>
                 <Button onClick={() => navigate('/groups/new')} className="w-full sm:w-auto">
-                    그룹 추가
+                    학년 추가
                 </Button>
             </div>
 
@@ -96,7 +96,7 @@ export function GroupListPage() {
                                     aria-label="전체 선택"
                                 />
                             </TableHead>
-                            <TableHead>그룹명</TableHead>
+                            <TableHead>학년명</TableHead>
                             <TableHead className="w-24 text-center">인원</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -104,9 +104,9 @@ export function GroupListPage() {
                         {groups.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
-                                    등록된 그룹이 없습니다.
+                                    등록된 학년이 없습니다.
                                     <br />
-                                    그룹을 만들면 멤버를 등록할 수 있어요.
+                                    학년을 만들면 학생을 등록할 수 있어요.
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -137,9 +137,9 @@ export function GroupListPage() {
             <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>그룹 일괄 삭제</AlertDialogTitle>
+                        <AlertDialogTitle>학년 일괄 삭제</AlertDialogTitle>
                         <AlertDialogDescription>
-                            다음 {selectedIds.size}개의 그룹을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                            다음 {selectedIds.size}개의 학년을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
                             <ul className="mt-2 list-inside list-disc text-sm">
                                 {selectedGroups.map((g) => (
                                     <li key={g.id}>{g.name}</li>
