@@ -1,49 +1,53 @@
-# SDD Workflow (Claude Code)
+# SDD Workflow (Conductor)
 
-이 문서는 SDD 실행을 위한 **역할 분리 워크플로우**를 정의합니다.
+이 문서는 SDD 실행을 위한 **Conductor 기반 워크플로우**를 정의합니다.
 
-## 3개 세션 구조
+## 구조
 
 ```
-[사업 에이전트]          [작성자]                    [검수자]
- Claude Code      →    Claude Code         ↔     Claude Code
-   (세션 1)             (세션 2)                   (세션 3)
-docs/business/       PRD + 기능 설계              검수 + 승인
-                     Task (역할별)
-                     Development (역할별)
-                     구현
+[사업 에이전트]              [SDD 에이전트]                    [사용자]
+Conductor 워크스페이스 B  →  Conductor 워크스페이스 A     →    PR 리뷰
+docs/business/              PRD + 기능 설계 + 구현              머지 결정
+                            자동 검증 (lint, typecheck, sub-agents)
 ```
 
 ## 역할 분담
 
-| 세션 | 역할          | 책임                                | 산출물 위치           |
-|----|-------------|-----------------------------------|------------------|
-| 1  | **사업 에이전트** | 문제 정의, 가치, 우선순위, 로드맵              | `docs/business/` |
-| 2  | **작성자**     | PRD, 기능 설계, Task, Development, 구현 | `docs/specs/`    |
-| 3  | **검수자**     | 각 단계별 검수 + 최종 승인                  | -                |
+| 역할             | 담당                      | 책임                              |
+|----------------|-------------------------|---------------------------------|
+| **사업 에이전트**    | Conductor 워크스페이스 (별도)   | 문제 정의, 가치, 우선순위, 로드맵            |
+| **SDD 에이전트**   | Conductor 워크스페이스 (메인)   | 문서 작성 + 구현 + 자동 검증 + PR 생성      |
+| **사용자 (검수자)**  | Conductor diff 리뷰       | PR 리뷰 → 머지 결정                   |
 
-| 역할            | 담당자                | 책임                |
-|---------------|--------------------|-------------------|
-| **사용자 (조율자)** | 개발자                | 에이전트 간 핸드오프 조율    |
-| **사업 에이전트**   | Claude Code (세션 1) | 문제 정의 + 가치 + 우선순위 |
-| **작성자**       | Claude Code (세션 2) | 문서 작성 + 구현 + 테스트  |
-| **검수자**       | Claude Code (세션 3) | 각 단계별 검수 + 최종 승인  |
-
-> **Note**: 각 에이전트는 서로 다른 세션에서 진행하여 독립성을 유지한다.
+> **Note**: 검수는 자동 검증(lint, typecheck, sub-agents) + 사용자 PR 리뷰로 수행한다.
 
 ---
 
-## 핸드오프 포인트
+## 검증 체계
 
-| 핸드오프          | 트리거        | 전달 내용                                |
-|---------------|------------|--------------------------------------|
-| **사업 → 작성자**  | 로드맵 등록 완료  | 문제 정의, 로드맵 (`docs/business/`)        |
-| **작성자 → 검수자** | 각 문서 작성 완료 | PRD/기능 설계/Task/Development 경로, 검수 요청 |
-| **검수자 → 작성자** | 수정 필요 시    | 수정 요청 사항                             |
+검수자 세션 대신 **자동 검증 + 사용자 리뷰**로 품질을 보장합니다.
+
+### 자동 검증 (에이전트 실행)
+
+| 검증 항목        | 도구                              | 시점           |
+|--------------|-----------------------------------|--------------|
+| 코드 스타일       | `pnpm lint:fix && pnpm prettier:fix` | 파일 수정 시 (PostToolUse hook) |
+| 타입 안전성       | `pnpm typecheck`                  | 파일 수정 시 (PostToolUse hook) |
+| 빌드 성공        | `pnpm build`                      | 구현 완료 후      |
+| 테스트 통과       | `pnpm test`                       | 구현 완료 후      |
+| 보안 검수        | security-reviewer 서브에이전트          | PR 생성 전      |
+| 디자인 일관성      | design-reviewer 서브에이전트            | PR 생성 전 (UI 변경 시) |
+| 성능 분석        | performance-analyzer 서브에이전트       | PR 생성 전 (해당 시) |
+
+### 사용자 리뷰 (PR 기반)
+
+- Conductor diff 뷰에서 변경사항 확인
+- 비즈니스 로직, 요구사항 정합성 판단
+- 머지 또는 수정 요청
 
 ---
 
-## 전체 워크플로우 (10단계)
+## 전체 워크플로우 (9단계)
 
 ### Phase 1: 사업 (사전 단계)
 
@@ -52,24 +56,29 @@ docs/business/       PRD + 기능 설계              검수 + 승인
 | B1 | 사업 에이전트 | 문제 정의 → `docs/business/` 등록 |
 | B2 | 사업 에이전트 | 가치/우선순위/로드맵 정의              |
 
-### Phase 2: SDD (0~7단계)
+### Phase 2: SDD (0~6단계)
 
-| 단계 | 담당        | 설명                        |
-|----|-----------|---------------------------|
-| 0  | 작성자       | 작업 선택 → README.md 등록      |
-| 1  | 작성자 → 검수자 | PRD 작성 → 검수               |
-| 2  | 작성자 → 검수자 | 기능 설계 작성 → 검수             |
-| 3  | 작성자 → 검수자 | Task (역할별) 작성 → 검수        |
-| 4  | 작성자 → 검수자 | Development (역할별) 작성 → 검수 |
-| 5  | 작성자       | 구현 + 테스트                  |
-| 6  | 검수자       | 정적 분석/최종 리뷰               |
-| 7  | 검수자       | 문서 이동 + 프로젝트 현황 동기화       |
+| 단계 | 담당       | 설명                           |
+|----|----------|------------------------------|
+| 0  | SDD 에이전트 | 작업 선택 → README.md 등록        |
+| 1  | SDD 에이전트 | PRD 작성                       |
+| 2  | SDD 에이전트 | 기능 설계 작성                     |
+| 3  | SDD 에이전트 | Task (역할별) 작성                |
+| 4  | SDD 에이전트 | Development (역할별) 작성         |
+| 5  | SDD 에이전트 | 구현 + 테스트                     |
+| 6  | SDD 에이전트 | 자동 검증 + 문서 정리 + PR 생성       |
+
+### Phase 3: 리뷰
+
+| 담당  | 설명                     |
+|-----|------------------------|
+| 사용자 | Conductor diff 리뷰 → 머지 |
 
 ---
 
 ## B1~B2 단계: 사업 에이전트
 
-**담당**: 사업 에이전트 (Claude Code)
+**담당**: 사업 에이전트 (Conductor 별도 워크스페이스)
 **산출물**: `docs/business/`
 
 ### B1: 문제 정의
@@ -83,7 +92,7 @@ docs/business/       PRD + 기능 설계              검수 + 승인
 1. **로드맵 배치**: 어느 마일스톤에 배치할지 결정
 2. **성공 지표**: 측정 가능한 목표 정의
 
-**핸드오프 체크리스트 (사업 → 작성자):**
+**완료 체크리스트 (사업 → SDD):**
 - [ ] 문제가 명확히 정의되었는가?
 - [ ] 가치/우선순위가 평가되었는가?
 - [ ] `docs/business/`에 문서화되었는가?
@@ -92,7 +101,7 @@ docs/business/       PRD + 기능 설계              검수 + 승인
 
 ## 0단계: 작업 선택
 
-**담당**: 작성자
+**담당**: SDD 에이전트
 
 로드맵과 사업 문서를 확인한 뒤 작업을 선택하고 README.md에 등록한다.
 
@@ -115,9 +124,7 @@ docs/business/       PRD + 기능 설계              검수 + 승인
 
 ## 1단계: PRD 작성
 
-**담당**: 작성자 → 검수자
-
-**흐름**: PRD 작성 (Draft) → 검수자 검수 → 승인 (Approved)
+**담당**: SDD 에이전트
 
 ### PRD 내용
 
@@ -127,7 +134,7 @@ docs/business/       PRD + 기능 설계              검수 + 승인
 4. **사용자 시나리오**: 구체적인 사용 흐름
 5. **요구사항**: Must/Should/Out 구분
 
-**검수 체크리스트:**
+**자기 검증 체크리스트:**
 - [ ] 문제/배경이 로드맵과 정합적인가?
 - [ ] 목표/성공 기준이 명확하고 측정 가능한가?
 - [ ] 범위(포함/제외)가 명시되어 있는가?
@@ -137,9 +144,7 @@ docs/business/       PRD + 기능 설계              검수 + 승인
 
 ## 2단계: 기능 설계 작성
 
-**담당**: 작성자 → 검수자
-
-**흐름**: 기능 설계 작성 (Draft) → 검수자 검수 → 승인 (Approved)
+**담당**: SDD 에이전트
 
 ### 기능 설계 내용
 
@@ -161,7 +166,7 @@ docs/business/       PRD + 기능 설계              검수 + 승인
 | 상태 전이 다이어그램           | TypeScript 인터페이스, 마이그레이션 SQL  |
 | 테스트 시나리오 (정상/예외 핵심만)  | 파일 구조 목록, 중복 와이어프레임           |
 
-**검수 체크리스트:**
+**자기 검증 체크리스트:**
 - [ ] PRD의 요구사항이 기능 설계에 반영되어 있는가?
 - [ ] 사용자 흐름/상태 전이가 명확한가?
 - [ ] 데이터 모델/API가 구체적으로 정의되어 있는가?
@@ -172,9 +177,7 @@ docs/business/       PRD + 기능 설계              검수 + 승인
 
 ## 3단계: Task 작성 (역할별 분할)
 
-**담당**: 작성자 → 검수자
-
-**흐름**: Task 작성 (Draft) → 검수자 검수 → 승인 (Approved)
+**담당**: SDD 에이전트
 
 ### Task 구조
 
@@ -201,21 +204,17 @@ Task는 **역할별로 업무를 분할**합니다:
 | D1 | UI 디자인 | ... | 없음 |
 ```
 
-**검수 체크리스트:**
+**자기 검증 체크리스트:**
 - [ ] 기능 설계의 요구사항이 업무 분할에 반영되어 있는가?
 - [ ] 역할별 업무가 명확히 구분되어 있는가?
 - [ ] 업무 간 의존성이 적절한가?
-
-**검수자 검증 포인트:**
-> 각 역할별 업무가 해당 분야의 rules (api.md, web.md, design.md) 기준에 맞는지 확인
+- [ ] 각 역할별 업무가 해당 분야의 rules (api.md, web.md, design.md) 기준에 맞는가?
 
 ---
 
 ## 4단계: Development 작성 (역할별)
 
-**담당**: 작성자 → 검수자
-
-**흐름**: Development 작성 (Draft) → 검수자 검수 → 승인 (Approved)
+**담당**: SDD 에이전트
 
 ### Development 구조
 
@@ -236,7 +235,7 @@ docs/specs/target/{functional|non-functional}/development/
 - 구현 대상 파일 (`apps/api/`)
 - 테스트 시나리오
 
-**검수 기준**: `.claude/rules/api.md`
+**검증 기준**: `.claude/rules/api.md`
 
 ### Frontend Development 내용
 
@@ -246,7 +245,7 @@ docs/specs/target/{functional|non-functional}/development/
 - 구현 대상 파일 (`apps/web/`)
 - 테스트 시나리오
 
-**검수 기준**: `.claude/rules/web.md`, `.claude/rules/design.md`
+**검증 기준**: `.claude/rules/web.md`, `.claude/rules/design.md`
 
 ### Design Spec 내용 (해당 시)
 
@@ -255,20 +254,19 @@ docs/specs/target/{functional|non-functional}/development/
 - 색상/상태
 - 접근성 체크리스트
 
-**검수 기준**: `.claude/rules/design.md`
+**검증 기준**: `.claude/rules/design.md`
 
-**검수자 검증 포인트:**
-> 각 역할별 Development가 해당 분야의 rules 기준에 맞는지, Task의 업무와 1:1 대응되는지 확인
+**자기 검증 체크리스트:**
+- [ ] 각 역할별 Development가 해당 분야의 rules 기준에 맞는가?
+- [ ] Task의 업무와 1:1 대응되는가?
 
 ---
 
 ## 5단계: 구현 + 테스트
 
-**담당**: 작성자
+**담당**: SDD 에이전트
 
-작성자가 모든 역할의 구현을 수행합니다.
-
-> **Agent Teams 대안**: 백엔드 + 프론트엔드 동시 구현 시, Agent Teams를 활용하여 병렬 구현이 가능합니다. 상세: [`AGENT-TEAMS.md`](AGENT-TEAMS.md) "Phase 2: 구현 팀" 참조
+Development 문서를 기준으로 구현합니다.
 
 **구현 순서:**
 1. Backend (API, DB) - `api.md` 기준
@@ -282,37 +280,24 @@ docs/specs/target/{functional|non-functional}/development/
 
 ---
 
-## 6단계: 정적 분석/최종 리뷰
+## 6단계: 자동 검증 + 문서 정리 + PR 생성
 
-**담당**: 검수자
+**담당**: SDD 에이전트
 
-> **Agent Teams 대안**: 백엔드/프론트엔드 양쪽 변경이 있을 때, Agent Teams로 교차 리뷰가 가능합니다. 상세: [`AGENT-TEAMS.md`](AGENT-TEAMS.md) "Phase 3: 리뷰 팀" 참조
+### 6-1: 자동 검증
 
-**흐름:**
-- 승인 → 상태: Approved
-- 수정 필요 → 작성자 수정 → 6단계 반복
+1. `pnpm lint:fix && pnpm prettier:fix`
+2. `pnpm typecheck`
+3. `pnpm build`
+4. `pnpm test`
+5. 서브에이전트 실행 (해당 시):
+   - security-reviewer: 보안 검수
+   - design-reviewer: UI 변경 시 디자인 일관성 검수
+   - performance-analyzer: 성능 영향 분석
 
-**역할별 검수:**
+### 6-2: 문서 정리
 
-| 역할  | 검수 기준                 | 검수 포인트                   |
-|-----|-----------------------|--------------------------|
-| 백엔드 | `api.md`              | UseCase 패턴, 에러 처리, DB 정책 |
-| 프론트 | `web.md`, `design.md` | 컴포넌트 구조, 디자인 일관성, 접근성    |
-
-**체크리스트:**
-- [ ] 기능/보안/회귀 리스크를 점검한다
-- [ ] 각 역할별 rules 기준에 맞는가?
-- [ ] 누락된 테스트/문서 갱신을 지적한다
-
----
-
-## 7단계: 문서 이동 + 현황 동기화
-
-**담당**: 검수자
-
-### 문서 이동
-
-모든 문서 Approved 후 `target/` → `current/` 이동
+모든 검증 통과 후 `target/` → `current/` 이동:
 
 ```bash
 # 기능적 요구사항 완료 시
@@ -341,6 +326,10 @@ mv docs/specs/target/functional/development/{name}-*.md docs/specs/current/funct
 | `.claude/CLAUDE.md`    | 구조, 명령어            |
 | `.claude/rules/*.md`   | 패턴/정책 변경 시         |
 
+### 6-3: PR 생성
+
+모든 검증 통과 + 문서 정리 완료 후 PR을 생성합니다.
+
 ---
 
 ## 문서 분류 기준
@@ -365,25 +354,15 @@ mv docs/specs/target/functional/development/{name}-*.md docs/specs/current/funct
 ### 간소화된 워크플로우
 
 ```
-기능 설계 작성 → 검수 → 구현 → 검수 → 문서 갱신
+기능 설계 작성 → 구현 → 자동 검증 + 문서 갱신 → PR 생성
 ```
 
-| 단계 | 담당        | 설명                                    |
-|----|-----------|---------------------------------------|
-| 1  | 작성자 → 검수자 | 기능 설계 작성 → 검수                         |
-| 2  | 작성자       | **바로 구현** (Task/Development 생략)       |
-| 3  | 검수자       | 정적 분석/최종 리뷰                           |
-| 4  | 검수자       | 프로젝트 현황 동기화 (CLAUDE.md, README.md 갱신) |
-
-### 생략되는 문서
-
-- `target/non-functional/features/*.md`
-- `target/non-functional/tasks/*.md`
-- `target/non-functional/development/*.md`
-
-### 유지되는 문서
-
-- `functional-design/*.md` - 기능 설계 (상태: Approved 후 유지)
+| 단계 | 담당       | 설명                                    |
+|----|----------|---------------------------------------|
+| 1  | SDD 에이전트 | 기능 설계 작성                              |
+| 2  | SDD 에이전트 | **바로 구현** (Task/Development 생략)       |
+| 3  | SDD 에이전트 | 자동 검증 + 문서 갱신 (CLAUDE.md, README.md)  |
+| 4  | SDD 에이전트 | PR 생성                                 |
 
 ### 문서 갱신 대상
 
@@ -396,16 +375,6 @@ mv docs/specs/target/functional/development/{name}-*.md docs/specs/current/funct
 
 ---
 
-## 상태 규칙
-
-| 상태           | 의미        |
-|--------------|-----------|
-| **Draft**    | 작성 초기 상태  |
-| **Review**   | 검수자에게 전달됨 |
-| **Approved** | 검수 완료     |
-
----
-
 ## 예외 처리
 
 | 상황          | 처리                           |
@@ -414,31 +383,6 @@ mv docs/specs/target/functional/development/{name}-*.md docs/specs/current/funct
 | **UI만 변경**  | Frontend Development만 작성     |
 | **API만 변경** | Backend Development만 작성      |
 | **긴급 대응**   | 구현 후 문서 보강                   |
-
----
-
-## 핸드오프 규칙
-
-핸드오프 내용은 **파일로 작성하지 않고 화면에 직접 출력**합니다.
-
-```markdown
----
-## 검수자 핸드오프: [작업명]
-
-### 완료된 작업
-- ...
-
-### 변경된 파일
-- ...
-
-### 검수 항목
-- [ ] ...
-
-### 역할별 검수 기준
-- 백엔드: api.md
-- 프론트: web.md, design.md
----
-```
 
 ---
 
@@ -460,4 +404,3 @@ mv docs/specs/target/functional/development/{name}-*.md docs/specs/current/funct
 1. 기존 문서 확인
 2. 개선 내용을 새 섹션으로 추가
 3. 섹션 제목에 출처 명시 (예: "### 달력 UI (로드맵 1단계)")
-
