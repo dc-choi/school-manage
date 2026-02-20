@@ -55,7 +55,7 @@ export function AccountDeleteSection() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                    계정을 삭제하면 모든 데이터(그룹, 멤버, 출석 기록)가 삭제됩니다.
+                    계정을 삭제하면 모든 데이터(학년, 학생, 출석 기록)가 삭제됩니다.
                 </p>
                 <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                     <AlertDialogTrigger asChild>
@@ -65,7 +65,7 @@ export function AccountDeleteSection() {
                         <AlertDialogHeader>
                             <AlertDialogTitle>정말로 계정을 삭제하시겠습니까?</AlertDialogTitle>
                             <AlertDialogDescription>
-                                모든 데이터(그룹, 멤버, 출석 기록)가 삭제됩니다. 삭제 후 2년 이내에 동일한 아이디와
+                                모든 데이터(학년, 학생, 출석 기록)가 삭제됩니다. 삭제 후 2년 이내에 동일한 아이디와
                                 비밀번호로 로그인하면 계정을 복원할 수 있습니다.
                             </AlertDialogDescription>
                         </AlertDialogHeader>

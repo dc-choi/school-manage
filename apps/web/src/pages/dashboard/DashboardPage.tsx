@@ -20,16 +20,16 @@ import { analytics } from '~/lib/analytics';
 const ONBOARDING_STEPS = [
     {
         step: 1,
-        title: '그룹 만들기',
+        title: '학년 만들기',
         description: '반이나 모임을 만들어보세요',
-        ctaLabel: '그룹 추가',
+        ctaLabel: '학년 추가',
         ctaPath: '/groups/new',
     },
     {
         step: 2,
-        title: '멤버 등록하기',
-        description: '멤버를 추가하면 출석 체크를 시작할 수 있어요',
-        ctaLabel: '멤버 추가',
+        title: '학생 등록하기',
+        description: '학생을 추가하면 출석 체크를 시작할 수 있어요',
+        ctaLabel: '학생 추가',
         ctaPath: '/students/new',
     },
     {
@@ -261,15 +261,15 @@ function DashboardContent() {
                     </div>
                 </div>
 
-                {/* 그룹별 상세 통계 테이블 */}
+                {/* 학년별 상세 통계 테이블 */}
                 <GroupStatisticsTable data={stats.groupStatistics} isLoading={stats.isLoading} error={hasError} />
 
-                {/* 이달의 축일자 & 성별 분포 & 우수 출석 멤버 */}
+                {/* 이달의 축일자 & 성별 분포 & 우수 출석 학생 */}
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <PatronFeastCard />
                     <GenderDistributionChart data={stats.byGender} isLoading={stats.isLoading} error={hasError} />
                     <TopRankingCard
-                        title="전체 우수 출석 멤버 TOP 5"
+                        title="전체 우수 출석 학생 TOP 5"
                         items={topStudentItems}
                         isLoading={stats.isLoading}
                         error={hasError}

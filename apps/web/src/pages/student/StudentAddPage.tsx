@@ -17,14 +17,14 @@ export function StudentAddPage() {
 
     if (groupsLoading) {
         return (
-            <MainLayout title="멤버 추가">
+            <MainLayout title="학생 추가">
                 <LoadingSpinner />
             </MainLayout>
         );
     }
 
     return (
-        <MainLayout title="멤버 추가">
+        <MainLayout title="학생 추가">
             <div className="mx-auto max-w-md">
                 <StudentForm
                     groups={groups}

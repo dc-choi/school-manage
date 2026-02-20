@@ -60,7 +60,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
             newErrors.societyName = '이름을 입력해주세요.';
         }
         if (!formData.groupId) {
-            newErrors.groupId = '그룹을 선택해주세요.';
+            newErrors.groupId = '학년을 선택해주세요.';
         }
         const baptizedAtValue = formData.baptizedAt?.trim();
         if (baptizedAtValue && !/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/.test(baptizedAtValue)) {
@@ -88,7 +88,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{submitLabel === '추가' ? '새 멤버' : '멤버 수정'}</CardTitle>
+                <CardTitle>{submitLabel === '추가' ? '새 학생' : '학생 수정'}</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -129,7 +129,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
 
                     <div className="space-y-2">
                         <Label htmlFor="groupId" className="text-lg">
-                            그룹
+                            학년
                         </Label>
                         <Select
                             value={formData.groupId}
@@ -137,7 +137,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             disabled={isSubmitting}
                         >
                             <SelectTrigger id="groupId" className="h-12 text-lg">
-                                <SelectValue placeholder="그룹을 선택하세요…" />
+                                <SelectValue placeholder="학년을 선택하세요…" />
                             </SelectTrigger>
                             <SelectContent>
                                 {groups.map((g) => (

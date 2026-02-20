@@ -40,7 +40,7 @@ const FAQ_ITEMS = [
     },
     {
         question: '가입하면 뭘 먼저 해야 하나요?',
-        answer: '가입 후 ① 그룹(반)을 만들고 ② 멤버를 등록하면 ③ 출석 체크를 시작할 수 있어요. 3분이면 충분해요.',
+        answer: '가입 후 ① 학년(반)을 만들고 ② 학생을 등록하면 ③ 출석 체크를 시작할 수 있어요. 3분이면 충분해요.',
     },
     {
         question: '스마트폰에서도 쓸 수 있나요?',
@@ -64,8 +64,8 @@ const FEATURES = [
     },
     {
         icon: Users,
-        title: '멤버·축일 관리',
-        description: '멤버 정보와 축일을 한곳에서 기록하고 바로 검색.',
+        title: '학생·축일 관리',
+        description: '학생 정보와 축일을 한곳에서 기록하고 바로 검색.',
     },
     {
         icon: BarChart3,
@@ -116,7 +116,7 @@ export function LandingPage() {
                         이거 하나면 됩니다
                     </h1>
                     <p className="text-2xl text-muted-foreground sm:text-3xl">
-                        <span className="font-semibold text-foreground">출석, 축일, 멤버 현황</span>까지.
+                        <span className="font-semibold text-foreground">출석, 축일, 학생 현황</span>까지.
                         <br />
                         주일학교 교리교사를 위한 주간 도구.
                     </p>

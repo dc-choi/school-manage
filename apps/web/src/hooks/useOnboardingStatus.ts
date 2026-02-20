@@ -5,8 +5,8 @@ import { trpc } from '~/lib/trpc';
  * 기존 API(group.list, student.list, attendance.hasAttendance)로 3단계 완료 여부를 판단한다.
  *
  * 단계:
- * 1. 그룹 만들기 (groups.length > 0)
- * 2. 멤버 등록하기 (total > 0)
+ * 1. 학년 만들기 (groups.length > 0)
+ * 2. 학생 등록하기 (total > 0)
  * 3. 출석 체크하기 (hasAttendance === true)
  */
 export const useOnboardingStatus = () => {

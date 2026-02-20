@@ -23,7 +23,7 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
         setError('');
 
         if (!name.trim()) {
-            setError('그룹명을 입력해주세요.');
+            setError('학년명을 입력해주세요.');
             return;
         }
 
@@ -37,7 +37,7 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{submitLabel === '추가' ? '새 그룹' : '그룹 수정'}</CardTitle>
+                <CardTitle>{submitLabel === '추가' ? '새 학년' : '학년 수정'}</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -49,14 +49,14 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
 
                     <div className="space-y-2">
                         <Label htmlFor="name" className="text-lg">
-                            그룹명
+                            학년명
                         </Label>
                         <Input
                             id="name"
                             className="h-12 text-lg"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="그룹명을 입력하세요…"
+                            placeholder="학년명을 입력하세요…"
                             disabled={isSubmitting}
                         />
                     </div>
