@@ -14,6 +14,25 @@ description: 변경사항 분석 후 커밋 메시지 생성 및 커밋
 3. `git log --oneline -5`로 최근 커밋 스타일 확인
 4. 커밋 메시지 생성 (프로젝트 컨벤션 준수)
 5. 사용자 확인 후 커밋 실행
+6. **워크트리 감지 후 푸시 분기** (아래 참조)
+
+## 워크트리 감지 및 푸시 규칙
+
+커밋 완료 후 `.git`이 파일인지 디렉토리인지로 워크트리 여부를 판단한다.
+
+```bash
+# .git이 파일이면 worktree, 디렉토리면 일반 레포
+if [ -f .git ]; then
+  echo "worktree"
+else
+  echo "normal"
+fi
+```
+
+| 환경 | 판별 기준 | 커밋 후 동작 |
+|------|----------|------------|
+| **일반 레포** | `.git`이 디렉토리 | 커밋만 수행. 푸시는 사용자가 직접 진행 |
+| **워크트리** | `.git`이 파일 (포인터) | 커밋 + `git push -u origin <branch>` 자동 수행 |
 
 ## 커밋 메시지 컨벤션
 
@@ -22,7 +41,7 @@ description: 변경사항 분석 후 커밋 메시지 생성 및 커밋
 
 [선택] 상세 설명
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 ```
 
 ### 타입 접두사 (선택)
