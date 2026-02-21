@@ -21,6 +21,7 @@ description: 사업 에이전트 워크플로우 실행
 /business pricing      # 가격 정책
 /business content      # 콘텐츠 마케터 서브 에이전트 호출
 /business handoff      # SDD 작성자 핸드오프
+/brainstorm [주제]     # 기획자↔비판자 3라운드 토론 (별도 스킬)
 ```
 
 ## 역할 정의
