@@ -38,9 +38,10 @@ export class BulkDeleteStudentsUseCase {
                 deletedCount: result.count,
             };
         } catch (e) {
+            console.error('[BulkDeleteStudentsUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '학생 일괄 삭제에 실패했습니다.',
             });
         }
     }

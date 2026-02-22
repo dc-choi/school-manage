@@ -14,7 +14,7 @@ export class UpdateAttendanceUseCase {
         if (!input.attendance || input.attendance.length <= 0) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
-                message: 'BAD_REQUEST: attendance is required',
+                message: '출석 데이터가 필요합니다.',
             });
         }
 
@@ -103,9 +103,10 @@ export class UpdateAttendanceUseCase {
                 attendanceRate,
             };
         } catch (e) {
+            console.error('[UpdateAttendanceUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '출석 저장에 실패했습니다.',
             });
         }
     }

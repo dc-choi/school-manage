@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { useAuth } from '~/features/auth';
+import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
 
 export function AccountDeleteSection() {
@@ -40,11 +41,7 @@ export function AccountDeleteSection() {
             logout();
             navigate('/login');
         } catch (err) {
-            if (err instanceof Error && err.message.includes('일치하지 않습니다')) {
-                setDeleteError('비밀번호가 일치하지 않습니다.');
-            } else {
-                setDeleteError(err instanceof Error ? err.message : '계정 삭제에 실패했습니다.');
-            }
+            setDeleteError(extractErrorMessage(err));
         }
     };
 

@@ -5,6 +5,7 @@ import { AuthLayout } from '~/components/layout';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { useAuth } from '~/features/auth';
+import { extractErrorMessage } from '~/lib/error';
 
 export function LoginPage() {
     const { login, restoreAccount, isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -31,10 +32,8 @@ export function LoginPage() {
             if (err instanceof Error && err.message.includes('ACCOUNT_DELETED')) {
                 setIsAccountDeleted(true);
                 setCredentials({ name, password });
-            } else if (err instanceof Error) {
-                setError(err.message);
             } else {
-                setError('로그인에 실패했습니다.');
+                setError(extractErrorMessage(err));
             }
         } finally {
             setIsLoading(false);
@@ -51,11 +50,7 @@ export function LoginPage() {
             await restoreAccount(credentials.name, credentials.password);
             navigate('/');
         } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('계정 복원에 실패했습니다.');
-            }
+            setError(extractErrorMessage(err));
             setIsAccountDeleted(false);
             setCredentials(null);
         } finally {

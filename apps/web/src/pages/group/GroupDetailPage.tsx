@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { Table } from '~/components/common';
 import { MainLayout } from '~/components/layout';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { useGroups } from '~/features/group';
+import { extractErrorMessage } from '~/lib/error';
 
 function formatPhoneNumber(contact: number | undefined): string {
     if (!contact) return '-';
@@ -36,7 +38,7 @@ export function GroupDetailPage() {
             await update({ id, name: editedName.trim() });
             setIsEditing(false);
         } catch (e) {
-            console.error('Failed to update group:', e);
+            toast.error(extractErrorMessage(e));
         }
     };
 

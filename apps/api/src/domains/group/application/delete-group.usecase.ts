@@ -27,9 +27,10 @@ export class DeleteGroupUseCase {
                 studentCount: 0,
             };
         } catch (e) {
+            console.error('[DeleteGroupUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '학년 삭제에 실패했습니다.',
             });
         }
     }

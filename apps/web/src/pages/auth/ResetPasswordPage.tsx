@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/componen
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { useAuth } from '~/features/auth';
+import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
 
 export function ResetPasswordPage() {
@@ -43,11 +44,7 @@ export function ResetPasswordPage() {
             }
             setIsSubmitted(true);
         } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('요청 처리 중 오류가 발생했습니다.');
-            }
+            setError(extractErrorMessage(err));
         }
     };
 

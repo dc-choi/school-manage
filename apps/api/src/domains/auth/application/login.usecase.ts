@@ -46,7 +46,7 @@ export class LoginUseCase {
 
             throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: 'NOT_FOUND: ID NOT_FOUND',
+                message: '존재하지 않는 아이디입니다.',
             });
         }
 
@@ -55,7 +55,7 @@ export class LoginUseCase {
         if (!isPasswordValid) {
             throw new TRPCError({
                 code: 'UNAUTHORIZED',
-                message: 'UNAUTHORIZED: PW is NOT_MATCHED',
+                message: '비밀번호가 일치하지 않습니다.',
             });
         }
 

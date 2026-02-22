@@ -17,7 +17,7 @@ export class GetAccountUseCase {
         if (!found) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: 'NOT_FOUND: ACCOUNT NOT_FOUND',
+                message: '계정을 찾을 수 없습니다.',
             });
         }
 

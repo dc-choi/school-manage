@@ -31,9 +31,10 @@ export class DeleteStudentUseCase {
                 baptizedAt: student.baptizedAt ?? undefined,
             };
         } catch (e) {
+            console.error('[DeleteStudentUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '학생 삭제에 실패했습니다.',
             });
         }
     }

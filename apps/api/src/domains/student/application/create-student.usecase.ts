@@ -65,9 +65,10 @@ export class CreateStudentUseCase {
                 daysSinceSignup,
             };
         } catch (e) {
+            console.error('[CreateStudentUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '학생 등록에 실패했습니다.',
             });
         }
     }

@@ -54,9 +54,10 @@ export class CreateGroupUseCase {
                 daysSinceSignup,
             };
         } catch (e) {
+            console.error('[CreateGroupUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '학년 생성에 실패했습니다.',
             });
         }
     }

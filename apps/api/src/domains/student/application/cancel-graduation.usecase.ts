@@ -53,9 +53,10 @@ export class CancelGraduationUseCase {
             if (e instanceof TRPCError) {
                 throw e;
             }
+            console.error('[CancelGraduationUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '졸업 취소에 실패했습니다.',
             });
         }
     }

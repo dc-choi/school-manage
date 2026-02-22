@@ -1,6 +1,7 @@
 import { EditableField } from './EditableField';
 import { formatDateKR } from '@school/utils';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { MainLayout } from '~/components/layout';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
@@ -9,6 +10,7 @@ import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useGroups } from '~/features/group';
 import { useStudent, useStudents } from '~/features/student';
+import { extractErrorMessage } from '~/lib/error';
 
 export function StudentDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -35,7 +37,7 @@ export function StudentDetailPage() {
                 description: field === 'description' ? value || undefined : student.description,
             });
         } catch (e) {
-            console.error('Failed to update student:', e);
+            toast.error(extractErrorMessage(e));
         }
     };
 

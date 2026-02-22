@@ -40,9 +40,10 @@ export class UpdateStudentUseCase {
                 baptizedAt: student.baptizedAt ?? undefined,
             };
         } catch (e) {
+            console.error('[UpdateStudentUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '학생 수정에 실패했습니다.',
             });
         }
     }

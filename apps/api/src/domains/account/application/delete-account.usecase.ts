@@ -21,7 +21,7 @@ export class DeleteAccountUseCase {
         if (!account) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: 'NOT_FOUND: ACCOUNT NOT_FOUND',
+                message: '계정을 찾을 수 없습니다.',
             });
         }
 
@@ -30,7 +30,7 @@ export class DeleteAccountUseCase {
         if (!isValid) {
             throw new TRPCError({
                 code: 'UNAUTHORIZED',
-                message: 'UNAUTHORIZED: 비밀번호가 일치하지 않습니다',
+                message: '비밀번호가 일치하지 않습니다.',
             });
         }
 

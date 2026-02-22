@@ -63,9 +63,10 @@ export class GraduateStudentsUseCase {
             if (e instanceof TRPCError) {
                 throw e;
             }
+            console.error('[GraduateStudentsUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '졸업 처리에 실패했습니다.',
             });
         }
     }

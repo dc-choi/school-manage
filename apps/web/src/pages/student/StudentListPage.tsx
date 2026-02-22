@@ -3,6 +3,7 @@ import { GraduatedStudentsModal } from './GraduatedStudentsModal';
 import { formatContact } from '@school/utils';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { Pagination, Table } from '~/components/common';
 import { MainLayout } from '~/components/layout';
 import {
@@ -20,6 +21,7 @@ import { Checkbox } from '~/components/ui/checkbox';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useCheckboxSelection, useStudents } from '~/features/student';
+import { extractErrorMessage } from '~/lib/error';
 
 export function StudentListPage() {
     const navigate = useNavigate();
@@ -79,17 +81,25 @@ export function StudentListPage() {
 
     const handleBulkDelete = async () => {
         if (selectedIds.size > 0) {
-            await bulkDelete(Array.from(selectedIds));
-            clearSelection();
-            setBulkAction(null);
+            try {
+                await bulkDelete(Array.from(selectedIds));
+                clearSelection();
+                setBulkAction(null);
+            } catch (err) {
+                toast.error(extractErrorMessage(err));
+            }
         }
     };
 
     const handleGraduate = async () => {
         if (selectedIds.size > 0) {
-            await graduate(Array.from(selectedIds));
-            clearSelection();
-            setBulkAction(null);
+            try {
+                await graduate(Array.from(selectedIds));
+                clearSelection();
+                setBulkAction(null);
+            } catch (err) {
+                toast.error(extractErrorMessage(err));
+            }
         }
     };
 
