@@ -1,8 +1,10 @@
 import { type FormEvent, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
 
 export function NameChangeForm() {
@@ -12,7 +14,6 @@ export function NameChangeForm() {
     const [displayName, setDisplayName] = useState('');
     const [nameInitialized, setNameInitialized] = useState(false);
     const [nameError, setNameError] = useState<string | null>(null);
-    const [nameSuccess, setNameSuccess] = useState(false);
 
     useEffect(() => {
         if (accountData && !nameInitialized) {
@@ -30,7 +31,6 @@ export function NameChangeForm() {
     const handleNameChange = async (e: FormEvent) => {
         e.preventDefault();
         setNameError(null);
-        setNameSuccess(false);
 
         const trimmed = displayName.trim();
         if (trimmed.length < 2 || trimmed.length > 20) {
@@ -40,9 +40,9 @@ export function NameChangeForm() {
 
         try {
             await updateProfileMutation.mutateAsync({ displayName: trimmed });
-            setNameSuccess(true);
+            toast.success('이름이 변경되었습니다.');
         } catch (err) {
-            setNameError(err instanceof Error ? err.message : '이름 변경에 실패했습니다.');
+            setNameError(extractErrorMessage(err));
         }
     };
 
@@ -56,11 +56,6 @@ export function NameChangeForm() {
                     {nameError && (
                         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                             {nameError}
-                        </div>
-                    )}
-                    {nameSuccess && (
-                        <div className="rounded-md border border-green-500/50 bg-green-50 p-3 text-sm text-green-600">
-                            이름이 변경되었습니다.
                         </div>
                     )}
                     <div className="space-y-2">

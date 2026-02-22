@@ -1,6 +1,7 @@
 import type { CreateStudentInput, UpdateStudentInput } from '@school/trpc';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
@@ -84,6 +85,8 @@ export function useStudents(options: UseStudentsOptions = {}) {
 
             // GA4 이벤트: 학생 등록
             analytics.trackStudentCreated();
+
+            toast.success('학생이 등록되었습니다.');
         },
     });
 
@@ -94,6 +97,8 @@ export function useStudents(options: UseStudentsOptions = {}) {
 
             // GA4 이벤트: 학생 수정
             analytics.trackStudentUpdated();
+
+            toast.success('학생이 수정되었습니다.');
         },
     });
 
@@ -103,6 +108,8 @@ export function useStudents(options: UseStudentsOptions = {}) {
 
             // GA4 이벤트: 학생 삭제
             analytics.trackStudentDeleted(1);
+
+            toast.success('학생이 삭제되었습니다.');
         },
     });
 
@@ -112,24 +119,32 @@ export function useStudents(options: UseStudentsOptions = {}) {
 
             // GA4 이벤트: 학생 일괄 삭제
             analytics.trackStudentDeleted(variables.ids.length);
+
+            toast.success('선택한 학생이 삭제되었습니다.');
         },
     });
 
     const restoreMutation = trpc.student.restore.useMutation({
         onSuccess: () => {
             utils.student.list.invalidate();
+
+            toast.success('학생이 복원되었습니다.');
         },
     });
 
     const graduateMutation = trpc.student.graduate.useMutation({
         onSuccess: () => {
             utils.student.list.invalidate();
+
+            toast.success('졸업 처리되었습니다.');
         },
     });
 
     const cancelGraduationMutation = trpc.student.cancelGraduation.useMutation({
         onSuccess: () => {
             utils.student.list.invalidate();
+
+            toast.success('졸업이 취소되었습니다.');
         },
     });
 

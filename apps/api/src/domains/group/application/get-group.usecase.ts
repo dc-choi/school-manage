@@ -30,7 +30,7 @@ export class GetGroupUseCase {
         if (!group) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: `NOT_FOUND: GROUP NOT_FOUND, group_id: ${input.id}`,
+                message: '학년을 찾을 수 없습니다.',
             });
         }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { MainLayout } from '~/components/layout';
 import {
     AlertDialog,
@@ -16,6 +17,7 @@ import { Card } from '~/components/ui/card';
 import { Checkbox } from '~/components/ui/checkbox';
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table as UITable } from '~/components/ui/table';
 import { useGroups } from '~/features/group';
+import { extractErrorMessage } from '~/lib/error';
 
 export function GroupListPage() {
     const navigate = useNavigate();
@@ -25,9 +27,13 @@ export function GroupListPage() {
 
     const handleBulkDelete = async () => {
         if (selectedIds.size > 0) {
-            await bulkDelete(Array.from(selectedIds));
-            setSelectedIds(new Set());
-            setShowBulkDeleteDialog(false);
+            try {
+                await bulkDelete(Array.from(selectedIds));
+                setSelectedIds(new Set());
+                setShowBulkDeleteDialog(false);
+            } catch (err) {
+                toast.error(extractErrorMessage(err));
+            }
         }
     };
 

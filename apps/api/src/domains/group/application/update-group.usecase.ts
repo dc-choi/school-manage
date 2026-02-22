@@ -43,9 +43,10 @@ export class UpdateGroupUseCase {
                 studentCount: group._count.students,
             };
         } catch (e) {
+            console.error('[UpdateGroupUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '학년 수정에 실패했습니다.',
             });
         }
     }

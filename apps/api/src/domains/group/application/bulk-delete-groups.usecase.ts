@@ -29,9 +29,10 @@ export class BulkDeleteGroupsUseCase {
                 deletedCount: result.count,
             };
         } catch (e) {
+            console.error('[BulkDeleteGroupsUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '학년 일괄 삭제에 실패했습니다.',
             });
         }
     }

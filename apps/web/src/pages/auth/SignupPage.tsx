@@ -10,6 +10,7 @@ import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { useAuth } from '~/features/auth';
 import { analytics } from '~/lib/analytics';
+import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
 
 export function SignupPage() {
@@ -68,8 +69,7 @@ export function SignupPage() {
                 setError('이미 사용 중인 아이디입니다');
             }
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'ID 확인 중 오류가 발생했습니다';
-            setError(message);
+            setError(extractErrorMessage(err));
         } finally {
             setIsCheckingId(false);
         }
@@ -123,11 +123,7 @@ export function SignupPage() {
             // 대시보드로 이동 (페이지 새로고침으로 AuthProvider 초기화)
             window.location.href = '/';
         } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('회원가입에 실패했습니다');
-            }
+            setError(extractErrorMessage(err));
         } finally {
             setIsLoading(false);
         }

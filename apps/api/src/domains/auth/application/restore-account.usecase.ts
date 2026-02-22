@@ -25,7 +25,7 @@ export class RestoreAccountUseCase {
         if (!account) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: 'NOT_FOUND: ACCOUNT NOT_FOUND',
+                message: '계정을 찾을 수 없습니다.',
             });
         }
 
@@ -34,7 +34,7 @@ export class RestoreAccountUseCase {
         if (!isPasswordValid) {
             throw new TRPCError({
                 code: 'UNAUTHORIZED',
-                message: 'UNAUTHORIZED: PW is NOT_MATCHED',
+                message: '비밀번호가 일치하지 않습니다.',
             });
         }
 
@@ -45,7 +45,7 @@ export class RestoreAccountUseCase {
         if (account.deletedAt! <= twoYearsAgo) {
             throw new TRPCError({
                 code: 'FORBIDDEN',
-                message: 'FORBIDDEN: 복원 가능 기간(2년)이 경과했습니다',
+                message: '복원 가능 기간(2년)이 경과했습니다.',
             });
         }
 

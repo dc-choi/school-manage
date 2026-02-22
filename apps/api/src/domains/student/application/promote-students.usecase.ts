@@ -30,9 +30,10 @@ export class PromoteStudentsUseCase {
 
             return { row };
         } catch (e) {
+            console.error('[PromoteStudentsUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: `${e}`,
+                message: '학년 진급 처리에 실패했습니다.',
             });
         }
     }
@@ -58,7 +59,7 @@ export class PromoteStudentsUseCase {
         if (!targetGroup) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: 'NOT_FOUND: 예비 중1 그룹을 찾을 수 없습니다.',
+                message: '예비 중1 학년을 찾을 수 없습니다.',
             });
         }
 
@@ -126,7 +127,7 @@ export class PromoteStudentsUseCase {
         if (!adultGroup || !high3Group) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: 'NOT_FOUND: 성인 또는 고3 그룹을 찾을 수 없습니다.',
+                message: '성인 또는 고3 학년을 찾을 수 없습니다.',
             });
         }
 

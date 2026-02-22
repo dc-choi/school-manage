@@ -26,7 +26,7 @@ export class GetCalendarUseCase {
         if (!group) {
             throw new TRPCError({
                 code: 'FORBIDDEN',
-                message: 'FORBIDDEN: GROUP NOT_FOUND OR NOT_OWNED',
+                message: '접근 권한이 없는 학년입니다.',
             });
         }
 

@@ -126,6 +126,20 @@
 - footer 연도 "2022" → 갱신 필요
 - 기능 설계: `docs/specs/functional-design/landing-page.md`에 병합 (간소화 워크플로우)
 
+### ERROR HANDLING (Non-Functional)
+
+| 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
+|------|----------------------|--------|------------------------------------------------------|
+| P1   | 에러 처리 표준화            | 기능 설계 중 | API 에러 메시지 사용자 노출, 토스트 시스템 부재, Query 에러 무시 |
+
+**에러 처리 표준화:**
+- API 내부 메시지(`'UNAUTHORIZED: PW is NOT_MATCHED'`)가 사용자에게 그대로 노출
+- DB 에러/스택 트레이스가 `${e}` 패턴으로 프론트에 노출 가능
+- 전역 토스트/알림 시스템 부재 — 에러가 폼 내부 state로만 표시
+- Query 에러(학생 목록, 그룹 목록 등) 반환하지만 페이지에서 미사용
+- 에러 메시지 형식 혼재 (코드+메시지, 키워드, 사용자 메시지 등)
+- 기능 설계: `docs/specs/functional-design/error-handling.md` (간소화 워크플로우)
+
 ### PERFORMANCE (Non-Functional)
 
 | 우선순위 | 기능명                       | SDD 상태 | 비고                                                       |

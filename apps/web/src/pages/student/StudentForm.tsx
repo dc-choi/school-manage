@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { extractErrorMessage } from '~/lib/error';
 
 interface StudentFormData {
     societyName: string;
@@ -81,7 +82,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                 baptizedAt: formData.baptizedAt?.trim() || undefined,
             });
         } catch (err) {
-            setErrors({ submit: err instanceof Error ? err.message : '오류가 발생했습니다.' });
+            setErrors({ submit: extractErrorMessage(err) });
         }
     };
 

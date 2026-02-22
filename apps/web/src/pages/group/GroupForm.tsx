@@ -3,6 +3,7 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { extractErrorMessage } from '~/lib/error';
 
 interface GroupFormProps {
     initialData?: {
@@ -30,7 +31,7 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
         try {
             await onSubmit({ name: name.trim() });
         } catch (err) {
-            setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+            setError(extractErrorMessage(err));
         }
     };
 

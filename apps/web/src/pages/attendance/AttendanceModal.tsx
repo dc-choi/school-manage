@@ -1,10 +1,12 @@
 import type { AttendanceData, StudentAttendanceDetail } from '@school/trpc';
 import { Check, Loader2, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 import { Label } from '~/components/ui/label';
+import { extractErrorMessage } from '~/lib/error';
 import { cn } from '~/lib/utils';
 
 interface StudentAttendance {
@@ -147,7 +149,7 @@ export function AttendanceModal({
                 setSaveStatus('saved');
                 setTimeout(() => setSaveStatus('idle'), 2000);
             } catch (error) {
-                console.error('저장 실패:', error);
+                toast.error(extractErrorMessage(error));
                 setSaveStatus('error');
             }
         },
