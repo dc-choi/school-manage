@@ -26,7 +26,7 @@ export function Sidebar() {
                     className="text-lg font-bold tracking-tight transition-colors hover:text-primary sm:text-xl"
                 >
                     <span className="sm:hidden">주일</span>
-                    <span className="hidden sm:inline">주일학교 관리 프로그램</span>
+                    <span className="hidden sm:inline">주일학교 출석부</span>
                 </Link>
             </div>
 
@@ -59,7 +59,9 @@ export function Sidebar() {
 
             {/* Footer */}
             <div className="hidden border-t p-6 sm:block">
-                <p className="text-center text-sm text-muted-foreground">© 2022 주일학교 관리 프로그램</p>
+                <p className="text-center text-sm text-muted-foreground">
+                    © 2022–{new Date().getFullYear()} 주일학교 출석부
+                </p>
             </div>
         </aside>
     );

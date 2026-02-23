@@ -28,7 +28,7 @@ export class SignupUseCase {
         if (existingAccount) {
             throw new TRPCError({
                 code: 'CONFLICT',
-                message: 'CONFLICT: 이미 사용 중인 아이디입니다',
+                message: '이미 사용 중인 아이디입니다.',
             });
         }
 
