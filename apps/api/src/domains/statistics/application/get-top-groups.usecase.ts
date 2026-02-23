@@ -41,43 +41,51 @@ export class GetTopGroupsUseCase {
             return { year, groups: [] };
         }
 
-        // 3. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
+        // 3. 그룹별 학생 수 조회 (Student 테이블 기반)
+        const students = await database.student.findMany({
+            where: {
+                groupId: { in: groupIds },
+                deletedAt: null,
+            },
+            select: { groupId: true },
+        });
+
+        const studentCountByGroup = new Map<bigint, number>();
+        for (const s of students) {
+            studentCountByGroup.set(s.groupId, (studentCountByGroup.get(s.groupId) ?? 0) + 1);
+        }
+
+        // 4. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
         const attendances = await database.attendance.findMany({
             where: {
                 deletedAt: null,
                 groupId: { in: groupIds },
                 date: { gte: startDateStr, lte: endDateStr },
             },
-            select: { studentId: true, groupId: true, content: true },
+            select: { groupId: true, content: true },
         });
 
-        // 4. groupId별 그룹핑
-        const grouped = new Map<bigint, { students: Set<bigint>; presentCount: number }>();
+        // 5. groupId별 출석 수 집계
+        const presentByGroup = new Map<bigint, number>();
         for (const att of attendances) {
             if (!att.groupId) continue;
-            let data = grouped.get(att.groupId);
-            if (!data) {
-                data = { students: new Set(), presentCount: 0 };
-                grouped.set(att.groupId, data);
-            }
-            data.students.add(att.studentId);
             if (att.content && ['◎', '○', '△'].includes(att.content)) {
-                data.presentCount++;
+                presentByGroup.set(att.groupId, (presentByGroup.get(att.groupId) ?? 0) + 1);
             }
         }
 
-        // 5. 그룹 이름 스냅샷 조회
-        const allGroupIds = [...grouped.keys()];
+        // 6. 그룹 이름 스냅샷 조회
+        const activeGroupIds = [...studentCountByGroup.keys()];
         const referenceDate = new Date(year, 11, 31);
-        const groupSnapshots = await getBulkGroupSnapshots(allGroupIds, referenceDate);
+        const groupSnapshots = await getBulkGroupSnapshots(activeGroupIds, referenceDate);
 
-        // 6. 출석률 계산 및 정렬
-        const groupRates = allGroupIds
+        // 7. 출석률 계산 및 정렬
+        const groupRates = activeGroupIds
             .map((groupId) => {
-                const data = grouped.get(groupId)!;
-                const totalStudents = data.students.size;
+                const totalStudents = studentCountByGroup.get(groupId) ?? 0;
+                const presentCount = presentByGroup.get(groupId) ?? 0;
                 const expected = totalStudents * totalDays;
-                const rate = expected > 0 ? (data.presentCount / expected) * 100 : 0;
+                const rate = expected > 0 ? (presentCount / expected) * 100 : 0;
 
                 const snapshot = groupSnapshots.get(groupId);
                 const group = groups.find((g) => g.id === groupId);

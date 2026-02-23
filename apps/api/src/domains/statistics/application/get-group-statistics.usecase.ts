@@ -23,7 +23,7 @@ interface DateRange {
 }
 
 interface PeriodGroupData {
-    grouped: Map<bigint, { students: Set<bigint>; presentCount: number }>;
+    grouped: Map<bigint, { presentCount: number }>;
     totalDays: number;
     startDateStr: string;
     endDateStr: string;
@@ -46,41 +46,53 @@ export class GetGroupStatisticsUseCase {
             return { year, groups: [] };
         }
 
-        // 2. 그룹 이름 스냅샷 조회 (연도 말 기준)
+        // 2. 그룹별 학생 수 조회 (Student 테이블 기반)
+        const students = await database.student.findMany({
+            where: {
+                groupId: { in: groupIds },
+                deletedAt: null,
+            },
+            select: { id: true, groupId: true },
+        });
+
+        const studentsByGroup = new Map<bigint, Set<bigint>>();
+        for (const s of students) {
+            let set = studentsByGroup.get(s.groupId);
+            if (!set) {
+                set = new Set();
+                studentsByGroup.set(s.groupId, set);
+            }
+            set.add(s.id);
+        }
+
+        // 3. 그룹 이름 스냅샷 조회 (연도 말 기준)
         const referenceDate = new Date(year, 11, 31);
         const groupSnapshots = await getBulkGroupSnapshots(groupIds, referenceDate);
 
-        // 3. 기간 계산
+        // 4. 기간 계산
         const weeklyRange = this.getWeeklyRange(year, month, week);
         const monthlyRange = this.getMonthlyRange(year, month);
         const yearlyRange = this.getYearlyRange(year);
 
-        // 4. 각 기간별 attendance 조회 및 그룹핑
+        // 5. 각 기간별 attendance 조회 및 그룹핑
         const [weeklyData, monthlyData, yearlyData] = await Promise.all([
             this.fetchPeriodData(groupIds, weeklyRange),
             this.fetchPeriodData(groupIds, monthlyRange),
             this.fetchPeriodData(groupIds, yearlyRange),
         ]);
 
-        // 5. 출석 데이터가 있는 모든 groupId 수집
-        const allGroupIds = new Set([
-            ...weeklyData.grouped.keys(),
-            ...monthlyData.grouped.keys(),
-            ...yearlyData.grouped.keys(),
-        ]);
-
-        // 6. 그룹별 통계 조합
-        const groupStats = [...allGroupIds].map((groupId) => {
+        // 6. 학생이 있는 그룹 기준으로 통계 조합
+        const groupStats = [...studentsByGroup.keys()].map((groupId) => {
             const snapshot = groupSnapshots.get(groupId);
             const group = groups.find((g) => g.id === groupId);
             const groupName = snapshot?.name ?? group?.name ?? '삭제된 학년';
+            const totalStudents = studentsByGroup.get(groupId)?.size ?? 0;
 
             const calcStats = (data: PeriodGroupData) => {
                 const groupData = data.grouped.get(groupId);
-                if (!groupData || data.totalDays === 0) {
+                if (!groupData || data.totalDays === 0 || totalStudents === 0) {
                     return { attendanceRate: 0, avgAttendance: 0 };
                 }
-                const totalStudents = groupData.students.size;
                 const expected = totalStudents * data.totalDays;
                 const rate = expected > 0 ? (groupData.presentCount / expected) * 100 : 0;
                 const avg = data.totalDays > 0 ? groupData.presentCount / data.totalDays : 0;
@@ -108,7 +120,7 @@ export class GetGroupStatisticsUseCase {
                     startDate: yearlyData.startDateStr,
                     endDate: yearlyData.endDateStr,
                 },
-                totalStudents: yearlyData.grouped.get(groupId)?.students.size ?? 0,
+                totalStudents,
             };
         });
 
@@ -129,18 +141,17 @@ export class GetGroupStatisticsUseCase {
                 groupId: { in: groupIds },
                 date: { gte: startDateStr, lte: endDateStr },
             },
-            select: { studentId: true, groupId: true, content: true },
+            select: { groupId: true, content: true },
         });
 
-        const grouped = new Map<bigint, { students: Set<bigint>; presentCount: number }>();
+        const grouped = new Map<bigint, { presentCount: number }>();
         for (const att of attendances) {
             if (!att.groupId) continue;
             let data = grouped.get(att.groupId);
             if (!data) {
-                data = { students: new Set(), presentCount: 0 };
+                data = { presentCount: 0 };
                 grouped.set(att.groupId, data);
             }
-            data.students.add(att.studentId);
             if (att.content && ['◎', '○', '△'].includes(att.content)) {
                 data.presentCount++;
             }
