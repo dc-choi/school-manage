@@ -370,4 +370,127 @@ describe('statistics 통합 테스트', () => {
             });
         });
     });
+
+    describe('졸업생 필터링', () => {
+        it('조회 연도 이전에 졸업한 학생은 출석률 통계에서 제외됨', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            // 졸업 필터 적용 후 재학생 1명만 반환 (2023년 졸업생은 제외됨)
+            mockPrismaClient.student.count.mockResolvedValueOnce(1);
+            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
+                createMockAttendance({
+                    studentId: BigInt(1),
+                    groupId: mockGroup.id,
+                    content: '◎',
+                    date: '2024-01-07',
+                }),
+            ]);
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.statistics.weekly({ year: 2024 });
+
+            expect(result.totalStudents).toBe(1);
+            expect(result.attendanceRate).toBeGreaterThan(0);
+        });
+
+        it('졸업 연도와 조회 연도가 같으면 통계에 포함됨', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            // 2024년 졸업생 + 재학생 = 2명 (2024년 조회 시 포함)
+            mockPrismaClient.student.count.mockResolvedValueOnce(2);
+            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
+                createMockAttendance({
+                    studentId: BigInt(1),
+                    groupId: mockGroup.id,
+                    content: '◎',
+                    date: '2024-01-07',
+                }),
+                createMockAttendance({
+                    studentId: BigInt(2),
+                    groupId: mockGroup.id,
+                    content: '○',
+                    date: '2024-01-07',
+                }),
+            ]);
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.statistics.weekly({ year: 2024 });
+
+            expect(result.totalStudents).toBe(2);
+        });
+
+        it('모든 학생이 조회 연도 이전에 졸업한 경우 totalStudents 0', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            // 졸업 필터 적용 후 0명
+            mockPrismaClient.student.count.mockResolvedValueOnce(0);
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.statistics.weekly({ year: 2024 });
+
+            expect(result.totalStudents).toBe(0);
+            expect(result.attendanceRate).toBe(0);
+        });
+
+        it('월별 조회 시 해당 월 시작일 기준으로 졸업 필터 적용', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            mockPrismaClient.student.count.mockResolvedValueOnce(1);
+            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([]);
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            await caller.statistics.monthly({ year: 2024, month: 3 });
+
+            // student.count 호출 시 졸업 기준일이 3월 1일인지 확인
+            const countCall = mockPrismaClient.student.count.mock.calls[0]?.[0];
+            const graduationFilter = countCall?.where?.OR;
+            expect(graduationFilter).toEqual([{ graduatedAt: null }, { graduatedAt: { gte: new Date(2024, 2, 1) } }]);
+        });
+
+        it('졸업생이 성별 분포 통계에서 제외됨', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            // group.findMany
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            // student.findMany (졸업 필터 적용 후 재학생 1명만)
+            mockPrismaClient.student.findMany.mockResolvedValueOnce([
+                createMockStudent({ id: BigInt(1), groupId: mockGroup.id, gender: 'M' }),
+            ]);
+            // attendance.findMany
+            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
+                createMockAttendance({ studentId: BigInt(1), groupId: mockGroup.id, content: '◎' }),
+            ]);
+            // getBulkStudentSnapshots → studentSnapshot.findMany
+            mockPrismaClient.studentSnapshot.findMany.mockResolvedValueOnce([
+                createMockStudentSnapshot({ studentId: BigInt(1), gender: 'M' }),
+            ]);
+            // fallback student.findMany
+            mockPrismaClient.student.findMany.mockResolvedValueOnce([]);
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.statistics.byGender({ year: 2024 });
+
+            expect(result.male.count).toBe(1);
+            expect(result.female.count).toBe(0);
+        });
+    });
 });

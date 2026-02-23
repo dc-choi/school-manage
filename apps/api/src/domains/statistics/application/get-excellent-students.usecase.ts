@@ -24,6 +24,7 @@ type GetExcellentStudentsInput = GetExcellentStudentsSchemaInput & { accountId: 
 export class GetExcellentStudentsUseCase {
     async execute(input: GetExcellentStudentsInput): Promise<GetExcellentStudentsOutput> {
         const year = input.year?.toString() ?? new Date().getFullYear().toString();
+        const yearNum = Number(year);
         const accountId = BigInt(input.accountId);
 
         const rawResults = await database.$queryRaw<ExcellentStudentRaw[]>(
@@ -47,6 +48,7 @@ export class GetExcellentStudentsUseCase {
                 )
                 AND s.delete_at IS NULL
                 AND a.delete_at IS NULL
+                AND (s.graduated_at IS NULL OR YEAR(s.graduated_at) >= ${yearNum})
                 GROUP BY s._id
                 ORDER BY count DESC
                 LIMIT 10
