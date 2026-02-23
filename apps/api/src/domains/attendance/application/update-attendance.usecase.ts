@@ -116,6 +116,14 @@ export class UpdateAttendanceUseCase {
      */
     private async updateAttendance(year: number, attendance: AttendanceData[]): Promise<number> {
         return await database.$transaction(async (tx) => {
+            // 학생 → groupId 매핑을 한 번에 조회
+            const studentIds = [...new Set(attendance.map((a) => BigInt(a.id)))];
+            const students = await tx.student.findMany({
+                where: { id: { in: studentIds } },
+                select: { id: true, groupId: true },
+            });
+            const studentGroupMap = new Map(students.map((s) => [s.id, s.groupId]));
+
             let count = 0;
 
             for (const item of attendance) {
@@ -129,18 +137,20 @@ export class UpdateAttendanceUseCase {
                 });
 
                 if (existing === null) {
-                    // 새로 생성
+                    // 새로 생성 (groupId 포함)
+                    const groupId = studentGroupMap.get(BigInt(item.id)) ?? null;
                     await tx.attendance.create({
                         data: {
                             date: fullTime,
                             content: item.data,
                             studentId: BigInt(item.id),
+                            groupId,
                             createdAt: getNowKST(),
                         },
                     });
                     count++;
                 } else {
-                    // 기존 데이터 수정
+                    // 기존 데이터 수정 (groupId는 최초 기록 시점 유지)
                     const result = await tx.attendance.updateMany({
                         where: {
                             date: fullTime,

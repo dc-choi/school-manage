@@ -78,9 +78,39 @@ export function createMockAttendance(overrides: Partial<MockAttendance> = {}): M
         date: '2024-01-01',
         content: '◎',
         studentId: BigInt(1),
+        groupId: BigInt(1),
         createdAt: new Date(),
         updatedAt: null,
         deletedAt: null,
+        ...overrides,
+    };
+}
+
+/**
+ * Mock StudentSnapshot 생성
+ */
+export function createMockStudentSnapshot(overrides: Partial<MockStudentSnapshot> = {}): MockStudentSnapshot {
+    return {
+        id: nextId(),
+        studentId: BigInt(1),
+        societyName: '홍길동',
+        catholicName: '베드로',
+        gender: 'M',
+        groupId: BigInt(1),
+        snapshotAt: new Date(),
+        ...overrides,
+    };
+}
+
+/**
+ * Mock GroupSnapshot 생성
+ */
+export function createMockGroupSnapshot(overrides: Partial<MockGroupSnapshot> = {}): MockGroupSnapshot {
+    return {
+        id: nextId(),
+        groupId: BigInt(1),
+        name: '테스트그룹',
+        snapshotAt: new Date(),
         ...overrides,
     };
 }
@@ -150,7 +180,25 @@ export interface MockAttendance {
     date: string | null;
     content: string | null;
     studentId: bigint;
+    groupId: bigint | null;
     createdAt: Date;
     updatedAt: Date | null;
     deletedAt: Date | null;
+}
+
+export interface MockStudentSnapshot {
+    id: bigint;
+    studentId: bigint;
+    societyName: string;
+    catholicName: string | null;
+    gender: string | null;
+    groupId: bigint;
+    snapshotAt: Date;
+}
+
+export interface MockGroupSnapshot {
+    id: bigint;
+    groupId: bigint;
+    name: string;
+    snapshotAt: Date;
 }

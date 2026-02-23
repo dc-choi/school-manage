@@ -101,9 +101,14 @@ describe('attendance 통합 테스트', () => {
 
             // $transaction mock
             const txMock = {
+                student: {
+                    findMany: vi.fn().mockResolvedValue([{ id: mockStudent.id, groupId: mockGroup.id }]),
+                },
                 attendance: {
                     findFirst: vi.fn().mockResolvedValue(null),
-                    create: vi.fn().mockResolvedValue(createMockAttendance({ studentId: mockStudent.id })),
+                    create: vi
+                        .fn()
+                        .mockResolvedValue(createMockAttendance({ studentId: mockStudent.id, groupId: mockGroup.id })),
                 },
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((callback) => callback(txMock));
@@ -137,6 +142,9 @@ describe('attendance 통합 테스트', () => {
 
             // $transaction mock - existing attendance found
             const txMock = {
+                student: {
+                    findMany: vi.fn().mockResolvedValue([{ id: mockStudent.id, groupId: mockGroup.id }]),
+                },
                 attendance: {
                     findFirst: vi.fn().mockResolvedValue(existingAttendance),
                     updateMany: vi.fn().mockResolvedValue({ count: 1 }),

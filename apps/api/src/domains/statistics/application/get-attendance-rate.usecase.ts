@@ -1,7 +1,7 @@
 /**
  * Get Attendance Rate UseCase
  *
- * 주간/월간/연간 출석률 조회
+ * 주간/월간/연간 출석률 조회 (스냅샷 기반)
  */
 import type { AttendanceRateOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
 import {
@@ -29,20 +29,41 @@ export class GetAttendanceRateUseCase {
         const startDateStr = formatDateCompact(startDate);
         const endDateStr = formatDateCompact(endDate);
 
-        // 2. 계정 소속 그룹의 학생 조회 (졸업생 제외)
-        const students = await database.student.findMany({
-            where: {
-                deletedAt: null,
-                graduatedAt: null,
-                group: {
-                    accountId,
-                    deletedAt: null,
-                },
-            },
+        // 2. 계정 소속 그룹 ID 조회 (deletedAt 필터 없이 전체)
+        const groups = await database.group.findMany({
+            where: { accountId },
             select: { id: true },
         });
+        const groupIds = groups.map((g) => g.id);
 
-        const totalStudents = students.length;
+        if (groupIds.length === 0) {
+            return {
+                year,
+                period,
+                startDate: startDateStr,
+                endDate: endDateStr,
+                attendanceRate: 0,
+                avgAttendance: 0,
+                totalStudents: 0,
+            };
+        }
+
+        // 3. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
+        const allAttendances = await database.attendance.findMany({
+            where: {
+                deletedAt: null,
+                groupId: { in: groupIds },
+                date: {
+                    gte: startDateStr,
+                    lte: endDateStr,
+                },
+            },
+            select: { studentId: true, content: true },
+        });
+
+        // 4. 출석 기반 학생 수 (기간 내 attendance 존재 = 활성 학생)
+        const uniqueStudentIds = new Set(allAttendances.map((a) => a.studentId));
+        const totalStudents = uniqueStudentIds.size;
 
         if (totalStudents === 0) {
             return {
@@ -56,22 +77,7 @@ export class GetAttendanceRateUseCase {
             };
         }
 
-        const studentIds = students.map((s) => s.id);
-
-        // 3. 기간 내 출석 데이터 조회
-        const attendances = await database.attendance.findMany({
-            where: {
-                deletedAt: null,
-                studentId: { in: studentIds },
-                date: {
-                    gte: startDateStr,
-                    lte: endDateStr,
-                },
-                content: { in: ['◎', '○', '△'] }, // 출석으로 인정되는 상태
-            },
-        });
-
-        // 4. 출석 일수 계산 (해당 기간 내 일요일 수)
+        // 5. 출석 일수 계산 (해당 기간 내 일요일 수)
         const totalDays = countSundays(startDate, endDate);
 
         if (totalDays === 0) {
@@ -86,12 +92,14 @@ export class GetAttendanceRateUseCase {
             };
         }
 
-        // 5. 출석률 계산
+        // 6. 실제 출석 수 (◎, ○, △)
+        const actualAttendances = allAttendances.filter((a) => a.content && ['◎', '○', '△'].includes(a.content)).length;
+
+        // 7. 출석률 계산
         const expectedAttendances = totalStudents * totalDays;
-        const actualAttendances = attendances.length;
         const attendanceRate = (actualAttendances / expectedAttendances) * 100;
 
-        // 6. 평균 출석 인원
+        // 8. 평균 출석 인원
         const avgAttendance = actualAttendances / totalDays;
 
         return {
@@ -117,11 +125,9 @@ export class GetAttendanceRateUseCase {
         const now = new Date();
 
         if (period === 'weekly') {
-            // 월과 주차가 모두 지정된 경우: 해당 월의 N번째 주
             if (month && week) {
                 return getWeekRangeInMonth(year, month, week);
             }
-            // 기본: 현재 주
             return {
                 startDate: getThisWeekSunday(now),
                 endDate: getThisWeekSaturday(now),
@@ -129,20 +135,17 @@ export class GetAttendanceRateUseCase {
         }
 
         if (period === 'monthly') {
-            // 월이 지정된 경우: 해당 월
             if (month) {
                 return {
                     startDate: new Date(year, month - 1, 1),
-                    endDate: new Date(year, month, 0), // 마지막 날
+                    endDate: new Date(year, month, 0),
                 };
             }
-            // 기본: 현재 월
             const startDate = new Date(year, now.getMonth(), 1);
             const endDate = new Date(year, now.getMonth() + 1, 0);
             return { startDate, endDate };
         }
 
-        // yearly: 변경 없음
         return {
             startDate: new Date(year, 0, 1),
             endDate: new Date(year, 11, 31),

@@ -1,7 +1,7 @@
 /**
  * Get By Gender UseCase
  *
- * 성별 분포 조회
+ * 성별 분포 조회 (스냅샷 기반)
  */
 import type { GenderDistributionOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
 import {
@@ -11,6 +11,7 @@ import {
     getWeekRangeInMonth,
     roundToDecimal,
 } from '@school/utils';
+import { getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type StatisticsInput = StatisticsSchemaInput & { accountId: string };
@@ -24,64 +25,82 @@ export class GetByGenderUseCase {
         // 1. 날짜 범위 계산
         const { startDateStr, endDateStr, totalDays } = this.getDateRange(year, month, week);
 
-        // 2. 계정 소속 그룹의 학생 조회 (성별 포함, 졸업생 제외)
-        const students = await database.student.findMany({
+        // 2. 계정 소속 그룹 ID 조회 (deletedAt 필터 없이 전체)
+        const groups = await database.group.findMany({
+            where: { accountId },
+            select: { id: true },
+        });
+        const groupIds = groups.map((g) => g.id);
+
+        if (groupIds.length === 0) {
+            return { year, male: { count: 0, rate: 0 }, female: { count: 0, rate: 0 }, unknown: { count: 0, rate: 0 } };
+        }
+
+        // 3. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
+        const allAttendances = await database.attendance.findMany({
             where: {
                 deletedAt: null,
-                graduatedAt: null,
-                group: {
-                    accountId,
-                    deletedAt: null,
-                },
+                groupId: { in: groupIds },
+                date: { gte: startDateStr, lte: endDateStr },
             },
-            select: { id: true, gender: true },
+            select: { studentId: true, content: true },
         });
 
-        // 3. 성별 그룹화
-        const maleStudents = students.filter((s) => s.gender === 'M');
-        const femaleStudents = students.filter((s) => s.gender === 'F');
-        const unknownStudents = students.filter((s) => s.gender === null || s.gender === undefined);
+        // 4. 고유 studentId 추출
+        const uniqueStudentIds = [...new Set(allAttendances.map((a) => a.studentId))];
 
-        // 4. 각 성별의 출석 데이터 조회 및 출석률 계산
-        const calcRateForGroup = async (studentList: { id: bigint }[]): Promise<{ count: number; rate: number }> => {
-            const count = studentList.length;
-            if (count === 0) {
-                return { count: 0, rate: 0 };
-            }
+        if (uniqueStudentIds.length === 0) {
+            return { year, male: { count: 0, rate: 0 }, female: { count: 0, rate: 0 }, unknown: { count: 0, rate: 0 } };
+        }
 
-            const studentIds = studentList.map((s) => s.id);
-            const attendances = await database.attendance.findMany({
-                where: {
-                    deletedAt: null,
-                    studentId: { in: studentIds },
-                    date: {
-                        gte: startDateStr,
-                        lte: endDateStr,
-                    },
-                    content: { in: ['◎', '○', '△'] },
-                },
+        // 5. 스냅샷에서 성별 정보 조회 (폴백: Student.gender)
+        const referenceDate = new Date(year, 11, 31);
+        const studentSnapshots = await getBulkStudentSnapshots(uniqueStudentIds, referenceDate);
+
+        // 스냅샷에 없는 학생은 Student 테이블에서 폴백
+        const missingIds = uniqueStudentIds.filter((id) => !studentSnapshots.has(id));
+        let fallbackGenders = new Map<bigint, string | null>();
+        if (missingIds.length > 0) {
+            const fallbackStudents = await database.student.findMany({
+                where: { id: { in: missingIds } },
+                select: { id: true, gender: true },
             });
+            fallbackGenders = new Map(fallbackStudents.map((s) => [s.id, s.gender]));
+        }
+
+        // 6. studentId → gender 매핑
+        const studentGenderMap = new Map<bigint, string | null>();
+        for (const studentId of uniqueStudentIds) {
+            const snapshot = studentSnapshots.get(studentId);
+            studentGenderMap.set(studentId, snapshot?.gender ?? fallbackGenders.get(studentId) ?? null);
+        }
+
+        // 7. 성별별 출석률 계산
+        const genderGroups = { M: new Set<bigint>(), F: new Set<bigint>(), unknown: new Set<bigint>() };
+        for (const [studentId, gender] of studentGenderMap) {
+            if (gender === 'M') genderGroups.M.add(studentId);
+            else if (gender === 'F') genderGroups.F.add(studentId);
+            else genderGroups.unknown.add(studentId);
+        }
+
+        const calcRate = (studentIds: Set<bigint>): { count: number; rate: number } => {
+            const count = studentIds.size;
+            if (count === 0 || totalDays === 0) return { count, rate: 0 };
+
+            const presentCount = allAttendances.filter(
+                (a) => studentIds.has(a.studentId) && a.content && ['◎', '○', '△'].includes(a.content)
+            ).length;
 
             const expected = count * totalDays;
-            const rate = expected > 0 ? (attendances.length / expected) * 100 : 0;
-
-            return {
-                count,
-                rate: roundToDecimal(rate, 1),
-            };
+            const rate = expected > 0 ? (presentCount / expected) * 100 : 0;
+            return { count, rate: roundToDecimal(rate, 1) };
         };
-
-        const [male, female, unknown] = await Promise.all([
-            calcRateForGroup(maleStudents),
-            calcRateForGroup(femaleStudents),
-            calcRateForGroup(unknownStudents),
-        ]);
 
         return {
             year,
-            male,
-            female,
-            unknown,
+            male: calcRate(genderGroups.M),
+            female: calcRate(genderGroups.F),
+            unknown: calcRate(genderGroups.unknown),
         };
     }
 
@@ -93,7 +112,6 @@ export class GetByGenderUseCase {
         month?: number,
         week?: number
     ): { startDateStr: string; endDateStr: string; totalDays: number } {
-        // 월과 주차가 모두 지정된 경우
         if (month && week) {
             const { startDate, endDate } = getWeekRangeInMonth(year, month, week);
             return {
@@ -103,7 +121,6 @@ export class GetByGenderUseCase {
             };
         }
 
-        // 월만 지정된 경우
         if (month) {
             const startDate = new Date(year, month - 1, 1);
             const endDate = new Date(year, month, 0);
@@ -114,7 +131,6 @@ export class GetByGenderUseCase {
             };
         }
 
-        // 기본: 연간
         const startDate = new Date(year, 0, 1);
         const endDate = new Date(year, 11, 31);
         return {
