@@ -26,12 +26,12 @@ export const decodeToken = (token: string): DecodedToken => {
         if (error instanceof jwt.TokenExpiredError) {
             throw new TRPCError({
                 code: 'UNAUTHORIZED',
-                message: 'UNAUTHORIZED: Token expired',
+                message: '인증이 만료되었습니다. 다시 로그인해 주세요.',
             });
         }
         throw new TRPCError({
             code: 'UNAUTHORIZED',
-            message: 'UNAUTHORIZED: Invalid token',
+            message: '유효하지 않은 인증 정보입니다. 다시 로그인해 주세요.',
         });
     }
 };
