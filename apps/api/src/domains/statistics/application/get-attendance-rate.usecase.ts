@@ -48,22 +48,13 @@ export class GetAttendanceRateUseCase {
             };
         }
 
-        // 3. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
-        const allAttendances = await database.attendance.findMany({
+        // 3. 그룹에 속한 전체 학생 수 조회
+        const totalStudents = await database.student.count({
             where: {
-                deletedAt: null,
                 groupId: { in: groupIds },
-                date: {
-                    gte: startDateStr,
-                    lte: endDateStr,
-                },
+                deletedAt: null,
             },
-            select: { studentId: true, content: true },
         });
-
-        // 4. 출석 기반 학생 수 (기간 내 attendance 존재 = 활성 학생)
-        const uniqueStudentIds = new Set(allAttendances.map((a) => a.studentId));
-        const totalStudents = uniqueStudentIds.size;
 
         if (totalStudents === 0) {
             return {
@@ -76,6 +67,19 @@ export class GetAttendanceRateUseCase {
                 totalStudents: 0,
             };
         }
+
+        // 4. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
+        const allAttendances = await database.attendance.findMany({
+            where: {
+                deletedAt: null,
+                groupId: { in: groupIds },
+                date: {
+                    gte: startDateStr,
+                    lte: endDateStr,
+                },
+            },
+            select: { content: true },
+        });
 
         // 5. 출석 일수 계산 (해당 기간 내 일요일 수)
         const totalDays = countSundays(startDate, endDate);

@@ -36,7 +36,21 @@ export class GetByGenderUseCase {
             return { year, male: { count: 0, rate: 0 }, female: { count: 0, rate: 0 }, unknown: { count: 0, rate: 0 } };
         }
 
-        // 3. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
+        // 3. 그룹에 속한 전체 학생 ID 조회
+        const students = await database.student.findMany({
+            where: {
+                groupId: { in: groupIds },
+                deletedAt: null,
+            },
+            select: { id: true },
+        });
+        const uniqueStudentIds = students.map((s) => s.id);
+
+        if (uniqueStudentIds.length === 0) {
+            return { year, male: { count: 0, rate: 0 }, female: { count: 0, rate: 0 }, unknown: { count: 0, rate: 0 } };
+        }
+
+        // 4. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
         const allAttendances = await database.attendance.findMany({
             where: {
                 deletedAt: null,
@@ -45,13 +59,6 @@ export class GetByGenderUseCase {
             },
             select: { studentId: true, content: true },
         });
-
-        // 4. 고유 studentId 추출
-        const uniqueStudentIds = [...new Set(allAttendances.map((a) => a.studentId))];
-
-        if (uniqueStudentIds.length === 0) {
-            return { year, male: { count: 0, rate: 0 }, female: { count: 0, rate: 0 }, unknown: { count: 0, rate: 0 } };
-        }
 
         // 5. 스냅샷에서 성별 정보 조회 (폴백: Student.gender)
         const referenceDate = new Date(year, 11, 31);
