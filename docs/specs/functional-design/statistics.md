@@ -7,287 +7,117 @@
 - PRD: `docs/specs/prd/school-attendance.md`
 - PRD: `docs/specs/prd/patron-saint-feast.md` (그룹별 통계 총계 행)
 - PRD: `docs/specs/prd/statistics-snapshot.md` (통계 스냅샷)
-- 사업 문서: `docs/business/6_roadmap/roadmap.md`
+- PRD: `docs/specs/prd/statistics-graduation-filter.md` (졸업생 필터링)
 
 ## 기능 범위
 
 | 기능 | 설명 | 상태 |
 |------|------|------|
 | 우수 출석 학생 | 연도별 우수 출석 학생 TOP 10 | 구현 완료 |
-| 대시보드 통계 (로드맵 1단계) | 출석률, 성별 분포, 학년별 순위 | 구현 완료 |
-| 학년별 통계 총계 행 (로드맵 2단계) | 학년별 통계 테이블 마지막에 전체 총계 표시 | 미구현 |
-| 통계 스냅샷 (로드맵 2단계) | 엔티티 변경 이력 기반 과거 연도 정확한 통계 조회 | 구현 완료 |
+| 대시보드 통계 (1단계) | 출석률, 성별 분포, 학년별 순위 | 구현 완료 |
+| 학년별 통계 총계 행 (2단계) | 학년별 통계 테이블 마지막에 전체 총계 표시 | 미구현 |
+| 통계 스냅샷 (2단계) | 엔티티 변경 이력 기반 과거 연도 정확한 통계 조회 | 구현 완료 |
+| 통계 졸업생 필터링 (2단계) | 조회 기간 시작일 기준 졸업생 통계 포함/제외 | 구현 완료 |
 
 ---
 
-## 기본 통계: 우수 출석 학생
+## 우수 출석 학생
 
-### 사용자 플로우
-
-1. 통계 화면 진입 → 연도 선택 (기본: 현재 연도)
-2. 해당 연도 우수 출석 학생 상위 10명 조회
-3. 시상 대상 선정 등에 활용
-
-### 점수 계산 규칙
-
-| 출석 내용 | 점수 |
-|----------|------|
-| ◎ (쌍동그라미) | 2점 |
-| ○ (동그라미) | 1점 |
-| △ (세모) | 1점 |
-| 그 외 | 0점 |
-
-### 필드명 규칙
-
-| 필드 | 형식 | 이유 |
-|------|------|------|
-| `society_name` | snake_case | raw SQL 결과 (DB 컬럼명 그대로) |
-| `id` | string | BigInt → string 변환 |
-| `count` | number | BigInt → number 변환 |
-
-> **Note**: 통계 API는 성능상 raw SQL을 사용하여 snake_case가 노출됩니다.
+- 연도 선택(기본: 현재 연도) → 우수 출석 학생 상위 10명 조회
+- 점수: ◎=2점, ○/△=1점, 그 외=0점
+- raw SQL 사용, snake_case 필드명 (`society_name`, `count`)
 
 ---
 
-## 대시보드 통계 (로드맵 1단계)
+## 대시보드 통계 (1단계)
 
-### 배경
-
-현재: 로그인 → 빈 대시보드 → 통계 페이지 별도 이동
-변경: 로그인 → 대시보드에 통계 카드들 바로 표시
-
-### 대시보드 통계 카드
+로그인 후 대시보드에 통계 카드 표시:
 
 | 카드 | 내용 |
 |------|------|
-| 주간 출석률 | 이번 주 출석률 % |
-| 월간 출석률 | 이번 달 출석률 % |
-| 이번 주 출석 현황 | 출석한 학생 수 / 전체 (예: 45/50명) |
-| 성별 분포 | 남/여 출석 비율 (막대 또는 원형) |
-| 학년별 출석률 순위 | 출석률 높은 학년 TOP 5 |
+| 주간/월간 출석률 | 기간별 출석률 % |
+| 이번 주 출석 현황 | 출석 학생 수 / 전체 |
+| 성별 분포 | 남/여 출석 비율 |
+| 학년별 출석률 순위 | TOP 5 |
 | 학년별 상세 통계 | 각 학년 주간/월간/연간 출석률 + 평균 인원 |
-| 전체 우수 출석 학생 | 전체 TOP 5 |
-
-### 데이터/도메인 변경
-
-Student 테이블에 `gender` 필드 (varchar(10), nullable) 추가됨.
+| 전체 우수 출석 학생 | TOP 5 |
 
 ---
 
-## 학년별 통계 총계 행 (로드맵 2단계)
+## 학년별 통계 총계 행 (2단계)
 
-> PRD: `docs/specs/prd/patron-saint-feast.md`
-
-### 배경
-
-- 학년별 상세 통계 테이블에 전체 합산(총계)이 없어 한눈에 파악이 어려움
-- 각 학년의 인원/출석률/평균 인원은 보이지만 전체 현황 파악을 위해 수동 합산 필요
-
-### 사용자 플로우
-
-1. 교리교사가 대시보드에서 학년별 통계 테이블 확인
-2. 테이블 마지막 행에 "총계" 행이 표시됨
-3. 전체 인원, 전체 주간/월간/연간 출석률, 전체 주간/월간/연간 평균 출석 인원을 한눈에 확인
-
-### UI 변경
-
-| 요소 | 설명 |
-|------|------|
-| 총계 행 위치 | 학년별 통계 테이블 마지막 행 |
-| 총계 행 스타일 | 일반 행과 구분 (굵은 글씨 등) |
-| 학년명 열 | "총계" 텍스트 |
-| 인원 열 | 전체 학생 수 합계 |
-| 출석률 열 (주간/월간/연간) | 전체 가중 평균 출석률 |
-| 평균 출석 열 (주간/월간/연간) | 전체 평균 출석 인원 합계 |
-
-### 총계 계산 방식
-
-| 열 | 계산 방법 |
-|------|----------|
-| 인원 | 모든 학년의 `totalStudents` 합계 |
-| 출석률 | 프론트엔드에서 학년별 데이터 기반 가중 평균 계산: `Σ(학년 출석률 × 학년 인원) / Σ(학년 인원)` |
-| 평균 출석 인원 | 모든 학년의 `avgAttendance` 합계 |
-
-> **Note**: 총계 행은 기존 `statistics.groupStatistics` API 응답 데이터를 프론트엔드에서 집계하여 표시합니다. 별도 API 추가 없음.
-
-### 예외/엣지 케이스
-
-| 상황 | 처리 방법 |
-|------|----------|
-| 학년이 0개 | 총계 행 미표시 (기존 "데이터 없음" 유지) |
-| 전체 인원 0명 | 출석률 0%, 평균 0명 |
-| 일부 학년 인원 0명 | 해당 학년은 가중 평균에서 자연스럽게 제외 (인원 0 × 출석률 = 0) |
-
-### 테스트 시나리오
-
-**정상 케이스:**
-
-1. 학년 2개 데이터 → 총계 행에 합산된 인원, 가중 평균 출석률, 합산된 평균 출석 표시
-2. 학년 1개 데이터 → 총계 = 해당 학년과 동일
-
-**예외 케이스:**
-
-1. 학년 0개 → 총계 행 미표시
-2. 전체 인원 0명 → 출석률 0%, 평균 0명
+- 학년별 상세 통계 테이블 마지막에 "총계" 행 표시
+- 프론트엔드에서 기존 API 응답 기반 집계 (별도 API 없음)
+- 인원: `Sigma(totalStudents)`, 출석률: 가중 평균 `Sigma(율 x 인원) / Sigma(인원)`, 평균 출석: `Sigma(avgAttendance)`
 
 ---
 
-## 통계 스냅샷 (로드맵 2단계)
+## 통계 스냅샷 (2단계)
 
-> PRD: `docs/specs/prd/statistics-snapshot.md`
+학생/그룹 변경 시 스냅샷 자동 저장 → 과거 연도 통계에서 당시 이름/학년 기준으로 표시.
 
-### 배경
+- **StudentSnapshot**: studentId, societyName, catholicName, gender, groupId, snapshotAt
+- **GroupSnapshot**: groupId, name, snapshotAt
+- **Attendance.groupId**: 출석 시점의 그룹 ID 저장
+- **조회 규칙**: `snapshotAt <= 기준일`의 가장 최근 스냅샷 사용, 없으면 현재 엔티티 폴백
+- **스냅샷 트리거**: Student/Group 생성, 수정, 졸업 처리, 학년 전환
 
-- 통계가 현재 Student/Group 상태 기준으로 라이브 계산됨
-- 졸업·학년 전환·이름 변경 시 과거 연도 통계가 부정확해짐
-- 해결: 엔티티 변경 시 스냅샷을 별도 테이블에 저장 → 과거 통계 조회 시 해당 시점 스냅샷 사용
+---
 
-### 사용자 플로우
+## 통계 졸업생 필터링 (2단계)
 
-1. (백그라운드) 학생/그룹 생성·수정·졸업·학년 전환 시 자동으로 스냅샷 저장
-2. (백그라운드) 출석 기록 시 해당 학생의 현재 groupId를 attendance에 저장
-3. 교리교사가 대시보드에서 과거 연도(예: 2024) 선택
-4. 시스템이 해당 연도 말(12-31) 기준 스냅샷으로 학생/그룹 정보 조회
-5. 졸업 학생 포함, 당시 학년·이름·성별 기준으로 통계 표시
+### 필터링 규칙
 
-### 데이터 모델
+**조회 기간 시작일** 기준으로 졸업 여부를 판단합니다:
 
-#### StudentSnapshot
+| 조건 | 포함 여부 | 예시 |
+|------|----------|------|
+| `graduatedAt IS NULL` | 포함 | 재학생 |
+| `graduatedAt >= 기간_시작일` | 포함 | 기간 시작 시점에 아직 졸업 전 |
+| `graduatedAt < 기간_시작일` | **제외** | 기간 시작 전에 이미 졸업 |
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt (PK) | 자동 증가 |
-| studentId | BigInt (FK) | Student 참조 |
-| societyName | varchar(50) | 스냅샷 시점 이름 |
-| catholicName | varchar(50), nullable | 스냅샷 시점 세례명 |
-| gender | varchar(10), nullable | 스냅샷 시점 성별 |
-| groupId | BigInt (FK) | 스냅샷 시점 소속 그룹 |
-| snapshotAt | DateTime | 스냅샷 생성 시각 |
+기간 시작일 결정:
+- 주간 조회 (month + week): 해당 주 시작일
+- 월간 조회 (month): 해당 월 1일
+- 연간 조회 (year만): 해당 연도 1월 1일
 
-#### GroupSnapshot
+### 적용 대상
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt (PK) | 자동 증가 |
-| groupId | BigInt (FK) | Group 참조 |
-| name | varchar(50) | 스냅샷 시점 그룹명 |
-| snapshotAt | DateTime | 스냅샷 생성 시각 |
-
-#### Attendance 변경
-
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| groupId (추가) | BigInt (FK), nullable | 출석 시점의 그룹 ID |
-
-### 스냅샷 생성 규칙
-
-| 엔티티 | 트리거 | 스냅샷 대상 필드 |
-|--------|--------|----------------|
-| Student | 생성 | societyName, catholicName, gender, groupId |
-| Student | 수정 (이름, 세례명, 성별, 그룹 변경) | 변경 후 상태 전체 |
-| Student | 졸업 처리 / 졸업 취소 | 변경 후 상태 전체 |
-| Student | 학년 전환 (promote) | 변경 후 groupId |
-| Group | 생성 | name |
-| Group | 수정 (이름 변경) | 변경 후 name |
-
-> **Note**: 삭제(soft delete), 복구(restore), 연간 나이 증가(scheduler)는 통계 표시 필드에 영향 없으므로 스냅샷 불필요.
-
-### 스냅샷 조회 규칙
-
-특정 날짜 기준 학생/그룹 정보를 조회할 때:
-
-```
-해당 날짜 이전(<=)의 가장 최근 스냅샷을 사용
-```
-
-- 2024년 통계 → `snapshotAt <= 2024-12-31` 중 가장 최근 스냅샷
-- 스냅샷이 없는 경우 → 현재 엔티티 정보 사용 (마이그레이션 이전 데이터)
-
-### 통계 쿼리 변경
-
-| 항목 | 기존 | 변경 |
-|------|------|------|
-| 학생 목록 | Student 테이블에서 `graduatedAt: null` 조건 | Attendance의 groupId로 그룹핑, 졸업 학생 포함 |
-| 학생 이름/성별 | Student 현재 값 | StudentSnapshot에서 해당 시점 값 |
-| 그룹명 | Group 현재 값 | GroupSnapshot에서 해당 시점 값 |
-| 학생 수 (분모) | 현재 활성 학생 수 | 해당 기간에 attendance 레코드가 존재하는 학생 수 |
-| 그룹 목록 | Group 테이블에서 `deletedAt: null` | Attendance의 groupId에서 고유 그룹 추출 |
-
-### Attendance groupId 저장 규칙
-
-- 출석 생성 시: 해당 학생의 현재 groupId를 attendance.groupId에 저장
-- 출석 수정 시: groupId는 변경하지 않음 (최초 기록 시점 유지)
-
-### 마이그레이션
-
-1. **초기 스냅샷 생성**: 현재 모든 Student/Group의 상태를 각 스냅샷 테이블에 저장 (snapshotAt = 마이그레이션 시각)
-2. **Attendance groupId 역보정**: 기존 attendance 레코드에 해당 student의 현재 groupId를 채움
-
-> **한계**: 과거 변경 이력이 없으므로 2022~현재 모든 과거 데이터에 현재 상태가 적용됨 (최선 추정).
-
-### 예외/엣지 케이스
-
-| 상황 | 처리 방법 |
-|------|----------|
-| 스냅샷이 없는 학생 (마이그레이션 이전) | 현재 Student 정보 사용 |
-| 삭제된 그룹의 스냅샷 | 마지막 GroupSnapshot의 name 사용 |
-| GroupSnapshot도 없는 삭제된 그룹 | "삭제된 학년"으로 표시 |
-| Attendance에 groupId가 null (역보정 실패) | 해당 레코드의 studentId로 Student.groupId 폴백 |
-
-### 테스트 시나리오
-
-**정상 케이스:**
-
-1. 학생 수정 → StudentSnapshot 생성 확인
-2. 그룹 이름 변경 → GroupSnapshot 생성 확인
-3. 학년 전환 후 과거 연도 통계 → 이전 학년명으로 표시
-4. 졸업 학생의 과거 연도 통계 → 출석 포함, 당시 이름/학년 표시
-5. 출석 기록 → attendance.groupId 저장 확인
-
-**예외 케이스:**
-
-1. 스냅샷 없는 학생 → 현재 Student 정보로 폴백
-2. 삭제된 그룹 → "삭제된 학년" 표시
-3. attendance.groupId null → Student.groupId 폴백
+| UseCase | 쿼리 유형 | 졸업 필터 |
+|---------|----------|----------|
+| GetAttendanceRateUseCase | Prisma | `graduatedAt >= startDate` |
+| GetByGenderUseCase | Prisma | `graduatedAt >= graduationCutoff` |
+| GetGroupStatisticsUseCase | Prisma | `graduatedAt >= graduationCutoff` |
+| GetTopGroupsUseCase | Prisma | `graduatedAt >= graduationCutoff` |
+| GetExcellentStudentsUseCase | Raw SQL | `YEAR(graduated_at) >= year` (연도만 수신) |
+| GetTopOverallUseCase | Raw SQL | `graduated_at >= startDateStr` |
 
 ---
 
 ## API/인터페이스
 
-### tRPC 프로시저
-
-| 프로시저 | 타입 | 설명 |
-|----------|------|------|
-| `statistics.excellent` | query | 우수 출석 학생 TOP 10 |
-| `statistics.weekly` | query | 주간 출석률 + 평균 출석 인원 |
-| `statistics.monthly` | query | 월간 출석률 + 평균 출석 인원 |
-| `statistics.yearly` | query | 연간 출석률 + 평균 출석 인원 |
-| `statistics.byGender` | query | 성별 출석 분포 |
-| `statistics.topGroups` | query | 학년별 출석률 순위 TOP 5 |
-| `statistics.topOverall` | query | 전체 우수 출석 학생 TOP 5 |
-| `statistics.groupStatistics` | query | 학년별 상세 통계 (주간/월간/연간 출석률 + 평균 출석 인원) |
-
-### 주요 필드
-
-| 프로시저 | 요청 필드 | 응답 필드 |
-|----------|----------|----------|
-| `excellent` | year(number) | excellentStudents(array: id, society_name, count) |
-| `weekly` | year(number) | year, weekStart, weekEnd, attendanceRate |
-| `monthly` | year(number) | year, attendanceRate |
-| `byGender` | year(number) | year, male/female/unknown(count, rate) |
-| `topGroups` | year(number), limit(number) | year, groups(array: groupId, groupName, attendanceRate) |
-| `topOverall` | year(number), limit(number) | year, students(array: id, societyName, groupName, score) |
-| `groupStatistics` | year(number) | groups(array: groupId, groupName, weekly/monthly/yearly 출석률 + 평균 인원) |
+| 프로시저 | 설명 | 주요 응답 |
+|----------|------|----------|
+| `statistics.excellent` | 우수 출석 학생 TOP 10 | excellentStudents[] |
+| `statistics.weekly` | 주간 출석률 | attendanceRate, avgAttendance, totalStudents |
+| `statistics.monthly` | 월간 출석률 | attendanceRate, avgAttendance, totalStudents |
+| `statistics.yearly` | 연간 출석률 | attendanceRate, avgAttendance, totalStudents |
+| `statistics.byGender` | 성별 분포 | male/female/unknown(count, rate) |
+| `statistics.topGroups` | 학년별 출석률 순위 TOP 5 | groups[](groupName, attendanceRate) |
+| `statistics.topOverall` | 전체 우수 학생 TOP 5 | students[](societyName, groupName, score) |
+| `statistics.groupStatistics` | 학년별 상세 통계 | groups[](weekly/monthly/yearly 출석률 + 평균 인원) |
 
 ## 비즈니스 로직
 
-| 기능 | 동작 요약 |
+| 기능 | 핵심 로직 |
 |------|----------|
-| 우수 출석 학생 | raw SQL로 ◎=2점, ○=1점, △=1점 합산 → 계정 소속 학생만, 점수 높은 순 TOP 10. **스냅샷 적용: 당시 이름으로 표시** |
-| 출석률 + 평균 출석 인원 | 기간별 출석 횟수 / (전체 학생 수 × 주일·토요일 수) × 100. **스냅샷 적용: 전체 학생 수 = 해당 기간 attendance 레코드가 있는 학생 수** |
-| 성별 분포 | 성별로 학생 분류 → 각 성별 출석률 계산. **스냅샷 적용: 해당 시점 스냅샷의 gender 사용** |
-| 학년 순위 | 각 학년별 출석률 계산 → 내림차순 정렬. **스냅샷 적용: attendance.groupId + GroupSnapshot 이름** |
-| 학년별 상세 통계 | 각 학년의 주간/월간/연간 출석률 + 평균 출석 인원. **스냅샷 적용: attendance.groupId 기준 그룹핑** |
+| 우수 출석 학생 | raw SQL ◎=2, ○/△=1 합산, TOP 10. 스냅샷 + 졸업 필터 적용 |
+| 출석률 | 출석 횟수 / (학생 수 x 일요일 수) x 100. 졸업 필터 적용 |
+| 성별 분포 | 성별 분류 → 각 성별 출석률. 스냅샷 gender + 졸업 필터 적용 |
+| 학년 순위 | 학년별 출석률 내림차순. attendance.groupId + GroupSnapshot + 졸업 필터 적용 |
+| 학년별 상세 | 주간/월간/연간 출석률 + 평균 인원. 졸업 필터 적용 |
+
+> **졸업 필터**: 모든 통계에서 `graduatedAt IS NULL OR graduatedAt >= 조회_기간_시작일` 적용
 
 ## 권한/보안
 
@@ -296,41 +126,20 @@ Student 테이블에 `gender` 필드 (varchar(10), nullable) 추가됨.
 
 ## 예외/엣지 케이스
 
-| 상황 | 처리 방법 |
-|------|----------|
-| year 누락 | 현재 연도로 대체 |
-| 출석 데이터 없음 | 빈 배열 또는 0% 반환 |
-| 성별 미지정 학생 | "미지정" 카테고리로 집계 |
+| 상황 | 처리 |
+|------|------|
+| year 누락 | 현재 연도 대체 |
+| 출석 데이터 없음 | 빈 배열 또는 0% |
+| 성별 미지정 | "미지정" 카테고리 집계 |
 | 토큰 누락 | 401 UNAUTHORIZED |
-| 스냅샷 없는 학생 | 현재 Student 정보로 폴백 |
-| 삭제된 그룹 (GroupSnapshot 있음) | 마지막 스냅샷의 name 사용 |
-| 삭제된 그룹 (GroupSnapshot 없음) | "삭제된 학년" 표시 |
-| attendance.groupId null | Student.groupId로 폴백 |
-
-## 성능/제약
-
-- 대시보드 로드 시 여러 API 병렬 호출
-- 캐시 적용 고려 (1분 TTL)
-- 우수 출석 집계: raw SQL 사용
-
-## 테스트 시나리오
-
-### 정상 케이스
-
-1. 연도 지정 조회 → 해당 연도 우수 학생 목록 반환
-2. 연도 미지정 → 현재 연도 기준 반환
-3. 대시보드 진입 → 모든 통계 카드 로드
-4. 주간/월간 출석률 정상 계산
-5. 성별 분포, 학년별 TOP 5, 전체 TOP 5 정상 표시
-
-### 예외 케이스
-
-1. 출석 데이터 없음 → 빈 배열 또는 "데이터 없음"
-2. 토큰 없이 접근 → 401
+| 스냅샷 없음 | 현재 엔티티 폴백 |
+| 삭제된 그룹 | GroupSnapshot name 사용, 없으면 "삭제된 학년" |
+| 기간 시작 전 졸업 | 해당 학생 제외 |
+| 전체 학생 졸업 | totalStudents 0, 출석률 0% |
 
 ---
 
 **작성일**: 2026-01-13
-**수정일**: 2026-02-24 (통계 스냅샷 기능 설계 병합 + 구현 완료)
+**수정일**: 2026-02-24 (졸업생 필터링 → 기간 시작일 기반 구현 완료)
 **작성자**: PM 에이전트 / SDD 작성자
-**상태**: Approved (전체 구현 완료)
+**상태**: Approved

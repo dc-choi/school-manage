@@ -48,11 +48,13 @@ export class GetAttendanceRateUseCase {
             };
         }
 
-        // 3. 그룹에 속한 전체 학생 수 조회
+        // 3. 그룹에 속한 전체 학생 수 조회 (조회 기간 시작일 기준 졸업 필터 적용)
+        const graduationCutoff = startDate;
         const totalStudents = await database.student.count({
             where: {
                 groupId: { in: groupIds },
                 deletedAt: null,
+                OR: [{ graduatedAt: null }, { graduatedAt: { gte: graduationCutoff } }],
             },
         });
 
