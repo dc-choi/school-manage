@@ -170,6 +170,10 @@ development/
 | 웹 앱 구조   | `rules/web.md` |
 | 환경변수/명령어 | `CLAUDE.md`    |
 
+## 브레인스토밍 결과 반영 규칙
+
+브레인스토밍 결과는 사용자의 명시적 결정 없이 **사업 문서(로드맵, STATUS)에도, SDD TARGET에도 반영하지 않는다.** 로드맵에 정식 반영된 항목만 SDD 등록 대상. 상세: `docs/specs/WORKFLOW.md`, `docs/business/WORKFLOW.md` 참조.
+
 ## 관련 문서
 
 - 상세 워크플로우: `docs/specs/WORKFLOW.md`
