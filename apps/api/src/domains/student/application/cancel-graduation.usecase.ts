@@ -42,6 +42,9 @@ export class CancelGraduationUseCase {
                         societyName: student.societyName,
                         catholicName: student.catholicName,
                         gender: student.gender,
+                        contact: student.contact,
+                        description: student.description,
+                        baptizedAt: student.baptizedAt,
                         groupId: student.groupId,
                     });
                     cancelledStudents.push({

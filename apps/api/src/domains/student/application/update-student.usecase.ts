@@ -34,6 +34,9 @@ export class UpdateStudentUseCase {
                     societyName: updated.societyName,
                     catholicName: updated.catholicName,
                     gender: updated.gender,
+                    contact: updated.contact,
+                    description: updated.description,
+                    baptizedAt: updated.baptizedAt,
                     groupId: updated.groupId,
                 });
                 return updated;

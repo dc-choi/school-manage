@@ -16,6 +16,9 @@ CREATE TABLE `student_snapshot` (
     `society_name` VARCHAR(50) NOT NULL,
     `catholic_name` VARCHAR(50) NULL,
     `gender` VARCHAR(10) NULL,
+    `contact` BIGINT NULL,
+    `description` TEXT NULL,
+    `baptized_at` VARCHAR(10) NULL,
     `group_id` BIGINT NOT NULL,
     `snapshot_at` DATETIME(3) NOT NULL,
 
@@ -58,8 +61,8 @@ ALTER TABLE `attendance`
 -- ============================================================
 
 -- 5. 기존 Student -> StudentSnapshot 초기 생성 (deletedAt, graduatedAt 무관 -- 전체)
-INSERT INTO student_snapshot (student_id, society_name, catholic_name, gender, group_id, snapshot_at)
-SELECT _id, society_name, catholic_name, gender, group_id, NOW()
+INSERT INTO student_snapshot (student_id, society_name, catholic_name, gender, contact, description, baptized_at, group_id, snapshot_at)
+SELECT _id, society_name, catholic_name, gender, contact, description, baptized_at, group_id, NOW()
 FROM student;
 
 -- 6. 기존 Group -> GroupSnapshot 초기 생성 (deletedAt 무관 -- 전체)

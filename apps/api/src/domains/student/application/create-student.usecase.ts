@@ -56,6 +56,9 @@ export class CreateStudentUseCase {
                     societyName: created.societyName,
                     catholicName: created.catholicName,
                     gender: created.gender,
+                    contact: created.contact,
+                    description: created.description,
+                    baptizedAt: created.baptizedAt,
                     groupId: created.groupId,
                 });
                 return created;

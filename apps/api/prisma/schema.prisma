@@ -81,6 +81,9 @@ model StudentSnapshot {
     societyName  String   @map("society_name") @db.VarChar(50)
     catholicName String?  @map("catholic_name") @db.VarChar(50)
     gender       String?  @db.VarChar(10)
+    contact      BigInt?
+    description  String?  @db.Text
+    baptizedAt   String?  @map("baptized_at") @db.VarChar(10)
     groupId      BigInt   @map("group_id")
     snapshotAt   DateTime @map("snapshot_at")
 

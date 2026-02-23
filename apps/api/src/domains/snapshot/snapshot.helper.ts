@@ -17,6 +17,9 @@ interface CreateStudentSnapshotInput {
     societyName: string;
     catholicName: string | null;
     gender: string | null;
+    contact: bigint | null;
+    description: string | null;
+    baptizedAt: string | null;
     groupId: bigint;
 }
 
@@ -30,6 +33,9 @@ export const createStudentSnapshot = async (
             societyName: input.societyName,
             catholicName: input.catholicName,
             gender: input.gender,
+            contact: input.contact,
+            description: input.description,
+            baptizedAt: input.baptizedAt,
             groupId: input.groupId,
             snapshotAt: getNowKST(),
         },
@@ -57,6 +63,9 @@ interface StudentSnapshotData {
     societyName: string;
     catholicName: string | null;
     gender: string | null;
+    contact: bigint | null;
+    description: string | null;
+    baptizedAt: string | null;
     groupId: bigint;
 }
 
@@ -86,6 +95,9 @@ export const getBulkStudentSnapshots = async (
                 societyName: snap.societyName,
                 catholicName: snap.catholicName,
                 gender: snap.gender,
+                contact: snap.contact,
+                description: snap.description,
+                baptizedAt: snap.baptizedAt,
                 groupId: snap.groupId,
             });
         }
