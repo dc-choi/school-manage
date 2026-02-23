@@ -1,7 +1,7 @@
 /**
  * Get Top Groups UseCase
  *
- * 그룹별 출석률 순위 TOP N 조회
+ * 그룹별 출석률 순위 TOP N 조회 (스냅샷 기반)
  */
 import type { TopGroupsOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/trpc';
 import {
@@ -11,6 +11,7 @@ import {
     getWeekRangeInMonth,
     roundToDecimal,
 } from '@school/utils';
+import { getBulkGroupSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type TopStatisticsInput = TopStatisticsSchemaInput & { accountId: string };
@@ -25,62 +26,74 @@ export class GetTopGroupsUseCase {
         // 1. 날짜 범위 계산
         const { startDateStr, endDateStr, totalDays } = this.getDateRange(year, month, week);
 
-        // 2. 계정 소속 그룹 조회
+        if (totalDays === 0) {
+            return { year, groups: [] };
+        }
+
+        // 2. 계정 소속 그룹 조회 (deletedAt 필터 없이 전체)
         const groups = await database.group.findMany({
-            where: {
-                accountId,
-                deletedAt: null,
-            },
+            where: { accountId },
             select: { id: true, name: true },
         });
+        const groupIds = groups.map((g) => g.id);
 
-        // 3. 각 그룹별 출석률 계산
-        const groupRates = await Promise.all(
-            groups.map(async (group) => {
-                const students = await database.student.findMany({
-                    where: {
-                        groupId: group.id,
-                        deletedAt: null,
-                        graduatedAt: null,
-                    },
-                    select: { id: true },
-                });
+        if (groupIds.length === 0) {
+            return { year, groups: [] };
+        }
 
-                if (students.length === 0) {
-                    return null; // 학생이 없는 그룹은 제외
-                }
+        // 3. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
+        const attendances = await database.attendance.findMany({
+            where: {
+                deletedAt: null,
+                groupId: { in: groupIds },
+                date: { gte: startDateStr, lte: endDateStr },
+            },
+            select: { studentId: true, groupId: true, content: true },
+        });
 
-                const studentIds = students.map((s) => s.id);
-                const attendances = await database.attendance.findMany({
-                    where: {
-                        deletedAt: null,
-                        studentId: { in: studentIds },
-                        date: {
-                            gte: startDateStr,
-                            lte: endDateStr,
-                        },
-                        content: { in: ['◎', '○', '△'] },
-                    },
-                });
+        // 4. groupId별 그룹핑
+        const grouped = new Map<bigint, { students: Set<bigint>; presentCount: number }>();
+        for (const att of attendances) {
+            if (!att.groupId) continue;
+            let data = grouped.get(att.groupId);
+            if (!data) {
+                data = { students: new Set(), presentCount: 0 };
+                grouped.set(att.groupId, data);
+            }
+            data.students.add(att.studentId);
+            if (att.content && ['◎', '○', '△'].includes(att.content)) {
+                data.presentCount++;
+            }
+        }
 
-                const expected = students.length * totalDays;
-                const rate = expected > 0 ? (attendances.length / expected) * 100 : 0;
+        // 5. 그룹 이름 스냅샷 조회
+        const allGroupIds = [...grouped.keys()];
+        const referenceDate = new Date(year, 11, 31);
+        const groupSnapshots = await getBulkGroupSnapshots(allGroupIds, referenceDate);
+
+        // 6. 출석률 계산 및 정렬
+        const groupRates = allGroupIds
+            .map((groupId) => {
+                const data = grouped.get(groupId)!;
+                const totalStudents = data.students.size;
+                const expected = totalStudents * totalDays;
+                const rate = expected > 0 ? (data.presentCount / expected) * 100 : 0;
+
+                const snapshot = groupSnapshots.get(groupId);
+                const group = groups.find((g) => g.id === groupId);
+                const groupName = snapshot?.name ?? group?.name ?? '삭제된 학년';
 
                 return {
-                    groupId: String(group.id),
-                    groupName: group.name,
+                    groupId: String(groupId),
+                    groupName,
                     attendanceRate: roundToDecimal(rate, 1),
                 };
             })
-        );
-
-        // 4. null 제거 후 출석률 높은 순 정렬
-        const validGroups = groupRates.filter((g) => g !== null);
-        validGroups.sort((a, b) => b.attendanceRate - a.attendanceRate);
+            .sort((a, b) => b.attendanceRate - a.attendanceRate);
 
         return {
             year,
-            groups: validGroups.slice(0, limit),
+            groups: groupRates.slice(0, limit),
         };
     }
 
@@ -92,7 +105,6 @@ export class GetTopGroupsUseCase {
         month?: number,
         week?: number
     ): { startDateStr: string; endDateStr: string; totalDays: number } {
-        // 월과 주차가 모두 지정된 경우
         if (month && week) {
             const { startDate, endDate } = getWeekRangeInMonth(year, month, week);
             return {
@@ -102,7 +114,6 @@ export class GetTopGroupsUseCase {
             };
         }
 
-        // 월만 지정된 경우
         if (month) {
             const startDate = new Date(year, month - 1, 1);
             const endDate = new Date(year, month, 0);
@@ -113,7 +124,6 @@ export class GetTopGroupsUseCase {
             };
         }
 
-        // 기본: 연간
         const startDate = new Date(year, 0, 1);
         const endDate = new Date(year, 11, 31);
         return {

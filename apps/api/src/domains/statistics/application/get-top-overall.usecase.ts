@@ -1,11 +1,12 @@
 /**
  * Get Top Overall UseCase
  *
- * 전체 우수 출석 학생 TOP N 조회
+ * 전체 우수 출석 학생 TOP N 조회 (스냅샷 기반)
  */
 import { Prisma } from '@prisma/client';
 import type { TopOverallOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/trpc';
 import { formatDateCompact, getWeekRangeInMonth } from '@school/utils';
+import { getBulkGroupSnapshots, getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type TopStatisticsInput = TopStatisticsSchemaInput & { accountId: string };
@@ -15,6 +16,7 @@ interface StudentScoreRaw {
     _id: bigint;
     society_name: string;
     group_name: string;
+    group_id: bigint;
     score: bigint;
 }
 
@@ -35,6 +37,7 @@ export class GetTopOverallUseCase {
                     s._id,
                     s.society_name,
                     g.name as group_name,
+                    g._id as group_id,
                     SUM(CASE
                         WHEN a.content = '◎' THEN 2
                         WHEN a.content = '○' THEN 1
@@ -49,22 +52,39 @@ export class GetTopOverallUseCase {
                     AND a.delete_at IS NULL
                 WHERE g.account_id = ${accountId}
                 AND s.delete_at IS NULL
-                AND s.graduated_at IS NULL
-                AND g.delete_at IS NULL
-                GROUP BY s._id, g.name
+                GROUP BY s._id, g._id, g.name
                 ORDER BY score DESC
                 LIMIT ${limit}
             `
         );
 
+        if (rawResults.length === 0) {
+            return { year, students: [] };
+        }
+
+        // 스냅샷 기반 이름 대체
+        const referenceDate = new Date(year, 11, 31);
+        const studentIds = rawResults.map((r) => r._id);
+        const groupIds = [...new Set(rawResults.map((r) => r.group_id))];
+
+        const [studentSnapshots, groupSnapshots] = await Promise.all([
+            getBulkStudentSnapshots(studentIds, referenceDate),
+            getBulkGroupSnapshots(groupIds, referenceDate),
+        ]);
+
         return {
             year,
-            students: rawResults.map((row) => ({
-                id: String(row._id),
-                societyName: row.society_name,
-                groupName: row.group_name,
-                score: Number(row.score ?? 0),
-            })),
+            students: rawResults.map((row) => {
+                const studentSnap = studentSnapshots.get(row._id);
+                const groupSnap = groupSnapshots.get(row.group_id);
+
+                return {
+                    id: String(row._id),
+                    societyName: studentSnap?.societyName ?? row.society_name,
+                    groupName: groupSnap?.name ?? row.group_name,
+                    score: Number(row.score ?? 0),
+                };
+            }),
         };
     }
 
@@ -72,7 +92,6 @@ export class GetTopOverallUseCase {
      * 날짜 범위 계산
      */
     private getDateRange(year: number, month?: number, week?: number): { startDateStr: string; endDateStr: string } {
-        // 월과 주차가 모두 지정된 경우
         if (month && week) {
             const { startDate, endDate } = getWeekRangeInMonth(year, month, week);
             return {
@@ -81,7 +100,6 @@ export class GetTopOverallUseCase {
             };
         }
 
-        // 월만 지정된 경우
         if (month) {
             const startDate = new Date(year, month - 1, 1);
             const endDate = new Date(year, month, 0);
@@ -91,7 +109,6 @@ export class GetTopOverallUseCase {
             };
         }
 
-        // 기본: 연간
         const startDate = new Date(year, 0, 1);
         const endDate = new Date(year, 11, 31);
         return {

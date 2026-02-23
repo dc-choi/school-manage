@@ -1,12 +1,19 @@
 /**
  * Statistics 통합 테스트 (tRPC + Prisma Mocking)
  *
- * Mock 데이터를 사용하여 통계 프로시저 테스트
+ * Mock 데이터를 사용하여 통계 프로시저 테스트 (스냅샷 기반)
  */
 import { mockPrismaClient } from '../../vitest.setup.ts';
-import { createMockAttendance, createMockGroup, createMockStudent, getTestAccount } from '../helpers/mock-data.ts';
+import {
+    createMockAttendance,
+    createMockGroup,
+    createMockGroupSnapshot,
+    createMockStudent,
+    createMockStudentSnapshot,
+    getTestAccount,
+} from '../helpers/mock-data.ts';
 import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.ts';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('statistics 통합 테스트', () => {
     beforeEach(() => {
@@ -14,6 +21,8 @@ describe('statistics 통합 테스트', () => {
         mockPrismaClient.student.findMany.mockReset();
         mockPrismaClient.student.count.mockReset();
         mockPrismaClient.attendance.findMany.mockReset();
+        mockPrismaClient.studentSnapshot.findMany.mockReset();
+        mockPrismaClient.groupSnapshot.findMany.mockReset();
         mockPrismaClient.$queryRaw.mockReset();
     });
 
@@ -22,14 +31,16 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
 
-            // 그룹 목록 조회
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             // $queryRaw 반환값: 우수 출석 학생
             mockPrismaClient.$queryRaw.mockResolvedValueOnce([
                 { _id: BigInt(1), society_name: '홍길동', count: BigInt(15) },
                 { _id: BigInt(2), society_name: '김철수', count: BigInt(10) },
+            ]);
+            // getBulkStudentSnapshots → studentSnapshot.findMany
+            mockPrismaClient.studentSnapshot.findMany.mockResolvedValueOnce([
+                createMockStudentSnapshot({ studentId: BigInt(1), societyName: '홍길동' }),
+                createMockStudentSnapshot({ studentId: BigInt(2), societyName: '김철수' }),
             ]);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
@@ -55,12 +66,15 @@ describe('statistics 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
-            const mockStudent = createMockStudent({ groupId: mockGroup.id });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
-                createMockAttendance({ studentId: mockStudent.id, content: '◎', date: '2024-01-07' }),
+                createMockAttendance({
+                    studentId: BigInt(1),
+                    groupId: mockGroup.id,
+                    content: '◎',
+                    date: '2024-01-07',
+                }),
             ]);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
@@ -87,13 +101,21 @@ describe('statistics 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
-            const mockStudent = createMockStudent({ groupId: mockGroup.id });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
-                createMockAttendance({ studentId: mockStudent.id, content: '◎', date: '2024-01-07' }),
-                createMockAttendance({ studentId: mockStudent.id, content: '○', date: '2024-01-14' }),
+                createMockAttendance({
+                    studentId: BigInt(1),
+                    groupId: mockGroup.id,
+                    content: '◎',
+                    date: '2024-01-07',
+                }),
+                createMockAttendance({
+                    studentId: BigInt(1),
+                    groupId: mockGroup.id,
+                    content: '○',
+                    date: '2024-01-14',
+                }),
             ]);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
@@ -112,12 +134,15 @@ describe('statistics 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
-            const mockStudent = createMockStudent({ groupId: mockGroup.id });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
-                createMockAttendance({ studentId: mockStudent.id, content: '◎', date: '2024-01-07' }),
+                createMockAttendance({
+                    studentId: BigInt(1),
+                    groupId: mockGroup.id,
+                    content: '◎',
+                    date: '2024-01-07',
+                }),
             ]);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
@@ -135,17 +160,23 @@ describe('statistics 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
-            const maleStudent = createMockStudent({ groupId: mockGroup.id, gender: 'M' });
-            const femaleStudent = createMockStudent({ groupId: mockGroup.id, gender: 'F' });
-            const unknownStudent = createMockStudent({ groupId: mockGroup.id, gender: null });
 
-            // byGender는 student.findMany를 한 번 호출하고, 그 후 성별별로 attendance.findMany를 호출
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([maleStudent, femaleStudent, unknownStudent]);
-            // 남학생 출석, 여학생 출석, 미지정 출석
-            mockPrismaClient.attendance.findMany
-                .mockResolvedValueOnce([createMockAttendance({ studentId: maleStudent.id })])
-                .mockResolvedValueOnce([createMockAttendance({ studentId: femaleStudent.id })])
-                .mockResolvedValueOnce([]);
+            // group.findMany
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            // attendance.findMany (기간 내 전체 출석 데이터)
+            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
+                createMockAttendance({ studentId: BigInt(1), groupId: mockGroup.id, content: '◎' }),
+                createMockAttendance({ studentId: BigInt(2), groupId: mockGroup.id, content: '○' }),
+                createMockAttendance({ studentId: BigInt(3), groupId: mockGroup.id, content: '△' }),
+            ]);
+            // getBulkStudentSnapshots → studentSnapshot.findMany
+            mockPrismaClient.studentSnapshot.findMany.mockResolvedValueOnce([
+                createMockStudentSnapshot({ studentId: BigInt(1), gender: 'M' }),
+                createMockStudentSnapshot({ studentId: BigInt(2), gender: 'F' }),
+                createMockStudentSnapshot({ studentId: BigInt(3), gender: null }),
+            ]);
+            // fallback student.findMany (스냅샷에 없는 학생용 — 이 케이스에선 빈 배열)
+            mockPrismaClient.student.findMany.mockResolvedValueOnce([]);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
             const result = await caller.statistics.byGender({ year: 2024 });
@@ -159,12 +190,12 @@ describe('statistics 통합 테스트', () => {
             expect(result.unknown).toHaveProperty('count');
         });
 
-        it('학생이 없는 경우 모두 0 반환', async () => {
+        it('그룹이 없는 경우 모두 0 반환', async () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([]);
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([]);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
             const result = await caller.statistics.byGender({ year: 2024 });
@@ -190,18 +221,19 @@ describe('statistics 통합 테스트', () => {
             const accountName = testAccount.name;
             const mockGroup1 = createMockGroup({ accountId: BigInt(accountId), name: '1반' });
             const mockGroup2 = createMockGroup({ accountId: BigInt(accountId), name: '2반' });
-            const mockStudent1 = createMockStudent({ groupId: mockGroup1.id });
-            const mockStudent2 = createMockStudent({ groupId: mockGroup2.id });
 
+            // group.findMany
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup1, mockGroup2]);
-            // 각 그룹별 학생 조회
-            mockPrismaClient.student.findMany
-                .mockResolvedValueOnce([mockStudent1])
-                .mockResolvedValueOnce([mockStudent2]);
-            // 각 그룹별 출석 조회
-            mockPrismaClient.attendance.findMany
-                .mockResolvedValueOnce([createMockAttendance({ studentId: mockStudent1.id })])
-                .mockResolvedValueOnce([]);
+            // attendance.findMany (groupId 기반)
+            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
+                createMockAttendance({ studentId: BigInt(1), groupId: mockGroup1.id, content: '◎' }),
+                createMockAttendance({ studentId: BigInt(2), groupId: mockGroup2.id, content: '○' }),
+            ]);
+            // getBulkGroupSnapshots → groupSnapshot.findMany
+            mockPrismaClient.groupSnapshot.findMany.mockResolvedValueOnce([
+                createMockGroupSnapshot({ groupId: mockGroup1.id, name: '1반' }),
+                createMockGroupSnapshot({ groupId: mockGroup2.id, name: '2반' }),
+            ]);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
             const result = await caller.statistics.topGroups({ year: 2024, limit: 5 });
@@ -224,13 +256,20 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId), name: '1반' });
 
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            // $queryRaw 반환값: 전체 학생 점수
+            // $queryRaw 반환값: 전체 학생 점수 (group_id 추가)
             mockPrismaClient.$queryRaw.mockResolvedValueOnce([
-                { _id: BigInt(1), society_name: '홍길동', group_name: '1반', score: BigInt(15) },
-                { _id: BigInt(2), society_name: '김철수', group_name: '1반', score: BigInt(10) },
+                { _id: BigInt(1), society_name: '홍길동', group_name: '1반', group_id: BigInt(10), score: BigInt(15) },
+                { _id: BigInt(2), society_name: '김철수', group_name: '1반', group_id: BigInt(10), score: BigInt(10) },
+            ]);
+            // getBulkStudentSnapshots → studentSnapshot.findMany
+            mockPrismaClient.studentSnapshot.findMany.mockResolvedValueOnce([
+                createMockStudentSnapshot({ studentId: BigInt(1), societyName: '홍길동' }),
+                createMockStudentSnapshot({ studentId: BigInt(2), societyName: '김철수' }),
+            ]);
+            // getBulkGroupSnapshots → groupSnapshot.findMany
+            mockPrismaClient.groupSnapshot.findMany.mockResolvedValueOnce([
+                createMockGroupSnapshot({ groupId: BigInt(10), name: '1반' }),
             ]);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
@@ -260,15 +299,18 @@ describe('statistics 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId), name: '1반' });
-            const mockStudent = createMockStudent({ groupId: mockGroup.id });
 
+            // group.findMany
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
-            // 주간, 월간, 연간 출석 조회
+            // getBulkGroupSnapshots → groupSnapshot.findMany
+            mockPrismaClient.groupSnapshot.findMany.mockResolvedValueOnce([
+                createMockGroupSnapshot({ groupId: mockGroup.id, name: '1반' }),
+            ]);
+            // 주간, 월간, 연간 attendance.findMany (3회)
             mockPrismaClient.attendance.findMany
-                .mockResolvedValueOnce([createMockAttendance({ studentId: mockStudent.id })])
-                .mockResolvedValueOnce([createMockAttendance({ studentId: mockStudent.id })])
-                .mockResolvedValueOnce([createMockAttendance({ studentId: mockStudent.id })]);
+                .mockResolvedValueOnce([createMockAttendance({ studentId: BigInt(1), groupId: mockGroup.id })])
+                .mockResolvedValueOnce([createMockAttendance({ studentId: BigInt(1), groupId: mockGroup.id })])
+                .mockResolvedValueOnce([createMockAttendance({ studentId: BigInt(1), groupId: mockGroup.id })]);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
             const result = await caller.statistics.groupStatistics({ year: 2024 });

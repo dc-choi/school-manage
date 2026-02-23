@@ -6,6 +6,7 @@
 import type { GroupOutput, UpdateGroupInput as UpdateGroupSchemaInput } from '@school/trpc';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
+import { createGroupSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드
@@ -14,26 +15,33 @@ type UpdateGroupInput = UpdateGroupSchemaInput & { accountId: string };
 export class UpdateGroupUseCase {
     async execute(input: UpdateGroupInput): Promise<GroupOutput> {
         try {
-            const group = await database.group.update({
-                where: {
-                    id: BigInt(input.id),
-                },
-                data: {
-                    name: input.name,
-                    accountId: BigInt(input.accountId),
-                    updatedAt: getNowKST(),
-                },
-                include: {
-                    _count: {
-                        select: {
-                            students: {
-                                where: {
-                                    deletedAt: null,
+            const group = await database.$transaction(async (tx) => {
+                const updated = await tx.group.update({
+                    where: {
+                        id: BigInt(input.id),
+                    },
+                    data: {
+                        name: input.name,
+                        accountId: BigInt(input.accountId),
+                        updatedAt: getNowKST(),
+                    },
+                    include: {
+                        _count: {
+                            select: {
+                                students: {
+                                    where: {
+                                        deletedAt: null,
+                                    },
                                 },
                             },
                         },
                     },
-                },
+                });
+                await createGroupSnapshot(tx, {
+                    groupId: updated.id,
+                    name: updated.name,
+                });
+                return updated;
             });
 
             return {

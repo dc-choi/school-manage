@@ -6,6 +6,7 @@
 import type { GraduateStudentsInput, GraduateStudentsOutput, GraduatedStudent } from '@school/trpc';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
+import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { ga4 } from '~/infrastructure/analytics/ga4.js';
 import { database } from '~/infrastructure/database/database.js';
 
@@ -38,6 +39,16 @@ export class GraduateStudentsUseCase {
                     await tx.student.update({
                         where: { id: student.id },
                         data: { graduatedAt: now },
+                    });
+                    await createStudentSnapshot(tx, {
+                        studentId: student.id,
+                        societyName: student.societyName,
+                        catholicName: student.catholicName,
+                        gender: student.gender,
+                        contact: student.contact,
+                        description: student.description,
+                        baptizedAt: student.baptizedAt,
+                        groupId: student.groupId,
                     });
                     graduatedStudents.push({
                         id: String(student.id),

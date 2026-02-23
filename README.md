@@ -26,7 +26,7 @@
 | 기능    | 설명                                 |
 |-------|------------------------------------|
 | 인증    | 로그인, 회원가입                          |
-| 대시보드  | 출석률, 그룹별 통계, 우수 출석 멤버 현황            |
+| 대시보드  | 출석률, 그룹별 통계, 우수 출석 멤버 현황 (스냅샷 기반 과거 연도 정확한 통계) |
 | 그룹 관리 | 그룹 CRUD, 일괄 삭제                     |
 | 멤버 관리 | 멤버 CRUD, 일괄 삭제/복구, 졸업/졸업 취소        |
 | 출석부   | 달력 UI 기반 출석 조회/입력, 종교 일정(부활절 등) 표시 |
@@ -82,6 +82,8 @@ erDiagram
     Account ||--o{ Group : has
     Group ||--o{ Student : contains
     Student ||--o{ Attendance : records
+    Student ||--o{ StudentSnapshot : snapshots
+    Group ||--o{ GroupSnapshot : snapshots
 
     Account {
         bigint id PK
@@ -123,13 +125,29 @@ erDiagram
         varchar date "출석일"
         varchar content "출석 내용"
         bigint student_id FK
+        bigint group_id FK "출석 시점 그룹"
         datetime created_at
         datetime updated_at
         datetime deleted_at
     }
-```
 
-> 물리적 설계 시 FK 제약조건 없이 논리적 관계만 유지 (유연한 스키마 변경 대응)
+    StudentSnapshot {
+        bigint id PK
+        bigint student_id FK
+        varchar society_name "스냅샷 시점 이름"
+        varchar catholic_name "스냅샷 시점 세례명"
+        varchar gender "스냅샷 시점 성별"
+        bigint group_id "스냅샷 시점 그룹"
+        datetime snapshot_at
+    }
+
+    GroupSnapshot {
+        bigint id PK
+        bigint group_id FK
+        varchar name "스냅샷 시점 그룹명"
+        datetime snapshot_at
+    }
+```
 
 <!--
 ## 출석부 프로그램 초기 화면 구성

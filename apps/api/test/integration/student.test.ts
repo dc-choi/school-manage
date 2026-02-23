@@ -60,7 +60,17 @@ describe('student 통합 테스트', () => {
                 societyName: '홍길동',
                 groupId: BigInt(groupId),
             });
-            mockPrismaClient.student.create.mockResolvedValueOnce(newStudent);
+
+            // $transaction mock (create-student now uses transaction + snapshot)
+            const txMock = {
+                student: {
+                    create: vi.fn().mockResolvedValue(newStudent),
+                },
+                studentSnapshot: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
             const caller = createAuthenticatedCaller(accountId, accountName);
             const result = await caller.student.create({
@@ -150,7 +160,17 @@ describe('student 통합 테스트', () => {
             const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
             const updatedStudent = { ...mockStudent, societyName: '수정된이름' };
             mockPrismaClient.student.findFirst.mockResolvedValueOnce(mockStudent);
-            mockPrismaClient.student.update.mockResolvedValueOnce(updatedStudent);
+
+            // $transaction mock (update-student now uses transaction + snapshot)
+            const txMock = {
+                student: {
+                    update: vi.fn().mockResolvedValue(updatedStudent),
+                },
+                studentSnapshot: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
             const caller = createAuthenticatedCaller(accountId, accountName);
             const result = await caller.student.update({
@@ -364,6 +384,9 @@ describe('student 통합 테스트', () => {
                     ]),
                     update: vi.fn().mockResolvedValue({}),
                 },
+                studentSnapshot: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
@@ -432,6 +455,9 @@ describe('student 통합 테스트', () => {
                 student: {
                     findMany: vi.fn().mockResolvedValue([{ ...mockStudent, group: mockGroup }]),
                     update: vi.fn().mockResolvedValue({}),
+                },
+                studentSnapshot: {
+                    create: vi.fn().mockResolvedValue({}),
                 },
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));

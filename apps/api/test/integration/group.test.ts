@@ -6,7 +6,7 @@
 import { mockPrismaClient } from '../../vitest.setup.ts';
 import { createMockGroup, createMockStudent, getTestAccount } from '../helpers/mock-data.ts';
 import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.ts';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('group 통합 테스트', () => {
     beforeEach(() => {
@@ -45,7 +45,17 @@ describe('group 통합 테스트', () => {
         it('새 그룹 생성 성공', async () => {
             const testAccount = getTestAccount();
             const newGroup = createMockGroup({ name: '테스트그룹', accountId: testAccount.id });
-            mockPrismaClient.group.create.mockResolvedValueOnce(newGroup);
+
+            // $transaction mock (create-group now uses transaction + snapshot)
+            const txMock = {
+                group: {
+                    create: vi.fn().mockResolvedValue(newGroup),
+                },
+                groupSnapshot: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
             const caller = createAuthenticatedCaller(String(testAccount.id), testAccount.name);
             const result = await caller.group.create({ name: '테스트그룹' });
@@ -123,7 +133,17 @@ describe('group 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: testAccount.id });
             const updatedGroup = { ...mockGroup, name: '수정된그룹', _count: { students: 2 } };
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            mockPrismaClient.group.update.mockResolvedValueOnce(updatedGroup);
+
+            // $transaction mock (update-group now uses transaction + snapshot)
+            const txMock = {
+                group: {
+                    update: vi.fn().mockResolvedValue(updatedGroup),
+                },
+                groupSnapshot: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
             const caller = createAuthenticatedCaller(String(testAccount.id), testAccount.name);
             const result = await caller.group.update({ id: String(mockGroup.id), name: '수정된그룹' });

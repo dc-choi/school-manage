@@ -6,6 +6,7 @@
 import type { CreateGroupOutput, CreateGroupInput as CreateGroupSchemaInput } from '@school/trpc';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
+import { createGroupSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드
@@ -37,12 +38,19 @@ export class CreateGroupUseCase {
                 }
             }
 
-            const group = await database.group.create({
-                data: {
-                    name: input.name,
-                    accountId: BigInt(input.accountId),
-                    createdAt: getNowKST(),
-                },
+            const group = await database.$transaction(async (tx) => {
+                const created = await tx.group.create({
+                    data: {
+                        name: input.name,
+                        accountId: BigInt(input.accountId),
+                        createdAt: getNowKST(),
+                    },
+                });
+                await createGroupSnapshot(tx, {
+                    groupId: created.id,
+                    name: created.name,
+                });
+                return created;
             });
 
             return {

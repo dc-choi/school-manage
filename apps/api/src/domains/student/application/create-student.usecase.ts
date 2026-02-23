@@ -6,6 +6,7 @@
 import type { CreateStudentInput, CreateStudentOutput } from '@school/trpc';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
+import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class CreateStudentUseCase {
@@ -36,18 +37,31 @@ export class CreateStudentUseCase {
                 }
             }
 
-            const student = await database.student.create({
-                data: {
-                    societyName: input.societyName,
-                    catholicName: input.catholicName,
-                    gender: input.gender,
-                    age: input.age ? BigInt(input.age) : null,
-                    contact: input.contact ? BigInt(input.contact) : null,
-                    description: input.description,
-                    groupId: BigInt(input.groupId),
-                    baptizedAt: input.baptizedAt,
-                    createdAt: getNowKST(),
-                },
+            const student = await database.$transaction(async (tx) => {
+                const created = await tx.student.create({
+                    data: {
+                        societyName: input.societyName,
+                        catholicName: input.catholicName,
+                        gender: input.gender,
+                        age: input.age ? BigInt(input.age) : null,
+                        contact: input.contact ? BigInt(input.contact) : null,
+                        description: input.description,
+                        groupId: BigInt(input.groupId),
+                        baptizedAt: input.baptizedAt,
+                        createdAt: getNowKST(),
+                    },
+                });
+                await createStudentSnapshot(tx, {
+                    studentId: created.id,
+                    societyName: created.societyName,
+                    catholicName: created.catholicName,
+                    gender: created.gender,
+                    contact: created.contact,
+                    description: created.description,
+                    baptizedAt: created.baptizedAt,
+                    groupId: created.groupId,
+                });
+                return created;
             });
 
             return {

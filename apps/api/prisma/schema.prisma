@@ -31,8 +31,9 @@ model Group {
     deletedAt DateTime? @map("delete_at")
     accountId BigInt    @map("account_id")
 
-    account  Account   @relation(fields: [accountId], references: [id])
-    students Student[]
+    account   Account         @relation(fields: [accountId], references: [id])
+    students  Student[]
+    snapshots GroupSnapshot[]
 
     @@map("group")
 }
@@ -52,8 +53,9 @@ model Student {
     deletedAt    DateTime? @map("delete_at")
     groupId      BigInt    @map("group_id")
 
-    group       Group        @relation(fields: [groupId], references: [id])
+    group       Group              @relation(fields: [groupId], references: [id])
     attendances Attendance[]
+    snapshots   StudentSnapshot[]
 
     @@map("student")
 }
@@ -66,8 +68,39 @@ model Attendance {
     updatedAt DateTime? @map("update_at")
     deletedAt DateTime? @map("delete_at")
     studentId BigInt    @map("student_id")
+    groupId   BigInt?   @map("group_id")
 
     student Student @relation(fields: [studentId], references: [id])
 
     @@map("attendance")
+}
+
+model StudentSnapshot {
+    id           BigInt   @id @default(autoincrement()) @map("_id")
+    studentId    BigInt   @map("student_id")
+    societyName  String   @map("society_name") @db.VarChar(50)
+    catholicName String?  @map("catholic_name") @db.VarChar(50)
+    gender       String?  @db.VarChar(10)
+    contact      BigInt?
+    description  String?  @db.Text
+    baptizedAt   String?  @map("baptized_at") @db.VarChar(10)
+    groupId      BigInt   @map("group_id")
+    snapshotAt   DateTime @map("snapshot_at")
+
+    student Student @relation(fields: [studentId], references: [id])
+
+    @@index([studentId, snapshotAt])
+    @@map("student_snapshot")
+}
+
+model GroupSnapshot {
+    id         BigInt   @id @default(autoincrement()) @map("_id")
+    groupId    BigInt   @map("group_id")
+    name       String   @db.VarChar(50)
+    snapshotAt DateTime @map("snapshot_at")
+
+    group Group @relation(fields: [groupId], references: [id])
+
+    @@index([groupId, snapshotAt])
+    @@map("group_snapshot")
 }

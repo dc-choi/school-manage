@@ -5,6 +5,7 @@
  */
 import type { CancelGraduationInput, CancelGraduationOutput, GraduatedStudent } from '@school/trpc';
 import { TRPCError } from '@trpc/server';
+import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type CancelGraduationUseCaseInput = CancelGraduationInput & { accountId: string };
@@ -35,6 +36,16 @@ export class CancelGraduationUseCase {
                     await tx.student.update({
                         where: { id: student.id },
                         data: { graduatedAt: null },
+                    });
+                    await createStudentSnapshot(tx, {
+                        studentId: student.id,
+                        societyName: student.societyName,
+                        catholicName: student.catholicName,
+                        gender: student.gender,
+                        contact: student.contact,
+                        description: student.description,
+                        baptizedAt: student.baptizedAt,
+                        groupId: student.groupId,
                     });
                     cancelledStudents.push({
                         id: String(student.id),

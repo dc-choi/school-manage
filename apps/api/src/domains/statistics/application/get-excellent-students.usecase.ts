@@ -1,13 +1,14 @@
 /**
  * Get Excellent Students UseCase
  *
- * 우수 출석 학생 조회
+ * 우수 출석 학생 조회 (스냅샷 기반)
  */
 import { Prisma } from '@prisma/client';
 import type {
     GetExcellentStudentsOutput,
     GetExcellentStudentsInput as GetExcellentStudentsSchemaInput,
 } from '@school/trpc';
+import { getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 // Raw query result (BigInt)
@@ -45,7 +46,6 @@ export class GetExcellentStudentsUseCase {
                     WHERE account_id = ${accountId}
                 )
                 AND s.delete_at IS NULL
-                AND s.graduated_at IS NULL
                 AND a.delete_at IS NULL
                 GROUP BY s._id
                 ORDER BY count DESC
@@ -53,12 +53,20 @@ export class GetExcellentStudentsUseCase {
             `
         );
 
+        // 스냅샷 기반 이름 대체
+        const referenceDate = new Date(Number(year), 11, 31);
+        const studentIds = rawResults.map((r) => r._id);
+        const studentSnapshots = await getBulkStudentSnapshots(studentIds, referenceDate);
+
         // BigInt → serializable types 변환
-        const excellentStudents = rawResults.map((row) => ({
-            id: String(row._id),
-            society_name: row.society_name,
-            count: Number(row.count),
-        }));
+        const excellentStudents = rawResults.map((row) => {
+            const snapshot = studentSnapshots.get(row._id);
+            return {
+                id: String(row._id),
+                society_name: snapshot?.societyName ?? row.society_name,
+                count: Number(row.count),
+            };
+        });
 
         return { excellentStudents };
     }
