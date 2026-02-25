@@ -18,7 +18,7 @@ interface UseStudentsOptions {
 }
 
 const parsePageParam = (value: string | null): number => {
-    const parsed = parseInt(value ?? '', 10);
+    const parsed = Number.parseInt(value ?? '', 10);
     return parsed > 0 ? parsed : 1;
 };
 

@@ -11,6 +11,7 @@ export {
     getLastSundayOf,
     getWeeksInMonth,
     getWeekRangeInMonth,
+    getGraduationCutoff,
     calculateEaster,
 } from './date.js';
 

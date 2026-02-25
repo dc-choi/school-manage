@@ -14,8 +14,8 @@ export const getOsEnvOptional = (key: string, defaultValue = ''): string => {
 };
 
 export const normalizePort = (port: string): number | string | boolean => {
-    const parsedPort = parseInt(port, 10);
-    if (isNaN(parsedPort)) {
+    const parsedPort = Number.parseInt(port, 10);
+    if (Number.isNaN(parsedPort)) {
         // named pipe
         return port;
     }

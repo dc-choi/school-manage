@@ -34,17 +34,6 @@ export function SignupPage() {
         analytics.trackPrivacyConsentShown('signup');
     }, []);
 
-    // 이미 로그인된 경우 대시보드로 리다이렉트
-    if (isAuthenticated && !isAuthLoading) {
-        return <Navigate to="/" replace />;
-    }
-
-    // ID 입력 시 소문자로 변환
-    const handleNameChange = (value: string) => {
-        setName(value.toLowerCase());
-        setIdCheckResult(null); // ID 변경 시 중복 확인 초기화
-    };
-
     // ID 중복 확인
     const handleCheckId = useCallback(async () => {
         if (name.length < 4) {
@@ -74,6 +63,17 @@ export function SignupPage() {
             setIsCheckingId(false);
         }
     }, [name, utils.auth.checkId]);
+
+    // 이미 로그인된 경우 대시보드로 리다이렉트
+    if (isAuthenticated && !isAuthLoading) {
+        return <Navigate to="/" replace />;
+    }
+
+    // ID 입력 시 소문자로 변환
+    const handleNameChange = (value: string) => {
+        setName(value.toLowerCase());
+        setIdCheckResult(null); // ID 변경 시 중복 확인 초기화
+    };
 
     // 폼 유효성 검사
     const isFormValid = () => {

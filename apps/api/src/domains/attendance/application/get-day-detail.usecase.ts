@@ -31,7 +31,7 @@ export class GetDayDetailUseCase {
         }
 
         // 2. 날짜에서 연도 추출하여 의무축일 확인
-        const year = parseInt(date.substring(0, 4), 10);
+        const year = Number.parseInt(date.substring(0, 4), 10);
         const holydaysUseCase = new GetHolydaysUseCase();
         const holydaysResult = await holydaysUseCase.execute({ year });
         const holyday = holydaysResult.holydays.find((h) => h.date === date)?.name ?? null;
@@ -55,7 +55,7 @@ export class GetDayDetailUseCase {
 
         // 4. 해당 날짜의 출석 데이터 조회
         // 입력 형식(YYYY-MM-DD)을 DB 형식(YYYYMMDD)으로 변환
-        const dbDate = date.replace(/-/g, '');
+        const dbDate = date.replaceAll('-', '');
         const studentIds = students.map((s) => s.id);
         const attendances = await database.attendance.findMany({
             where: {

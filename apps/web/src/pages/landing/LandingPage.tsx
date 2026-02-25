@@ -229,7 +229,7 @@ export function LandingPage() {
                             }}
                         >
                             {FAQ_ITEMS.map((item, index) => (
-                                <AccordionItem key={index} value={String(index)}>
+                                <AccordionItem key={item.question} value={String(index)}>
                                     <AccordionTrigger>{item.question}</AccordionTrigger>
                                     <AccordionContent>
                                         <p className="text-muted-foreground">{item.answer}</p>

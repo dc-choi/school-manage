@@ -24,7 +24,7 @@ const buildDemoCalendar = (year: number, month: number) => {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const weeks: (number | null)[][] = [];
-    let week: (number | null)[] = Array(firstDay).fill(null);
+    let week: (number | null)[] = new Array(firstDay).fill(null);
 
     for (let d = 1; d <= daysInMonth; d++) {
         week.push(d);
@@ -41,6 +41,12 @@ const buildDemoCalendar = (year: number, month: number) => {
 };
 
 type DayAttendance = Record<number, { mass: boolean; catechism: boolean }>;
+
+const getSymbolColor = (symbol: string): string => {
+    if (symbol === '◎') return 'text-green-600';
+    if (symbol === '-') return 'text-muted-foreground/40';
+    return 'text-yellow-600';
+};
 
 // 날짜별 출석 현황 계산
 const countPresent = (att: DayAttendance) => Object.values(att).filter((a) => a.mass || a.catechism).length;
@@ -159,6 +165,7 @@ export function InteractiveDemo() {
                 {/* 날짜 그리드 */}
                 <div className="grid grid-cols-7 gap-0">
                     {weeks.flat().map((day, i) => {
+                        const weekIndex = Math.floor(i / 7);
                         const dayOfWeek = i % 7;
                         const isSunday = dayOfWeek === 0;
                         const isSaturday = dayOfWeek === 6;
@@ -168,12 +175,12 @@ export function InteractiveDemo() {
                         const dayPresentCount = dayData ? countPresent(dayData) : 0;
 
                         if (day === null) {
-                            return <div key={i} className="h-12" />;
+                            return <div key={`empty-w${weekIndex}-d${dayOfWeek}`} className="h-12" />;
                         }
 
                         return (
                             <button
-                                key={i}
+                                key={`day-${day}`}
                                 type="button"
                                 onClick={() => handleDateClick(day)}
                                 className={cn(
@@ -271,11 +278,7 @@ export function InteractiveDemo() {
                                             <span
                                                 className={cn(
                                                     'text-center text-base font-bold',
-                                                    symbol === '◎'
-                                                        ? 'text-green-600'
-                                                        : symbol === '-'
-                                                          ? 'text-muted-foreground/40'
-                                                          : 'text-yellow-600'
+                                                    getSymbolColor(symbol)
                                                 )}
                                             >
                                                 {symbol}

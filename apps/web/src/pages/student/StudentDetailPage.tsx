@@ -21,6 +21,8 @@ export function StudentDetailPage() {
 
     const isDeleted = !!student?.deletedAt;
 
+    const parseOptionalInt = (v: string): number | undefined => (v ? Number.parseInt(v) : undefined);
+
     const handleUpdate = async (field: string, value: string) => {
         if (!id || !student) return;
         try {
@@ -30,8 +32,8 @@ export function StudentDetailPage() {
                 catholicName: field === 'catholicName' ? value || undefined : student.catholicName,
                 gender:
                     field === 'gender' ? (value as 'M' | 'F' | undefined) : (student.gender as 'M' | 'F' | undefined),
-                age: field === 'age' ? (value ? parseInt(value) : undefined) : student.age,
-                contact: field === 'contact' ? (value ? parseInt(value) : undefined) : student.contact,
+                age: field === 'age' ? parseOptionalInt(value) : student.age,
+                contact: field === 'contact' ? parseOptionalInt(value) : student.contact,
                 groupId: field === 'groupId' ? value : student.groupId,
                 baptizedAt: field === 'baptizedAt' ? value || undefined : student.baptizedAt,
                 description: field === 'description' ? value || undefined : student.description,
@@ -48,7 +50,12 @@ export function StudentDetailPage() {
         : '-';
 
     // 성별 표시값 변환
-    const genderDisplay = student?.gender === 'M' ? '남' : student?.gender === 'F' ? '여' : '-';
+    const getGenderDisplay = (gender?: string | null): string => {
+        if (gender === 'M') return '남';
+        if (gender === 'F') return '여';
+        return '-';
+    };
+    const genderDisplay = getGenderDisplay(student?.gender);
 
     // 그룹 이름 찾기
     const groupName = groups.find((g) => g.id === student?.groupId)?.name ?? student?.groupId ?? '';
@@ -169,7 +176,7 @@ export function StudentDetailPage() {
                                     renderInput={({ value, onChange, onKeyDown }) => (
                                         <Input
                                             value={value}
-                                            onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
+                                            onChange={(e) => onChange(e.target.value.replaceAll(/[^0-9]/, ''))}
                                             onKeyDown={onKeyDown}
                                             placeholder="01012345678"
                                             autoFocus

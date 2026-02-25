@@ -156,6 +156,18 @@ export const getWeekRangeInMonth = (
 };
 
 /**
+ * 졸업 필터 기준일을 계산한다.
+ *
+ * 주/월/연 단위에 따라 조회 기간 시작일을 반환.
+ * 통계 유스케이스에서 졸업생 필터링에 사용된다.
+ */
+export const getGraduationCutoff = (year: number, month?: number, week?: number): Date => {
+    if (month && week) return getWeekRangeInMonth(year, month, week).startDate;
+    if (month) return new Date(year, month - 1, 1);
+    return new Date(year, 0, 1);
+};
+
+/**
  * 부활 대축일을 계산한다. (Anonymous Gregorian Algorithm)
  *
  * 부활 대축일 정의: 춘분(3월 21일) 이후 첫 보름달 다음 일요일

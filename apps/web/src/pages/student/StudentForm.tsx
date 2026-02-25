@@ -184,7 +184,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             className="h-12 text-lg"
                             value={formData.age ?? ''}
                             onChange={(e) =>
-                                handleChange('age', e.target.value ? parseInt(e.target.value, 10) : undefined)
+                                handleChange('age', e.target.value ? Number.parseInt(e.target.value, 10) : undefined)
                             }
                             placeholder="나이를 입력하세요…"
                             disabled={isSubmitting}
@@ -201,7 +201,10 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             className="h-12 text-lg"
                             value={formData.contact ?? ''}
                             onChange={(e) =>
-                                handleChange('contact', e.target.value ? parseInt(e.target.value, 10) : undefined)
+                                handleChange(
+                                    'contact',
+                                    e.target.value ? Number.parseInt(e.target.value, 10) : undefined
+                                )
                             }
                             placeholder="연락처를 입력하세요 (숫자만)…"
                             disabled={isSubmitting}
@@ -217,7 +220,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             className="h-12 text-lg"
                             value={formData.baptizedAt ?? ''}
                             onChange={(e) => {
-                                const digits = e.target.value.replace(/\D/g, '');
+                                const digits = e.target.value.replaceAll(/\D/, '');
                                 let formatted = '';
                                 if (digits.length >= 2) {
                                     formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4);

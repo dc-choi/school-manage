@@ -145,25 +145,28 @@ export function CalendarPage() {
                 </Card>
 
                 {/* 달력 영역 */}
-                {!selectedGroupId ? (
+                {!selectedGroupId && (
                     <Card>
                         <CardContent className="flex h-96 items-center justify-center">
                             <p className="text-lg text-muted-foreground">학년을 선택해주세요.</p>
                         </CardContent>
                     </Card>
-                ) : calendarLoading ? (
+                )}
+                {selectedGroupId && calendarLoading && (
                     <Card>
                         <CardContent className="flex h-96 items-center justify-center">
                             <LoadingSpinner />
                         </CardContent>
                     </Card>
-                ) : !calendarData ? (
+                )}
+                {selectedGroupId && !calendarLoading && !calendarData && (
                     <Card>
                         <CardContent className="flex h-96 items-center justify-center">
                             <p className="text-lg text-muted-foreground">데이터를 불러올 수 없습니다.</p>
                         </CardContent>
                     </Card>
-                ) : (
+                )}
+                {selectedGroupId && !calendarLoading && calendarData && (
                     <Card>
                         <CardHeader className="pb-4">
                             <CalendarHeader

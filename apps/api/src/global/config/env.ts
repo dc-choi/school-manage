@@ -6,11 +6,13 @@ import { getOsEnv, getOsEnvOptional, normalizePort } from '~/global/utils/index.
 /**
  * Load .env file or for tests the .env.test file.
  */
-const postfix = process.env.NODE_ENV?.toLowerCase().includes('prod')
-    ? ''
-    : process.env.NODE_ENV?.toLowerCase().includes('dev')
-      ? '.dev'
-      : '.' + process.env.NODE_ENV;
+const getEnvPostfix = (): string => {
+    const nodeEnv = process.env.NODE_ENV?.toLowerCase();
+    if (nodeEnv?.includes('prod')) return '';
+    if (nodeEnv?.includes('dev')) return '.dev';
+    return '.' + process.env.NODE_ENV;
+};
+const postfix = getEnvPostfix();
 dotenv.config({ path: join(process.cwd(), `.env${postfix}`) });
 
 /**

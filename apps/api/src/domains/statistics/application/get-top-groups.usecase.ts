@@ -8,6 +8,7 @@ import {
     countSundays,
     countSundaysInYear,
     formatDateCompact,
+    getGraduationCutoff,
     getWeekRangeInMonth,
     roundToDecimal,
 } from '@school/utils';
@@ -42,12 +43,7 @@ export class GetTopGroupsUseCase {
         }
 
         // 3. 그룹별 학생 수 조회 (조회 기간 시작일 기준 졸업 필터 적용)
-        const graduationCutoff =
-            month && week
-                ? getWeekRangeInMonth(year, month, week).startDate
-                : month
-                  ? new Date(year, month - 1, 1)
-                  : new Date(year, 0, 1);
+        const graduationCutoff = getGraduationCutoff(year, month, week);
         const students = await database.student.findMany({
             where: {
                 groupId: { in: groupIds },

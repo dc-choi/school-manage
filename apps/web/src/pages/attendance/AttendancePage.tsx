@@ -199,17 +199,18 @@ export function AttendancePage() {
                 </div>
             </div>
 
-            {!selectedGroupId ? (
+            {!selectedGroupId && (
                 <Card>
                     <CardContent className="py-8 text-center text-muted-foreground">학년을 선택해주세요.</CardContent>
                 </Card>
-            ) : attendanceLoading ? (
-                <LoadingSpinner />
-            ) : !attendanceData?.students?.length ? (
+            )}
+            {selectedGroupId && attendanceLoading && <LoadingSpinner />}
+            {selectedGroupId && !attendanceLoading && !attendanceData?.students?.length && (
                 <Card>
                     <CardContent className="py-8 text-center text-muted-foreground">학생이 없습니다.</CardContent>
                 </Card>
-            ) : (
+            )}
+            {selectedGroupId && !attendanceLoading && attendanceData?.students?.length && (
                 <Card>
                     <CardContent className="overflow-x-auto p-4">
                         <table className="min-w-full border-collapse">

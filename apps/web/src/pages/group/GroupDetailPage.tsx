@@ -115,8 +115,9 @@ export function GroupDetailPage() {
                                         </Button>
                                     </div>
                                 ) : (
-                                    <div
-                                        className="cursor-pointer rounded-md p-1 hover:bg-muted/50"
+                                    <button
+                                        type="button"
+                                        className="w-full cursor-pointer rounded-md p-1 text-left hover:bg-muted/50"
                                         onClick={() => group && setIsEditing(true)}
                                         title="클릭하여 수정"
                                     >
@@ -124,7 +125,7 @@ export function GroupDetailPage() {
                                             {isLoading ? '로딩 중...' : group?.name}
                                         </CardTitle>
                                         <CardDescription>학년 정보 (클릭하여 수정)</CardDescription>
-                                    </div>
+                                    </button>
                                 )}
                             </div>
                             <div className="flex gap-3">

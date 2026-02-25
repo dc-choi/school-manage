@@ -163,8 +163,10 @@ export const main = async (): Promise<void> => {
 const isMainModule = import.meta.url === `file://${resolve(process.argv[1])}`;
 
 if (isMainModule) {
-    main().catch((e) => {
+    try {
+        await main();
+    } catch (e) {
         console.error('Failed to start server:', e);
         process.exit(1);
-    });
+    }
 }

@@ -55,7 +55,7 @@ export function EditableField({
                 {label}
             </dt>
             <dd className="flex-1 text-base sm:text-xl">
-                {isEditing ? (
+                {isEditing && (
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                             <div className="flex-1">{inputElement}</div>
@@ -70,14 +70,17 @@ export function EditableField({
                         </div>
                         {hint && <p className="text-sm text-muted-foreground sm:text-base">{hint}</p>}
                     </div>
-                ) : (
-                    <span
-                        className={`rounded px-2 py-1 ${disabled ? '' : 'cursor-pointer hover:bg-muted/50'}`}
-                        onClick={() => !disabled && startEdit()}
-                        title={disabled ? undefined : '클릭하여 수정'}
+                )}
+                {!isEditing && disabled && <span className="rounded px-2 py-1">{displayValue ?? (value || '-')}</span>}
+                {!isEditing && !disabled && (
+                    <button
+                        type="button"
+                        className="cursor-pointer rounded px-2 py-1 hover:bg-muted/50"
+                        onClick={startEdit}
+                        title="클릭하여 수정"
                     >
                         {displayValue ?? (value || '-')}
-                    </span>
+                    </button>
                 )}
             </dd>
         </div>
