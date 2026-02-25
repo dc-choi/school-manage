@@ -35,7 +35,7 @@ export function Table<T>({
     }
 
     return (
-        <Card>
+        <Card className="overflow-x-auto">
             <UITable>
                 <TableHeader>
                     <TableRow>

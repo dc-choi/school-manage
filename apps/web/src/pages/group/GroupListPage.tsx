@@ -88,7 +88,7 @@ export function GroupListPage() {
                 </Button>
             </div>
 
-            <Card>
+            <Card className="overflow-x-auto">
                 <UITable>
                     <TableHeader>
                         <TableRow>

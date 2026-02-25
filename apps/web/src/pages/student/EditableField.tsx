@@ -50,21 +50,25 @@ export function EditableField({
     );
 
     return (
-        <div className="flex items-center border-b py-4 last:border-b-0">
-            <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">{label}</dt>
-            <dd className="flex-1 text-xl">
+        <div className="flex flex-col border-b py-4 last:border-b-0 sm:flex-row sm:items-center">
+            <dt className="mb-1 shrink-0 text-base font-medium text-muted-foreground sm:mb-0 sm:w-32 sm:text-xl">
+                {label}
+            </dt>
+            <dd className="flex-1 text-base sm:text-xl">
                 {isEditing ? (
                     <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                            {inputElement}
-                            <Button onClick={save} className="min-w-24">
-                                저장
-                            </Button>
-                            <Button variant="outline" onClick={cancel} className="min-w-24">
-                                취소
-                            </Button>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <div className="flex-1">{inputElement}</div>
+                            <div className="flex gap-2">
+                                <Button onClick={save} className="flex-1 sm:min-w-24 sm:flex-none">
+                                    저장
+                                </Button>
+                                <Button variant="outline" onClick={cancel} className="flex-1 sm:min-w-24 sm:flex-none">
+                                    취소
+                                </Button>
+                            </div>
                         </div>
-                        {hint && <p className="text-base text-muted-foreground">{hint}</p>}
+                        {hint && <p className="text-sm text-muted-foreground sm:text-base">{hint}</p>}
                     </div>
                 ) : (
                     <span

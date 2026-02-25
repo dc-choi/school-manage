@@ -210,11 +210,11 @@ export function StudentDetailPage() {
                                     disabled={isDeleted}
                                 />
                                 {isDeleted && (
-                                    <div className="flex items-center border-b py-4 last:border-b-0">
-                                        <dt className="w-32 shrink-0 text-xl font-medium text-muted-foreground">
+                                    <div className="flex flex-col border-b py-4 last:border-b-0 sm:flex-row sm:items-center">
+                                        <dt className="mb-1 shrink-0 text-base font-medium text-muted-foreground sm:mb-0 sm:w-32 sm:text-xl">
                                             삭제일
                                         </dt>
-                                        <dd className="text-xl text-destructive">
+                                        <dd className="text-base text-destructive sm:text-xl">
                                             {formatDateKR(student!.deletedAt!)}
                                         </dd>
                                     </div>

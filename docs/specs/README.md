@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 8개 도메인 기능 설계에 통합 + 통계 스냅샷 구현 완료                              |
 | **Target Functional**     | -    | 2단계 미착수 5건 (P0 졸업생 필터링 완료)                                  |
-| **Target Non-Functional** | -    | SECURITY 2건, PERFORMANCE 1건 미착수 |
+| **Target Non-Functional** | -    | UI 1건 (반응형 구현 완료), SECURITY 2건, PERFORMANCE 1건 미착수 |
 
 ## 관련 문서
 
@@ -119,6 +119,17 @@
 
 **Refresh token 인증 확장:**
 - 재명세 예정
+
+### UI (Non-Functional)
+
+| 우선순위 | 기능명          | SDD 상태      | 비고                                     |
+|------|--------------|-------------|----------------------------------------|
+| ~~P0~~ | ~~반응형 디자인 수정~~ | **구현 완료** | 사이드바/헤더/테이블 모바일 대응. 전 페이지 영향            |
+
+**반응형 디자인 수정:**
+- 기능 설계: `docs/specs/functional-design/responsive-design.md`
+- 사이드바 모바일 미대응 (항상 80px 표시), 헤더 고정 패딩, Table 가로 스크롤 없음
+- EditableField 고정 너비, 미사용 Header.tsx 정리
 
 ### PERFORMANCE (Non-Functional)
 
