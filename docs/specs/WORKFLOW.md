@@ -35,13 +35,26 @@ docs/business/              PRD + 기능 설계 + 구현              머지 결
 | 타입 안전성       | `pnpm typecheck`                  | 파일 수정 시 (PostToolUse hook) |
 | 빌드 성공        | `pnpm build`                      | 구현 완료 후      |
 | 테스트 통과       | `pnpm test`                       | 구현 완료 후      |
-| 보안 검수        | security-reviewer 서브에이전트          | PR 생성 전      |
-| 디자인 일관성      | design-reviewer 서브에이전트            | PR 생성 전 (UI 변경 시) |
-| 성능 분석        | performance-analyzer 서브에이전트       | PR 생성 전 (해당 시) |
+| 보안 검수        | security-reviewer 서브에이전트          | PR 생성 전 (코드 변경 시 필수) |
+| 디자인 일관성      | design-reviewer 서브에이전트            | PR 생성 전 (코드 변경 시 필수) |
+| 성능 분석        | performance-analyzer 서브에이전트       | PR 생성 전 (코드 변경 시 필수) |
+
+### CI 검증 (GitHub Actions — PR 시 자동 실행)
+
+| 검증 항목        | 도구                              |
+|--------------|-----------------------------------|
+| 코드 스타일       | `pnpm lint && pnpm prettier`      |
+| 타입 안전성       | `pnpm typecheck`                  |
+| 빌드 성공        | `pnpm build`                      |
+| 테스트 통과       | `pnpm test`                       |
+| 코드 품질/보안     | SonarCloud Scan                   |
+
+> CI 설정: `.github/workflows/ci.yml`
 
 ### 사용자 리뷰 (PR 기반)
 
 - Conductor diff 뷰에서 변경사항 확인
+- CI 결과 + SonarCloud 분석 결과 확인
 - 비즈니스 로직, 요구사항 정합성 판단
 - 머지 또는 수정 요청
 
@@ -302,9 +315,9 @@ Development 문서를 기준으로 구현합니다.
 2. `pnpm typecheck`
 3. `pnpm build`
 4. `pnpm test`
-5. 서브에이전트 실행 (해당 시):
+5. 서브에이전트 실행 (코드 변경 시 필수, 순수 문서 변경 시 생략):
    - security-reviewer: 보안 검수
-   - design-reviewer: UI 변경 시 디자인 일관성 검수
+   - design-reviewer: 디자인 일관성 검수
    - performance-analyzer: 성능 영향 분석
 
 ### 6-2: 문서 정리
