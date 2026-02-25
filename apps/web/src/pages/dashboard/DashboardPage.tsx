@@ -184,7 +184,7 @@ function DashboardContent() {
         <MainLayout title={`안녕하세요, ${account?.name}님!`}>
             <div className="space-y-4">
                 {/* 전례 시기 & 연도/월/주차 선택 */}
-                <div className="flex flex-wrap items-start gap-4">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
                             <Label>연도</Label>
@@ -252,17 +252,19 @@ function DashboardContent() {
                         </div>
                     </div>
 
-                    <div className="flex-1">
+                    <div className="md:flex-1">
                         <LiturgicalSeasonCard />
+                    </div>
+                    <div className="md:flex-1">
+                        <PatronFeastCard />
                     </div>
                 </div>
 
                 {/* 학년별 상세 통계 테이블 */}
                 <GroupStatisticsTable data={stats.groupStatistics} isLoading={stats.isLoading} error={hasError} />
 
-                {/* 이달의 축일자 & 성별 분포 & 우수 출석 학생 */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <PatronFeastCard />
+                {/* 성별 분포 & 우수 출석 학생 */}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <GenderDistributionChart data={stats.byGender} isLoading={stats.isLoading} error={hasError} />
                     <TopRankingCard
                         title="전체 우수 출석 학생 TOP 5"

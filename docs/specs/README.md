@@ -125,11 +125,16 @@
 | 우선순위 | 기능명          | SDD 상태      | 비고                                     |
 |------|--------------|-------------|----------------------------------------|
 | ~~P0~~ | ~~반응형 디자인 수정~~ | **구현 완료** | 사이드바/헤더/테이블 모바일 대응. 전 페이지 영향            |
+| ~~P2~~ | ~~대시보드 축일자/전례력 카드 통일~~ | **구현 완료** | PatronFeastCard를 LiturgicalSeasonCard와 시각적 통일 (위치/스타일) |
 
 **반응형 디자인 수정:**
 - 기능 설계: `docs/specs/functional-design/responsive-design.md`
 - 사이드바 모바일 미대응 (항상 80px 표시), 헤더 고정 패딩, Table 가로 스크롤 없음
 - EditableField 고정 너비, 미사용 Header.tsx 정리
+
+**대시보드 축일자/전례력 카드 통일:**
+- PatronFeastCard와 LiturgicalSeasonCard가 가톨릭 특화 정보임에도 위치/스타일 불일치
+- 두 카드를 나란히 배치하고 카드 스타일 통일
 
 ### PERFORMANCE (Non-Functional)
 
