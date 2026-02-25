@@ -75,18 +75,14 @@ function OnboardingChecklist({
                     return (
                         <li key={item.step}>
                             <Card
-                                className={`flex items-center gap-4 p-4 ${
-                                    isCurrent ? 'border-primary' : isCompleted ? 'bg-muted' : ''
-                                }`}
+                                className={`flex items-center gap-4 p-4 ${isCurrent ? 'border-primary' : ''}${!isCurrent && isCompleted ? ' bg-muted' : ''}`}
                             >
                                 {/* 아이콘/번호 */}
                                 <div
                                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                                        isCompleted
+                                        isCompleted || isCurrent
                                             ? 'bg-primary text-primary-foreground'
-                                            : isCurrent
-                                              ? 'bg-primary text-primary-foreground'
-                                              : 'bg-muted text-muted-foreground'
+                                            : 'bg-muted text-muted-foreground'
                                     }`}
                                 >
                                     {isCompleted ? (
@@ -300,11 +296,9 @@ export function DashboardPage() {
         return (
             <MainLayout title={`안녕하세요, ${account?.name}님!`}>
                 <div className="flex justify-center p-8">
-                    <div
-                        className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"
-                        role="status"
-                        aria-label="로딩 중"
-                    />
+                    <output aria-label="로딩 중">
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                    </output>
                 </div>
             </MainLayout>
         );

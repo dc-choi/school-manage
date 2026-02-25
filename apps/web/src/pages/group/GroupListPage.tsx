@@ -37,13 +37,8 @@ export function GroupListPage() {
         }
     };
 
-    const handleSelectAll = (checked: boolean) => {
-        if (checked) {
-            setSelectedIds(new Set(groups.map((g) => g.id)));
-        } else {
-            setSelectedIds(new Set());
-        }
-    };
+    const selectAll = () => setSelectedIds(new Set(groups.map((g) => g.id)));
+    const deselectAll = () => setSelectedIds(new Set());
 
     const handleSelectOne = (id: string, checked: boolean) => {
         const newSet = new Set(selectedIds);
@@ -98,7 +93,10 @@ export function GroupListPage() {
                                     ref={(el) => {
                                         if (el) el.indeterminate = isSomeSelected;
                                     }}
-                                    onCheckedChange={handleSelectAll}
+                                    onCheckedChange={(checked) => {
+                                        if (checked) selectAll();
+                                        else deselectAll();
+                                    }}
                                     aria-label="전체 선택"
                                 />
                             </TableHead>

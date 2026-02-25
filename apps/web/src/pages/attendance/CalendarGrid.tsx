@@ -3,6 +3,12 @@ import type { CalendarDay } from '@school/trpc';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
+const getWeekdayColor = (index: number): string => {
+    if (index === 0) return 'text-red-500';
+    if (index === 6) return 'text-blue-500';
+    return 'text-foreground';
+};
+
 interface CalendarGridProps {
     year: number;
     month: number;
@@ -60,12 +66,7 @@ export function CalendarGrid({ year, month, days, onDateClick }: CalendarGridPro
             {/* 요일 헤더 */}
             <div className="grid grid-cols-7 bg-muted/60">
                 {WEEKDAYS.map((day, index) => (
-                    <div
-                        key={day}
-                        className={`py-3 text-center text-sm font-semibold ${
-                            index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-foreground'
-                        }`}
-                    >
+                    <div key={day} className={`py-3 text-center text-sm font-semibold ${getWeekdayColor(index)}`}>
                         {day}
                     </div>
                 ))}
@@ -74,7 +75,7 @@ export function CalendarGrid({ year, month, days, onDateClick }: CalendarGridPro
             {/* 달력 그리드 */}
             <div className="divide-y">
                 {grid.map((week, weekIndex) => (
-                    <div key={weekIndex} className="grid grid-cols-7 divide-x">
+                    <div key={week[0]?.date ?? `week-${weekIndex}`} className="grid grid-cols-7 divide-x">
                         {week.map((day, dayIndex) => (
                             <CalendarCell
                                 key={day?.date ?? `empty-${weekIndex}-${dayIndex}`}

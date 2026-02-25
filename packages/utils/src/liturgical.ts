@@ -31,62 +31,76 @@ export const getLiturgicalSeason = (date: Date, year?: number): LiturgicalSeason
     const baptismOfLord = getBaptismOfLord(y);
     const christmas = new Date(y, 11, 25); // 12/25
 
-    // 전년도 성탄 시기 경계 (1월 초)
-    const prevBaptism = getBaptismOfLord(y);
-
-    // 전례 시기 판별 (순서 중요)
+    // ISO 문자열 캐싱
+    const toISO = formatDateISO;
 
     // 1. 성탄 시기 (12/25~12/31)
-    if (dateISO >= formatDateISO(christmas)) {
-        if (dateISO === formatDateISO(christmas)) {
-            return { season: '성탄 대축일', color: 'white' };
-        }
-        return { season: '성탄 시기', color: 'white' };
+    if (dateISO >= toISO(christmas)) {
+        return dateISO === toISO(christmas)
+            ? { season: '성탄 대축일', color: 'white' }
+            : { season: '성탄 시기', color: 'white' };
     }
 
     // 2. 성탄 시기 (1/1 ~ 주님 세례 축일)
-    if (dateISO <= formatDateISO(prevBaptism)) {
+    if (dateISO <= toISO(baptismOfLord)) {
         return { season: '성탄 시기', color: 'white' };
     }
 
     // 3. 대림 시기
-    if (dateISO >= formatDateISO(advent1)) {
+    if (dateISO >= toISO(advent1)) {
         const weekNum = getWeekNumber(advent1, date);
         return { season: `대림 제${weekNum}주일`, color: 'purple' };
     }
 
     // 4. 연중 시기 전반부 (주님 세례 축일 다음 날 ~ 재의 수요일 전날)
-    const ordinaryStart = addDays(prevBaptism, 1);
-    if (dateISO >= formatDateISO(ordinaryStart) && dateISO < formatDateISO(ashWednesday)) {
-        const weekNum = getOrdinaryWeekBefore(prevBaptism, date);
+    if (dateISO < toISO(ashWednesday)) {
+        const weekNum = getOrdinaryWeekBefore(baptismOfLord, date);
         return { season: `연중 제${weekNum}주일`, color: 'green' };
     }
 
     // 5. 사순 시기 (재의 수요일 ~ 부활 전날)
-    if (dateISO >= formatDateISO(ashWednesday) && dateISO < formatDateISO(easter)) {
-        if (dateISO === formatDateISO(ashWednesday)) {
-            return { season: '재의 수요일', color: 'purple' };
-        }
-        const weekNum = getWeekNumber(ashWednesday, date);
-        return { season: `사순 제${weekNum}주일`, color: 'purple' };
+    if (dateISO < toISO(easter)) {
+        return matchLentenSeason(dateISO, toISO(ashWednesday), ashWednesday, date);
     }
 
     // 6. 부활 시기 (부활 대축일 ~ 성령 강림)
-    if (dateISO >= formatDateISO(easter) && dateISO <= formatDateISO(pentecost)) {
-        if (dateISO === formatDateISO(easter)) {
-            return { season: '부활 대축일', color: 'white' };
-        }
-        // 성령 강림 당일: 빨강 전례색
-        if (dateISO === formatDateISO(pentecost)) {
-            return { season: '성령 강림 대축일', color: 'red' };
-        }
-        const weekNum = getWeekNumber(easter, date);
-        return { season: `부활 제${weekNum}주일`, color: 'white' };
+    if (dateISO <= toISO(pentecost)) {
+        return matchEasterSeason(dateISO, toISO(easter), toISO(pentecost), easter, date);
     }
 
     // 7. 연중 시기 후반부 (성령 강림 다음 날 ~ 대림 전날)
     const weekNum = getOrdinaryWeekAfter(pentecost, advent1, date);
     return { season: `연중 제${weekNum}주일`, color: 'green' };
+};
+
+const matchLentenSeason = (
+    dateISO: string,
+    ashWednesdayISO: string,
+    ashWednesday: Date,
+    date: Date
+): LiturgicalSeasonInfo => {
+    if (dateISO === ashWednesdayISO) {
+        return { season: '재의 수요일', color: 'purple' };
+    }
+    const weekNum = getWeekNumber(ashWednesday, date);
+    return { season: `사순 제${weekNum}주일`, color: 'purple' };
+};
+
+const matchEasterSeason = (
+    dateISO: string,
+    easterISO: string,
+    pentecostISO: string,
+    easter: Date,
+    date: Date
+): LiturgicalSeasonInfo => {
+    if (dateISO === easterISO) {
+        return { season: '부활 대축일', color: 'white' };
+    }
+    if (dateISO === pentecostISO) {
+        return { season: '성령 강림 대축일', color: 'red' };
+    }
+    const weekNum = getWeekNumber(easter, date);
+    return { season: `부활 제${weekNum}주일`, color: 'white' };
 };
 
 /**

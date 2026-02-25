@@ -41,7 +41,7 @@ export const formatDateISO = (date: Date): string => {
 export const formatDateKR = (date: Date | string | null | undefined, fallback = '-'): string => {
     if (!date) return fallback;
     const d = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(d.getTime())) return fallback;
+    if (Number.isNaN(d.getTime())) return fallback;
     return d.toLocaleDateString('ko-KR');
 };
 

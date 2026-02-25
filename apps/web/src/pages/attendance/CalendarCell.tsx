@@ -6,16 +6,26 @@ interface CalendarCellProps {
     onClick?: (date: string) => void;
 }
 
-export function CalendarCell({ day, onClick }: CalendarCellProps) {
+const getBarColor = (isFullAttendance: boolean, hasAttendance: boolean) => {
+    if (isFullAttendance) return 'bg-green-500';
+    if (hasAttendance) return 'bg-amber-500';
+    return 'bg-muted';
+};
+
+const getTextColor = (isFullAttendance: boolean, hasAttendance: boolean) => {
+    if (isFullAttendance) return 'text-green-600';
+    if (hasAttendance) return 'text-amber-600';
+    return 'text-muted-foreground';
+};
+
+export function CalendarCell({ day, onClick }: Readonly<CalendarCellProps>) {
     if (!day) {
-        // 빈 셀 (이전/다음 달 날짜)
         return <div className="h-24 bg-muted/20 sm:h-28" />;
     }
 
     const { date, dayOfWeek, attendance, holyday } = day;
-    const dayNumber = parseInt(date.split('-')[2], 10);
+    const dayNumber = Number.parseInt(date.split('-')[2], 10);
 
-    // 스타일 결정
     const isHolyday = !!holyday;
     const isSunday = dayOfWeek === 0;
     const isSaturday = dayOfWeek === 6;
@@ -24,10 +34,12 @@ export function CalendarCell({ day, onClick }: CalendarCellProps) {
     const attendanceRate = attendance.total > 0 ? Math.round((attendance.present / attendance.total) * 100) : 0;
 
     return (
-        <div
+        <button
+            type="button"
             onClick={() => onClick?.(date)}
+            onKeyDown={(e) => e.key === 'Enter' && onClick?.(date)}
             className={cn(
-                'group relative h-24 cursor-pointer p-2 transition-all hover:bg-accent/50 sm:h-28 sm:p-3',
+                'group relative h-24 w-full cursor-pointer p-2 text-left transition-all hover:bg-accent/50 sm:h-28 sm:p-3',
                 isHolyday && 'bg-red-50/80 hover:bg-red-100/80',
                 !isHolyday && isSunday && 'bg-rose-50/40',
                 !isHolyday && isSaturday && 'bg-blue-50/40'
@@ -49,24 +61,17 @@ export function CalendarCell({ day, onClick }: CalendarCellProps) {
             {/* 출석 현황 */}
             {attendance.total > 0 && (
                 <div className="mt-1 space-y-1">
-                    {/* 출석률 바 */}
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
                             className={cn(
                                 'h-full rounded-full transition-all',
-                                isFullAttendance ? 'bg-green-500' : hasAttendance ? 'bg-amber-500' : 'bg-muted'
+                                getBarColor(isFullAttendance, hasAttendance)
                             )}
                             style={{ width: `${attendanceRate}%` }}
                         />
                     </div>
-                    {/* 출석 인원 */}
                     <div
-                        className={cn(
-                            'text-center text-xs font-medium',
-                            isFullAttendance && 'text-green-600',
-                            !isFullAttendance && hasAttendance && 'text-amber-600',
-                            !hasAttendance && 'text-muted-foreground'
-                        )}
+                        className={cn('text-center text-xs font-medium', getTextColor(isFullAttendance, hasAttendance))}
                     >
                         {attendance.present}/{attendance.total}
                     </div>
@@ -79,6 +84,6 @@ export function CalendarCell({ day, onClick }: CalendarCellProps) {
                     {holyday}
                 </div>
             )}
-        </div>
+        </button>
     );
 }

@@ -13,7 +13,7 @@ const interpolateQuery = (query: string, params: string): string => {
     try {
         const parsedParams: unknown[] = JSON.parse(params);
         let index = 0;
-        return query.replace(/\?/g, () => {
+        return query.replaceAll('?', () => {
             const value = parsedParams[index++];
             if (value === null) return 'NULL';
             if (typeof value === 'string') return `'${value}'`;
@@ -56,11 +56,8 @@ database.$on('query', (event) => {
     // 슬로우 쿼리 감지
     if (duration >= SLOW_QUERY_THRESHOLD) {
         logger.err(`[SLOW QUERY] ${duration}ms - ${interpolated}`);
-    } else {
-        // 일반 쿼리 로깅 (개발 환경만)
-        if (env.mode.local) {
-            logger.sql(`${duration}ms - ${interpolated}`);
-        }
+    } else if (env.mode.local) {
+        logger.sql(`${duration}ms - ${interpolated}`);
     }
 });
 

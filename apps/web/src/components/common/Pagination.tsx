@@ -17,14 +17,12 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
+        } else if (currentPage <= 3) {
+            pages.push(1, 2, 3, 4, '...', totalPages);
+        } else if (currentPage >= totalPages - 2) {
+            pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
         } else {
-            if (currentPage <= 3) {
-                pages.push(1, 2, 3, 4, '...', totalPages);
-            } else if (currentPage >= totalPages - 2) {
-                pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-            } else {
-                pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
-            }
+            pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
         }
 
         return pages;
@@ -41,10 +39,10 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
                 이전
             </Button>
 
-            {getPageNumbers().map((page, index) =>
+            {getPageNumbers().map((page) =>
                 typeof page === 'number' ? (
                     <Button
-                        key={index}
+                        key={`page-${page}`}
                         variant={currentPage === page ? 'default' : 'outline'}
                         onClick={() => onPageChange(page)}
                         className="min-w-14"
@@ -52,7 +50,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
                         {page}
                     </Button>
                 ) : (
-                    <span key={index} className="px-3 py-2 text-xl text-muted-foreground">
+                    <span key={`ellipsis-${page}`} className="px-3 py-2 text-xl text-muted-foreground">
                         {page}
                     </span>
                 )

@@ -24,7 +24,8 @@
         "lint": "turbo run lint",
         "lint:fix": "turbo run lint -- --fix",
         "prettier": "prettier --check \"**/*.ts\"",
-        "prettier:fix": "prettier --write \"**/*.ts\""
+        "prettier:fix": "prettier --write \"**/*.ts\"",
+        "sonar": "npx sonar-scanner"
     },
     "author": "dc-choi",
     "license": "",

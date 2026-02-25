@@ -54,6 +54,65 @@ interface GroupStatisticsTableProps {
     error?: boolean;
 }
 
+function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTableProps) {
+    if (isLoading) {
+        return (
+            <div className="flex h-[200px] items-center justify-center">
+                <LoadingSpinner />
+            </div>
+        );
+    }
+    if (error) return <p className="text-sm text-destructive">데이터 로드 실패</p>;
+    if (data && data.groups.length > 0) {
+        return (
+            <div className="overflow-x-auto -mx-6">
+                <Table className="min-w-[600px]">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="whitespace-nowrap">학년명</TableHead>
+                            <TableHead className="whitespace-nowrap text-center">인원</TableHead>
+                            <TableHead className="whitespace-nowrap text-center">주간 출석률</TableHead>
+                            <TableHead className="whitespace-nowrap text-center">월간 출석률</TableHead>
+                            <TableHead className="whitespace-nowrap text-center">연간 출석률</TableHead>
+                            <TableHead className="whitespace-nowrap text-center">주간 평균</TableHead>
+                            <TableHead className="whitespace-nowrap text-center">월간 평균</TableHead>
+                            <TableHead className="whitespace-nowrap text-center">연간 평균</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data.groups.map((group) => (
+                            <TableRow key={group.groupId}>
+                                <TableCell className="font-medium">{group.groupName}</TableCell>
+                                <TableCell className="text-center tabular-nums">{group.totalStudents}명</TableCell>
+                                <TableCell className="text-center tabular-nums">
+                                    {group.weekly.attendanceRate}%
+                                </TableCell>
+                                <TableCell className="text-center tabular-nums">
+                                    {group.monthly.attendanceRate}%
+                                </TableCell>
+                                <TableCell className="text-center tabular-nums">
+                                    {group.yearly.attendanceRate}%
+                                </TableCell>
+                                <TableCell className="text-center tabular-nums">
+                                    {group.weekly.avgAttendance}명
+                                </TableCell>
+                                <TableCell className="text-center tabular-nums">
+                                    {group.monthly.avgAttendance}명
+                                </TableCell>
+                                <TableCell className="text-center tabular-nums">
+                                    {group.yearly.avgAttendance}명
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                        <TotalRow groups={data.groups} />
+                    </TableBody>
+                </Table>
+            </div>
+        );
+    }
+    return <p className="text-sm text-muted-foreground">데이터 없음</p>;
+}
+
 export function GroupStatisticsTable({ data, isLoading, error }: GroupStatisticsTableProps) {
     return (
         <Card>
@@ -61,61 +120,7 @@ export function GroupStatisticsTable({ data, isLoading, error }: GroupStatistics
                 <CardTitle className="text-base">학년별 통계</CardTitle>
             </CardHeader>
             <CardContent>
-                {isLoading ? (
-                    <div className="flex h-[200px] items-center justify-center">
-                        <LoadingSpinner />
-                    </div>
-                ) : error ? (
-                    <p className="text-sm text-destructive">데이터 로드 실패</p>
-                ) : data && data.groups.length > 0 ? (
-                    <div className="overflow-x-auto -mx-6">
-                        <Table className="min-w-[600px]">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="whitespace-nowrap">학년명</TableHead>
-                                    <TableHead className="whitespace-nowrap text-center">인원</TableHead>
-                                    <TableHead className="whitespace-nowrap text-center">주간 출석률</TableHead>
-                                    <TableHead className="whitespace-nowrap text-center">월간 출석률</TableHead>
-                                    <TableHead className="whitespace-nowrap text-center">연간 출석률</TableHead>
-                                    <TableHead className="whitespace-nowrap text-center">주간 평균</TableHead>
-                                    <TableHead className="whitespace-nowrap text-center">월간 평균</TableHead>
-                                    <TableHead className="whitespace-nowrap text-center">연간 평균</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {data.groups.map((group) => (
-                                    <TableRow key={group.groupId}>
-                                        <TableCell className="font-medium">{group.groupName}</TableCell>
-                                        <TableCell className="text-center tabular-nums">
-                                            {group.totalStudents}명
-                                        </TableCell>
-                                        <TableCell className="text-center tabular-nums">
-                                            {group.weekly.attendanceRate}%
-                                        </TableCell>
-                                        <TableCell className="text-center tabular-nums">
-                                            {group.monthly.attendanceRate}%
-                                        </TableCell>
-                                        <TableCell className="text-center tabular-nums">
-                                            {group.yearly.attendanceRate}%
-                                        </TableCell>
-                                        <TableCell className="text-center tabular-nums">
-                                            {group.weekly.avgAttendance}명
-                                        </TableCell>
-                                        <TableCell className="text-center tabular-nums">
-                                            {group.monthly.avgAttendance}명
-                                        </TableCell>
-                                        <TableCell className="text-center tabular-nums">
-                                            {group.yearly.avgAttendance}명
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                                <TotalRow groups={data.groups} />
-                            </TableBody>
-                        </Table>
-                    </div>
-                ) : (
-                    <p className="text-sm text-muted-foreground">데이터 없음</p>
-                )}
+                <GroupStatisticsContent data={data} isLoading={isLoading} error={error} />
             </CardContent>
         </Card>
     );

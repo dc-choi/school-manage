@@ -65,20 +65,6 @@ function parseContent(content: string): { mass: boolean; catechism: boolean } {
     }
 }
 
-/**
- * 미사/교리 체크를 content 값으로 변환
- * ◎ = 출석 (미사+교리)
- * ○ = 미사만
- * △ = 교리만
- * - = 결석
- */
-function toContent(mass: boolean, catechism: boolean): string {
-    if (mass && catechism) return '◎';
-    if (mass && !catechism) return '○';
-    if (!mass && catechism) return '△';
-    return '-';
-}
-
 export function AttendanceModal({
     isOpen,
     onClose,
@@ -94,8 +80,8 @@ export function AttendanceModal({
 
     // 날짜 파싱
     const [, monthStr, dayStr] = date.split('-');
-    const month = parseInt(monthStr, 10);
-    const day = parseInt(dayStr, 10);
+    const month = Number.parseInt(monthStr, 10);
+    const day = Number.parseInt(dayStr, 10);
 
     // 요일 계산
     const dateObj = new Date(date);
@@ -131,7 +117,7 @@ export function AttendanceModal({
 
             const newMass = field === 'mass' ? checked : student.mass;
             const newCatechism = field === 'catechism' ? checked : student.catechism;
-            const content = toContent(newMass, newCatechism);
+            const content = getStatusSymbol(newMass, newCatechism);
 
             setSaveStatus('saving');
 
@@ -166,14 +152,16 @@ export function AttendanceModal({
                     {holyday && <p className="text-sm text-red-600">{holyday}</p>}
                 </DialogHeader>
 
-                {isLoading ? (
+                {isLoading && (
                     <div className="flex items-center justify-center py-8">
                         <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
                         <span className="ml-2">로딩 중...</span>
                     </div>
-                ) : students.length === 0 ? (
+                )}
+                {!isLoading && students.length === 0 && (
                     <p className="py-8 text-center text-muted-foreground">학생이 없습니다.</p>
-                ) : (
+                )}
+                {!isLoading && students.length > 0 && (
                     <div className="space-y-4">
                         {/* 테이블 헤더 */}
                         <div className="grid grid-cols-[1fr_60px_60px_50px] gap-2 border-b pb-2 text-sm font-medium">
