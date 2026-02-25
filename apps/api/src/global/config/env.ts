@@ -24,9 +24,6 @@ export const env = {
         local: process.env.NODE_ENV?.toLowerCase().includes('local'),
         value: process.env.NODE_ENV?.toLowerCase(),
     },
-    mongodb: {
-        url: getOsEnv('MONGODB_URL'),
-    },
     mysql: {
         host: getOsEnv('MYSQL_HOST'),
         port: getOsEnv('MYSQL_PORT'),
