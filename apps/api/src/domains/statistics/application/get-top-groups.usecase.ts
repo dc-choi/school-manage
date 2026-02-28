@@ -5,8 +5,8 @@
  */
 import type { TopGroupsOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/trpc';
 import {
+    clampToToday,
     countSundays,
-    countSundaysInYear,
     formatDateCompact,
     getGraduationCutoff,
     getWeekRangeInMonth,
@@ -127,7 +127,7 @@ export class GetTopGroupsUseCase {
 
         if (month) {
             const startDate = new Date(year, month - 1, 1);
-            const endDate = new Date(year, month, 0);
+            const endDate = clampToToday(new Date(year, month, 0));
             return {
                 startDateStr: formatDateCompact(startDate),
                 endDateStr: formatDateCompact(endDate),
@@ -136,11 +136,11 @@ export class GetTopGroupsUseCase {
         }
 
         const startDate = new Date(year, 0, 1);
-        const endDate = new Date(year, 11, 31);
+        const endDate = clampToToday(new Date(year, 11, 31));
         return {
             startDateStr: formatDateCompact(startDate),
             endDateStr: formatDateCompact(endDate),
-            totalDays: countSundaysInYear(year),
+            totalDays: countSundays(startDate, endDate),
         };
     }
 }

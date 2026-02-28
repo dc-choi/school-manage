@@ -5,6 +5,7 @@
  */
 import type { GroupStatisticsOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
 import {
+    clampToToday,
     countSundays,
     formatDateCompact,
     getGraduationCutoff,
@@ -178,20 +179,20 @@ export class GetGroupStatisticsUseCase {
         if (month) {
             return {
                 startDate: new Date(year, month - 1, 1),
-                endDate: new Date(year, month, 0),
+                endDate: clampToToday(new Date(year, month, 0)),
             };
         }
         const now = new Date();
         return {
             startDate: new Date(year, now.getMonth(), 1),
-            endDate: new Date(year, now.getMonth() + 1, 0),
+            endDate: clampToToday(new Date(year, now.getMonth() + 1, 0)),
         };
     }
 
     private getYearlyRange(year: number): DateRange {
         return {
             startDate: new Date(year, 0, 1),
-            endDate: new Date(year, 11, 31),
+            endDate: clampToToday(new Date(year, 11, 31)),
         };
     }
 }

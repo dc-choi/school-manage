@@ -168,6 +168,18 @@ export const getGraduationCutoff = (year: number, month?: number, week?: number)
 };
 
 /**
+ * 종료일이 오늘 이후이면 오늘 날짜로 제한한다.
+ * 현재 연도/월의 통계에서 미래 기간을 제외하기 위해 사용.
+ */
+export const clampToToday = (endDate: Date): Date => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(0, 0, 0, 0);
+    return end > today ? today : endDate;
+};
+
+/**
  * 부활 대축일을 계산한다. (Anonymous Gregorian Algorithm)
  *
  * 부활 대축일 정의: 춘분(3월 21일) 이후 첫 보름달 다음 일요일

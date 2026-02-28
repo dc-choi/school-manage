@@ -5,6 +5,7 @@
  */
 import type { AttendanceRateOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
 import {
+    clampToToday,
     countSundays,
     formatDateCompact,
     getThisWeekSaturday,
@@ -144,17 +145,17 @@ export class GetAttendanceRateUseCase {
             if (month) {
                 return {
                     startDate: new Date(year, month - 1, 1),
-                    endDate: new Date(year, month, 0),
+                    endDate: clampToToday(new Date(year, month, 0)),
                 };
             }
             const startDate = new Date(year, now.getMonth(), 1);
-            const endDate = new Date(year, now.getMonth() + 1, 0);
+            const endDate = clampToToday(new Date(year, now.getMonth() + 1, 0));
             return { startDate, endDate };
         }
 
         return {
             startDate: new Date(year, 0, 1),
-            endDate: new Date(year, 11, 31),
+            endDate: clampToToday(new Date(year, 11, 31)),
         };
     }
 }
