@@ -13,21 +13,20 @@ export class UpdateStudentUseCase {
     async execute(input: UpdateStudentInput): Promise<UpdateStudentOutput> {
         try {
             const student = await database.$transaction(async (tx) => {
+                // partial update: undefined → skip, null → clear, 값 → set
+                const data: Record<string, unknown> = { updatedAt: getNowKST() };
+                if (input.societyName !== undefined) data.societyName = input.societyName;
+                if (input.catholicName !== undefined) data.catholicName = input.catholicName;
+                if (input.gender !== undefined) data.gender = input.gender;
+                if (input.age !== undefined) data.age = input.age ? BigInt(input.age) : null;
+                if (input.contact !== undefined) data.contact = input.contact ? BigInt(input.contact) : null;
+                if (input.description !== undefined) data.description = input.description;
+                if (input.groupId !== undefined) data.groupId = BigInt(input.groupId);
+                if (input.baptizedAt !== undefined) data.baptizedAt = input.baptizedAt;
+
                 const updated = await tx.student.update({
-                    where: {
-                        id: BigInt(input.id),
-                    },
-                    data: {
-                        societyName: input.societyName,
-                        catholicName: input.catholicName,
-                        gender: input.gender,
-                        age: input.age ? BigInt(input.age) : null,
-                        contact: input.contact ? BigInt(input.contact) : null,
-                        description: input.description,
-                        groupId: BigInt(input.groupId),
-                        baptizedAt: input.baptizedAt,
-                        updatedAt: getNowKST(),
-                    },
+                    where: { id: BigInt(input.id) },
+                    data,
                 });
                 await createStudentSnapshot(tx, {
                     studentId: updated.id,

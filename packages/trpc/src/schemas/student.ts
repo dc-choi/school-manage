@@ -41,20 +41,25 @@ export const createStudentInputSchema = z.object({
 });
 
 /**
- * 학생 수정 입력 스키마
+ * 학생 수정 입력 스키마 (partial update 지원)
+ *
+ * - undefined: 해당 필드 수정하지 않음 (skip)
+ * - null: 해당 필드를 비움 (clear → DB NULL)
+ * - 값: 해당 필드를 값으로 수정
  */
 export const updateStudentInputSchema = z.object({
     id: idSchema,
-    societyName: z.string().min(1, 'Society name is required'),
-    catholicName: z.string().optional(),
-    gender: z.enum(['M', 'F']).optional(),
-    age: z.number().int().positive().optional(),
-    contact: z.number().optional(),
-    description: z.string().optional(),
-    groupId: idSchema,
+    societyName: z.string().min(1, 'Society name is required').optional(),
+    catholicName: z.string().nullable().optional(),
+    gender: z.enum(['M', 'F']).nullable().optional(),
+    age: z.number().int().positive().nullable().optional(),
+    contact: z.number().nullable().optional(),
+    description: z.string().nullable().optional(),
+    groupId: idSchema.optional(),
     baptizedAt: z
         .string()
         .regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/, '축일은 MM/DD 형식으로 입력해주세요.')
+        .nullable()
         .optional(),
 });
 
