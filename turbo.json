@@ -16,7 +16,10 @@
             "dependsOn": ["^build", "^start"]
         },
         "typecheck": {
-            "dependsOn": ["^typecheck"]
+            "dependsOn": ["^build"]
+        },
+        "@school/web#typecheck": {
+            "dependsOn": ["@school/api#build", "^build"]
         },
         "dev": {
             "dependsOn": ["@school/trpc#build"],

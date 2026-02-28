@@ -22,7 +22,7 @@
         "test:watch": "vitest",
         "dev": "pnpm clean && pnpm build && cross-env NODE_ENV=local node dist/src/app.js",
         "lint": "eslint src",
-        "typecheck": "tsc --noEmit",
+        "typecheck": "pnpm prisma:generate && tsc --noEmit",
         "clean": "rimraf dist"
     },
     "dependencies": {
