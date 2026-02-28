@@ -3,7 +3,7 @@ import { GroupStatisticsTable } from './GroupStatisticsTable';
 import { LiturgicalSeasonCard } from './LiturgicalSeasonCard';
 import { PatronFeastCard } from './PatronFeastCard';
 import { TopRankingCard } from './TopRankingCard';
-import { getWeeksInMonth } from '@school/utils';
+import { getNthSundayOf, getWeeksInMonth } from '@school/utils';
 import { Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -126,7 +126,9 @@ function OnboardingChecklist({
 
 function DashboardContent() {
     const { account } = useAuth();
-    const currentYear = new Date().getFullYear();
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
     const [selectedWeek, setSelectedWeek] = useState<number | undefined>(undefined);
@@ -152,24 +154,27 @@ function DashboardContent() {
     }, [currentYear]);
 
     const monthOptions = useMemo(() => {
+        const maxMonth = selectedYear === currentYear ? currentMonth : 12;
         const months = [{ value: '', label: '전체' }];
-        for (let m = 1; m <= 12; m++) {
+        for (let m = 1; m <= maxMonth; m++) {
             months.push({ value: m.toString(), label: `${m}월` });
         }
         return months;
-    }, []);
+    }, [selectedYear, currentYear, currentMonth]);
 
     const weekOptions = useMemo(() => {
         if (!selectedMonth) {
             return [{ value: '', label: '전체' }];
         }
         const weeksInMonth = getWeeksInMonth(selectedYear, selectedMonth);
+        const isCurrentMonth = selectedYear === currentYear && selectedMonth === currentMonth;
         const weeks = [{ value: '', label: '전체' }];
         for (let w = 1; w <= weeksInMonth; w++) {
+            if (isCurrentMonth && getNthSundayOf(selectedYear, selectedMonth, w) > now) break;
             weeks.push({ value: w.toString(), label: `${w}주차` });
         }
         return weeks;
-    }, [selectedYear, selectedMonth]);
+    }, [selectedYear, selectedMonth, currentYear, currentMonth, now]);
 
     const topStudentItems =
         stats.topOverall?.students.map((s) => ({

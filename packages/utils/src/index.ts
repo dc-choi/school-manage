@@ -12,6 +12,7 @@ export {
     getWeeksInMonth,
     getWeekRangeInMonth,
     getGraduationCutoff,
+    clampToToday,
     calculateEaster,
 } from './date.js';
 
