@@ -1,16 +1,26 @@
-import { EditableField } from './EditableField';
+import { StudentForm } from './StudentForm';
 import { formatDateKR } from '@school/utils';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'sonner';
 import { MainLayout } from '~/components/layout';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useGroups } from '~/features/group';
 import { useStudent, useStudents } from '~/features/student';
-import { extractErrorMessage } from '~/lib/error';
+
+function InfoRow({ label, value, variant }: Readonly<{ label: string; value: string; variant?: 'destructive' }>) {
+    return (
+        <div className="flex flex-col border-b py-4 last:border-b-0 sm:flex-row sm:items-center">
+            <dt className="mb-1 shrink-0 text-base font-medium text-muted-foreground sm:mb-0 sm:w-32 sm:text-xl">
+                {label}
+            </dt>
+            <dd className={`text-base sm:text-xl ${variant === 'destructive' ? 'text-destructive' : ''}`}>
+                <span className="rounded px-2 py-1">{value}</span>
+            </dd>
+        </div>
+    );
+}
 
 export function StudentDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -18,30 +28,9 @@ export function StudentDetailPage() {
     const { data: student, isLoading, error } = useStudent(id ?? '');
     const { update, isUpdating } = useStudents();
     const { groups } = useGroups();
+    const [isEditing, setIsEditing] = useState(false);
 
     const isDeleted = !!student?.deletedAt;
-
-    const parseOptionalInt = (v: string): number | undefined => (v ? Number.parseInt(v) : undefined);
-
-    const handleUpdate = async (field: string, value: string) => {
-        if (!id || !student) return;
-        try {
-            await update({
-                id,
-                societyName: field === 'societyName' ? value : student.societyName,
-                catholicName: field === 'catholicName' ? value || undefined : student.catholicName,
-                gender:
-                    field === 'gender' ? (value as 'M' | 'F' | undefined) : (student.gender as 'M' | 'F' | undefined),
-                age: field === 'age' ? parseOptionalInt(value) : student.age,
-                contact: field === 'contact' ? parseOptionalInt(value) : student.contact,
-                groupId: field === 'groupId' ? value : student.groupId,
-                baptizedAt: field === 'baptizedAt' ? value || undefined : student.baptizedAt,
-                description: field === 'description' ? value || undefined : student.description,
-            });
-        } catch (e) {
-            toast.error(extractErrorMessage(e));
-        }
-    };
 
     // 연락처 표시값 변환
     const contactRaw = student?.contact ? String(student.contact).padStart(11, '0') : '';
@@ -55,7 +44,6 @@ export function StudentDetailPage() {
         if (gender === 'F') return '여';
         return '-';
     };
-    const genderDisplay = getGenderDisplay(student?.gender);
 
     // 그룹 이름 찾기
     const groupName = groups.find((g) => g.id === student?.groupId)?.name ?? student?.groupId ?? '';
@@ -73,6 +61,47 @@ export function StudentDetailPage() {
                         </div>
                     </CardContent>
                 </Card>
+            </MainLayout>
+        );
+    }
+
+    if (isEditing && student) {
+        return (
+            <MainLayout title="학생 상세">
+                <div className="mx-auto max-w-md">
+                    <StudentForm
+                        initialData={{
+                            societyName: student.societyName,
+                            catholicName: student.catholicName,
+                            gender: student.gender as 'M' | 'F' | undefined,
+                            age: student.age,
+                            contact: student.contact,
+                            description: student.description,
+                            groupId: student.groupId,
+                            baptizedAt: student.baptizedAt,
+                        }}
+                        groups={groups}
+                        onSubmit={async (data) => {
+                            if (!id) return;
+                            // undefined → null 변환: 폼에서 비운 optional 필드를 DB에서 clear
+                            await update({
+                                id,
+                                societyName: data.societyName,
+                                catholicName: data.catholicName ?? null,
+                                gender: data.gender ?? null,
+                                age: data.age ?? null,
+                                contact: data.contact ?? null,
+                                description: data.description ?? null,
+                                groupId: data.groupId,
+                                baptizedAt: data.baptizedAt ?? null,
+                            });
+                            setIsEditing(false);
+                        }}
+                        onCancel={() => setIsEditing(false)}
+                        isSubmitting={isUpdating}
+                        submitLabel="수정"
+                    />
+                </div>
             </MainLayout>
         );
     }
@@ -99,20 +128,26 @@ export function StudentDetailPage() {
                                         삭제됨
                                     </Badge>
                                 )}
-                                {isUpdating && (
-                                    <Badge variant="outline" className="ml-2">
-                                        저장 중...
-                                    </Badge>
-                                )}
                             </div>
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                className="flex-1 sm:flex-none"
-                                onClick={() => navigate(-1)}
-                            >
-                                목록으로
-                            </Button>
+                            <div className="flex gap-2">
+                                {!isDeleted && !isLoading && (
+                                    <Button
+                                        size="lg"
+                                        className="flex-1 sm:flex-none"
+                                        onClick={() => setIsEditing(true)}
+                                    >
+                                        수정
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    className="flex-1 sm:flex-none"
+                                    onClick={() => navigate(-1)}
+                                >
+                                    목록으로
+                                </Button>
+                            </div>
                         </div>
                     </CardHeader>
                 </Card>
@@ -120,111 +155,26 @@ export function StudentDetailPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-xl">기본 정보</CardTitle>
-                        {!isDeleted && (
-                            <p className="text-base text-muted-foreground">각 항목을 클릭하여 수정할 수 있습니다.</p>
-                        )}
                     </CardHeader>
                     <CardContent>
                         {isLoading ? (
                             <p className="text-center text-xl text-muted-foreground">로딩 중...</p>
                         ) : (
                             <dl className="space-y-0">
-                                <EditableField
-                                    label="이름"
-                                    value={student?.societyName ?? ''}
-                                    onSave={(v) => handleUpdate('societyName', v)}
-                                    disabled={isDeleted}
-                                />
-                                <EditableField
-                                    label="세례명"
-                                    value={student?.catholicName ?? ''}
-                                    onSave={(v) => handleUpdate('catholicName', v)}
-                                    disabled={isDeleted}
-                                />
-                                <EditableField
-                                    label="성별"
-                                    value={student?.gender ?? ''}
-                                    displayValue={genderDisplay}
-                                    onSave={(v) => handleUpdate('gender', v)}
-                                    disabled={isDeleted}
-                                    renderInput={({ value, onChange }) => (
-                                        <Select value={value} onValueChange={onChange}>
-                                            <SelectTrigger className="w-48">
-                                                <SelectValue placeholder="성별 선택" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="M">남</SelectItem>
-                                                <SelectItem value="F">여</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                                <EditableField
-                                    label="나이"
-                                    value={student?.age?.toString() ?? ''}
-                                    onSave={(v) => handleUpdate('age', v)}
-                                    type="number"
-                                    disabled={isDeleted}
-                                />
-                                <EditableField
-                                    label="연락처"
-                                    value={contactRaw}
-                                    displayValue={contactDisplay}
-                                    onSave={(v) => handleUpdate('contact', v)}
-                                    disabled={isDeleted}
-                                    hint="- 없이 숫자만 입력하세요"
-                                    renderInput={({ value, onChange, onKeyDown }) => (
-                                        <Input
-                                            value={value}
-                                            onChange={(e) => onChange(e.target.value.replaceAll(/[^0-9]/, ''))}
-                                            onKeyDown={onKeyDown}
-                                            placeholder="01012345678"
-                                            autoFocus
-                                        />
-                                    )}
-                                />
-                                <EditableField
-                                    label="학년"
-                                    value={student?.groupId ?? ''}
-                                    displayValue={groupName}
-                                    onSave={(v) => handleUpdate('groupId', v)}
-                                    disabled={isDeleted}
-                                    renderInput={({ value, onChange }) => (
-                                        <Select value={value} onValueChange={onChange}>
-                                            <SelectTrigger className="w-48">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {groups.map((g) => (
-                                                    <SelectItem key={g.id} value={g.id}>
-                                                        {g.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                                <EditableField
-                                    label="축일"
-                                    value={student?.baptizedAt ?? ''}
-                                    onSave={(v) => handleUpdate('baptizedAt', v)}
-                                    disabled={isDeleted}
-                                />
-                                <EditableField
-                                    label="비고"
-                                    value={student?.description ?? ''}
-                                    onSave={(v) => handleUpdate('description', v)}
-                                    disabled={isDeleted}
-                                />
+                                <InfoRow label="이름" value={student?.societyName ?? '-'} />
+                                <InfoRow label="세례명" value={student?.catholicName ?? '-'} />
+                                <InfoRow label="성별" value={getGenderDisplay(student?.gender)} />
+                                <InfoRow label="나이" value={student?.age?.toString() ?? '-'} />
+                                <InfoRow label="연락처" value={contactDisplay} />
+                                <InfoRow label="학년" value={groupName || '-'} />
+                                <InfoRow label="축일" value={student?.baptizedAt ?? '-'} />
+                                <InfoRow label="비고" value={student?.description ?? '-'} />
                                 {isDeleted && (
-                                    <div className="flex flex-col border-b py-4 last:border-b-0 sm:flex-row sm:items-center">
-                                        <dt className="mb-1 shrink-0 text-base font-medium text-muted-foreground sm:mb-0 sm:w-32 sm:text-xl">
-                                            삭제일
-                                        </dt>
-                                        <dd className="text-base text-destructive sm:text-xl">
-                                            {formatDateKR(student!.deletedAt!)}
-                                        </dd>
-                                    </div>
+                                    <InfoRow
+                                        label="삭제일"
+                                        value={formatDateKR(student!.deletedAt!)}
+                                        variant="destructive"
+                                    />
                                 )}
                             </dl>
                         )}
