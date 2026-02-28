@@ -66,6 +66,51 @@ export const mockPrismaClient: MockPrismaClient = {
     $queryRaw: vi.fn().mockResolvedValue([{ '1': 1 }]),
 };
 
+// env 모듈 모킹 (CI에 .env.test 파일 없음)
+vi.mock('~/global/config/env.js', () => ({
+    env: {
+        mode: {
+            prod: false,
+            dev: false,
+            test: true,
+            local: false,
+            value: 'test',
+        },
+        mysql: {
+            host: 'localhost',
+            port: '3306',
+            username: 'test',
+            password: 'test',
+            schema: 'test',
+        },
+        app: {
+            name: 'test',
+            version: '0.0.0',
+            description: 'test',
+            port: 3000,
+        },
+        jwt: {
+            secret: 'test-secret-key-for-ci',
+            expire: {
+                access: '1h',
+                refresh: '7d',
+            },
+        },
+        ga4: {
+            measurementId: '',
+            apiSecret: '',
+        },
+        smtp: {
+            user: '',
+            pass: '',
+            adminEmail: '',
+        },
+        cors: {
+            origin: '',
+        },
+    },
+}));
+
 // database 모듈 모킹
 vi.mock('~/infrastructure/database/database.js', () => ({
     database: mockPrismaClient,
