@@ -219,16 +219,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                             id="baptizedAt"
                             className="h-12 text-lg"
                             value={formData.baptizedAt ?? ''}
-                            onChange={(e) => {
-                                const digits = e.target.value.replaceAll(/\D/, '');
-                                let formatted = '';
-                                if (digits.length >= 2) {
-                                    formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4);
-                                } else {
-                                    formatted = digits;
-                                }
-                                handleChange('baptizedAt', formatted);
-                            }}
+                            onChange={(e) => handleChange('baptizedAt', e.target.value)}
                             placeholder="MM/DD"
                             maxLength={5}
                             inputMode="numeric"
