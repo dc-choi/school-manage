@@ -9,6 +9,7 @@ import {
     countSundays,
     formatDateCompact,
     getGraduationCutoff,
+    getNowKST,
     getWeekRangeInMonth,
     roundToDecimal,
 } from '@school/utils';
@@ -19,7 +20,7 @@ type TopStatisticsInput = TopStatisticsSchemaInput & { accountId: string };
 
 export class GetTopGroupsUseCase {
     async execute(input: TopStatisticsInput): Promise<TopGroupsOutput> {
-        const year = input.year ?? new Date().getFullYear();
+        const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
         const limit = input.limit ?? 5;
         const accountId = BigInt(input.accountId);

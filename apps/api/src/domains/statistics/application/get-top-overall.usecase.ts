@@ -5,7 +5,7 @@
  */
 import { Prisma } from '@prisma/client';
 import type { TopOverallOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/trpc';
-import { clampToToday, formatDateCompact, getWeekRangeInMonth } from '@school/utils';
+import { clampToToday, formatDateCompact, getNowKST, getWeekRangeInMonth } from '@school/utils';
 import { getBulkGroupSnapshots, getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
@@ -22,7 +22,7 @@ interface StudentScoreRaw {
 
 export class GetTopOverallUseCase {
     async execute(input: TopStatisticsInput): Promise<TopOverallOutput> {
-        const year = input.year ?? new Date().getFullYear();
+        const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
         const limit = input.limit ?? 5;
         const accountId = BigInt(input.accountId);

@@ -172,7 +172,7 @@ export const getGraduationCutoff = (year: number, month?: number, week?: number)
  * 현재 연도/월의 통계에서 미래 기간을 제외하기 위해 사용.
  */
 export const clampToToday = (endDate: Date): Date => {
-    const today = new Date();
+    const today = getNowKST();
     today.setHours(0, 0, 0, 0);
     const end = new Date(endDate);
     end.setHours(0, 0, 0, 0);

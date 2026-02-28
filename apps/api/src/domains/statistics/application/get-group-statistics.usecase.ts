@@ -9,6 +9,7 @@ import {
     countSundays,
     formatDateCompact,
     getGraduationCutoff,
+    getNowKST,
     getThisWeekSaturday,
     getThisWeekSunday,
     getWeekRangeInMonth,
@@ -33,7 +34,7 @@ interface PeriodGroupData {
 
 export class GetGroupStatisticsUseCase {
     async execute(input: StatisticsInput): Promise<GroupStatisticsOutput> {
-        const year = input.year ?? new Date().getFullYear();
+        const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
         const accountId = BigInt(input.accountId);
 
@@ -168,7 +169,7 @@ export class GetGroupStatisticsUseCase {
         if (month && week) {
             return getWeekRangeInMonth(year, month, week);
         }
-        const now = new Date();
+        const now = getNowKST();
         return {
             startDate: getThisWeekSunday(now),
             endDate: getThisWeekSaturday(now),
@@ -182,7 +183,7 @@ export class GetGroupStatisticsUseCase {
                 endDate: clampToToday(new Date(year, month, 0)),
             };
         }
-        const now = new Date();
+        const now = getNowKST();
         return {
             startDate: new Date(year, now.getMonth(), 1),
             endDate: clampToToday(new Date(year, now.getMonth() + 1, 0)),
