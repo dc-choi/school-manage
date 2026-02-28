@@ -16,7 +16,7 @@
             "dependsOn": ["^build", "^start"]
         },
         "typecheck": {
-            "dependsOn": ["^typecheck"]
+            "dependsOn": ["^build"]
         },
         "dev": {
             "dependsOn": ["@school/trpc#build"],
