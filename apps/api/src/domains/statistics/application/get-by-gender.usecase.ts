@@ -9,6 +9,7 @@ import {
     countSundays,
     formatDateCompact,
     getGraduationCutoff,
+    getNowKST,
     getWeekRangeInMonth,
     roundToDecimal,
 } from '@school/utils';
@@ -19,7 +20,7 @@ type StatisticsInput = StatisticsSchemaInput & { accountId: string };
 
 export class GetByGenderUseCase {
     async execute(input: StatisticsInput): Promise<GenderDistributionOutput> {
-        const year = input.year ?? new Date().getFullYear();
+        const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
         const accountId = BigInt(input.accountId);
 

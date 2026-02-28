@@ -8,6 +8,7 @@ import {
     clampToToday,
     countSundays,
     formatDateCompact,
+    getNowKST,
     getThisWeekSaturday,
     getThisWeekSunday,
     getWeekRangeInMonth,
@@ -21,7 +22,7 @@ type Period = 'weekly' | 'monthly' | 'yearly';
 
 export class GetAttendanceRateUseCase {
     async execute(input: StatisticsInput, period: Period): Promise<AttendanceRateOutput> {
-        const year = input.year ?? new Date().getFullYear();
+        const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
         const accountId = BigInt(input.accountId);
 
@@ -129,7 +130,7 @@ export class GetAttendanceRateUseCase {
         month?: number,
         week?: number
     ): { startDate: Date; endDate: Date } {
-        const now = new Date();
+        const now = getNowKST();
 
         if (period === 'weekly') {
             if (month && week) {

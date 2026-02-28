@@ -8,6 +8,7 @@ import type {
     GetExcellentStudentsOutput,
     GetExcellentStudentsInput as GetExcellentStudentsSchemaInput,
 } from '@school/trpc';
+import { getNowKST } from '@school/utils';
 import { getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
@@ -23,7 +24,7 @@ type GetExcellentStudentsInput = GetExcellentStudentsSchemaInput & { accountId: 
 
 export class GetExcellentStudentsUseCase {
     async execute(input: GetExcellentStudentsInput): Promise<GetExcellentStudentsOutput> {
-        const year = input.year?.toString() ?? new Date().getFullYear().toString();
+        const year = input.year?.toString() ?? getNowKST().getFullYear().toString();
         const yearNum = Number(year);
         const accountId = BigInt(input.accountId);
 
