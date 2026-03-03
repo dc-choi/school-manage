@@ -21,6 +21,7 @@
 - `docs/business/6_roadmap/roadmap.md` 단계별 확장 로드맵
 - `docs/business/7_pricing/pricing.md` 가격 가설/플랜
 - `docs/business/STATUS.md` 진행 현황
+- `docs/business/HISTORY.md` 과거 분석/완료 항목 아카이브
 
 ## 문제 배경
 - 주일학교 운영 범위가 넓다: 학기별 교리/주말 미사 준비부터 캠프·피정 같은 대규모 행사까지 모두 교리교사가 담당한다
