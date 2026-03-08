@@ -136,6 +136,17 @@
 - PatronFeastCard와 LiturgicalSeasonCard가 가톨릭 특화 정보임에도 위치/스타일 불일치
 - 두 카드를 나란히 배치하고 카드 스타일 통일
 
+### ANALYTICS (Non-Functional)
+
+| 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
+|------|----------------------|--------|------------------------------------------------------|
+| P1   | GA4 account_id 커스텀 디멘션 | 미작성    | 클라이언트 GA4 이벤트에 account_id 추가 → 단체별 WAU 자동 측정 |
+
+**GA4 account_id 커스텀 디멘션:**
+- 현재 클라이언트(gtag.js) 19개 이벤트에 account_id 미포함 → GA4에서 단체별 분석 불가
+- 로그인 시 analytics 모듈에 accountId 세팅, 이후 모든 이벤트에 자동 포함
+- GA4 콘솔에서 커스텀 디멘션 등록 필요
+
 ### PERFORMANCE (Non-Functional)
 
 | 우선순위 | 기능명                       | SDD 상태 | 비고                                                       |
