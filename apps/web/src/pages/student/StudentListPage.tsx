@@ -1,6 +1,7 @@
 import { DeletedStudentsModal } from './DeletedStudentsModal';
 import { GraduatedStudentsModal } from './GraduatedStudentsModal';
 import { formatContact } from '@school/utils';
+import { Upload } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -20,7 +21,9 @@ import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { useGroups } from '~/features/group/hooks/useGroups';
 import { useCheckboxSelection, useStudents } from '~/features/student';
+import { StudentImportModal } from '~/features/student/components/StudentImportModal';
 import { extractErrorMessage } from '~/lib/error';
 
 export function StudentListPage() {
@@ -32,6 +35,10 @@ export function StudentListPage() {
     const [bulkAction, setBulkAction] = useState<'delete' | 'graduate' | null>(null);
     const [deletedModalOpen, setDeletedModalOpen] = useState(false);
     const [graduatedModalOpen, setGraduatedModalOpen] = useState(false);
+    const [importModalOpen, setImportModalOpen] = useState(false);
+
+    // 그룹 목록 (엑셀 Import 학년 매칭용)
+    const { groups } = useGroups();
 
     // 재학생 목록
     const {
@@ -183,6 +190,10 @@ export function StudentListPage() {
                     <Button variant="destructive" onClick={() => setDeletedModalOpen(true)}>
                         삭제된 학생 ({deletedTotal})
                     </Button>
+                    <Button variant="outline" onClick={() => setImportModalOpen(true)}>
+                        <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
+                        엑셀 업로드
+                    </Button>
                     <Button onClick={() => navigate('/students/new')}>학생 추가</Button>
                 </div>
             </div>
@@ -250,6 +261,13 @@ export function StudentListPage() {
                 onPageChange={setDeletedPage}
                 onRestore={restore}
                 isRestoring={isRestoring}
+            />
+
+            <StudentImportModal
+                open={importModalOpen}
+                onOpenChange={setImportModalOpen}
+                groups={groups.map((g) => ({ id: g.id, name: g.name }))}
+                onImportSuccess={() => setImportModalOpen(false)}
             />
 
             <GraduatedStudentsModal

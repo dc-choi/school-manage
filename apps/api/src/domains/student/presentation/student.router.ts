@@ -3,6 +3,7 @@
  *
  * 학생 관련 procedure 정의
  */
+import { BulkCreateStudentsUseCase } from '../application/bulk-create-students.usecase.ts';
 import { BulkDeleteStudentsUseCase } from '../application/bulk-delete-students.usecase.ts';
 import { CancelGraduationUseCase } from '../application/cancel-graduation.usecase.ts';
 import { CreateStudentUseCase } from '../application/create-student.usecase.ts';
@@ -15,6 +16,7 @@ import { PromoteStudentsUseCase } from '../application/promote-students.usecase.
 import { RestoreStudentsUseCase } from '../application/restore-students.usecase.ts';
 import { UpdateStudentUseCase } from '../application/update-student.usecase.ts';
 import {
+    bulkCreateStudentsInputSchema,
     bulkDeleteStudentsInputSchema,
     cancelGraduationInputSchema,
     consentedProcedure,
@@ -89,6 +91,15 @@ export const studentRouter = router({
      */
     delete: consentedProcedure.input(deleteStudentInputSchema).mutation(async ({ input }) => {
         const usecase = new DeleteStudentUseCase();
+        return usecase.execute(input);
+    }),
+
+    /**
+     * 학생 일괄 등록 (로드맵 2단계 — 엑셀 Import)
+     * POST /api/student/bulk-create -> trpc.student.bulkCreate
+     */
+    bulkCreate: consentedProcedure.input(bulkCreateStudentsInputSchema).mutation(async ({ input }) => {
+        const usecase = new BulkCreateStudentsUseCase();
         return usecase.execute(input);
     }),
 

@@ -50,6 +50,7 @@ export {
     restoreStudentsInputSchema,
     graduateStudentsInputSchema,
     cancelGraduationInputSchema,
+    bulkCreateStudentsInputSchema,
     feastDayListInputSchema,
 } from './student';
 export type {
@@ -62,6 +63,7 @@ export type {
     RestoreStudentsInput,
     GraduateStudentsInput,
     CancelGraduationInput,
+    BulkCreateStudentsInput,
     FeastDayListInput,
 } from './student';
 
@@ -119,6 +121,7 @@ export type {
     UpdateStudentOutput,
     DeleteStudentOutput,
     PromoteStudentsOutput,
+    BulkCreateStudentsOutput,
     BulkDeleteStudentsOutput,
     RestoreStudentsOutput,
     GraduatedStudent,

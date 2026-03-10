@@ -99,6 +99,16 @@ export const cancelGraduationInputSchema = z.object({
 });
 
 /**
+ * 학생 일괄 등록 입력 스키마 (로드맵 2단계 — 엑셀 Import)
+ */
+export const bulkCreateStudentsInputSchema = z.object({
+    students: z
+        .array(createStudentInputSchema)
+        .min(1, '최소 1명의 학생이 필요합니다')
+        .max(500, '최대 500명까지 등록 가능합니다'),
+});
+
+/**
  * 축일자 목록 조회 입력 스키마
  */
 export const feastDayListInputSchema = z.object({
@@ -114,6 +124,7 @@ export type DeleteStudentInput = z.infer<typeof deleteStudentInputSchema>;
 export type BulkDeleteStudentsInput = z.infer<typeof bulkDeleteStudentsInputSchema>;
 export type RestoreStudentsInput = z.infer<typeof restoreStudentsInputSchema>;
 export type GraduateStudentsInput = z.infer<typeof graduateStudentsInputSchema>;
+export type BulkCreateStudentsInput = z.infer<typeof bulkCreateStudentsInputSchema>;
 export type CancelGraduationInput = z.infer<typeof cancelGraduationInputSchema>;
 export type FeastDayListInput = z.infer<typeof feastDayListInputSchema>;
 
@@ -176,6 +187,14 @@ export interface CreateStudentOutput extends StudentBase {
     isFirstStudent?: boolean;
     /** 가입 후 경과일 (측정 인프라용) */
     daysSinceSignup?: number;
+}
+
+/**
+ * 학생 일괄 등록 응답 (로드맵 2단계 — 엑셀 Import)
+ */
+export interface BulkCreateStudentsOutput {
+    successCount: number;
+    totalCount: number;
 }
 
 /**
