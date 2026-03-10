@@ -37,13 +37,13 @@ function TotalRow({ groups }: { groups: GroupStatisticsItem[] }) {
     return (
         <TableRow className="border-t-2 font-bold">
             <TableCell>총계</TableCell>
-            <TableCell className="text-center tabular-nums">{totalStudents}명</TableCell>
-            <TableCell className="text-center tabular-nums">{weeklyRate}%</TableCell>
-            <TableCell className="text-center tabular-nums">{monthlyRate}%</TableCell>
-            <TableCell className="text-center tabular-nums">{yearlyRate}%</TableCell>
+            <TableCell className="hidden text-center tabular-nums md:table-cell">{totalStudents}명</TableCell>
+            <TableCell className="hidden text-center tabular-nums md:table-cell">{weeklyRate}%</TableCell>
+            <TableCell className="hidden text-center tabular-nums md:table-cell">{monthlyRate}%</TableCell>
+            <TableCell className="hidden text-center tabular-nums md:table-cell">{yearlyRate}%</TableCell>
             <TableCell className="text-center tabular-nums">{weeklyAvg}명</TableCell>
             <TableCell className="text-center tabular-nums">{monthlyAvg}명</TableCell>
-            <TableCell className="text-center tabular-nums">{yearlyAvg}명</TableCell>
+            <TableCell className="hidden text-center tabular-nums md:table-cell">{yearlyAvg}명</TableCell>
         </TableRow>
     );
 }
@@ -66,31 +66,41 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
     if (data && data.groups.length > 0) {
         return (
             <div className="overflow-x-auto -mx-6">
-                <Table className="min-w-[600px]">
+                <Table className="md:min-w-[600px]">
                     <TableHeader>
                         <TableRow>
                             <TableHead className="whitespace-nowrap">학년명</TableHead>
-                            <TableHead className="whitespace-nowrap text-center">인원</TableHead>
-                            <TableHead className="whitespace-nowrap text-center">주간 출석률</TableHead>
-                            <TableHead className="whitespace-nowrap text-center">월간 출석률</TableHead>
-                            <TableHead className="whitespace-nowrap text-center">연간 출석률</TableHead>
+                            <TableHead className="hidden whitespace-nowrap text-center md:table-cell">인원</TableHead>
+                            <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
+                                주간 출석률
+                            </TableHead>
+                            <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
+                                월간 출석률
+                            </TableHead>
+                            <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
+                                연간 출석률
+                            </TableHead>
                             <TableHead className="whitespace-nowrap text-center">주간 평균</TableHead>
                             <TableHead className="whitespace-nowrap text-center">월간 평균</TableHead>
-                            <TableHead className="whitespace-nowrap text-center">연간 평균</TableHead>
+                            <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
+                                연간 평균
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {data.groups.map((group) => (
                             <TableRow key={group.groupId}>
                                 <TableCell className="font-medium">{group.groupName}</TableCell>
-                                <TableCell className="text-center tabular-nums">{group.totalStudents}명</TableCell>
-                                <TableCell className="text-center tabular-nums">
+                                <TableCell className="hidden text-center tabular-nums md:table-cell">
+                                    {group.totalStudents}명
+                                </TableCell>
+                                <TableCell className="hidden text-center tabular-nums md:table-cell">
                                     {group.weekly.attendanceRate}%
                                 </TableCell>
-                                <TableCell className="text-center tabular-nums">
+                                <TableCell className="hidden text-center tabular-nums md:table-cell">
                                     {group.monthly.attendanceRate}%
                                 </TableCell>
-                                <TableCell className="text-center tabular-nums">
+                                <TableCell className="hidden text-center tabular-nums md:table-cell">
                                     {group.yearly.attendanceRate}%
                                 </TableCell>
                                 <TableCell className="text-center tabular-nums">
@@ -99,7 +109,7 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                                 <TableCell className="text-center tabular-nums">
                                     {group.monthly.avgAttendance}명
                                 </TableCell>
-                                <TableCell className="text-center tabular-nums">
+                                <TableCell className="hidden text-center tabular-nums md:table-cell">
                                     {group.yearly.avgAttendance}명
                                 </TableCell>
                             </TableRow>
