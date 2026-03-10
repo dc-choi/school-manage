@@ -7,7 +7,7 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 8개 도메인 기능 설계에 통합 + 통계 스냅샷 구현 완료                              |
-| **Target Functional**     | -    | 2단계 미착수 5건 (P0 졸업생 필터링 완료)                                  |
+| **Target Functional**     | -    | 2단계 미착수 4건 (P0 졸업생 필터링 + P1 엑셀 Import 완료)                  |
 | **Target Non-Functional** | -    | UI 1건 (반응형 구현 완료), SECURITY 2건, PERFORMANCE 1건 미착수 |
 
 ## 관련 문서
@@ -37,6 +37,7 @@
 | 세례명 축일자 명단 + 통계 총계 | `docs/specs/prd/patron-saint-feast.md` | Approved (구현 완료) | 로드맵 2단계           |
 | 통계 스냅샷           | `docs/specs/prd/statistics-snapshot.md`     | Approved (구현 완료) | 로드맵 2단계           |
 | 통계 졸업생 필터링       | `docs/specs/prd/statistics-graduation-filter.md` | Approved (구현 완료) | 로드맵 2단계           |
+| 학생 엑셀 Import     | `docs/specs/prd/student-excel-import.md`         | Approved (구현 완료) | 로드맵 2단계           |
 
 ### Functional Design (기능 설계)
 
@@ -48,7 +49,7 @@
 | Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 + 계정 자기 관리 + 셀프 온보딩 (로드맵 2단계) |
 | Landing      | `docs/specs/functional-design/landing-page.md`          | 랜딩 페이지 + 포지셔닝 개선 (로드맵 1단계) + FAQ 섹션 + 메타 태그/브랜딩 정비 (로드맵 2단계) |
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
-| Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 엑셀 Import + 페이지네이션 상태 유지 (로드맵 1단계) + 이달의 축일자 목록 (로드맵 2단계) |
+| Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 페이지네이션 상태 유지 (로드맵 1단계) + 이달의 축일자 목록 + 엑셀 Import (로드맵 2단계) |
 | Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
 | Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 학생 + 대시보드 통계 (로드맵 1단계) + 학년별 통계 총계 행 + 통계 스냅샷 + 졸업생 필터링 (로드맵 2단계) |
 | Liturgical   | `docs/specs/functional-design/liturgical-calendar.md`   | 전례 시기 계산 + 대시보드 전례 카드 (로드맵 2단계)                            |
@@ -87,6 +88,7 @@
 | ~~P0~~ | ~~통계 졸업생 필터링~~ | **완료** | 조회 기간 시작일 기준 졸업 필터 — 6개 UseCase 적용 완료 |
 | P0   | 계정 모델 전환 (공유→개인) | 미착수    | 개인 계정 + 본당/모임 합류 구조. 학년/부서 두 축 그룹핑(N:M). 유입 증가 전 선행 필요 |
 | P0   | 졸업일 정규화 + 통계 나이 기반 필터링 | 미착수    | 졸업 시 graduatedAt 정규화 + 통계에서 졸업 나이 이상 제외 (중고등부 20살, 초등부 14살) + 기존 데이터 보정 (프로모션 미변경) |
+| ~~P1~~ | ~~학생 엑셀 Import~~ | **완료** | 엑셀 파일로 학생 일괄 등록. GA4 입력 부담 시그널 + 파워 유저 100명+ 등록 수요 |
 | P1   | 미사 참례 확인     | 미착수    | 학생별 미사 참례 횟수 기록 (첫영성체 준비 필수 조건)            |
 | P2   | 가정 통신문 자동 생성 | 미착수    | 월별 출석/일정/공지 템플릿 기반 PDF/이미지 내보내기            |
 | P2   | 반편성 자동화      | 미착수    | 신학기 학년 진급 시 반 자동 재배정, 교사-반 매칭              |
@@ -97,9 +99,7 @@
 
 ### 보류 (Hold)
 
-| 기능명            | 기능 설계                     | 사유                |
-|----------------|---------------------------|-------------------|
-| 학생 엑셀 Import   | -                         | 임팩트 검증 필요, 피드백 대기 |
+> 현재 보류 항목 없음
 
 **SDD 문서 작성 시 경로:**
 - Task: `docs/specs/target/functional/tasks/{name}.md`
