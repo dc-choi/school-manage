@@ -16,6 +16,9 @@ describe('student 통합 테스트', () => {
         mockPrismaClient.student.create.mockReset();
         mockPrismaClient.student.update.mockReset();
         mockPrismaClient.group.findFirst.mockReset();
+        mockPrismaClient.group.findMany.mockReset();
+        mockPrismaClient.registration.count.mockReset();
+        mockPrismaClient.registration.updateMany.mockReset();
     });
 
     describe('student.list', () => {
@@ -24,11 +27,16 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+
             const mockStudentsWithGroup = [
-                { ...createMockStudent({}), group: { name: '테스트그룹' } },
-                { ...createMockStudent({}), group: { name: '테스트그룹' } },
+                { ...createMockStudent({}), group: { name: '테스트그룹' }, registrations: [] },
+                { ...createMockStudent({}), group: { name: '테스트그룹' }, registrations: [] },
             ];
             mockPrismaClient.student.findMany.mockResolvedValueOnce(mockStudentsWithGroup);
+            mockPrismaClient.student.count.mockResolvedValueOnce(2);
+            mockPrismaClient.registration.count.mockResolvedValueOnce(0);
             mockPrismaClient.student.count.mockResolvedValueOnce(2);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
@@ -538,6 +546,279 @@ describe('student 통합 테스트', () => {
         });
     });
 
+    describe('student.bulkCreate', () => {
+        it('엑셀 업로드 학생 일괄 생성 성공', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ id: BigInt(1), accountId: BigInt(accountId) });
+
+            // 계정 소유 그룹 조회 (권한 스코프)
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+
+            const createdStudent = createMockStudent({ societyName: '김철수' });
+
+            const txMock = {
+                student: {
+                    create: vi.fn().mockResolvedValue(createdStudent),
+                },
+                studentSnapshot: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
+                registration: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.student.bulkCreate({
+                students: [
+                    { societyName: '김철수', groupId: '1' },
+                    { societyName: '이영희', groupId: '1', gender: 'F' },
+                ],
+            });
+
+            expect(result.successCount).toBe(2);
+            expect(result.totalCount).toBe(2);
+            expect(txMock.student.create).toHaveBeenCalledTimes(2);
+            expect(txMock.studentSnapshot.create).toHaveBeenCalledTimes(2);
+        });
+
+        it('등록 여부 포함 시 Registration 레코드 생성', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ id: BigInt(1), accountId: BigInt(accountId) });
+
+            // 계정 소유 그룹 조회 (권한 스코프)
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+
+            const createdStudent = createMockStudent({ societyName: '김철수' });
+
+            const txMock = {
+                student: {
+                    create: vi.fn().mockResolvedValue(createdStudent),
+                },
+                studentSnapshot: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
+                registration: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            await caller.student.bulkCreate({
+                students: [
+                    { societyName: '김철수', groupId: '1', registered: true },
+                    { societyName: '이영희', groupId: '1', registered: false },
+                ],
+            });
+
+            // registered: true인 학생만 registration 생성
+            expect(txMock.registration.create).toHaveBeenCalledTimes(1);
+        });
+
+        it('미인증 시 UNAUTHORIZED 에러', async () => {
+            const caller = createPublicCaller();
+
+            await expect(
+                caller.student.bulkCreate({
+                    students: [{ societyName: '김철수', groupId: '1' }],
+                })
+            ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+        });
+
+        it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+
+            await expect(caller.student.bulkCreate({ students: [] })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+    });
+
+    describe('student.bulkRegister', () => {
+        it('학생 일괄 등록 성공 (신규 등록)', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            // 계정 소유 그룹 조회
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            // 계정 소속 학생 확인
+            mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }, { id: BigInt(2) }]);
+
+            const txMock = {
+                registration: {
+                    findUnique: vi.fn().mockResolvedValue(null), // 기존 등록 없음
+                    create: vi.fn().mockResolvedValue({}),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.student.bulkRegister({ ids: ['1', '2'] });
+
+            expect(result).toHaveProperty('registeredCount');
+            expect(result.registeredCount).toBe(2);
+            expect(txMock.registration.create).toHaveBeenCalledTimes(2);
+        });
+
+        it('이미 등록된 학생은 건너뜀', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }]);
+
+            const txMock = {
+                registration: {
+                    // 이미 활성 등록 상태
+                    findUnique: vi.fn().mockResolvedValue({ id: BigInt(10), deletedAt: null }),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.student.bulkRegister({ ids: ['1'] });
+
+            expect(result.registeredCount).toBe(0);
+        });
+
+        it('소프트 삭제된 등록 레코드 복구', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }]);
+
+            const txMock = {
+                registration: {
+                    // 소프트 삭제된 레코드
+                    findUnique: vi.fn().mockResolvedValue({ id: BigInt(10), deletedAt: new Date() }),
+                    update: vi.fn().mockResolvedValue({}),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.student.bulkRegister({ ids: ['1'] });
+
+            expect(result.registeredCount).toBe(1);
+            expect(txMock.registration.update).toHaveBeenCalledTimes(1);
+        });
+
+        it('연도 지정 등록 (year 파라미터)', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }]);
+
+            const txMock = {
+                registration: {
+                    findUnique: vi.fn().mockResolvedValue(null),
+                    create: vi.fn().mockResolvedValue({}),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.student.bulkRegister({ ids: ['1'], year: 2027 });
+
+            expect(result.registeredCount).toBe(1);
+            // year 파라미터가 전달되었는지 확인
+            expect(txMock.registration.findUnique).toHaveBeenCalledWith({
+                where: { studentId_year: { studentId: BigInt(1), year: 2027 } },
+            });
+        });
+
+        it('미인증 시 UNAUTHORIZED 에러', async () => {
+            const caller = createPublicCaller();
+
+            await expect(caller.student.bulkRegister({ ids: ['1', '2'] })).rejects.toMatchObject({
+                code: 'UNAUTHORIZED',
+            });
+        });
+
+        it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+
+            await expect(caller.student.bulkRegister({ ids: [] })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+    });
+
+    describe('student.bulkCancelRegistration', () => {
+        it('학생 일괄 등록 취소 성공', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            // 계정 소유 그룹 조회
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            // updateMany 결과
+            mockPrismaClient.registration.updateMany.mockResolvedValueOnce({ count: 2 });
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.student.bulkCancelRegistration({ ids: ['1', '2'] });
+
+            expect(result).toHaveProperty('cancelledCount');
+            expect(result.cancelledCount).toBe(2);
+        });
+
+        it('연도 지정 등록 취소 (year 파라미터)', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            mockPrismaClient.registration.updateMany.mockResolvedValueOnce({ count: 1 });
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+            const result = await caller.student.bulkCancelRegistration({ ids: ['1'], year: 2026 });
+
+            expect(result.cancelledCount).toBe(1);
+        });
+
+        it('미인증 시 UNAUTHORIZED 에러', async () => {
+            const caller = createPublicCaller();
+
+            await expect(caller.student.bulkCancelRegistration({ ids: ['1', '2'] })).rejects.toMatchObject({
+                code: 'UNAUTHORIZED',
+            });
+        });
+
+        it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+
+            const caller = createAuthenticatedCaller(accountId, accountName);
+
+            await expect(caller.student.bulkCancelRegistration({ ids: [] })).rejects.toMatchObject({
+                code: 'BAD_REQUEST',
+            });
+        });
+    });
+
     describe('student.list (graduated 필터)', () => {
         it('재학생만 조회 (graduated: false)', async () => {
             const testAccount = getTestAccount();
@@ -548,10 +829,13 @@ describe('student 통합 테스트', () => {
             const mockActiveStudent = {
                 ...createMockStudent({ groupId: mockGroup.id, graduatedAt: null }),
                 group: { name: '테스트그룹' },
+                registrations: [],
             };
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.findMany.mockResolvedValueOnce([mockActiveStudent]);
+            mockPrismaClient.student.count.mockResolvedValueOnce(1);
+            mockPrismaClient.registration.count.mockResolvedValueOnce(0);
             mockPrismaClient.student.count.mockResolvedValueOnce(1);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
@@ -570,10 +854,13 @@ describe('student 통합 테스트', () => {
             const mockGraduatedStudent = {
                 ...createMockStudent({ groupId: mockGroup.id, graduatedAt: new Date() }),
                 group: { name: '테스트그룹' },
+                registrations: [],
             };
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.findMany.mockResolvedValueOnce([mockGraduatedStudent]);
+            mockPrismaClient.student.count.mockResolvedValueOnce(1);
+            mockPrismaClient.registration.count.mockResolvedValueOnce(0);
             mockPrismaClient.student.count.mockResolvedValueOnce(1);
 
             const caller = createAuthenticatedCaller(accountId, accountName);
@@ -590,15 +877,22 @@ describe('student 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
 
             const mockStudents = [
-                { ...createMockStudent({ groupId: mockGroup.id, graduatedAt: null }), group: { name: '테스트그룹' } },
+                {
+                    ...createMockStudent({ groupId: mockGroup.id, graduatedAt: null }),
+                    group: { name: '테스트그룹' },
+                    registrations: [],
+                },
                 {
                     ...createMockStudent({ groupId: mockGroup.id, graduatedAt: new Date() }),
                     group: { name: '테스트그룹' },
+                    registrations: [],
                 },
             ];
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.findMany.mockResolvedValueOnce(mockStudents);
+            mockPrismaClient.student.count.mockResolvedValueOnce(2);
+            mockPrismaClient.registration.count.mockResolvedValueOnce(0);
             mockPrismaClient.student.count.mockResolvedValueOnce(2);
 
             const caller = createAuthenticatedCaller(accountId, accountName);

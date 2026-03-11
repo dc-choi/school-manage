@@ -320,6 +320,8 @@ describe('statistics 통합 테스트', () => {
             mockPrismaClient.student.findMany.mockResolvedValueOnce([
                 createMockStudent({ id: BigInt(1), groupId: mockGroup.id }),
             ]);
+            // registration.findMany (등록 학생 조회)
+            mockPrismaClient.registration.findMany.mockResolvedValueOnce([{ studentId: BigInt(1) }]);
             // getBulkGroupSnapshots → groupSnapshot.findMany
             mockPrismaClient.groupSnapshot.findMany.mockResolvedValueOnce([
                 createMockGroupSnapshot({ groupId: mockGroup.id, name: '1반' }),
@@ -344,6 +346,7 @@ describe('statistics 통합 테스트', () => {
                 expect(group).toHaveProperty('monthly');
                 expect(group).toHaveProperty('yearly');
                 expect(group).toHaveProperty('totalStudents');
+                expect(group).toHaveProperty('registeredStudents');
                 expect(group.weekly).toHaveProperty('attendanceRate');
                 expect(group.weekly).toHaveProperty('avgAttendance');
             }

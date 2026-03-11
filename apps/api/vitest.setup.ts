@@ -30,6 +30,7 @@ interface MockPrismaClient {
     attendance: MockModel;
     studentSnapshot: MockModel;
     groupSnapshot: MockModel;
+    registration: MockModel;
     $connect: Mock;
     $disconnect: Mock;
     $on: Mock;
@@ -60,6 +61,7 @@ export const mockPrismaClient: MockPrismaClient = {
     attendance: createMockModel(),
     studentSnapshot: createMockModel(),
     groupSnapshot: createMockModel(),
+    registration: createMockModel(),
     $connect: vi.fn().mockResolvedValue(undefined),
     $disconnect: vi.fn().mockResolvedValue(undefined),
     $on: vi.fn(),

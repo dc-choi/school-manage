@@ -168,6 +168,16 @@ feature/<short-desc>
 fix/<short-desc>
 ```
 
+## Agent Preferences
+
+- **커밋 단위**: 기능 단위로 커밋. 하나의 커밋에 하나의 기능만 포함.
+- **SDD 5단계 테스트**: 구현 후 테스트 작성/실행까지 자동으로 진행할 것. 사용자가 별도로 요청하지 않아도 5단계 구현 순서(Backend → Frontend → 테스트)를 반드시 준수.
+
+## CSS/Tailwind 주의사항
+
+- `globals.css`의 글로벌 리셋(`* { margin: 0 }`)은 반드시 `@layer base` 안에 위치해야 함. un-layered 스타일은 Tailwind utilities 레이어보다 우선순위가 높아서 `space-y-*`, `mt-*` 등 margin 기반 유틸리티가 무시됨
+- `space-y-*`가 안 먹힐 때 → CSS Cascade Layers 우선순위 문제 의심. `gap-*`은 컨테이너 속성이라 영향 안 받음
+
 ## Related Documents
 
 | 문서                        | 설명                        |

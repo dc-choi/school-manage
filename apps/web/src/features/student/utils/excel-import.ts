@@ -15,6 +15,7 @@ export interface ParsedRow {
     baptizedAt: string;
     age: string;
     description: string;
+    registered: string | null;
 }
 
 export interface ValidatedRow extends ParsedRow {
@@ -22,6 +23,7 @@ export interface ValidatedRow extends ParsedRow {
     normalizedGender: 'M' | 'F' | null;
     normalizedContact: number | null;
     normalizedAge: number | null;
+    normalizedRegistered: boolean;
     status: 'success' | 'error';
     errors: string[];
 }
@@ -63,6 +65,7 @@ export const parseExcelFile = async (file: File): Promise<ParsedRow[]> => {
         baptizedAt: cellToString(row[5]),
         age: cellToString(row[6]),
         description: cellToString(row[7]),
+        registered: cellToString(row[8]) || null,
     }));
 };
 
@@ -76,6 +79,8 @@ export const validateRows = (rows: ParsedRow[], groups: GroupInfo[]): ValidatedR
         let normalizedGender: 'M' | 'F' | null = null;
         let normalizedContact: number | null = null;
         let normalizedAge: number | null = null;
+        const REGISTERED_VALUES = new Set(['O', 'o', 'ㅇ', '○']);
+        const normalizedRegistered = row.registered !== null && REGISTERED_VALUES.has(row.registered);
 
         // 필수값 검증
         if (!row.groupName) {
@@ -139,6 +144,7 @@ export const validateRows = (rows: ParsedRow[], groups: GroupInfo[]): ValidatedR
             normalizedGender,
             normalizedContact,
             normalizedAge,
+            normalizedRegistered,
             status: errors.length > 0 ? 'error' : 'success',
             errors,
         };

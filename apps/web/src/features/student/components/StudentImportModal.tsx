@@ -20,6 +20,7 @@ import {
     DialogTitle,
 } from '~/components/ui/dialog';
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table as UITable } from '~/components/ui/table';
+import { analytics } from '~/lib/analytics';
 import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
 
@@ -47,6 +48,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
     const bulkCreateMutation = trpc.student.bulkCreate.useMutation({
         onSuccess: (data) => {
             utils.student.list.invalidate();
+            analytics.trackStudentBulkCreated(data.successCount);
             toast.success(`${data.successCount}명의 학생이 등록되었습니다.`);
             onImportSuccess();
             handleClose();
@@ -136,6 +138,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                 baptizedAt: row.baptizedAt || undefined,
                 description: row.description || undefined,
                 groupId: row.groupId!,
+                registered: row.normalizedRegistered || undefined,
             })),
         });
     };
@@ -163,7 +166,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                             <div className="flex-1">
                                 <p className="font-medium">1. 양식 다운로드</p>
                                 <p className="text-sm text-muted-foreground">
-                                    컬럼 순서: 학년, 이름, 세례명, 성별, 전화번호, 축일, 나이, 비고
+                                    컬럼 순서: 학년, 이름, 세례명, 성별, 전화번호, 축일, 나이, 비고, 등록 여부
                                     <br />
                                     헤더(1행)는 수정하지 마세요. 2행부터 데이터를 입력해 주세요.
                                 </p>
@@ -261,6 +264,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                         <TableHead>축일</TableHead>
                                         <TableHead>나이</TableHead>
                                         <TableHead>비고</TableHead>
+                                        <TableHead>등록</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -291,6 +295,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                             <TableCell>{row.baptizedAt || '-'}</TableCell>
                                             <TableCell>{row.age || '-'}</TableCell>
                                             <TableCell>{row.description || '-'}</TableCell>
+                                            <TableCell>{row.normalizedRegistered ? 'O' : 'X'}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

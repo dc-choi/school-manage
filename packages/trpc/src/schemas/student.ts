@@ -14,6 +14,8 @@ export const listStudentsInputSchema = z.object({
     includeDeleted: z.boolean().optional(),
     onlyDeleted: z.boolean().optional(),
     graduated: z.boolean().nullable().optional(), // null=전체, false=재학생(기본), true=졸업생
+    registered: z.boolean().optional(), // true=등록만, false=미등록만, 미전달=전체
+    registrationYear: z.number().int().positive().optional(), // 조회 연도 (기본값: 현재 연도)
 });
 
 /**
@@ -99,13 +101,29 @@ export const cancelGraduationInputSchema = z.object({
 });
 
 /**
- * 학생 일괄 등록 입력 스키마 (로드맵 2단계 — 엑셀 Import)
+ * 학생 일괄 생성 입력 스키마 (로드맵 2단계 — 엑셀 Import)
  */
 export const bulkCreateStudentsInputSchema = z.object({
     students: z
-        .array(createStudentInputSchema)
+        .array(createStudentInputSchema.extend({ registered: z.boolean().optional() }))
         .min(1, '최소 1명의 학생이 필요합니다')
         .max(500, '최대 500명까지 등록 가능합니다'),
+});
+
+/**
+ * 학생 일괄 등록 입력 스키마 (로드맵 2단계 — 등록 관리)
+ */
+export const bulkRegisterStudentsInputSchema = z.object({
+    ids: z.array(idSchema).min(1, 'At least one student id is required').max(100, 'Maximum 100 students allowed'),
+    year: z.number().int().positive().optional(),
+});
+
+/**
+ * 학생 일괄 등록 취소 입력 스키마 (로드맵 2단계 — 등록 관리)
+ */
+export const bulkCancelRegistrationInputSchema = z.object({
+    ids: z.array(idSchema).min(1, 'At least one student id is required').max(100, 'Maximum 100 students allowed'),
+    year: z.number().int().positive().optional(),
 });
 
 /**
@@ -126,6 +144,8 @@ export type RestoreStudentsInput = z.infer<typeof restoreStudentsInputSchema>;
 export type GraduateStudentsInput = z.infer<typeof graduateStudentsInputSchema>;
 export type BulkCreateStudentsInput = z.infer<typeof bulkCreateStudentsInputSchema>;
 export type CancelGraduationInput = z.infer<typeof cancelGraduationInputSchema>;
+export type BulkRegisterStudentsInput = z.infer<typeof bulkRegisterStudentsInputSchema>;
+export type BulkCancelRegistrationInput = z.infer<typeof bulkCancelRegistrationInputSchema>;
 export type FeastDayListInput = z.infer<typeof feastDayListInputSchema>;
 
 // ============================================================
@@ -157,17 +177,24 @@ export interface StudentBase {
 export interface StudentWithGroup extends StudentBase {
     groupName: string;
     deletedAt?: string;
+    isRegistered?: boolean;
 }
 
 /**
  * 학생 목록 조회 응답
  */
+export interface RegistrationSummary {
+    registeredCount: number;
+    unregisteredCount: number;
+}
+
 export interface ListStudentsOutput {
     page: number;
     size: number;
     total: number;
     totalPage: number;
     students: StudentWithGroup[];
+    registrationSummary?: RegistrationSummary;
 }
 
 /**
@@ -260,4 +287,18 @@ export interface FeastDayStudentItem {
  */
 export interface FeastDayListOutput {
     students: FeastDayStudentItem[];
+}
+
+/**
+ * 학생 일괄 등록 응답 (로드맵 2단계 — 등록 관리)
+ */
+export interface BulkRegisterStudentsOutput {
+    registeredCount: number;
+}
+
+/**
+ * 학생 일괄 등록 취소 응답 (로드맵 2단계 — 등록 관리)
+ */
+export interface BulkCancelRegistrationOutput {
+    cancelledCount: number;
 }

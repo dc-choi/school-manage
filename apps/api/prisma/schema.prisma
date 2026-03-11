@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
     provider = "mysql"
-    // Driver Adapter 사용 시에도 prisma generate를 위해 url 필요 (런타임에는 adapter 사용)
     url      = env("DATABASE_URL")
 }
 
@@ -53,11 +52,27 @@ model Student {
     deletedAt    DateTime? @map("delete_at")
     groupId      BigInt    @map("group_id")
 
-    group       Group              @relation(fields: [groupId], references: [id])
-    attendances Attendance[]
-    snapshots   StudentSnapshot[]
+    group         Group              @relation(fields: [groupId], references: [id])
+    attendances   Attendance[]
+    snapshots     StudentSnapshot[]
+    registrations Registration[]
 
     @@map("student")
+}
+
+model Registration {
+    id           BigInt    @id @default(autoincrement()) @map("_id")
+    studentId    BigInt    @map("student_id")
+    year         Int
+    registeredAt DateTime  @map("registered_at")
+    createdAt    DateTime  @map("create_at")
+    updatedAt    DateTime  @map("update_at")
+    deletedAt    DateTime? @map("delete_at")
+
+    student Student @relation(fields: [studentId], references: [id])
+
+    @@unique([studentId, year])
+    @@map("registration")
 }
 
 model Attendance {

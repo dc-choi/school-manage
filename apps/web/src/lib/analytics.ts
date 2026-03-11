@@ -286,4 +286,31 @@ export const analytics = {
     trackPatronFeastCardViewed: (): void => {
         safeGtag('event', 'patron_feast_card_viewed');
     },
+
+    /**
+     * 엑셀 일괄 업로드 이벤트
+     * 트리거: 엑셀 Import로 학생 일괄 생성 API 성공
+     * @param count 등록된 학생 수
+     */
+    trackStudentBulkCreated: (count: number): void => {
+        safeGtag('event', 'student_bulk_created', { count });
+    },
+
+    /**
+     * 학생 일괄 등록 이벤트
+     * 트리거: 일괄 등록 API 성공
+     * @param count 등록된 학생 수
+     */
+    trackStudentRegistration: (count: number): void => {
+        safeGtag('event', 'student_registration', { count });
+    },
+
+    /**
+     * 학생 등록 취소 이벤트
+     * 트리거: 일괄 등록 취소 API 성공
+     * @param count 등록 취소된 학생 수
+     */
+    trackStudentRegistrationCancel: (count: number): void => {
+        safeGtag('event', 'student_registration_cancel', { count });
+    },
 };

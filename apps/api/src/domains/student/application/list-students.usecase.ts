@@ -1,7 +1,7 @@
 /**
  * List Students UseCase
  *
- * 학생 목록 조회 (페이지네이션, 검색, 삭제 필터)
+ * 학생 목록 조회 (페이지네이션, 검색, 삭제 필터, 등록 필터)
  */
 import { Prisma } from '@prisma/client';
 import type { ListStudentsOutput, ListStudentsInput as ListStudentsSchemaInput } from '@school/trpc';
@@ -15,6 +15,7 @@ export class ListStudentsUseCase {
         const page = input.page ?? 1;
         const size = 10;
         const skip = (page - 1) * size;
+        const registrationYear = input.registrationYear ?? new Date().getFullYear();
 
         // 계정에 속한 그룹 IDs 조회
         const groups = await database.group.findMany({
@@ -34,20 +35,29 @@ export class ListStudentsUseCase {
         // 졸업 필터 조건 구성
         const graduatedFilter = this.buildGraduatedFilter(input.graduated);
 
+        // 등록 필터 조건 구성
+        const registeredFilter = this.buildRegisteredFilter(input.registered, registrationYear);
+
         const where: Prisma.StudentWhereInput = {
             groupId: { in: groupIds },
             ...deletedFilter,
             ...graduatedFilter,
             ...searchFilter,
+            ...registeredFilter,
         };
 
-        // 학생 목록 조회
-        const [rows, count] = await Promise.all([
+        // 학생 목록 조회 + 등록 현황 요약 (병렬)
+        const [rows, count, registeredCount, totalActiveStudents] = await Promise.all([
             database.student.findMany({
                 where,
                 include: {
                     group: {
                         select: { name: true },
+                    },
+                    registrations: {
+                        where: { year: registrationYear, deletedAt: null },
+                        select: { id: true },
+                        take: 1,
                     },
                 },
                 skip,
@@ -55,6 +65,24 @@ export class ListStudentsUseCase {
                 orderBy: [{ age: 'asc' }, { societyName: 'asc' }],
             }),
             database.student.count({ where }),
+            // 등록 현황: 재학생 중 해당 연도 등록된 수
+            database.registration.count({
+                where: {
+                    year: registrationYear,
+                    deletedAt: null,
+                    student: {
+                        groupId: { in: groupIds },
+                        deletedAt: null,
+                    },
+                },
+            }),
+            // 전체 재학생 수 (등록 현황 요약용)
+            database.student.count({
+                where: {
+                    groupId: { in: groupIds },
+                    deletedAt: null,
+                },
+            }),
         ]);
 
         return {
@@ -75,7 +103,12 @@ export class ListStudentsUseCase {
                 baptizedAt: row.baptizedAt ?? undefined,
                 graduatedAt: row.graduatedAt?.toISOString(),
                 deletedAt: row.deletedAt?.toISOString(),
+                isRegistered: row.registrations.length > 0,
             })),
+            registrationSummary: {
+                registeredCount,
+                unregisteredCount: totalActiveStudents - registeredCount,
+            },
         };
     }
 
@@ -118,5 +151,23 @@ export class ListStudentsUseCase {
         }
         // graduated가 false면 재학생만
         return { graduatedAt: null };
+    }
+
+    private buildRegisteredFilter(registered?: boolean, registrationYear?: number): Prisma.StudentWhereInput {
+        if (registered === undefined) return {};
+
+        if (registered === true) {
+            return {
+                registrations: {
+                    some: { year: registrationYear, deletedAt: null },
+                },
+            };
+        }
+
+        return {
+            registrations: {
+                none: { year: registrationYear, deletedAt: null },
+            },
+        };
     }
 }

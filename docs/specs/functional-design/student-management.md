@@ -7,6 +7,7 @@
 - PRD: `docs/specs/prd/school-attendance.md`
 - PRD: `docs/specs/prd/patron-saint-feast.md` (이달의 축일자 목록)
 - PRD: `docs/specs/prd/student-excel-import.md` (엑셀 Import)
+- PRD: `docs/specs/prd/student-registration.md` (학생 등록 관리)
 
 ## 기능 범위
 
@@ -18,6 +19,7 @@
 | 페이지네이션 상태 유지 (1단계) | 상세→목록 복귀 시 URL `?page=N` 유지 | 구현 완료 |
 | 이달의 축일자 목록 (2단계) | 대시보드에 이달 축일 학생 카드 표시 | 미구현 |
 | 엑셀 Import (2단계) | 엑셀 파일 업로드로 학생 일괄 등록 | 구현 완료 |
+| 학생 등록 관리 (2단계) | 연도별 등록 이력 관리, 일괄 등록/취소, 엑셀 등록 컬럼 | 구현 완료 |
 
 ---
 
@@ -32,13 +34,16 @@
 [학생 목록] → (검색/필터 변경) → [학생 목록 (?page=1)]
 [학생 목록] → (엑셀 업로드) → [Import 모달 (양식 다운로드 + 파일 업로드)] → [미리보기] → (등록 확인) → [등록 완료] → [학생 목록]
 [Import 모달] → (취소) → [학생 목록]
+[학생 목록] → (다중 선택 + 등록) → [등록 확인 다이얼로그] → [등록 완료] → [학생 목록]
+[학생 목록] → (다중 선택 + 등록 취소) → [취소 확인 다이얼로그] → [취소 완료] → [학생 목록]
+[학생 목록] → (등록 필터 변경) → [학생 목록 (?page=1)]
 ```
 
 ## UI/UX
 
 | 화면 | 주요 요소 |
 |------|----------|
-| 학생 목록 | 검색/삭제 필터, 테이블(다중 선택), 삭제/복구/졸업 버튼, 페이지네이션 |
+| 학생 목록 | 검색/삭제 필터/등록 필터, 테이블(다중 선택), 삭제/복구/졸업/등록/등록취소 버튼, 등록 현황 요약, 페이지네이션 |
 | 학생 상세 | 학생 정보(인라인 수정), 학년 선택, 성별 선택, 삭제 배지 |
 | 학생 추가 | 정보 입력 폼, 학년 선택, 저장 |
 | 엑셀 Import 모달 | 파일 업로드, 미리보기 테이블, 검증 결과, 등록 버튼 |
@@ -78,7 +83,7 @@
 
 | 프로시저 | 타입 | 설명 |
 |----------|------|------|
-| `student.list` | query | 목록 조회 (페이지네이션, 검색, 삭제 필터) |
+| `student.list` | query | 목록 조회 (페이지네이션, 검색, 삭제 필터, 등록 필터) |
 | `student.get` | query | 상세 조회 |
 | `student.create` | mutation | 생성 |
 | `student.update` | mutation | 수정 (인라인) |
@@ -88,8 +93,10 @@
 | `student.promote` | mutation | 학년 이동 (진급) |
 | `student.graduate` | mutation | 졸업 처리 |
 | `student.cancelGraduation` | mutation | 졸업 취소 |
-| `student.bulkCreate` | mutation | 엑셀 Import 일괄 등록 |
+| `student.bulkCreate` | mutation | 엑셀 Import 일괄 등록 (등록 여부 포함 가능) |
 | `student.feastDayList` | query | 이달의 축일자 목록 |
+| `student.bulkRegister` | mutation | 일괄 등록 처리 (현재 연도) |
+| `student.bulkCancelRegistration` | mutation | 일괄 등록 취소 (현재 연도) |
 
 ## 비즈니스 로직
 
@@ -258,7 +265,164 @@
 
 ---
 
+## 학생 등록 관리 (로드맵 2단계)
+
+> 4단계 "등록 관리"의 핵심 선행 구현. 전자서명·보상 기준 연동은 제외.
+
+### 사용자 플로우
+
+1. 교사가 학생 목록에서 등록 필터로 "미등록" 선택 → 미등록 학생만 표시
+2. 등록할 학생을 체크박스로 선택 → "등록" 버튼 클릭 → 확인 다이얼로그 → 현재 연도 등록 완료
+3. 등록 현황 요약 (등록 N명 / 미등록 M명) 확인
+4. 실수 시 "등록 취소" 버튼으로 해당 연도 등록 해제
+
+**엑셀 Import 연계:**
+1. 교사가 엑셀 양식에 학생 정보 + "등록 여부" 컬럼(O/X) 작성
+2. 업로드 → 학생 생성과 동시에 등록 처리
+
+### 등록 필터
+
+기존 삭제 필터와 동일한 패턴으로 3-state 필터 적용:
+
+| 파라미터 | 동작 |
+|---------|------|
+| 파라미터 없음 (기본) | 전체 학생 (등록 상태 무관) |
+| `registered=true` | 등록된 학생만 |
+| `registered=false` | 미등록 학생만 |
+
+### 등록 현황 요약
+
+학생 목록 상단에 현재 연도 기준 등록 현황 표시:
+- "2026년 등록 현황: 등록 32명 / 미등록 8명"
+- `student.list` 응답에 `registrationSummary` 포함
+
+### 데이터: Registration 테이블
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| _id | bigint (PK) | 고유 식별자 |
+| student_id | bigint (FK) | 학생 ID |
+| year | int | 등록 연도 |
+| registered_at | datetime | 등록 처리 일시 |
+| create_at / update_at / delete_at | datetime | 생성/수정/삭제일시 |
+
+- **유니크 제약**: `student_id` + `year` 조합 유니크 (연도당 1건)
+- **관계**: Student 1 : N Registration (연도별 이력)
+
+### API
+
+#### `student.list` 변경
+
+기존 입력에 등록 필터 파라미터 추가:
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| registered | boolean | 선택 | true: 등록만, false: 미등록만, 미전달: 전체 |
+| registrationYear | number | 선택 | 조회 연도 (기본값: 현재 연도) |
+
+기존 응답에 등록 상태 추가:
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| students[].isRegistered | boolean | 해당 연도 등록 여부 |
+| registrationSummary.registeredCount | number | 등록 학생 수 |
+| registrationSummary.unregisteredCount | number | 미등록 학생 수 |
+
+#### `student.bulkRegister`
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| ids | string[] | 필수 | 등록할 학생 ID 배열 |
+| year | number | 선택 | 등록 연도 (기본값: 현재 연도) |
+
+- 응답: `{ registeredCount: number }`
+- 이미 등록된 학생은 무시 (중복 등록 방지, upsert)
+
+#### `student.bulkCancelRegistration`
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| ids | string[] | 필수 | 등록 취소할 학생 ID 배열 |
+| year | number | 선택 | 취소 연도 (기본값: 현재 연도) |
+
+- 응답: `{ cancelledCount: number }`
+- 등록 이력이 없는 학생은 무시
+
+#### `student.bulkCreate` 변경
+
+기존 입력에 등록 여부 필드 추가:
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| students[].registered | boolean | 선택 | true이면 현재 연도 등록 처리 |
+
+### 엑셀 Import 변경
+
+#### 컬럼 구조
+
+기존 8컬럼에 9번째 "등록 여부" 컬럼 추가:
+
+| 순서 | 컬럼명 | DB 필드 | 필수 | 검증 |
+|------|--------|---------|------|------|
+| 1~8 | (기존과 동일) | | | |
+| 9 | 등록 여부 | registered | 선택 | O → 등록, 그 외(X/빈 값) → 미등록 |
+
+- 9번 컬럼이 없어도 됨 (기존 8컬럼 엑셀 하위호환)
+- 엑셀 템플릿에 "등록 여부" 컬럼 및 안내 코멘트 추가
+
+#### 등록 여부 정규화
+
+| 입력값 | 정규화 |
+|--------|--------|
+| O, o | 등록 (true) |
+| X, x, 빈 값, 컬럼 없음 | 미등록 (false) |
+
+### 비즈니스 로직
+
+| 기능 | 동작 요약 |
+|------|----------|
+| 일괄 등록 | studentId + year로 Registration 레코드 생성 (upsert), 소프트 삭제된 레코드는 delete_at null로 복구, 이미 등록된 학생은 건너뜀 |
+| 일괄 등록 취소 | studentId + year 매칭 Registration 레코드 소프트 삭제 (delete_at 설정) |
+| 목록 조회 (등록 필터) | Registration 테이블 LEFT JOIN (delete_at IS NULL)으로 등록 여부 판단 |
+| 등록 현황 요약 | 해당 연도 Registration 레코드 count vs 전체 재학생 count |
+| 엑셀 Import 등록 | bulkCreate 트랜잭션 내에서 학생 생성 + Registration 생성 동시 처리 |
+
+### 예외/엣지 케이스
+
+| 상황 | 처리 |
+|------|------|
+| 이미 등록된 학생 재등록 | 무시 (registeredCount에서 제외) |
+| 등록 이력 없는 학생 취소 | 무시 (cancelledCount에서 제외) |
+| 졸업/삭제된 학생 등록 시도 | 허용 (등록과 졸업/삭제는 독립적 상태) |
+| 빈 배열로 등록/취소 요청 | 400 BAD_REQUEST |
+| 100명 초과 일괄 요청 | 400 BAD_REQUEST |
+
+### 테스트 시나리오
+
+**정상 케이스:**
+- TC-R1: 학생 3명 선택 → 일괄 등록 → registeredCount=3, 목록에서 등록 상태 표시
+- TC-R2: 등록된 학생 2명 선택 → 등록 취소 → cancelledCount=2, 미등록 상태로 복귀
+- TC-R3: "미등록" 필터 → 미등록 학생만 표시
+- TC-R4: 엑셀 Import에 등록 여부 "O" 포함 → 학생 생성 + 등록 동시 처리
+- TC-R5: 기존 8컬럼 엑셀 → 등록 여부 없이 정상 동작 (하위호환)
+
+**예외 케이스:**
+- TC-RE1: 이미 등록된 학생 포함하여 일괄 등록 → 미등록 학생만 등록, 중복 무시
+- TC-RE2: 등록 이력 없는 학생 취소 → 무시, cancelledCount=0
+
+### 의사결정
+
+| 항목 | 결정 | 근거 |
+|------|------|------|
+| 테이블 구조 | 별도 Registration 테이블 | 연도별 이력 추적 필요. Student 필드 추가 시 이력 관리 불가 |
+| 등록 단위 | 연도 단위 | 대부분의 주일학교가 연도 단위 등록제 운영 |
+| 기본 필터 | 전체 (등록 상태 무관) | 기존 UX 변경 최소화. 교사가 필요할 때만 필터 적용 |
+| 취소 방식 | 소프트 삭제 (delete_at) | 기존 Student 삭제 패턴과 일관성 유지. 재등록 시 복구 가능 |
+| 엑셀 하위호환 | 9번째 컬럼 없어도 동작 | 기존 사용자 엑셀 파일 호환성 유지 |
+
+---
+
 **작성일**: 2026-01-13
-**수정일**: 2026-03-08 (엑셀 Import 추가)
+**수정일**: 2026-03-10 (학생 등록 관리 추가)
 **작성자**: PM 에이전트 / SDD 작성자
-**상태**: Approved (전체 구현 완료)
+**상태**: Approved (구현 완료)
