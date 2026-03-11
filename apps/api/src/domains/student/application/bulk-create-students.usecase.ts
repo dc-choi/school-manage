@@ -14,6 +14,9 @@ export class BulkCreateStudentsUseCase {
         try {
             const totalCount = input.students.length;
 
+            const now = getNowKST();
+            const currentYear = new Date().getFullYear();
+
             await database.$transaction(async (tx) => {
                 for (const student of input.students) {
                     const created = await tx.student.create({
@@ -26,7 +29,7 @@ export class BulkCreateStudentsUseCase {
                             description: student.description,
                             groupId: BigInt(student.groupId),
                             baptizedAt: student.baptizedAt,
-                            createdAt: getNowKST(),
+                            createdAt: now,
                         },
                     });
                     await createStudentSnapshot(tx, {
@@ -39,6 +42,18 @@ export class BulkCreateStudentsUseCase {
                         baptizedAt: created.baptizedAt,
                         groupId: created.groupId,
                     });
+
+                    if (student.registered === true) {
+                        await tx.registration.create({
+                            data: {
+                                studentId: created.id,
+                                year: currentYear,
+                                registeredAt: now,
+                                createdAt: now,
+                                updatedAt: now,
+                            },
+                        });
+                    }
                 }
             });
 

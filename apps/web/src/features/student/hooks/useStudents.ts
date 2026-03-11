@@ -7,6 +7,7 @@ import { trpc } from '~/lib/trpc';
 
 type DeleteFilter = 'active' | 'deleted' | 'all';
 type GraduatedFilter = 'active' | 'graduated' | 'all';
+type RegistrationFilter = 'all' | 'registered' | 'unregistered';
 
 interface UseStudentsOptions {
     initialPage?: number;
@@ -14,6 +15,7 @@ interface UseStudentsOptions {
     searchWord?: string;
     initialDeleteFilter?: DeleteFilter;
     initialGraduatedFilter?: GraduatedFilter;
+    initialRegistrationFilter?: RegistrationFilter;
     syncPageWithUrl?: boolean;
 }
 
@@ -39,6 +41,10 @@ export function useStudents(options: UseStudentsOptions = {}) {
     const [searchWord, setSearchWord] = useState(options.searchWord ?? '');
     const [deleteFilter, setDeleteFilter] = useState<DeleteFilter>(options.initialDeleteFilter ?? 'active');
     const [graduatedFilter, setGraduatedFilter] = useState<GraduatedFilter>(options.initialGraduatedFilter ?? 'active');
+    const [registrationFilter, setRegistrationFilter] = useState<RegistrationFilter>(
+        options.initialRegistrationFilter ?? 'all'
+    );
+    const [registrationYear] = useState(() => new Date().getFullYear());
 
     const utils = trpc.useUtils();
 
@@ -66,12 +72,26 @@ export function useStudents(options: UseStudentsOptions = {}) {
         }
     };
 
+    // 등록 필터에 따른 registered 계산
+    const getRegistrationFilterParams = () => {
+        switch (registrationFilter) {
+            case 'registered':
+                return { registered: true };
+            case 'unregistered':
+                return { registered: false };
+            default:
+                return {}; // all: 전체
+        }
+    };
+
     const listQuery = trpc.student.list.useQuery({
         page,
         searchOption,
         searchWord,
+        registrationYear,
         ...getDeleteFilterParams(),
         ...getGraduatedFilterParams(),
+        ...getRegistrationFilterParams(),
     });
 
     const createMutation = trpc.student.create.useMutation({
@@ -148,6 +168,22 @@ export function useStudents(options: UseStudentsOptions = {}) {
         },
     });
 
+    const bulkRegisterMutation = trpc.student.bulkRegister.useMutation({
+        onSuccess: (data) => {
+            utils.student.list.invalidate();
+            analytics.trackStudentRegistration(data.registeredCount);
+            toast.success(`${data.registeredCount}명이 등록되었습니다.`);
+        },
+    });
+
+    const bulkCancelRegistrationMutation = trpc.student.bulkCancelRegistration.useMutation({
+        onSuccess: (data) => {
+            utils.student.list.invalidate();
+            analytics.trackStudentRegistrationCancel(data.cancelledCount);
+            toast.success(`${data.cancelledCount}명의 등록이 취소되었습니다.`);
+        },
+    });
+
     const search = (option: typeof searchOption, word: string) => {
         setSearchOption(option);
         setSearchWord(word);
@@ -164,6 +200,11 @@ export function useStudents(options: UseStudentsOptions = {}) {
         setPage(1);
     };
 
+    const changeRegistrationFilter = (filter: RegistrationFilter) => {
+        setRegistrationFilter(filter);
+        setPage(1);
+    };
+
     return {
         students: listQuery.data?.students ?? [],
         total: listQuery.data?.total ?? 0,
@@ -171,6 +212,7 @@ export function useStudents(options: UseStudentsOptions = {}) {
         currentPage: page,
         isLoading: listQuery.isLoading,
         error: listQuery.error,
+        registrationSummary: listQuery.data?.registrationSummary,
 
         setPage,
         search,
@@ -182,6 +224,10 @@ export function useStudents(options: UseStudentsOptions = {}) {
 
         graduatedFilter,
         changeGraduatedFilter,
+
+        registrationFilter,
+        changeRegistrationFilter,
+        registrationYear,
 
         create: (input: CreateStudentInput) => createMutation.mutateAsync(input),
         isCreating: createMutation.isPending,
@@ -203,6 +249,13 @@ export function useStudents(options: UseStudentsOptions = {}) {
 
         cancelGraduation: (ids: string[]) => cancelGraduationMutation.mutateAsync({ ids }),
         isCancellingGraduation: cancelGraduationMutation.isPending,
+
+        bulkRegister: (ids: string[]) => bulkRegisterMutation.mutateAsync({ ids, year: registrationYear }),
+        isBulkRegistering: bulkRegisterMutation.isPending,
+
+        bulkCancelRegistration: (ids: string[]) =>
+            bulkCancelRegistrationMutation.mutateAsync({ ids, year: registrationYear }),
+        isBulkCancellingRegistration: bulkCancelRegistrationMutation.isPending,
     };
 }
 

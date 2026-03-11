@@ -1,5 +1,5 @@
-import { DeletedStudentsModal } from './DeletedStudentsModal';
 import { GraduatedStudentsModal } from './GraduatedStudentsModal';
+import { RegistrationModal } from './RegistrationModal';
 import { formatContact } from '@school/utils';
 import { Upload } from 'lucide-react';
 import { useState } from 'react';
@@ -33,8 +33,8 @@ export function StudentListPage() {
         'all'
     );
     const [bulkAction, setBulkAction] = useState<'delete' | 'graduate' | null>(null);
-    const [deletedModalOpen, setDeletedModalOpen] = useState(false);
     const [graduatedModalOpen, setGraduatedModalOpen] = useState(false);
+    const [registrationModalOpen, setRegistrationModalOpen] = useState(false);
     const [importModalOpen, setImportModalOpen] = useState(false);
 
     // 그룹 목록 (엑셀 Import 학년 매칭용)
@@ -53,18 +53,6 @@ export function StudentListPage() {
         graduate,
         isGraduating,
     } = useStudents({ initialDeleteFilter: 'active', initialGraduatedFilter: 'active', syncPageWithUrl: true });
-
-    // 삭제된 학생 목록
-    const {
-        students: deletedStudents,
-        total: deletedTotal,
-        totalPage: deletedTotalPage,
-        currentPage: deletedCurrentPage,
-        setPage: setDeletedPage,
-        isLoading: isDeletedLoading,
-        restore,
-        isRestoring,
-    } = useStudents({ initialDeleteFilter: 'deleted' });
 
     // 졸업생 목록
     const {
@@ -137,6 +125,16 @@ export function StudentListPage() {
             },
         },
         { key: 'age', header: '나이', render: (row: (typeof students)[0]) => row.age ?? '-' },
+        {
+            key: 'isRegistered',
+            header: '등록',
+            render: (row: (typeof students)[0]) =>
+                row.isRegistered ? (
+                    <span className="font-medium text-green-600">등록</span>
+                ) : (
+                    <span className="text-muted-foreground">미등록</span>
+                ),
+        },
         { key: 'contact', header: '연락처', render: (row: (typeof students)[0]) => formatContact(row.contact) },
         { key: 'baptizedAt', header: '축일', render: (row: (typeof students)[0]) => row.baptizedAt ?? '-' },
     ];
@@ -174,21 +172,29 @@ export function StudentListPage() {
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {isSomeSelected && (
-                        <Button variant="secondary" onClick={() => setBulkAction('graduate')} disabled={isGraduating}>
-                            졸업 처리 ({selectedIds.size})
-                        </Button>
-                    )}
-                    {isSomeSelected && (
-                        <Button variant="destructive" onClick={() => setBulkAction('delete')} disabled={isBulkDeleting}>
-                            선택 삭제 ({selectedIds.size})
-                        </Button>
-                    )}
+                    {isSomeSelected ? (
+                        <>
+                            <Button
+                                variant="secondary"
+                                onClick={() => setBulkAction('graduate')}
+                                disabled={isGraduating}
+                            >
+                                졸업 처리 ({selectedIds.size})
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={() => setBulkAction('delete')}
+                                disabled={isBulkDeleting}
+                            >
+                                선택 삭제 ({selectedIds.size})
+                            </Button>
+                        </>
+                    ) : null}
+                    <Button variant="outline" onClick={() => setRegistrationModalOpen(true)}>
+                        등록 관리
+                    </Button>
                     <Button variant="outline" onClick={() => setGraduatedModalOpen(true)}>
                         졸업생 ({graduatedTotal})
-                    </Button>
-                    <Button variant="destructive" onClick={() => setDeletedModalOpen(true)}>
-                        삭제된 학생 ({deletedTotal})
                     </Button>
                     <Button variant="outline" onClick={() => setImportModalOpen(true)}>
                         <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -219,8 +225,7 @@ export function StudentListPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>학생 삭제</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 삭제하시겠습니까? 삭제된 학생은 &apos;삭제된 학생&apos;
-                            버튼에서 복구할 수 있습니다.
+                            선택한 {selectedIds.size}명의 학생을 삭제하시겠습니까?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -239,7 +244,7 @@ export function StudentListPage() {
                         <AlertDialogTitle>졸업 처리</AlertDialogTitle>
                         <AlertDialogDescription>
                             선택한 {selectedIds.size}명의 학생을 졸업 처리하시겠습니까? 졸업 처리된 학생은
-                            &apos;졸업생&apos; 필터에서 확인할 수 있습니다.
+                            &apos;졸업생&apos; 버튼에서 확인할 수 있습니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -251,17 +256,7 @@ export function StudentListPage() {
                 </AlertDialogContent>
             </AlertDialog>
 
-            <DeletedStudentsModal
-                open={deletedModalOpen}
-                onOpenChange={setDeletedModalOpen}
-                students={deletedStudents}
-                totalPage={deletedTotalPage}
-                currentPage={deletedCurrentPage}
-                isLoading={isDeletedLoading}
-                onPageChange={setDeletedPage}
-                onRestore={restore}
-                isRestoring={isRestoring}
-            />
+            <RegistrationModal open={registrationModalOpen} onOpenChange={setRegistrationModalOpen} />
 
             <StudentImportModal
                 open={importModalOpen}

@@ -3,8 +3,10 @@
  *
  * 학생 관련 procedure 정의
  */
+import { BulkCancelRegistrationUseCase } from '../application/bulk-cancel-registration.usecase.ts';
 import { BulkCreateStudentsUseCase } from '../application/bulk-create-students.usecase.ts';
 import { BulkDeleteStudentsUseCase } from '../application/bulk-delete-students.usecase.ts';
+import { BulkRegisterStudentsUseCase } from '../application/bulk-register-students.usecase.ts';
 import { CancelGraduationUseCase } from '../application/cancel-graduation.usecase.ts';
 import { CreateStudentUseCase } from '../application/create-student.usecase.ts';
 import { DeleteStudentUseCase } from '../application/delete-student.usecase.ts';
@@ -16,8 +18,10 @@ import { PromoteStudentsUseCase } from '../application/promote-students.usecase.
 import { RestoreStudentsUseCase } from '../application/restore-students.usecase.ts';
 import { UpdateStudentUseCase } from '../application/update-student.usecase.ts';
 import {
+    bulkCancelRegistrationInputSchema,
     bulkCreateStudentsInputSchema,
     bulkDeleteStudentsInputSchema,
+    bulkRegisterStudentsInputSchema,
     cancelGraduationInputSchema,
     consentedProcedure,
     createStudentInputSchema,
@@ -46,6 +50,8 @@ export const studentRouter = router({
             includeDeleted: input.includeDeleted,
             onlyDeleted: input.onlyDeleted,
             graduated: input.graduated,
+            registered: input.registered,
+            registrationYear: input.registrationYear,
         });
     }),
 
@@ -144,6 +150,26 @@ export const studentRouter = router({
             accountId: ctx.account.id,
         });
     }),
+
+    /**
+     * 학생 일괄 등록 (로드맵 2단계 — 등록 관리)
+     * POST /api/student/bulk-register -> trpc.student.bulkRegister
+     */
+    bulkRegister: consentedProcedure.input(bulkRegisterStudentsInputSchema).mutation(async ({ input, ctx }) => {
+        const usecase = new BulkRegisterStudentsUseCase();
+        return usecase.execute(input, ctx.account.id);
+    }),
+
+    /**
+     * 학생 일괄 등록 취소 (로드맵 2단계 — 등록 관리)
+     * POST /api/student/bulk-cancel-registration -> trpc.student.bulkCancelRegistration
+     */
+    bulkCancelRegistration: consentedProcedure
+        .input(bulkCancelRegistrationInputSchema)
+        .mutation(async ({ input, ctx }) => {
+            const usecase = new BulkCancelRegistrationUseCase();
+            return usecase.execute(input, ctx.account.id);
+        }),
 
     /**
      * TODO: 학생 데이터 이관 (추후 구현 예정)

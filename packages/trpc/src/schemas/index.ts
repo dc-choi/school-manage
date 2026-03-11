@@ -51,6 +51,8 @@ export {
     graduateStudentsInputSchema,
     cancelGraduationInputSchema,
     bulkCreateStudentsInputSchema,
+    bulkRegisterStudentsInputSchema,
+    bulkCancelRegistrationInputSchema,
     feastDayListInputSchema,
 } from './student';
 export type {
@@ -64,6 +66,8 @@ export type {
     GraduateStudentsInput,
     CancelGraduationInput,
     BulkCreateStudentsInput,
+    BulkRegisterStudentsInput,
+    BulkCancelRegistrationInput,
     FeastDayListInput,
 } from './student';
 
@@ -129,6 +133,9 @@ export type {
     CancelGraduationOutput,
     FeastDayStudentItem,
     FeastDayListOutput,
+    RegistrationSummary,
+    BulkRegisterStudentsOutput,
+    BulkCancelRegistrationOutput,
 } from './student';
 
 // Attendance 출력 타입
