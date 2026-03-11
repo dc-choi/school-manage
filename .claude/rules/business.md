@@ -43,6 +43,7 @@ paths:
 | 로드맵 | `docs/business/6_roadmap/roadmap.md` |
 | 가격 정책 | `docs/business/7_pricing/pricing.md` |
 | 진행 현황 | `docs/business/STATUS.md` |
+| 이력 (아카이브) | `docs/business/HISTORY.md` |
 
 ## 작성 규칙
 

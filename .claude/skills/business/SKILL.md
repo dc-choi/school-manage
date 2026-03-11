@@ -44,6 +44,7 @@ description: 사업 에이전트 워크플로우 실행
 | 로드맵 | `docs/business/6_roadmap/roadmap.md` |
 | 가격 정책 | `docs/business/7_pricing/pricing.md` |
 | 진행 현황 | `docs/business/STATUS.md` |
+| 이력 (아카이브) | `docs/business/HISTORY.md` |
 
 ## 워크플로우
 
@@ -51,7 +52,8 @@ description: 사업 에이전트 워크플로우 실행
 ```
 /business status
 ```
-- `docs/business/STATUS.md` 확인
+- `docs/business/STATUS.md` 확인 (현재 상태)
+- `docs/business/HISTORY.md` 확인 (과거 분석/이력, 맥락 파악용)
 - 각 문서 상태 점검
 - 미완성 항목 식별
 
