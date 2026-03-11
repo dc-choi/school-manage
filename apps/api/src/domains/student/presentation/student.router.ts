@@ -104,9 +104,9 @@ export const studentRouter = router({
      * 학생 일괄 등록 (로드맵 2단계 — 엑셀 Import)
      * POST /api/student/bulk-create -> trpc.student.bulkCreate
      */
-    bulkCreate: consentedProcedure.input(bulkCreateStudentsInputSchema).mutation(async ({ input }) => {
+    bulkCreate: consentedProcedure.input(bulkCreateStudentsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new BulkCreateStudentsUseCase();
-        return usecase.execute(input);
+        return usecase.execute(input, ctx.account.id);
     }),
 
     /**

@@ -10,12 +10,32 @@ import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class BulkCreateStudentsUseCase {
-    async execute(input: BulkCreateStudentsInput): Promise<BulkCreateStudentsOutput> {
+    async execute(input: BulkCreateStudentsInput, accountId: string): Promise<BulkCreateStudentsOutput> {
         try {
             const totalCount = input.students.length;
 
             const now = getNowKST();
             const currentYear = new Date().getFullYear();
+
+            // 해당 계정 소유 그룹 조회 (권한 스코프)
+            const groups = await database.group.findMany({
+                where: {
+                    accountId: BigInt(accountId),
+                    deletedAt: null,
+                },
+                select: { id: true },
+            });
+            const validGroupIds = new Set(groups.map((g) => g.id));
+
+            // 입력된 groupId가 모두 계정 소속인지 검증
+            for (const student of input.students) {
+                if (!validGroupIds.has(BigInt(student.groupId))) {
+                    throw new TRPCError({
+                        code: 'FORBIDDEN',
+                        message: '접근 권한이 없는 그룹입니다.',
+                    });
+                }
+            }
 
             await database.$transaction(async (tx) => {
                 for (const student of input.students) {

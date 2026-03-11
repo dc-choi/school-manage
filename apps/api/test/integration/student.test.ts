@@ -551,6 +551,10 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ id: BigInt(1), accountId: BigInt(accountId) });
+
+            // 계정 소유 그룹 조회 (권한 스코프)
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
 
             const createdStudent = createMockStudent({ societyName: '김철수' });
 
@@ -585,6 +589,10 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ id: BigInt(1), accountId: BigInt(accountId) });
+
+            // 계정 소유 그룹 조회 (권한 스코프)
+            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
 
             const createdStudent = createMockStudent({ societyName: '김철수' });
 
@@ -630,9 +638,7 @@ describe('student 통합 테스트', () => {
 
             const caller = createAuthenticatedCaller(accountId, accountName);
 
-            await expect(
-                caller.student.bulkCreate({ students: [] })
-            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+            await expect(caller.student.bulkCreate({ students: [] })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
     });
 
@@ -646,10 +652,7 @@ describe('student 통합 테스트', () => {
             // 계정 소유 그룹 조회
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             // 계정 소속 학생 확인
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([
-                { id: BigInt(1) },
-                { id: BigInt(2) },
-            ]);
+            mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }, { id: BigInt(2) }]);
 
             const txMock = {
                 registration: {
@@ -745,9 +748,9 @@ describe('student 통합 테스트', () => {
         it('미인증 시 UNAUTHORIZED 에러', async () => {
             const caller = createPublicCaller();
 
-            await expect(
-                caller.student.bulkRegister({ ids: ['1', '2'] })
-            ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+            await expect(caller.student.bulkRegister({ ids: ['1', '2'] })).rejects.toMatchObject({
+                code: 'UNAUTHORIZED',
+            });
         });
 
         it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
@@ -757,9 +760,7 @@ describe('student 통합 테스트', () => {
 
             const caller = createAuthenticatedCaller(accountId, accountName);
 
-            await expect(
-                caller.student.bulkRegister({ ids: [] })
-            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+            await expect(caller.student.bulkRegister({ ids: [] })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
     });
 
@@ -800,9 +801,9 @@ describe('student 통합 테스트', () => {
         it('미인증 시 UNAUTHORIZED 에러', async () => {
             const caller = createPublicCaller();
 
-            await expect(
-                caller.student.bulkCancelRegistration({ ids: ['1', '2'] })
-            ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+            await expect(caller.student.bulkCancelRegistration({ ids: ['1', '2'] })).rejects.toMatchObject({
+                code: 'UNAUTHORIZED',
+            });
         });
 
         it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
@@ -812,9 +813,9 @@ describe('student 통합 테스트', () => {
 
             const caller = createAuthenticatedCaller(accountId, accountName);
 
-            await expect(
-                caller.student.bulkCancelRegistration({ ids: [] })
-            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+            await expect(caller.student.bulkCancelRegistration({ ids: [] })).rejects.toMatchObject({
+                code: 'BAD_REQUEST',
+            });
         });
     });
 
