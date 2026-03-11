@@ -142,6 +142,7 @@ export interface GroupStatisticsItem {
         endDate: string;
     };
     totalStudents: number;
+    registeredStudents: number;
 }
 
 /**

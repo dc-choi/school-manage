@@ -70,6 +70,23 @@ export class GetGroupStatisticsUseCase {
             set.add(s.id);
         }
 
+        // 2b. 그룹별 등록 학생 수 조회 (해당 연도)
+        const studentIds = students.map((s) => s.id);
+        const registrations =
+            studentIds.length > 0
+                ? await database.registration.findMany({
+                      where: { studentId: { in: studentIds }, year, deletedAt: null },
+                      select: { studentId: true },
+                  })
+                : [];
+        const registeredStudentIds = new Set(registrations.map((r) => r.studentId));
+        const registeredByGroup = new Map<bigint, number>();
+        for (const s of students) {
+            if (registeredStudentIds.has(s.id)) {
+                registeredByGroup.set(s.groupId, (registeredByGroup.get(s.groupId) ?? 0) + 1);
+            }
+        }
+
         // 3. 그룹 이름 스냅샷 조회 (연도 말 기준)
         const referenceDate = new Date(year, 11, 31);
         const groupSnapshots = await getBulkGroupSnapshots(groupIds, referenceDate);
@@ -126,6 +143,7 @@ export class GetGroupStatisticsUseCase {
                     endDate: yearlyData.endDateStr,
                 },
                 totalStudents,
+                registeredStudents: registeredByGroup.get(groupId) ?? 0,
             };
         });
 

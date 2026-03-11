@@ -16,6 +16,7 @@ const computeWeightedRate = (
 
 function TotalRow({ groups }: { groups: GroupStatisticsItem[] }) {
     const totalStudents = groups.reduce((sum, g) => sum + g.totalStudents, 0);
+    const totalRegistered = groups.reduce((sum, g) => sum + g.registeredStudents, 0);
 
     const weeklyRate = computeWeightedRate(groups, totalStudents, 'weekly');
     const monthlyRate = computeWeightedRate(groups, totalStudents, 'monthly');
@@ -38,6 +39,7 @@ function TotalRow({ groups }: { groups: GroupStatisticsItem[] }) {
         <TableRow className="border-t-2 font-bold">
             <TableCell>총계</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{totalStudents}명</TableCell>
+            <TableCell className="hidden text-center tabular-nums md:table-cell">{totalRegistered}명</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{weeklyRate}%</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{monthlyRate}%</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{yearlyRate}%</TableCell>
@@ -70,7 +72,12 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                     <TableHeader>
                         <TableRow>
                             <TableHead className="whitespace-nowrap">학년명</TableHead>
-                            <TableHead className="hidden whitespace-nowrap text-center md:table-cell">인원</TableHead>
+                            <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
+                                총 인원
+                            </TableHead>
+                            <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
+                                등록 인원
+                            </TableHead>
                             <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
                                 주간 출석률
                             </TableHead>
@@ -93,6 +100,9 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                                 <TableCell className="font-medium">{group.groupName}</TableCell>
                                 <TableCell className="hidden text-center tabular-nums md:table-cell">
                                     {group.totalStudents}명
+                                </TableCell>
+                                <TableCell className="hidden text-center tabular-nums md:table-cell">
+                                    {group.registeredStudents}명
                                 </TableCell>
                                 <TableCell className="hidden text-center tabular-nums md:table-cell">
                                     {group.weekly.attendanceRate}%
