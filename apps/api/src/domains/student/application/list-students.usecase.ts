@@ -46,6 +46,9 @@ export class ListStudentsUseCase {
             ...registeredFilter,
         };
 
+        // 등록 현황 요약용 졸업 필터
+        const summaryGraduatedFilter = this.buildGraduatedFilter(input.graduated);
+
         // 학생 목록 조회 + 등록 현황 요약 (병렬)
         const [rows, count, registeredCount, totalActiveStudents] = await Promise.all([
             database.student.findMany({
@@ -73,6 +76,7 @@ export class ListStudentsUseCase {
                     student: {
                         groupId: { in: groupIds },
                         deletedAt: null,
+                        ...summaryGraduatedFilter,
                     },
                 },
             }),
@@ -81,6 +85,7 @@ export class ListStudentsUseCase {
                 where: {
                     groupId: { in: groupIds },
                     deletedAt: null,
+                    ...summaryGraduatedFilter,
                 },
             }),
         ]);
