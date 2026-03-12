@@ -79,7 +79,7 @@ export function ChurchSelect({ parishId, value, onChange }: ChurchSelectProps) {
             </div>
 
             {/* 검색 결과 */}
-            <div className="min-h-[120px]">
+            <div className="max-h-[280px] overflow-y-auto">
                 {isLoading ? (
                     <div className="flex justify-center p-8">
                         <Loader2 className="h-6 w-6 animate-spin" aria-label="본당 검색 중" />

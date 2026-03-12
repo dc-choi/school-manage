@@ -13,7 +13,7 @@ export interface MainLayoutProps {
 }
 
 export function MainLayout({ children, title }: MainLayoutProps) {
-    const { account, logout, organizationName, churchName } = useAuth();
+    const { account, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -94,18 +94,7 @@ export function MainLayout({ children, title }: MainLayoutProps) {
                                     <User className="h-4 w-4 text-primary md:h-5 md:w-5" />
                                 </div>
                                 <div className="hidden flex-col items-end sm:flex">
-                                    {organizationName ? (
-                                        <>
-                                            <span className="text-sm font-medium md:text-base">
-                                                {organizationName} ({churchName})
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">
-                                                {account?.displayName}
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <span className="text-sm font-medium md:text-base">{account?.displayName}</span>
-                                    )}
+                                    <span className="text-sm font-medium md:text-base">{account?.displayName}</span>
                                 </div>
                             </Link>
                             <Button
