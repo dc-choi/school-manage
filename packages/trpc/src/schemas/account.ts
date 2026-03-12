@@ -65,7 +65,8 @@ export interface AgreePrivacyOutput {
  * 계정 수 조회 응답
  */
 export interface GetAccountCountOutput {
-    count: number;
+    accountCount: number;
+    churchCount: number;
 }
 
 /**

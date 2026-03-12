@@ -191,10 +191,12 @@ export function LandingPage() {
                         id="cta"
                         className="flex min-h-screen flex-col items-center justify-center gap-10 bg-gradient-to-t from-primary/8 to-background px-6 text-center"
                     >
-                        {countData && countData.count > 0 && (
+                        {countData && countData.churchCount > 0 && (
                             <div className="flex flex-col items-center gap-2 text-lg font-medium text-balance sm:flex-row sm:gap-3 sm:text-2xl">
                                 <Users className="h-7 w-7 shrink-0 text-primary" />
-                                <span>{countData.count}개 단체가 이미 사용하고 있어요</span>
+                                <span>
+                                    {countData.churchCount}개 본당에서 {countData.accountCount}개 계정을 사용중입니다
+                                </span>
                             </div>
                         )}
                         <p className="text-lg text-muted-foreground sm:text-xl">
