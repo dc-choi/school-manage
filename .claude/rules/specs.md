@@ -31,20 +31,38 @@ PRD, 기능 설계, Task/Development 문서 작성 규칙입니다.
 
 검수자 세션 대신 **자동 검증 + 사용자 PR 리뷰**로 품질을 보장합니다.
 
-- **자동 검증**: lint, typecheck, build, test, 서브에이전트 (security, design, performance)
-- **사용자 리뷰**: Conductor diff 뷰에서 PR 리뷰 → 머지 결정
-- **자기 검증**: 각 단계별 체크리스트로 문서 품질 확인
+### 자동 검증 (에이전트 실행)
+
+| 검증 항목   | 도구                                      | 시점            |
+|---------|-----------------------------------------|---------------|
+| 코드 스타일  | `pnpm lint:fix && pnpm prettier:fix`    | 파일 수정 시 (hook) |
+| 타입 안전성  | `pnpm typecheck`                        | 파일 수정 시 (hook) |
+| 빌드 성공   | `pnpm build`                            | 구현 완료 후       |
+| 테스트 통과  | `pnpm test`                             | 구현 완료 후       |
+| 보안 검수   | security-reviewer 서브에이전트                 | PR 생성 전       |
+| 디자인 일관성 | design-reviewer 서브에이전트                   | PR 생성 전       |
+| 성능 분석   | performance-analyzer 서브에이전트              | PR 생성 전       |
+
+### CI 검증 (GitHub Actions — PR 시 자동)
+
+| 검증 항목   | 도구                                 |
+|---------|------------------------------------|
+| 코드 스타일  | `pnpm lint && pnpm prettier`       |
+| 타입 안전성  | `pnpm typecheck`                   |
+| 빌드 성공   | `pnpm build`                       |
+| 테스트 통과  | `pnpm test`                        |
+| 코드 품질   | SonarCloud Scan                    |
+
+### 사용자 리뷰
+
+- Conductor diff 뷰에서 변경사항 확인 → 머지 결정
 
 ## 문서 구조
 
 ```
 docs/specs/
 ├── prd/                  # PRD 문서
-├── functional-design/    # 기능 설계 문서
-├── current/              # 완료된 기능 명세 (SSoT)
-│   └── functional/
-│       ├── tasks/
-│       └── development/
+├── functional-design/    # 기능 설계 문서 (SSoT)
 ├── target/               # 개선/이행 예정 명세
 │   ├── functional/
 │   │   ├── tasks/
@@ -52,6 +70,8 @@ docs/specs/
 │   └── non-functional/   # 완료 후 삭제됨
 └── templates/            # 문서 템플릿
 ```
+
+> **SSoT**: 구현 완료된 기능의 진실 원천은 **기능 설계 문서 + 코드베이스**. Task/Development 문서는 구현 완료 후 삭제.
 
 ## 문서 간 계층 구조
 
@@ -88,12 +108,20 @@ development/
 
 ## 문서 유형별 핵심 내용
 
-| 문서          | 질문          | 핵심 내용                              |
-|-------------|-------------|------------------------------------|
-| PRD         | 왜 만드는가?     | 배경, 목표, 범위, 요구사항 (Must/Should/Out) |
-| 기능 설계       | 어떻게 동작하는가?  | 사용자 플로우, UI/UX, 데이터 모델, API        |
-| Task        | 누가 무엇을 하는가? | 역할별 업무 분할, 의존성                     |
-| Development | 어떻게 구현하는가?  | 역할별 구현 명세, 테스트 시나리오                |
+| 문서          | 질문          | 핵심 내용                              | 자기 검증                              |
+|-------------|-------------|------------------------------------|------------------------------------|
+| PRD         | 왜 만드는가?     | 배경, 목표, 범위, 요구사항 (Must/Should/Out) | 목표 측정 가능? 범위 명시? Must/Should/Out 구분? |
+| 기능 설계       | 어떻게 동작하는가?  | 사용자 플로우, UI/UX, 데이터 모델, API        | 동작 명세 수준? 예외 처리? PRD 요구사항 반영?      |
+| Task        | 누가 무엇을 하는가? | 역할별 업무 분할, 의존성                     | 역할 구분 명확? 의존성 적절?                  |
+| Development | 어떻게 구현하는가?  | 역할별 구현 명세, 테스트 시나리오                | rules 기준 정합? Task와 1:1 대응?         |
+
+### 0단계 README 등록 형식
+
+```markdown
+| P{N} | {기능명} | 미착수 | {비고} |
+```
+
+경로: PRD → `docs/specs/prd/{name}.md`, 기능 설계 → `docs/specs/functional-design/{name}.md`, Task/Dev → `docs/specs/target/`
 
 ## 기능 설계 문서 분리 규칙
 
@@ -132,13 +160,28 @@ development/
 | 상태 전이 다이어그램           | TypeScript 인터페이스, 마이그레이션 SQL  |
 | 테스트 시나리오 (정상/예외 핵심만)  | 파일 구조 목록, 중복 와이어프레임           |
 
-## 6단계 문서 동기화 시 축약 규칙
+## 6단계 문서 정리
 
-6단계에서 개선 사항을 기존 기능 설계에 병합할 때, **구현 상세를 삭제하고 동작 명세 수준으로 축약**합니다.
+### Task/Development 처리
+
+구현 완료 후 `target/` 내 Task/Development 문서를 **삭제**한다. 비기능적 요구사항도 동일.
+
+### 축약 규칙
+
+개선 사항을 기존 기능 설계에 병합할 때, **구현 상세를 삭제하고 동작 명세 수준으로 축약**합니다.
 
 1. **구현 상세 삭제**: JSON 전문, 의사코드, CSS 코드, Tailwind 클래스 등 제거
 2. **대체된 섹션 통합**: 이전 기능을 대체하는 개선은 별도 섹션이 아닌 기존 섹션에 통합
 3. **와이어프레임 정리**: 중복/중간 단계 와이어프레임 제거, 최종 개념도 1개만 유지
+
+### 프로젝트 현황 동기화 대상
+
+| 문서                     | 동기화 항목             |
+|------------------------|--------------------|
+| `README.md`            | 기술 스택, 구현 현황       |
+| `docs/specs/README.md` | TARGET 인덱스         |
+| `.claude/CLAUDE.md`    | 구조, 명령어            |
+| `.claude/rules/*.md`   | 패턴/정책 변경 시         |
 
 ### 도메인별 메인 문서
 
@@ -191,9 +234,8 @@ development/
 
 ## 브레인스토밍 결과 반영 규칙
 
-브레인스토밍 결과는 사용자의 명시적 결정 없이 **사업 문서(로드맵, STATUS)에도, SDD TARGET에도 반영하지 않는다.** 로드맵에 정식 반영된 항목만 SDD 등록 대상. 상세: `docs/specs/WORKFLOW.md`, `docs/business/WORKFLOW.md` 참조.
+브레인스토밍 결과는 사용자의 명시적 결정 없이 **사업 문서(로드맵, STATUS)에도, SDD TARGET에도 반영하지 않는다.** 로드맵에 정식 반영된 항목만 SDD 등록 대상.
 
 ## 관련 문서
 
-- 상세 워크플로우: `docs/specs/WORKFLOW.md`
 - 템플릿: `docs/specs/templates/`
