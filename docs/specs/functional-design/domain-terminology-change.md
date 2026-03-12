@@ -6,8 +6,6 @@
 
 - 로드맵: `docs/business/6_roadmap/roadmap.md` (2단계)
 - 현황: `docs/business/STATUS.md` (고덕동/돈암동 이탈 분석)
-- Task: `docs/specs/current/functional/tasks/domain-terminology-change.md`
-- Development: `docs/specs/current/functional/development/domain-terminology-change-frontend.md`
 
 ## 배경
 

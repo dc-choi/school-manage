@@ -192,4 +192,3 @@ fix/<short-desc>
 | `docs/business/README.md` | 사업 문서 인덱스 (로드맵, 지표, 가격 등) |
 | `docs/guides/ga4-setup.md`| GA4 설정 가이드               |
 | `docs/specs/README.md`    | SDD 인덱스 (아키텍처/로드맵 포함)     |
-| `docs/specs/WORKFLOW.md`  | SDD 워크플로우 (작성자 + 검수자)     |

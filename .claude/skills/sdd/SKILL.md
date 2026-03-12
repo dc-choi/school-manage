@@ -77,6 +77,5 @@ Spec-Driven Development 워크플로우를 단계별로 실행합니다.
 
 ## 참조 문서
 
-- 상세 워크플로우: `docs/specs/WORKFLOW.md`
+- 워크플로우 + 규칙: `.claude/rules/specs.md`
 - 템플릿: `docs/specs/templates/`
-- 규칙: `.claude/rules/specs.md`
