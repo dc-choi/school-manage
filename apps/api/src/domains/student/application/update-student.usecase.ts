@@ -47,7 +47,7 @@ export class UpdateStudentUseCase {
                 catholicName: student.catholicName ?? undefined,
                 gender: student.gender ?? undefined,
                 age: student.age != null ? Number(student.age) : undefined,
-                contact: student.contact != null ? Number(student.contact) : undefined,
+                contact: student.contact != null ? String(student.contact) : undefined,
                 description: student.description ?? undefined,
                 groupId: String(student.groupId),
                 baptizedAt: student.baptizedAt ?? undefined,

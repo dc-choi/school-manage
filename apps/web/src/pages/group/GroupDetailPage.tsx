@@ -9,7 +9,7 @@ import { Input } from '~/components/ui/input';
 import { useGroups } from '~/features/group';
 import { extractErrorMessage } from '~/lib/error';
 
-function formatPhoneNumber(contact: number | undefined): string {
+function formatPhoneNumber(contact: string | undefined): string {
     if (!contact) return '-';
     // 숫자로 저장되면서 앞의 0이 사라진 경우 (1012341234 → 01012341234)
     const str = String(contact).padStart(11, '0');

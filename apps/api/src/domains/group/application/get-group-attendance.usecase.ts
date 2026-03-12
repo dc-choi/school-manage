@@ -43,7 +43,7 @@ export class GetGroupAttendanceUseCase {
                 societyName: s.societyName,
                 catholicName: s.catholicName ?? undefined,
                 age: s.age != null ? Number(s.age) : undefined,
-                contact: s.contact != null ? Number(s.contact) : undefined,
+                contact: s.contact != null ? String(s.contact) : undefined,
                 description: s.description ?? undefined,
                 groupId: String(s.groupId),
                 baptizedAt: s.baptizedAt ?? undefined,

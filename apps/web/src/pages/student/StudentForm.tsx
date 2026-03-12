@@ -1,4 +1,5 @@
 import type { GroupOutput } from '@school/trpc';
+import { formatContact } from '@school/utils';
 import { type FormEvent, useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
@@ -12,7 +13,7 @@ interface StudentFormData {
     catholicName?: string;
     gender?: 'M' | 'F';
     age?: number;
-    contact?: number;
+    contact?: string;
     description?: string;
     groupId: string;
     baptizedAt?: string;
@@ -46,6 +47,9 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
         groupId: initialData?.groupId ?? '',
         baptizedAt: toFeastDayFormat(initialData?.baptizedAt),
     });
+    const [contactInput, setContactInput] = useState(() =>
+        initialData?.contact ? formatContact(initialData.contact) : ''
+    );
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleChange = (field: keyof StudentFormData, value: string | number | undefined) => {
@@ -74,10 +78,12 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
         }
 
         try {
+            const digits = contactInput.replace(/\D/g, '');
             await onSubmit({
                 ...formData,
                 societyName: formData.societyName.trim(),
                 catholicName: formData.catholicName?.trim() || undefined,
+                contact: digits || undefined,
                 description: formData.description?.trim() || undefined,
                 baptizedAt: formData.baptizedAt?.trim() || undefined,
             });
@@ -197,16 +203,15 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                         </Label>
                         <Input
                             id="contact"
-                            type="number"
+                            type="text"
+                            inputMode="tel"
                             className="h-12 text-lg"
-                            value={formData.contact ?? ''}
-                            onChange={(e) =>
-                                handleChange(
-                                    'contact',
-                                    e.target.value ? Number.parseInt(e.target.value, 10) : undefined
-                                )
-                            }
-                            placeholder="연락처를 입력하세요 (숫자만)…"
+                            value={contactInput}
+                            onChange={(e) => {
+                                setContactInput(e.target.value);
+                                setErrors((prev) => ({ ...prev, contact: '' }));
+                            }}
+                            placeholder="010-1234-1234"
                             disabled={isSubmitting}
                         />
                     </div>
