@@ -99,8 +99,8 @@ export function useStudents(options: UseStudentsOptions = {}) {
             utils.student.list.invalidate();
 
             // GA4 이벤트: 첫 학생 등록
-            if (data.isFirstStudent && data.daysSinceSignup !== undefined) {
-                analytics.trackFirstStudentRegistered(data.daysSinceSignup);
+            if (data.isFirstStudent && data.daysSinceCreation !== undefined) {
+                analytics.trackFirstStudentRegistered(data.daysSinceCreation);
             }
 
             // GA4 이벤트: 학생 등록

@@ -1,8 +1,10 @@
 import { GenderDistributionChart } from './GenderDistributionChart';
 import { GroupStatisticsTable } from './GroupStatisticsTable';
+import { JoinRequestsSection } from './JoinRequestsSection';
 import { LiturgicalSeasonCard } from './LiturgicalSeasonCard';
 import { PatronFeastCard } from './PatronFeastCard';
 import { TopRankingCard } from './TopRankingCard';
+import { ROLE } from '@school/trpc/shared';
 import { getNthSundayOf, getWeeksInMonth } from '@school/utils';
 import { Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -125,7 +127,7 @@ function OnboardingChecklist({
 }
 
 function DashboardContent() {
-    const { account } = useAuth();
+    const { account, role } = useAuth();
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
@@ -188,6 +190,9 @@ function DashboardContent() {
     return (
         <MainLayout title={`안녕하세요, ${account?.name}님!`}>
             <div className="space-y-4">
+                {/* 합류 요청 관리 (admin만) */}
+                {role === ROLE.ADMIN ? <JoinRequestsSection /> : null}
+
                 {/* 전례 시기 & 연도/월/주차 선택 */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-start">
                     <div className="space-y-2">

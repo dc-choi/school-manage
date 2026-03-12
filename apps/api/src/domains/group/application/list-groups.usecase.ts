@@ -7,10 +7,10 @@ import type { ListGroupsOutput } from '@school/trpc';
 import { database } from '~/infrastructure/database/database.js';
 
 export class ListGroupsUseCase {
-    async execute(accountId: string): Promise<ListGroupsOutput> {
+    async execute(organizationId: string): Promise<ListGroupsOutput> {
         const groups = await database.group.findMany({
             where: {
-                accountId: BigInt(accountId),
+                organizationId: BigInt(organizationId),
                 deletedAt: null,
             },
             include: {
@@ -31,7 +31,7 @@ export class ListGroupsUseCase {
             groups: groups.map((group) => ({
                 id: String(group.id),
                 name: group.name,
-                accountId: String(group.accountId),
+                organizationId: String(group.organizationId),
                 studentCount: group._count.students,
             })),
         };

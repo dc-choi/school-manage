@@ -9,15 +9,15 @@ import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 export class BulkDeleteGroupsUseCase {
-    async execute(input: BulkDeleteGroupsInput, accountId: string): Promise<BulkDeleteGroupsOutput> {
+    async execute(input: BulkDeleteGroupsInput, organizationId: string): Promise<BulkDeleteGroupsOutput> {
         try {
             const ids = input.ids.map((id) => BigInt(id));
 
-            // 해당 계정 소유이면서 삭제되지 않은 그룹만 삭제
+            // 해당 조직 소유이면서 삭제되지 않은 그룹만 삭제
             const result = await database.group.updateMany({
                 where: {
                     id: { in: ids },
-                    accountId: BigInt(accountId),
+                    organizationId: BigInt(organizationId),
                     deletedAt: null,
                 },
                 data: {

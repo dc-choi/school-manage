@@ -8,12 +8,16 @@ import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
+// 스키마 타입 + context 필드
+type DeleteGroupUseCaseInput = DeleteGroupInput & { organizationId: string };
+
 export class DeleteGroupUseCase {
-    async execute(input: DeleteGroupInput): Promise<GroupOutput> {
+    async execute(input: DeleteGroupUseCaseInput): Promise<GroupOutput> {
         try {
             const group = await database.group.update({
                 where: {
                     id: BigInt(input.id),
+                    organizationId: BigInt(input.organizationId),
                 },
                 data: {
                     deletedAt: getNowKST(),
@@ -23,7 +27,7 @@ export class DeleteGroupUseCase {
             return {
                 id: String(group.id),
                 name: group.name,
-                accountId: String(group.accountId),
+                organizationId: String(group.organizationId),
                 studentCount: 0,
             };
         } catch (e) {

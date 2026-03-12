@@ -12,7 +12,7 @@ import {
     createMockStudentSnapshot,
     getTestAccount,
 } from '../helpers/mock-data.ts';
-import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.ts';
+import { createPublicCaller, createScopedCaller } from '../helpers/trpc-caller.ts';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('statistics 통합 테스트', () => {
@@ -43,7 +43,7 @@ describe('statistics 통합 테스트', () => {
                 createMockStudentSnapshot({ studentId: BigInt(2), societyName: '김철수' }),
             ]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.excellent({ year: 2024 });
 
             expect(result).toHaveProperty('excellentStudents');
@@ -78,7 +78,7 @@ describe('statistics 통합 테스트', () => {
                 }),
             ]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.weekly({ year: 2024 });
 
             expect(result).toHaveProperty('attendanceRate');
@@ -120,7 +120,7 @@ describe('statistics 통합 테스트', () => {
                 }),
             ]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.monthly({ year: 2024 });
 
             expect(result).toHaveProperty('attendanceRate');
@@ -148,7 +148,7 @@ describe('statistics 통합 테스트', () => {
                 }),
             ]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.yearly({ year: 2024 });
 
             expect(result).toHaveProperty('attendanceRate');
@@ -187,7 +187,7 @@ describe('statistics 통합 테스트', () => {
             // fallback student.findMany (스냅샷에 없는 학생용 — 이 케이스에선 빈 배열)
             mockPrismaClient.student.findMany.mockResolvedValueOnce([]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.byGender({ year: 2024 });
 
             expect(result).toHaveProperty('male');
@@ -206,7 +206,7 @@ describe('statistics 통합 테스트', () => {
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.byGender({ year: 2024 });
 
             expect(result.male.count).toBe(0);
@@ -249,7 +249,7 @@ describe('statistics 통합 테스트', () => {
                 createMockGroupSnapshot({ groupId: mockGroup2.id, name: '2반' }),
             ]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.topGroups({ year: 2024, limit: 5 });
 
             expect(result).toHaveProperty('groups');
@@ -286,7 +286,7 @@ describe('statistics 통합 테스트', () => {
                 createMockGroupSnapshot({ groupId: BigInt(10), name: '1반' }),
             ]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.topOverall({ year: 2024, limit: 5 });
 
             expect(result).toHaveProperty('students');
@@ -332,7 +332,7 @@ describe('statistics 통합 테스트', () => {
                 .mockResolvedValueOnce([createMockAttendance({ studentId: BigInt(1), groupId: mockGroup.id })])
                 .mockResolvedValueOnce([createMockAttendance({ studentId: BigInt(1), groupId: mockGroup.id })]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.groupStatistics({ year: 2024 });
 
             expect(result).toHaveProperty('year');
@@ -359,7 +359,7 @@ describe('statistics 통합 테스트', () => {
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.groupStatistics({ year: 2024 });
 
             expect(result.groups).toEqual([]);
@@ -393,7 +393,7 @@ describe('statistics 통합 테스트', () => {
                 }),
             ]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.weekly({ year: 2024 });
 
             expect(result.totalStudents).toBe(1);
@@ -424,7 +424,7 @@ describe('statistics 통합 테스트', () => {
                 }),
             ]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.weekly({ year: 2024 });
 
             expect(result.totalStudents).toBe(2);
@@ -440,7 +440,7 @@ describe('statistics 통합 테스트', () => {
             // 졸업 필터 적용 후 0명
             mockPrismaClient.student.count.mockResolvedValueOnce(0);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.weekly({ year: 2024 });
 
             expect(result.totalStudents).toBe(0);
@@ -457,7 +457,7 @@ describe('statistics 통합 테스트', () => {
             mockPrismaClient.student.count.mockResolvedValueOnce(1);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             await caller.statistics.monthly({ year: 2024, month: 3 });
 
             // student.count 호출 시 졸업 기준일이 3월 1일인지 확인
@@ -489,7 +489,7 @@ describe('statistics 통합 테스트', () => {
             // fallback student.findMany
             mockPrismaClient.student.findMany.mockResolvedValueOnce([]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.statistics.byGender({ year: 2024 });
 
             expect(result.male.count).toBe(1);

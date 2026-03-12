@@ -10,8 +10,17 @@ export function StudentAddPage() {
     const { groups, isLoading: groupsLoading } = useGroups();
     const { create, isCreating } = useStudents();
 
-    const handleSubmit = async (data: Parameters<typeof create>[0]) => {
-        await create(data);
+    const handleSubmit = async (data: {
+        groupIds: string[];
+        societyName: string;
+        catholicName?: string;
+        gender?: 'M' | 'F';
+        age?: number;
+        contact?: string;
+        description?: string;
+        baptizedAt?: string;
+    }) => {
+        await create({ ...data, groupIds: data.groupIds });
         navigate('/students');
     };
 

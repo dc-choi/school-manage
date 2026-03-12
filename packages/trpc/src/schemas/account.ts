@@ -1,6 +1,7 @@
 /**
  * Account 도메인 스키마
  */
+import type { JoinRequestStatus, Role } from '../shared.js';
 import { z } from 'zod';
 
 // ============================================================
@@ -46,6 +47,11 @@ export interface GetAccountOutput {
     name: string;
     displayName: string;
     privacyAgreedAt: Date | null;
+    organizationId?: string;
+    role?: Role;
+    organizationName?: string;
+    churchName?: string;
+    joinRequestStatus?: JoinRequestStatus;
 }
 
 /**

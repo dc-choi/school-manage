@@ -3,6 +3,7 @@
  *
  * 모든 그룹의 주간/월간/연간 출석률 및 평균 출석 인원 조회 (스냅샷 기반)
  */
+import { PRESENT_MARKS } from '@school/trpc';
 import type { GroupStatisticsOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
 import {
     clampToToday,
@@ -18,7 +19,7 @@ import {
 import { getBulkGroupSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
-type StatisticsInput = StatisticsSchemaInput & { accountId: string };
+type StatisticsInput = StatisticsSchemaInput & { organizationId: string };
 
 interface DateRange {
     startDate: Date;
@@ -36,11 +37,11 @@ export class GetGroupStatisticsUseCase {
     async execute(input: StatisticsInput): Promise<GroupStatisticsOutput> {
         const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
-        const accountId = BigInt(input.accountId);
+        const organizationId = BigInt(input.organizationId);
 
         // 1. 계정 소속 그룹 조회 (deletedAt 필터 없이 전체)
         const groups = await database.group.findMany({
-            where: { accountId },
+            where: { organizationId },
             select: { id: true, name: true },
         });
         const groupIds = groups.map((g) => g.id);
@@ -175,7 +176,7 @@ export class GetGroupStatisticsUseCase {
                 data = { presentCount: 0 };
                 grouped.set(att.groupId, data);
             }
-            if (att.content && ['◎', '○', '△'].includes(att.content)) {
+            if (att.content && PRESENT_MARKS.has(att.content)) {
                 data.presentCount++;
             }
         }

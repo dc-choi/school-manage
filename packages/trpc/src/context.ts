@@ -1,8 +1,8 @@
-import type { AccountInfo } from './shared';
+import type { AccountInfo, ChurchInfo, OrganizationInfo } from './shared.js';
 import { Request, Response } from 'express';
 
 // AccountInfo 재export (호환성 유지)
-export type { AccountInfo } from './shared';
+export type { AccountInfo, OrganizationInfo, ChurchInfo } from './shared.js';
 
 /**
  * 기본 컨텍스트 (모든 요청)
@@ -20,6 +20,8 @@ export interface BaseContext {
 export interface Context extends BaseContext {
     account?: AccountInfo;
     privacyAgreedAt?: Date | null;
+    organization?: OrganizationInfo;
+    church?: ChurchInfo;
 }
 
 /**
@@ -28,4 +30,18 @@ export interface Context extends BaseContext {
 export interface AuthContext extends BaseContext {
     account: AccountInfo;
     privacyAgreedAt?: Date | null;
+    organization?: OrganizationInfo;
+    church?: ChurchInfo;
+}
+
+/**
+ * 조직 스코프 컨텍스트 (scopedProcedure에서 사용)
+ *
+ * organization, church가 반드시 존재
+ */
+export interface ScopedContext extends BaseContext {
+    account: AccountInfo;
+    privacyAgreedAt?: Date | null;
+    organization: OrganizationInfo;
+    church: ChurchInfo;
 }

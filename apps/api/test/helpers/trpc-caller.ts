@@ -3,8 +3,8 @@
  *
  * HTTP 오버헤드 없이 프로시저를 직접 호출하여 테스트할 수 있습니다.
  */
-import { createCallerFactory } from '@school/trpc';
-import type { AuthContext, Context } from '@school/trpc';
+import { ROLE, createCallerFactory } from '@school/trpc';
+import type { AuthContext, Context, Role, ScopedContext } from '@school/trpc';
 import type { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { appRouter } from '~/app.router.js';
@@ -67,6 +67,45 @@ export function createAuthenticatedCaller(accountId: string, accountName: string
         res: createMockResponse(),
         account: { id: accountId, name: accountName, displayName: displayName ?? accountName },
         privacyAgreedAt: new Date(),
+    };
+    return createCaller(ctx);
+}
+
+/**
+ * 조직 스코프 프로시저용 caller 생성
+ *
+ * scopedProcedure 테스트에 사용 (group, student, attendance, statistics)
+ */
+export function createScopedCaller(
+    accountId: string,
+    accountName: string,
+    organizationId: string,
+    organizationName: string,
+    options?: { churchId?: string; churchName?: string; role?: Role; displayName?: string }
+) {
+    const ctx: Context = {
+        req: createMockRequest(),
+        res: createMockResponse(),
+        account: {
+            id: accountId,
+            name: accountName,
+            displayName: options?.displayName ?? accountName,
+            organizationId,
+            role: options?.role ?? ROLE.ADMIN,
+        },
+        privacyAgreedAt: new Date(),
+        organization: {
+            id: organizationId,
+            name: organizationName,
+            churchId: options?.churchId ?? '1',
+            churchName: options?.churchName ?? '장위동성당',
+        },
+        church: {
+            id: options?.churchId ?? '1',
+            name: options?.churchName ?? '장위동성당',
+            parishId: '1',
+            parishName: '서울대교구',
+        },
     };
     return createCaller(ctx);
 }

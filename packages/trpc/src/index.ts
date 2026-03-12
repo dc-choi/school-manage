@@ -5,13 +5,14 @@
  */
 
 // Context 타입
-export type { Context, AuthContext, BaseContext } from './context';
+export type { Context, AuthContext, ScopedContext, BaseContext } from './context.js';
 
-// 공통 타입
-export type { AccountInfo } from './shared';
+// 공통 타입 + 상수
+export { ROLE, JOIN_REQUEST_STATUS, GENDER, PRESENT_MARKS } from './shared.js';
+export type { AccountInfo, OrganizationInfo, ChurchInfo, Role, JoinRequestStatus, Gender } from './shared.js';
 
 // AppRouter 타입 (클라이언트용)
-export type { AppRouter } from './routers';
+export type { AppRouter } from './routers/index.js';
 
 // tRPC 유틸리티
 export {
@@ -19,10 +20,11 @@ export {
     publicProcedure,
     protectedProcedure,
     consentedProcedure,
+    scopedProcedure,
     middleware,
     transformer,
     createCallerFactory,
-} from './trpc';
+} from './trpc.js';
 
 // Zod 스키마 (Input)
 export {
@@ -65,7 +67,14 @@ export {
     topStatisticsInputSchema,
     getHolydaysInputSchema,
     getSeasonInputSchema,
-} from './schemas';
+    createChurchInputSchema,
+    searchChurchesInputSchema,
+    listOrganizationsInputSchema,
+    createOrganizationInputSchema,
+    requestJoinInputSchema,
+    approveJoinInputSchema,
+    rejectJoinInputSchema,
+} from './schemas/index.js';
 
 // 입력 타입 (Input)
 export type {
@@ -105,7 +114,14 @@ export type {
     TopStatisticsInput,
     GetHolydaysInput,
     GetSeasonInput,
-} from './schemas';
+    CreateChurchInput,
+    SearchChurchesInput,
+    ListOrganizationsInput,
+    CreateOrganizationInput,
+    RequestJoinInput,
+    ApproveJoinInput,
+    RejectJoinInput,
+} from './schemas/index.js';
 
 // 출력 타입 (Output)
 export type {
@@ -131,6 +147,7 @@ export type {
     GetGroupAttendanceOutput,
     BulkDeleteGroupsOutput,
     // Student
+    StudentGroupItem,
     StudentBase,
     StudentWithGroup,
     ListStudentsOutput,
@@ -173,4 +190,20 @@ export type {
     Holyday,
     GetHolydaysOutput,
     GetSeasonOutput,
-} from './schemas';
+    // Parish
+    ParishItem,
+    ListParishesOutput,
+    // Church
+    CreateChurchOutput,
+    SearchChurchItem,
+    SearchChurchesOutput,
+    // Organization
+    OrganizationItem,
+    ListOrganizationsOutput,
+    CreateOrganizationOutput,
+    RequestJoinOutput,
+    PendingRequestItem,
+    PendingRequestsOutput,
+    MemberItem,
+    MembersOutput,
+} from './schemas/index.js';

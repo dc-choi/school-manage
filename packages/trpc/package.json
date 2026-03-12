@@ -3,12 +3,17 @@
     "version": "0.0.1",
     "description": "Shared tRPC types and router definitions",
     "private": true,
+    "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
             "default": "./dist/index.js"
+        },
+        "./shared": {
+            "types": "./dist/shared.d.ts",
+            "default": "./dist/shared.js"
         },
         "./types": {
             "types": "./dist/types.d.ts"

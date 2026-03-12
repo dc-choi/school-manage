@@ -20,13 +20,13 @@ interface ExcellentStudentRaw {
 }
 
 // 스키마 타입 + context 필드
-type GetExcellentStudentsInput = GetExcellentStudentsSchemaInput & { accountId: string };
+type GetExcellentStudentsInput = GetExcellentStudentsSchemaInput & { organizationId: string };
 
 export class GetExcellentStudentsUseCase {
     async execute(input: GetExcellentStudentsInput): Promise<GetExcellentStudentsOutput> {
         const year = input.year?.toString() ?? getNowKST().getFullYear().toString();
         const yearNum = Number(year);
-        const accountId = BigInt(input.accountId);
+        const organizationId = BigInt(input.organizationId);
 
         const rawResults = await database.$queryRaw<ExcellentStudentRaw[]>(
             Prisma.sql`
@@ -45,7 +45,7 @@ export class GetExcellentStudentsUseCase {
                 AND s.group_id IN (
                     SELECT _id
                     FROM \`group\`
-                    WHERE account_id = ${accountId}
+                    WHERE organization_id = ${organizationId}
                 )
                 AND s.delete_at IS NULL
                 AND a.delete_at IS NULL

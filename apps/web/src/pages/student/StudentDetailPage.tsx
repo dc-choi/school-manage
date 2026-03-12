@@ -42,9 +42,6 @@ export function StudentDetailPage() {
         return '-';
     };
 
-    // 그룹 이름 찾기
-    const groupName = groups.find((g) => g.id === student?.groupId)?.name ?? student?.groupId ?? '';
-
     if (error) {
         return (
             <MainLayout title="학생 상세">
@@ -74,7 +71,7 @@ export function StudentDetailPage() {
                             age: student.age,
                             contact: student.contact,
                             description: student.description,
-                            groupId: student.groupId,
+                            groupIds: student.groups?.map((g) => g.id) ?? [],
                             baptizedAt: student.baptizedAt,
                         }}
                         groups={groups}
@@ -89,7 +86,7 @@ export function StudentDetailPage() {
                                 age: data.age ?? null,
                                 contact: data.contact ?? null,
                                 description: data.description ?? null,
-                                groupId: data.groupId,
+                                groupIds: data.groupIds,
                                 baptizedAt: data.baptizedAt ?? null,
                             });
                             setIsEditing(false);
@@ -163,7 +160,22 @@ export function StudentDetailPage() {
                                 <InfoRow label="성별" value={getGenderDisplay(student?.gender)} />
                                 <InfoRow label="나이" value={student?.age?.toString() ?? '-'} />
                                 <InfoRow label="연락처" value={contactDisplay} />
-                                <InfoRow label="학년" value={groupName || '-'} />
+                                <div className="flex flex-col border-b py-4 last:border-b-0 sm:flex-row sm:items-center">
+                                    <dt className="mb-1 shrink-0 text-base font-medium text-muted-foreground sm:mb-0 sm:w-32 sm:text-xl">
+                                        학년
+                                    </dt>
+                                    <dd className="flex flex-wrap gap-1">
+                                        {student?.groups?.length ? (
+                                            student.groups.map((g) => (
+                                                <Badge key={g.id} variant="secondary">
+                                                    {g.name}
+                                                </Badge>
+                                            ))
+                                        ) : (
+                                            <span>-</span>
+                                        )}
+                                    </dd>
+                                </div>
                                 <InfoRow label="축일" value={student?.baptizedAt ?? '-'} />
                                 <InfoRow label="비고" value={student?.description ?? '-'} />
                                 {isDeleted && (

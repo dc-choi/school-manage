@@ -6,9 +6,9 @@
 
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
-| **Current Functional**    | 100% | 8개 도메인 기능 설계에 통합 + 통계 스냅샷 구현 완료                              |
-| **Target Functional**     | -    | 2단계 미착수 4건 (P0 졸업생 필터링 + P1 엑셀 Import + P0 등록 관리 완료)       |
-| **Target Non-Functional** | -    | UI 1건 (반응형 구현 완료), SECURITY 2건, PERFORMANCE 1건 미착수 |
+| **Current Functional**    | 100% | 9개 도메인 기능 설계에 통합 + 계정 모델 전환 완료                              |
+| **Target Functional**     | -    | 3단계 미착수 4건 (P0 계정 모델 전환 + P0 졸업생 필터링 + P1 엑셀 Import + P0 등록 관리 완료) |
+| **Target Non-Functional** | -    | UI 1건 (반응형 구현 완료), SECURITY 1건 완료 + 1건 미착수, PERFORMANCE 1건 미착수 |
 
 ## 관련 문서
 
@@ -39,6 +39,7 @@
 | 통계 졸업생 필터링       | `docs/specs/prd/statistics-graduation-filter.md` | Approved (구현 완료) | 로드맵 2단계           |
 | 학생 엑셀 Import     | `docs/specs/prd/student-excel-import.md`         | Approved (구현 완료) | 로드맵 2단계           |
 | 학생 등록 관리        | `docs/specs/prd/student-registration.md`         | Approved (구현 완료) | 로드맵 2단계 (4단계 선행)  |
+| 계정 모델 전환        | `docs/specs/prd/account-model-transition.md`     | Approved (구현 완료) | 로드맵 3단계           |
 
 ### Functional Design (기능 설계)
 
@@ -47,7 +48,8 @@
 
 | 도메인          | 경로                                                      | 포함 내용                                                      |
 |--------------|---------------------------------------------------------|------------------------------------------------------------|
-| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 + 계정 자기 관리 + 셀프 온보딩 (로드맵 2단계) |
+| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 + 계정 자기 관리 + 셀프 온보딩 (로드맵 2단계) + 계정 모델 전환 (로드맵 3단계) |
+| Account Model | `docs/specs/functional-design/account-model-transition*.md` | 계정 모델 전환 상세 설계 (데이터 모델, 플로우, API, 단계별 계획, 마이그레이션) — 5개 파일 분리 |
 | Landing      | `docs/specs/functional-design/landing-page.md`          | 랜딩 페이지 + 포지셔닝 개선 (로드맵 1단계) + FAQ 섹션 + 메타 태그/브랜딩 정비 (로드맵 2단계) |
 | Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
 | Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 페이지네이션 상태 유지 (로드맵 1단계) + 이달의 축일자 목록 + 엑셀 Import + 등록 관리 (로드맵 2단계) |
@@ -67,6 +69,7 @@
 | 도메인          | 기능 설계                                                   |
 |--------------|---------------------------------------------------------|
 | Auth/Account | `docs/specs/functional-design/auth-account.md`          |
+| Account Model | `docs/specs/functional-design/account-model-transition*.md` |
 | Landing      | `docs/specs/functional-design/landing-page.md`          |
 | Group        | `docs/specs/functional-design/group-management.md`      |
 | Student      | `docs/specs/functional-design/student-management.md`    |
@@ -87,16 +90,18 @@
 | 우선순위 | 기능명          | SDD 상태 | 비고                                         |
 |------|--------------|--------|--------------------------------------------|
 | ~~P0~~ | ~~통계 졸업생 필터링~~ | **완료** | 조회 기간 시작일 기준 졸업 필터 — 6개 UseCase 적용 완료 |
-| P0   | 계정 모델 전환 (공유→개인) | 미착수    | 개인 계정 + 본당/모임 합류 구조. 학년/부서 두 축 그룹핑(N:M). 유입 증가 전 선행 필요 |
+| ~~P0~~ | ~~계정 모델 전환 (공유→개인)~~ | **완료** | 개인 계정 + 본당/모임 합류 구조. StudentGroup N:M 도입. 38개 계정 마이그레이션 SQL 포함 |
 | P0   | 졸업일 정규화 + 통계 나이 기반 필터링 | 미착수    | 졸업 시 graduatedAt 정규화 + 통계에서 졸업 나이 이상 제외 (중고등부 20살, 초등부 14살) + 기존 데이터 보정 (프로모션 미변경) |
 | ~~P1~~ | ~~학생 엑셀 Import~~ | **완료** | 엑셀 파일로 학생 일괄 등록. GA4 입력 부담 시그널 + 파워 유저 100명+ 등록 수요 |
 | ~~P0~~ | ~~학생 등록 관리~~ | **완료** | 연/학기 단위 등록 이력 관리 (Registration 테이블). 등록 시즌 대응. 4단계 "등록 관리"의 핵심 선행 (전자서명·보상 제외) |
 | P1   | 미사 참례 확인     | 미착수    | 학생별 미사 참례 횟수 기록 (첫영성체 준비 필수 조건)            |
 | P2   | 가정 통신문 자동 생성 | 미착수    | 월별 출석/일정/공지 템플릿 기반 PDF/이미지 내보내기            |
+| P1   | 학년/부서 두 축 그룹핑 | 미착수    | StudentGroup N:M 활용하여 학생을 학년 그룹 + 부서 그룹에 동시 소속. 기존 컬럼 정리 (Group.accountId, Student.groupId 제거 + NOT NULL 전환) 포함 |
 | P2   | 반편성 자동화      | 미착수    | 신학기 학년 진급 시 반 자동 재배정, 교사-반 매칭              |
 
 **의존성 체인:**
-- 계정 모델 전환 (P0) ← 행사 메모 카드, 사제 보고용 공유 링크, Organization 단위 구독의 선행 조건
+- ~~계정 모델 전환 (P0)~~ ← 행사 메모 카드, 사제 보고용 공유 링크, Organization 단위 구독의 선행 조건 (**완료**)
+- ~~계정 모델 전환 (P0)~~ ← 학년/부서 두 축 그룹핑 (P1) — 계정 모델 전환의 deferred Step 4 포함 (**선행 완료**)
 - 브레인스토밍 조건부 승인 항목은 계정 모델 전환 완료 + 검증 후 등록 예정 (`docs/brainstorm/2026-02-21.md`, `2026-02-23.md` 참조)
 
 ### 보류 (Hold)
@@ -111,13 +116,12 @@
 
 | 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
 |------|----------------------|--------|------------------------------------------------------|
-| P1   | 계정 소유권 검증 강화         | 미작성    | IDOR 취약점 - 모든 엔드포인트 accountId 검증 필요                  |
+| ~~P1~~ | ~~계정 소유권 검증 강화~~    | **완료**  | 계정 모델 전환 시 organizationId 기반 소유권 검증으로 전면 전환           |
 | P1   | Refresh token 인증 확장  | 미작성    | 재명세 예정                                               |
 
-**계정 소유권 검증 강화:**
-- 프로덕션 데이터 노출 위험 (수평 권한 상승)
-- group/student/attendance 모든 get/update/delete 엔드포인트에서 accountId 검증 필요
-- 발견 위치: `apps/api/src/domains/group/presentation/group.router.ts:38` 등
+**~~계정 소유권 검증 강화~~:** (계정 모델 전환에서 해결)
+- scopedProcedure + organizationId 기반 소유권 검증으로 전면 전환
+- group/student/attendance 모든 엔드포인트에서 organizationId 검증 적용 완료
 
 **Refresh token 인증 확장:**
 - 재명세 예정

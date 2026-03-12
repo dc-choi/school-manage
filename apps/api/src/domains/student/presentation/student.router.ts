@@ -23,7 +23,6 @@ import {
     bulkDeleteStudentsInputSchema,
     bulkRegisterStudentsInputSchema,
     cancelGraduationInputSchema,
-    consentedProcedure,
     createStudentInputSchema,
     deleteStudentInputSchema,
     feastDayListInputSchema,
@@ -32,6 +31,7 @@ import {
     listStudentsInputSchema,
     restoreStudentsInputSchema,
     router,
+    scopedProcedure,
     updateStudentInputSchema,
 } from '@school/trpc';
 
@@ -40,10 +40,10 @@ export const studentRouter = router({
      * 학생 목록 조회 (페이지네이션, 검색, 삭제 필터)
      * GET /api/student -> trpc.student.list
      */
-    list: consentedProcedure.input(listStudentsInputSchema).query(async ({ input, ctx }) => {
+    list: scopedProcedure.input(listStudentsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new ListStudentsUseCase();
         return usecase.execute({
-            accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
             page: input.page,
             searchOption: input.searchOption,
             searchWord: input.searchWord,
@@ -59,83 +59,83 @@ export const studentRouter = router({
      * 축일자 목록 조회 (지정 월에 축일이 있는 재학생)
      * GET /api/student/feastDayList -> trpc.student.feastDayList
      */
-    feastDayList: consentedProcedure.input(feastDayListInputSchema).query(async ({ input, ctx }) => {
+    feastDayList: scopedProcedure.input(feastDayListInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetFeastDayListUseCase();
-        return usecase.execute({ month: input.month, accountId: ctx.account.id });
+        return usecase.execute({ month: input.month, organizationId: ctx.organization.id });
     }),
 
     /**
      * 단일 학생 조회
      * GET /api/student/:studentId -> trpc.student.get
      */
-    get: consentedProcedure.input(getStudentInputSchema).query(async ({ input }) => {
+    get: scopedProcedure.input(getStudentInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetStudentUseCase();
-        return usecase.execute(input);
+        return usecase.execute(input, ctx.organization.id);
     }),
 
     /**
      * 학생 생성
      * POST /api/student -> trpc.student.create
      */
-    create: consentedProcedure.input(createStudentInputSchema).mutation(async ({ input, ctx }) => {
+    create: scopedProcedure.input(createStudentInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new CreateStudentUseCase();
-        return usecase.execute(input, ctx.account.id);
+        return usecase.execute(input, ctx.organization.id);
     }),
 
     /**
      * 학생 수정
      * PUT /api/student/:studentId -> trpc.student.update
      */
-    update: consentedProcedure.input(updateStudentInputSchema).mutation(async ({ input }) => {
+    update: scopedProcedure.input(updateStudentInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new UpdateStudentUseCase();
-        return usecase.execute(input);
+        return usecase.execute(input, ctx.organization.id);
     }),
 
     /**
      * 학생 삭제
      * DELETE /api/student/:studentId -> trpc.student.delete
      */
-    delete: consentedProcedure.input(deleteStudentInputSchema).mutation(async ({ input }) => {
+    delete: scopedProcedure.input(deleteStudentInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new DeleteStudentUseCase();
-        return usecase.execute(input);
+        return usecase.execute(input, ctx.organization.id);
     }),
 
     /**
      * 학생 일괄 등록 (로드맵 2단계 — 엑셀 Import)
      * POST /api/student/bulk-create -> trpc.student.bulkCreate
      */
-    bulkCreate: consentedProcedure.input(bulkCreateStudentsInputSchema).mutation(async ({ input, ctx }) => {
+    bulkCreate: scopedProcedure.input(bulkCreateStudentsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new BulkCreateStudentsUseCase();
-        return usecase.execute(input, ctx.account.id);
+        return usecase.execute(input, ctx.organization.id);
     }),
 
     /**
      * 학생 일괄 삭제 (로드맵 1단계)
      * POST /api/student/bulk-delete -> trpc.student.bulkDelete
      */
-    bulkDelete: consentedProcedure.input(bulkDeleteStudentsInputSchema).mutation(async ({ input, ctx }) => {
+    bulkDelete: scopedProcedure.input(bulkDeleteStudentsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new BulkDeleteStudentsUseCase();
-        return usecase.execute(input, ctx.account.id);
+        return usecase.execute(input, ctx.organization.id);
     }),
 
     /**
      * 학생 복구 (로드맵 1단계)
      * POST /api/student/restore -> trpc.student.restore
      */
-    restore: consentedProcedure.input(restoreStudentsInputSchema).mutation(async ({ input, ctx }) => {
+    restore: scopedProcedure.input(restoreStudentsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new RestoreStudentsUseCase();
-        return usecase.execute(input, ctx.account.id);
+        return usecase.execute(input, ctx.organization.id);
     }),
 
     /**
      * 학생 일괄 졸업 처리 (graduatedAt 설정)
      * POST /api/student/graduate -> trpc.student.graduate
      */
-    graduate: consentedProcedure.input(graduateStudentsInputSchema).mutation(async ({ input, ctx }) => {
+    graduate: scopedProcedure.input(graduateStudentsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new GraduateStudentsUseCase();
         return usecase.execute({
             ids: input.ids,
-            accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
         });
     }),
 
@@ -143,11 +143,11 @@ export const studentRouter = router({
      * 학생 졸업 취소 (graduatedAt을 null로)
      * POST /api/student/cancelGraduation -> trpc.student.cancelGraduation
      */
-    cancelGraduation: consentedProcedure.input(cancelGraduationInputSchema).mutation(async ({ input, ctx }) => {
+    cancelGraduation: scopedProcedure.input(cancelGraduationInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new CancelGraduationUseCase();
         return usecase.execute({
             ids: input.ids,
-            accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
         });
     }),
 
@@ -155,20 +155,20 @@ export const studentRouter = router({
      * 학생 일괄 등록 (로드맵 2단계 — 등록 관리)
      * POST /api/student/bulk-register -> trpc.student.bulkRegister
      */
-    bulkRegister: consentedProcedure.input(bulkRegisterStudentsInputSchema).mutation(async ({ input, ctx }) => {
+    bulkRegister: scopedProcedure.input(bulkRegisterStudentsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new BulkRegisterStudentsUseCase();
-        return usecase.execute(input, ctx.account.id);
+        return usecase.execute(input, ctx.organization.id);
     }),
 
     /**
      * 학생 일괄 등록 취소 (로드맵 2단계 — 등록 관리)
      * POST /api/student/bulk-cancel-registration -> trpc.student.bulkCancelRegistration
      */
-    bulkCancelRegistration: consentedProcedure
+    bulkCancelRegistration: scopedProcedure
         .input(bulkCancelRegistrationInputSchema)
         .mutation(async ({ input, ctx }) => {
             const usecase = new BulkCancelRegistrationUseCase();
-            return usecase.execute(input, ctx.account.id);
+            return usecase.execute(input, ctx.organization.id);
         }),
 
     /**
@@ -177,11 +177,11 @@ export const studentRouter = router({
      * 현재: 단일 계정 내 그룹 이동
      * 향후: 본당 내 계정 간 졸업생 데이터 이관 (예: 초등부 → 중고등부)
      */
-    promote: consentedProcedure.mutation(async ({ ctx }) => {
+    promote: scopedProcedure.mutation(async ({ ctx }) => {
         const usecase = new PromoteStudentsUseCase();
         return usecase.execute({
-            accountId: ctx.account.id,
-            accountName: ctx.account.name,
+            organizationId: ctx.organization.id,
+            organizationName: ctx.organization.name,
         });
     }),
 });

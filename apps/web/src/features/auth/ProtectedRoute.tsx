@@ -5,10 +5,11 @@ import { LoadingSpinner } from '~/components/common/LoadingSpinner';
 
 interface ProtectedRouteProps {
     children: ReactNode;
+    requireOrganization?: boolean;
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
-    const { isAuthenticated, isLoading, privacyAgreedAt } = useAuth();
+export function ProtectedRoute({ children, requireOrganization = true }: ProtectedRouteProps) {
+    const { isAuthenticated, isLoading, privacyAgreedAt, organizationId } = useAuth();
     const location = useLocation();
 
     if (isLoading) {
@@ -21,6 +22,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     if (!privacyAgreedAt) {
         return <Navigate to="/consent" replace />;
+    }
+
+    // organizationId 체크 (requireOrganization=true인 라우트에서만)
+    if (requireOrganization && !organizationId) {
+        return <Navigate to="/join" replace />;
     }
 
     return <>{children}</>;

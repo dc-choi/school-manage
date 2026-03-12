@@ -3,6 +3,7 @@
  *
  * 그룹별 출석률 순위 TOP N 조회 (스냅샷 기반)
  */
+import { PRESENT_MARKS } from '@school/trpc';
 import type { TopGroupsOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/trpc';
 import {
     clampToToday,
@@ -16,14 +17,14 @@ import {
 import { getBulkGroupSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
-type TopStatisticsInput = TopStatisticsSchemaInput & { accountId: string };
+type TopStatisticsInput = TopStatisticsSchemaInput & { organizationId: string };
 
 export class GetTopGroupsUseCase {
     async execute(input: TopStatisticsInput): Promise<TopGroupsOutput> {
         const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
         const limit = input.limit ?? 5;
-        const accountId = BigInt(input.accountId);
+        const organizationId = BigInt(input.organizationId);
 
         // 1. 날짜 범위 계산
         const { startDateStr, endDateStr, totalDays } = this.getDateRange(year, month, week);
@@ -34,7 +35,7 @@ export class GetTopGroupsUseCase {
 
         // 2. 계정 소속 그룹 조회 (deletedAt 필터 없이 전체)
         const groups = await database.group.findMany({
-            where: { accountId },
+            where: { organizationId },
             select: { id: true, name: true },
         });
         const groupIds = groups.map((g) => g.id);
@@ -73,7 +74,7 @@ export class GetTopGroupsUseCase {
         const presentByGroup = new Map<bigint, number>();
         for (const att of attendances) {
             if (!att.groupId) continue;
-            if (att.content && ['◎', '○', '△'].includes(att.content)) {
+            if (att.content && PRESENT_MARKS.has(att.content)) {
                 presentByGroup.set(att.groupId, (presentByGroup.get(att.groupId) ?? 0) + 1);
             }
         }

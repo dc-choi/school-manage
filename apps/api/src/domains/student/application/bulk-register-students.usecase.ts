@@ -9,23 +9,23 @@ import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 export class BulkRegisterStudentsUseCase {
-    async execute(input: BulkRegisterStudentsInput, accountId: string): Promise<BulkRegisterStudentsOutput> {
+    async execute(input: BulkRegisterStudentsInput, organizationId: string): Promise<BulkRegisterStudentsOutput> {
         try {
             const ids = input.ids.map((id) => BigInt(id));
             const year = input.year ?? new Date().getFullYear();
             const now = getNowKST();
 
-            // 해당 계정 소유 그룹의 학생만 등록
+            // 해당 조직 소유 그룹의 학생만 등록
             const groups = await database.group.findMany({
                 where: {
-                    accountId: BigInt(accountId),
+                    organizationId: BigInt(organizationId),
                     deletedAt: null,
                 },
                 select: { id: true },
             });
             const groupIds = groups.map((g) => g.id);
 
-            // 계정 소속 학생인지 확인
+            // 조직 소속 학생인지 확인
             const validStudents = await database.student.findMany({
                 where: {
                     id: { in: ids },

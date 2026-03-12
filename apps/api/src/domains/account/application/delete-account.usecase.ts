@@ -4,14 +4,22 @@
  * 계정 삭제 비즈니스 로직
  * 비밀번호 검증 → 트랜잭션 내 cascade 소프트 삭제 (출석→학생→그룹→계정)
  */
-import type { DeleteAccountInput, DeleteAccountOutput } from '@school/trpc';
+import { type DeleteAccountInput, type DeleteAccountOutput, ROLE } from '@school/trpc';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';
 import { database } from '~/infrastructure/database/database.js';
 
 export class DeleteAccountUseCase {
-    async execute(input: DeleteAccountInput, accountId: string): Promise<DeleteAccountOutput> {
+    async execute(input: DeleteAccountInput, accountId: string, role?: string): Promise<DeleteAccountOutput> {
+        // 0. 관리자 계정 삭제 차단
+        if (role === ROLE.ADMIN) {
+            throw new TRPCError({
+                code: 'FORBIDDEN',
+                message: '관리자 계정은 삭제할 수 없습니다.',
+            });
+        }
+
         // 1. 계정 조회 (비밀번호 포함)
         const account = await database.account.findFirst({
             where: { id: BigInt(accountId), deletedAt: null },
@@ -74,10 +82,10 @@ export class DeleteAccountUseCase {
                 data: { deletedAt: now },
             });
 
-            // 3f. 계정 소프트 삭제
+            // 3f. 계정 소프트 삭제 + 조직 연결 해제
             await tx.account.update({
                 where: { id: account.id },
-                data: { deletedAt: now },
+                data: { deletedAt: now, organizationId: null },
             });
         });
 

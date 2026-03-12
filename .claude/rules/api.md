@@ -24,11 +24,12 @@ tRPC Router (presentation) -> UseCase (application) -> Prisma (DB)
 
 ### Procedure 종류
 
-| Procedure | 용도 | 인증 | 동의 |
-|-----------|------|------|------|
-| `publicProcedure` | 공개 API (로그인 등) | 불필요 | 불필요 |
-| `protectedProcedure` | 인증만 필요 (account.get, account.agreePrivacy) | 필요 | 불필요 |
-| `consentedProcedure` | 도메인 API (group, student, attendance 등) | 필요 | 필요 |
+| Procedure | 용도 | 인증 | 동의 | 조직 |
+|-----------|------|------|------|------|
+| `publicProcedure` | 공개 API (로그인 등) | 불필요 | 불필요 | 불필요 |
+| `protectedProcedure` | 인증만 필요 (account.get, account.agreePrivacy) | 필요 | 불필요 | 불필요 |
+| `consentedProcedure` | 합류 전 API (parish, church, organization 공개 조회) | 필요 | 필요 | 불필요 |
+| `scopedProcedure` | 조직 스코프 API (group, student, attendance 등) | 필요 | 필요 | 필요 |
 
 ## Directory Structure
 

@@ -9,14 +9,14 @@ import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 export class BulkDeleteStudentsUseCase {
-    async execute(input: BulkDeleteStudentsInput, accountId: string): Promise<BulkDeleteStudentsOutput> {
+    async execute(input: BulkDeleteStudentsInput, organizationId: string): Promise<BulkDeleteStudentsOutput> {
         try {
             const ids = input.ids.map((id) => BigInt(id));
 
-            // 해당 계정 소유 그룹의 학생만 삭제
+            // 해당 조직 소유 그룹의 학생만 삭제
             const groups = await database.group.findMany({
                 where: {
-                    accountId: BigInt(accountId),
+                    organizationId: BigInt(organizationId),
                     deletedAt: null,
                 },
                 select: { id: true },

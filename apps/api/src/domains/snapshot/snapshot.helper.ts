@@ -21,6 +21,7 @@ interface CreateStudentSnapshotInput {
     description: string | null;
     baptizedAt: string | null;
     groupId: bigint;
+    organizationId?: bigint | null;
 }
 
 export const createStudentSnapshot = async (
@@ -37,6 +38,7 @@ export const createStudentSnapshot = async (
             description: input.description,
             baptizedAt: input.baptizedAt,
             groupId: input.groupId,
+            organizationId: input.organizationId ?? null,
             snapshotAt: getNowKST(),
         },
     });
@@ -52,6 +54,28 @@ export const createGroupSnapshot = async (tx: TransactionClient, input: CreateGr
         data: {
             groupId: input.groupId,
             name: input.name,
+            snapshotAt: getNowKST(),
+        },
+    });
+};
+
+interface CreateAccountSnapshotInput {
+    accountId: bigint;
+    name: string;
+    displayName: string;
+    organizationId: bigint;
+}
+
+export const createAccountSnapshot = async (
+    tx: TransactionClient,
+    input: CreateAccountSnapshotInput
+): Promise<void> => {
+    await tx.accountSnapshot.create({
+        data: {
+            accountId: input.accountId,
+            name: input.name,
+            displayName: input.displayName,
+            organizationId: input.organizationId,
             snapshotAt: getNowKST(),
         },
     });

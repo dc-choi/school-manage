@@ -1,4 +1,4 @@
-import { publicProcedure, router } from '../trpc';
+import { publicProcedure, router } from '../trpc.js';
 
 /**
  * 헬스 체크 라우터

@@ -93,9 +93,9 @@ export function MainLayout({ children, title }: MainLayoutProps) {
                                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 md:h-9 md:w-9">
                                     <User className="h-4 w-4 text-primary md:h-5 md:w-5" />
                                 </div>
-                                <span className="hidden text-sm font-medium sm:inline md:text-base">
-                                    {account?.displayName}
-                                </span>
+                                <div className="hidden flex-col items-end sm:flex">
+                                    <span className="text-sm font-medium md:text-base">{account?.displayName}</span>
+                                </div>
                             </Link>
                             <Button
                                 variant="ghost"

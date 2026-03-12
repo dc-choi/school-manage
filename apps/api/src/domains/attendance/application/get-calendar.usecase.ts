@@ -8,17 +8,17 @@ import { TRPCError } from '@trpc/server';
 import { GetHolydaysUseCase } from '~/domains/liturgical/application/get-holydays.usecase.js';
 import { database } from '~/infrastructure/database/database.js';
 
-type GetCalendarUseCaseInput = GetCalendarInput & { accountId: string };
+type GetCalendarUseCaseInput = GetCalendarInput & { organizationId: string };
 
 export class GetCalendarUseCase {
     async execute(input: GetCalendarUseCaseInput): Promise<GetCalendarOutput> {
-        const { year, month, groupId, accountId } = input;
+        const { year, month, groupId, organizationId } = input;
 
-        // 1. 권한 검증: accountId가 groupId를 소유하는지 확인
+        // 1. 권한 검증: organizationId가 groupId를 소유하는지 확인
         const group = await database.group.findFirst({
             where: {
                 id: BigInt(groupId),
-                accountId: BigInt(accountId),
+                organizationId: BigInt(organizationId),
                 deletedAt: null,
             },
         });

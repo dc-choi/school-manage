@@ -9,7 +9,7 @@ import { clampToToday, formatDateCompact, getNowKST, getWeekRangeInMonth } from 
 import { getBulkGroupSnapshots, getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
-type TopStatisticsInput = TopStatisticsSchemaInput & { accountId: string };
+type TopStatisticsInput = TopStatisticsSchemaInput & { organizationId: string };
 
 // Raw query result
 interface StudentScoreRaw {
@@ -25,7 +25,7 @@ export class GetTopOverallUseCase {
         const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
         const limit = input.limit ?? 5;
-        const accountId = BigInt(input.accountId);
+        const organizationId = BigInt(input.organizationId);
 
         // 날짜 범위 계산
         const { startDateStr, endDateStr } = this.getDateRange(year, month, week);
@@ -50,7 +50,7 @@ export class GetTopOverallUseCase {
                     AND a.date >= ${startDateStr}
                     AND a.date <= ${endDateStr}
                     AND a.delete_at IS NULL
-                WHERE g.account_id = ${accountId}
+                WHERE g.organization_id = ${organizationId}
                 AND s.delete_at IS NULL
                 AND (s.graduated_at IS NULL OR s.graduated_at >= ${startDateStr})
                 GROUP BY s._id, g._id, g.name

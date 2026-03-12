@@ -8,6 +8,10 @@ export interface AuthContextValue {
     isLoading: boolean;
     isAuthenticated: boolean;
     privacyAgreedAt: Date | null;
+    organizationId: string | null;
+    role: string | null;
+    organizationName: string | null;
+    churchName: string | null;
     login: (name: string, password: string) => Promise<void>;
     restoreAccount: (name: string, password: string) => Promise<void>;
     logout: () => void;
@@ -22,6 +26,10 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const [account, setAccount] = useState<AccountInfo | null>(null);
     const [privacyAgreedAt, setPrivacyAgreedAt] = useState<Date | null>(null);
+    const [organizationId, setOrganizationId] = useState<string | null>(null);
+    const [role, setRole] = useState<string | null>(null);
+    const [organizationName, setOrganizationName] = useState<string | null>(null);
+    const [churchName, setChurchName] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const loginMutation = trpc.auth.login.useMutation();
@@ -48,11 +56,19 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             if (accountData) {
                 setAccount({ id: accountData.id, name: accountData.name, displayName: accountData.displayName });
                 setPrivacyAgreedAt(accountData.privacyAgreedAt ?? null);
+                setOrganizationId(accountData.organizationId ?? null);
+                setRole(accountData.role ?? null);
+                setOrganizationName(accountData.organizationName ?? null);
+                setChurchName(accountData.churchName ?? null);
             } else {
                 // 토큰이 있지만 계정 정보를 가져오지 못함 (토큰 만료 등)
                 sessionStorage.removeItem('token');
                 setAccount(null);
                 setPrivacyAgreedAt(null);
+                setOrganizationId(null);
+                setRole(null);
+                setOrganizationName(null);
+                setChurchName(null);
             }
             setIsLoading(false);
         }
@@ -85,6 +101,10 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         sessionStorage.removeItem('token');
         setAccount(null);
         setPrivacyAgreedAt(null);
+        setOrganizationId(null);
+        setRole(null);
+        setOrganizationName(null);
+        setChurchName(null);
     }, []);
 
     const value = useMemo(
@@ -93,11 +113,26 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             isLoading,
             isAuthenticated: !!account,
             privacyAgreedAt,
+            organizationId,
+            role,
+            organizationName,
+            churchName,
             login,
             restoreAccount,
             logout,
         }),
-        [account, isLoading, privacyAgreedAt, login, restoreAccount, logout]
+        [
+            account,
+            isLoading,
+            privacyAgreedAt,
+            organizationId,
+            role,
+            organizationName,
+            churchName,
+            login,
+            restoreAccount,
+            logout,
+        ]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -40,6 +40,7 @@ export function createMockGroup(overrides: Partial<MockGroup> = {}): MockGroup {
         id: nextId(),
         name: '테스트그룹',
         accountId: BigInt(1),
+        organizationId: BigInt(1),
         createdAt: new Date(),
         updatedAt: null,
         deletedAt: null,
@@ -145,6 +146,8 @@ export interface MockAccount {
     name: string;
     displayName: string;
     password: string;
+    organizationId?: bigint | null;
+    role?: string | null;
     createdAt: Date;
     updatedAt: Date | null;
     deletedAt: Date | null;
@@ -154,6 +157,7 @@ export interface MockGroup {
     id: bigint;
     name: string;
     accountId: bigint;
+    organizationId?: bigint | null;
     createdAt: Date;
     updatedAt: Date | null;
     deletedAt: Date | null;
@@ -201,4 +205,35 @@ export interface MockGroupSnapshot {
     groupId: bigint;
     name: string;
     snapshotAt: Date;
+}
+
+export interface MockOrganization {
+    id: bigint;
+    name: string;
+    churchId: bigint;
+    createdAt: Date;
+    updatedAt: Date | null;
+    deletedAt: Date | null;
+}
+
+/**
+ * Mock Organization 생성
+ */
+export function createMockOrganization(overrides: Partial<MockOrganization> = {}): MockOrganization {
+    return {
+        id: nextId(),
+        name: '테스트조직',
+        churchId: BigInt(1),
+        createdAt: new Date(),
+        updatedAt: null,
+        deletedAt: null,
+        ...overrides,
+    };
+}
+
+/**
+ * 테스트용 기본 조직
+ */
+export function getTestOrganization(): MockOrganization {
+    return createMockOrganization({ id: BigInt(1), name: '장위동 중고등부' });
 }

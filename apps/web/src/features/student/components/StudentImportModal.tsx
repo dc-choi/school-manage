@@ -138,7 +138,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                 contact: row.normalizedContact ?? undefined,
                 baptizedAt: row.baptizedAt || undefined,
                 description: row.description || undefined,
-                groupId: row.groupId!,
+                groupIds: [row.groupId!],
                 registered: row.normalizedRegistered || undefined,
             })),
         });

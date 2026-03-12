@@ -1,7 +1,7 @@
 /**
  * Attendance 도메인 Zod 스키마
  */
-import { idSchema } from './common';
+import { idSchema } from './common.js';
 import { z } from 'zod';
 
 /**

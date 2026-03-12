@@ -10,30 +10,32 @@ import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class BulkCreateStudentsUseCase {
-    async execute(input: BulkCreateStudentsInput, accountId: string): Promise<BulkCreateStudentsOutput> {
+    async execute(input: BulkCreateStudentsInput, organizationId: string): Promise<BulkCreateStudentsOutput> {
         try {
             const totalCount = input.students.length;
 
             const now = getNowKST();
             const currentYear = new Date().getFullYear();
 
-            // 해당 계정 소유 그룹 조회 (권한 스코프)
+            // 해당 조직 소유 그룹 조회 (권한 스코프)
             const groups = await database.group.findMany({
                 where: {
-                    accountId: BigInt(accountId),
+                    organizationId: BigInt(organizationId),
                     deletedAt: null,
                 },
                 select: { id: true },
             });
             const validGroupIds = new Set(groups.map((g) => g.id));
 
-            // 입력된 groupId가 모두 계정 소속인지 검증
+            // 입력된 groupIds가 모두 조직 소속인지 검증
             for (const student of input.students) {
-                if (!validGroupIds.has(BigInt(student.groupId))) {
-                    throw new TRPCError({
-                        code: 'FORBIDDEN',
-                        message: '접근 권한이 없는 그룹입니다.',
-                    });
+                for (const gId of student.groupIds) {
+                    if (!validGroupIds.has(BigInt(gId))) {
+                        throw new TRPCError({
+                            code: 'FORBIDDEN',
+                            message: '접근 권한이 없는 그룹입니다.',
+                        });
+                    }
                 }
             }
 
@@ -47,11 +49,24 @@ export class BulkCreateStudentsUseCase {
                             age: student.age ? BigInt(student.age) : null,
                             contact: student.contact ? BigInt(student.contact) : null,
                             description: student.description,
-                            groupId: BigInt(student.groupId),
+                            groupId: BigInt(student.groupIds[0]),
+                            organizationId: BigInt(organizationId),
                             baptizedAt: student.baptizedAt,
                             createdAt: now,
                         },
                     });
+
+                    // StudentGroup junction records 생성
+                    for (const gId of student.groupIds) {
+                        await tx.studentGroup.create({
+                            data: {
+                                studentId: created.id,
+                                groupId: BigInt(gId),
+                                createdAt: now,
+                            },
+                        });
+                    }
+
                     await createStudentSnapshot(tx, {
                         studentId: created.id,
                         societyName: created.societyName,

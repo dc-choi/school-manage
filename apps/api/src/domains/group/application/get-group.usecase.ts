@@ -7,11 +7,15 @@ import type { GetGroupInput, GetGroupOutput } from '@school/trpc';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
+// 스키마 타입 + context 필드
+type GetGroupUseCaseInput = GetGroupInput & { organizationId: string };
+
 export class GetGroupUseCase {
-    async execute(input: GetGroupInput): Promise<GetGroupOutput> {
+    async execute(input: GetGroupUseCaseInput): Promise<GetGroupOutput> {
         const group = await database.group.findFirst({
             where: {
                 id: BigInt(input.id),
+                organizationId: BigInt(input.organizationId),
                 deletedAt: null,
             },
             include: {
@@ -37,7 +41,7 @@ export class GetGroupUseCase {
         return {
             id: String(group.id),
             name: group.name,
-            accountId: String(group.accountId),
+            organizationId: String(group.organizationId),
             studentCount: group.students.length,
             students: group.students.map((student) => ({
                 id: String(student.id),
@@ -46,7 +50,7 @@ export class GetGroupUseCase {
                 age: student.age ? Number(student.age) : undefined,
                 contact: student.contact ? String(student.contact) : undefined,
                 description: student.description ?? undefined,
-                groupId: String(student.groupId),
+                groups: [{ id: String(student.groupId), name: group.name }],
                 baptizedAt: student.baptizedAt ?? undefined,
             })),
         };
