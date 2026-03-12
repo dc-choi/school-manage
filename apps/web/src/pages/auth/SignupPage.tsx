@@ -1,4 +1,3 @@
-import { Info } from 'lucide-react';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { PrivacyPolicyDialog } from '~/components/common/PrivacyPolicyDialog';
@@ -137,11 +136,6 @@ export function SignupPage() {
                     <CardDescription>출석부터 축일까지, 한곳에서</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="mb-4 flex gap-2 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
-                        <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                        <span>모임 하나당 계정 하나로 관리해요. 선생님이 여러 명이면 같은 계정을 공유하시면 돼요.</span>
-                    </div>
-
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {error && (
                             <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
@@ -255,7 +249,7 @@ export function SignupPage() {
                         </div>
 
                         <Button type="submit" className="w-full" disabled={isLoading || !isFormValid()}>
-                            {isLoading ? '가입 중...' : '무료로 시작하기'}
+                            {isLoading ? '가입 중...' : '바로 시작하기'}
                         </Button>
 
                         <Button variant="ghost" className="w-full" asChild>
