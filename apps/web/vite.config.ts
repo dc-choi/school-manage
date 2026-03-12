@@ -11,6 +11,10 @@ export default defineConfig({
         },
     },
 
+    optimizeDeps: {
+        include: ['@school/trpc'],
+    },
+
     server: {
         port: 9080,
         proxy: {

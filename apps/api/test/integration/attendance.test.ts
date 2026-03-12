@@ -5,7 +5,7 @@
  */
 import { mockPrismaClient } from '../../vitest.setup.ts';
 import { createMockAttendance, createMockGroup, createMockStudent, getTestAccount } from '../helpers/mock-data.ts';
-import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.ts';
+import { createPublicCaller, createScopedCaller } from '../helpers/trpc-caller.ts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('attendance 통합 테스트', () => {
@@ -30,11 +30,13 @@ describe('attendance 통합 테스트', () => {
             const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
             const mockAttendance = createMockAttendance({ studentId: mockStudent.id });
 
+            // 소유권 검증: 그룹이 해당 조직 소속인지 확인
+            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
             // UseCase가 students와 attendances를 별도로 조회함
             mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.group.attendance({ groupId });
 
             expect(result).toHaveProperty('students');
@@ -52,10 +54,12 @@ describe('attendance 통합 테스트', () => {
             const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
             const mockAttendance = createMockAttendance({ studentId: mockStudent.id });
 
+            // 소유권 검증
+            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
             mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.group.attendance({
                 groupId,
                 year: 2024,
@@ -83,7 +87,7 @@ describe('attendance 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.group.attendance({ groupId: 'invalid-id' })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -99,6 +103,12 @@ describe('attendance 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const mockStudent = createMockStudent({ groupId: mockGroup.id });
 
+            // 측정 인프라: 조직의 첫 출석인지 확인
+            mockPrismaClient.attendance.count.mockResolvedValueOnce(0);
+            mockPrismaClient.organization.findUnique.mockResolvedValueOnce({ createdAt: new Date() });
+            // 소유권 검증: 모든 학생이 해당 조직 소속인지
+            mockPrismaClient.student.count.mockResolvedValueOnce(1);
+
             // $transaction mock
             const txMock = {
                 student: {
@@ -113,7 +123,7 @@ describe('attendance 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((callback) => callback(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.attendance.update({
                 year: 2024,
                 attendance: [
@@ -140,6 +150,10 @@ describe('attendance 통합 테스트', () => {
             const mockStudent = createMockStudent({ groupId: mockGroup.id });
             const existingAttendance = createMockAttendance({ studentId: mockStudent.id });
 
+            // 측정 인프라 + 소유권 검증
+            mockPrismaClient.attendance.count.mockResolvedValueOnce(1);
+            mockPrismaClient.student.count.mockResolvedValueOnce(1);
+
             // $transaction mock - existing attendance found
             const txMock = {
                 student: {
@@ -152,7 +166,7 @@ describe('attendance 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((callback) => callback(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.attendance.update({
                 year: 2024,
                 attendance: [
@@ -196,7 +210,7 @@ describe('attendance 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(
                 caller.attendance.update({
@@ -233,7 +247,7 @@ describe('attendance 통합 테스트', () => {
             // 월별 출석 데이터
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.attendance.calendar({
                 groupId,
                 year: 2024,
@@ -258,7 +272,7 @@ describe('attendance 통합 테스트', () => {
             // 다른 계정의 그룹이므로 null 반환
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(null);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(
                 caller.attendance.calendar({
@@ -311,7 +325,7 @@ describe('attendance 통합 테스트', () => {
             // 출석 데이터
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.attendance.dayDetail({
                 groupId,
                 date: '2024-01-07',
@@ -344,7 +358,7 @@ describe('attendance 통합 테스트', () => {
             mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([]);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.attendance.dayDetail({
                 groupId,
                 date: '2024-01-01',
@@ -362,7 +376,7 @@ describe('attendance 통합 테스트', () => {
 
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(null);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(
                 caller.attendance.dayDetail({
@@ -397,7 +411,7 @@ describe('attendance 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(
                 caller.attendance.dayDetail({

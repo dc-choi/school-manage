@@ -28,10 +28,11 @@
 
 | 기능    | 설명                                 |
 |-------|------------------------------------|
-| 인증    | 로그인, 회원가입                          |
+| 인증    | 로그인, 회원가입, 개인 계정 + 본당/모임 합류       |
 | 대시보드  | 출석률, 그룹별 통계, 우수 출석 멤버 현황 (스냅샷 기반 과거 연도 정확한 통계) |
-| 그룹 관리 | 그룹 CRUD, 일괄 삭제                     |
-| 멤버 관리 | 멤버 CRUD, 일괄 삭제/복구, 졸업/졸업 취소, 등록 관리 (연도별), 엑셀 Import |
+| 모임 관리 | 교구/본당/모임 계층, 합류 요청 승인/거부, 회원 관리   |
+| 학년 관리 | 학년 CRUD, 일괄 삭제                     |
+| 학생 관리 | 학생 CRUD, 일괄 삭제/복구, 졸업/졸업 취소, 등록 관리 (연도별), 엑셀 Import, 다중 그룹 소속 (N:M) |
 | 출석부   | 달력 UI 기반 출석 조회/입력, 종교 일정(부활절 등) 표시 |
 
 ## 시스템 아키텍처
@@ -82,27 +83,70 @@ docs/
 
 ```mermaid
 erDiagram
-    Account ||--o{ Group : has
-    Group ||--o{ Student : contains
+    Parish ||--o{ Church : has
+    Church ||--o{ Organization : has
+    Organization ||--o{ Account : members
+    Organization ||--o{ Group : has
+    Organization ||--o{ Student : has
+    Organization ||--o{ JoinRequest : receives
+    Account ||--o{ Group : "legacy owner"
+    Account ||--o{ JoinRequest : requests
+    Account ||--o{ AccountSnapshot : snapshots
     Student ||--o{ Attendance : records
     Student ||--o{ Registration : registers
     Student ||--o{ StudentSnapshot : snapshots
+    Student ||--o{ StudentGroup : belongs
+    Group ||--o{ StudentGroup : contains
+    Group ||--o{ Student : "legacy FK"
     Group ||--o{ GroupSnapshot : snapshots
+
+    Parish {
+        bigint id PK
+        varchar name "교구명"
+        datetime created_at
+    }
+
+    Church {
+        bigint id PK
+        varchar name "본당명"
+        bigint parish_id FK
+        datetime created_at
+    }
+
+    Organization {
+        bigint id PK
+        varchar name "모임명"
+        bigint church_id FK
+        datetime created_at
+    }
 
     Account {
         bigint id PK
         varchar name "로그인 ID"
         varchar display_name "표시 이름"
         varchar password
+        bigint organization_id FK "nullable"
+        varchar role "ADMIN/TEACHER"
+        datetime privacy_agreed_at
         datetime created_at
         datetime updated_at
         datetime deleted_at
     }
 
+    JoinRequest {
+        bigint id PK
+        bigint account_id FK
+        bigint organization_id FK
+        varchar status "PENDING/APPROVED/REJECTED"
+        datetime created_at
+        datetime updated_at
+    }
+
     Group {
         bigint id PK
-        varchar name "그룹명"
-        bigint account_id FK
+        varchar name "학년명"
+        bigint account_id FK "legacy"
+        bigint organization_id FK "nullable"
         datetime created_at
         datetime updated_at
         datetime deleted_at
@@ -117,11 +161,19 @@ erDiagram
         bigint contact "연락처"
         text description
         varchar baptized_at "축일"
-        bigint group_id FK
+        bigint group_id FK "legacy"
+        bigint organization_id FK "nullable"
         datetime graduated_at
         datetime created_at
         datetime updated_at
         datetime deleted_at
+    }
+
+    StudentGroup {
+        bigint id PK
+        bigint student_id FK
+        bigint group_id FK
+        datetime created_at
     }
 
     Attendance {
@@ -152,6 +204,16 @@ erDiagram
         varchar catholic_name "스냅샷 시점 세례명"
         varchar gender "스냅샷 시점 성별"
         bigint group_id "스냅샷 시점 그룹"
+        bigint organization_id "스냅샷 시점 조직"
+        datetime snapshot_at
+    }
+
+    AccountSnapshot {
+        bigint id PK
+        bigint account_id FK
+        varchar name "스냅샷 시점 로그인 ID"
+        varchar display_name "스냅샷 시점 표시 이름"
+        bigint organization_id "스냅샷 시점 조직"
         datetime snapshot_at
     }
 
@@ -174,7 +236,7 @@ erDiagram
 | 2025    | 모노레포 전환 (pnpm workspace + Turborepo)            |
 | 2026.01 | tRPC + React 19 마이그레이션, Prisma 전환, shadcn/ui 적용 |
 | 2026.02 | 랜딩 페이지 구현 (이탈율 81.8% → 12.5%), 다본당 파일럿 확장      |
-| 2026.03 | 사용자 데이터 분석, 사업 문서 구조화                           |
+| 2026.03 | 사용자 데이터 분석, 사업 문서 구조화, 계정 모델 전환 (공유→개인 계정 + 본당/모임 합류) |
 
 ## 만들게 된 계기
 주일학교 시스템상 매년 아이들의 출석을 기록해야 했고, 그에 따라 기존 엑셀로 된 출석부로는 매년 올해의 토요일, 일요일에 해당되는 부분을 일일히 알아보고 적어야하는 점이 너무 불편했습니다.

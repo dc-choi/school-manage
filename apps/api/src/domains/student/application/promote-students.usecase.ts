@@ -2,8 +2,8 @@
  * Promote Students UseCase
  *
  * TODO: 학생 데이터 이관 (추후 구현 예정)
- * 현재: 단일 계정 내 그룹 이동
- * 향후: 본당 내 계정 간 졸업생 데이터 이관 (예: 초등부 → 중고등부)
+ * 현재: 단일 조직 내 그룹 이동
+ * 향후: 본당 내 조직 간 졸업생 데이터 이관 (예: 초등부 -> 중고등부)
  */
 import { PrismaClient, Student } from '@prisma/client';
 import type { ITXClientDenyList } from '@prisma/client/runtime/library';
@@ -16,16 +16,16 @@ import { logger } from '~/infrastructure/logger/logger.js';
 type TransactionClient = Omit<PrismaClient, ITXClientDenyList>;
 
 export class PromoteStudentsUseCase {
-    async execute(input: { accountId: string; accountName: string }): Promise<PromoteStudentsOutput> {
+    async execute(input: { organizationId: string; organizationName: string }): Promise<PromoteStudentsOutput> {
         try {
             let row = 0;
 
             // 현재 초등부, 중고등부를 제외하면 관리자임. 관리자는 전부 진급처리가 가능하도록 하기.
-            if (input.accountName === '초등부') {
-                row = await this.elementaryPromotion(input.accountId);
+            if (input.organizationName === '초등부') {
+                row = await this.elementaryPromotion(input.organizationId);
             }
-            if (input.accountName === '중고등부') {
-                row = await this.middleHighPromotion();
+            if (input.organizationName === '중고등부') {
+                row = await this.middleHighPromotion(input.organizationId);
             }
 
             return { row };
@@ -41,10 +41,10 @@ export class PromoteStudentsUseCase {
     /**
      * 초등부 진급 처리
      */
-    private async elementaryPromotion(accountId: string): Promise<number> {
+    private async elementaryPromotion(organizationId: string): Promise<number> {
         const groups = await database.group.findMany({
             where: {
-                accountId: BigInt(accountId),
+                organizationId: BigInt(organizationId),
                 deletedAt: null,
             },
         });
@@ -52,6 +52,7 @@ export class PromoteStudentsUseCase {
         const targetGroup = await database.group.findFirst({
             where: {
                 name: '예비 중1',
+                organizationId: BigInt(organizationId),
                 deletedAt: null,
             },
         });
@@ -109,10 +110,11 @@ export class PromoteStudentsUseCase {
     /**
      * 중고등부 진급 처리
      */
-    private async middleHighPromotion(): Promise<number> {
+    private async middleHighPromotion(organizationId: string): Promise<number> {
         const adultGroup = await database.group.findFirst({
             where: {
                 name: '성인',
+                organizationId: BigInt(organizationId),
                 deletedAt: null,
             },
         });
@@ -120,6 +122,7 @@ export class PromoteStudentsUseCase {
         const high3Group = await database.group.findFirst({
             where: {
                 name: '고3',
+                organizationId: BigInt(organizationId),
                 deletedAt: null,
             },
         });
@@ -131,20 +134,26 @@ export class PromoteStudentsUseCase {
             });
         }
 
-        // 20세 이상 -> 성인 그룹으로 이동
+        // 20세 이상 -> 성인 그룹으로 이동 (조직 스코프 적용)
         const adults = await database.student.findMany({
             where: {
                 age: BigInt(20),
                 deletedAt: null,
+                group: {
+                    organizationId: BigInt(organizationId),
+                },
             },
             orderBy: { societyName: 'asc' },
         });
 
-        // 19세 -> 고3 그룹으로 이동
+        // 19세 -> 고3 그룹으로 이동 (조직 스코프 적용)
         const candidates = await database.student.findMany({
             where: {
                 age: BigInt(19),
                 deletedAt: null,
+                group: {
+                    organizationId: BigInt(organizationId),
+                },
             },
             orderBy: { societyName: 'asc' },
         });

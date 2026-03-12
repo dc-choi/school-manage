@@ -4,11 +4,11 @@
  * 학생 목록 조회 (페이지네이션, 검색, 삭제 필터, 등록 필터)
  */
 import { Prisma } from '@prisma/client';
-import type { ListStudentsOutput, ListStudentsInput as ListStudentsSchemaInput } from '@school/trpc';
+import type { Gender, ListStudentsOutput, ListStudentsInput as ListStudentsSchemaInput } from '@school/trpc';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드
-type ListStudentsInput = ListStudentsSchemaInput & { accountId: string };
+type ListStudentsInput = ListStudentsSchemaInput & { organizationId: string };
 
 export class ListStudentsUseCase {
     async execute(input: ListStudentsInput): Promise<ListStudentsOutput> {
@@ -17,10 +17,10 @@ export class ListStudentsUseCase {
         const skip = (page - 1) * size;
         const registrationYear = input.registrationYear ?? new Date().getFullYear();
 
-        // 계정에 속한 그룹 IDs 조회
+        // 조직에 속한 그룹 IDs 조회
         const groups = await database.group.findMany({
             where: {
-                accountId: BigInt(input.accountId),
+                organizationId: BigInt(input.organizationId),
                 deletedAt: null,
             },
         });
@@ -54,8 +54,8 @@ export class ListStudentsUseCase {
             database.student.findMany({
                 where,
                 include: {
-                    group: {
-                        select: { name: true },
+                    studentGroups: {
+                        include: { group: { select: { id: true, name: true } } },
                     },
                     registrations: {
                         where: { year: registrationYear, deletedAt: null },
@@ -99,12 +99,14 @@ export class ListStudentsUseCase {
                 id: String(row.id),
                 societyName: row.societyName,
                 catholicName: row.catholicName ?? undefined,
-                gender: row.gender ?? undefined,
+                gender: (row.gender ?? undefined) as Gender | undefined,
                 age: row.age != null ? Number(row.age) : undefined,
                 contact: row.contact != null ? String(row.contact) : undefined,
                 description: row.description ?? undefined,
-                groupId: String(row.groupId),
-                groupName: row.group?.name ?? '',
+                groups: row.studentGroups.map((sg) => ({
+                    id: String(sg.group.id),
+                    name: sg.group.name,
+                })),
                 baptizedAt: row.baptizedAt ?? undefined,
                 graduatedAt: row.graduatedAt?.toISOString(),
                 deletedAt: row.deletedAt?.toISOString(),

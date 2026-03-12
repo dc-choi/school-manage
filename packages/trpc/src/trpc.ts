@@ -1,4 +1,4 @@
-import type { AuthContext, Context } from './context';
+import type { AuthContext, Context, ScopedContext } from './context.js';
 import { TRPCError, initTRPC } from '@trpc/server';
 import superjson from 'superjson';
 
@@ -86,6 +86,40 @@ const requiresPrivacyConsent = middleware(async (opts) => {
  * 동의 완료 프로시저 (인증 + 개인정보 동의 필수)
  */
 export const consentedProcedure = protectedProcedure.use(requiresPrivacyConsent);
+
+/**
+ * 조직 소속 확인 미들웨어
+ *
+ * context에서 organization 존재 여부를 확인하여 미소속 시 403 반환
+ */
+const requiresOrganization = middleware(async (opts) => {
+    const { ctx } = opts;
+
+    if (!ctx.account || !ctx.organization || !ctx.church) {
+        throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'FORBIDDEN: 조직 소속이 필요합니다',
+        });
+    }
+
+    const scopedCtx: ScopedContext = {
+        req: ctx.req,
+        res: ctx.res,
+        account: ctx.account,
+        privacyAgreedAt: ctx.privacyAgreedAt,
+        organization: ctx.organization,
+        church: ctx.church,
+    };
+
+    return opts.next({
+        ctx: scopedCtx,
+    });
+});
+
+/**
+ * 스코프 프로시저 (인증 + 동의 + 조직 소속 필수)
+ */
+export const scopedProcedure = consentedProcedure.use(requiresOrganization);
 
 /**
  * createCaller 팩토리

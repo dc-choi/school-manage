@@ -71,6 +71,6 @@ export const accountRouter = router({
      */
     deleteAccount: consentedProcedure.input(deleteAccountInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new DeleteAccountUseCase();
-        return usecase.execute(input, ctx.account.id);
+        return usecase.execute(input, ctx.account.id, ctx.account.role);
     }),
 });

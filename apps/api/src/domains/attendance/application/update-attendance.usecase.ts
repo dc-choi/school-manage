@@ -10,7 +10,7 @@ import { getFullTime } from '~/global/utils/utils.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class UpdateAttendanceUseCase {
-    async execute(input: UpdateAttendanceInput, accountId: string): Promise<UpdateAttendanceOutput> {
+    async execute(input: UpdateAttendanceInput, organizationId: string): Promise<UpdateAttendanceOutput> {
         if (!input.attendance || input.attendance.length <= 0) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
@@ -19,12 +19,12 @@ export class UpdateAttendanceUseCase {
         }
 
         try {
-            // 측정 인프라: 계정의 첫 출석인지 확인 (업데이트 전)
+            // 측정 인프라: 조직의 첫 출석인지 확인 (업데이트 전)
             const existingAttendanceCount = await database.attendance.count({
                 where: {
                     student: {
                         group: {
-                            accountId: BigInt(accountId),
+                            organizationId: BigInt(organizationId),
                         },
                         deletedAt: null,
                     },
@@ -36,15 +36,30 @@ export class UpdateAttendanceUseCase {
             // 측정 인프라: 가입 후 경과일 계산
             let daysSinceSignup: number | undefined;
             if (isFirstAttendance) {
-                const account = await database.account.findUnique({
-                    where: { id: BigInt(accountId) },
+                const org = await database.organization.findUnique({
+                    where: { id: BigInt(organizationId) },
                     select: { createdAt: true },
                 });
-                if (account?.createdAt) {
+                if (org?.createdAt) {
                     const now = getNowKST();
-                    const diffMs = now.getTime() - account.createdAt.getTime();
+                    const diffMs = now.getTime() - org.createdAt.getTime();
                     daysSinceSignup = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                 }
+            }
+
+            // 권한 검증: 모든 학생이 해당 조직 소속인지 확인
+            const uniqueStudentIds = [...new Set(input.attendance.map((a) => BigInt(a.id)))];
+            const orgStudentCount = await database.student.count({
+                where: {
+                    id: { in: uniqueStudentIds },
+                    group: { organizationId: BigInt(organizationId) },
+                },
+            });
+            if (orgStudentCount !== uniqueStudentIds.length) {
+                throw new TRPCError({
+                    code: 'FORBIDDEN',
+                    message: '해당 학생에 대한 접근 권한이 없습니다.',
+                });
             }
 
             let row: number;
@@ -58,8 +73,8 @@ export class UpdateAttendanceUseCase {
             }
 
             // 측정 인프라: 저장된 학생 수 (고유 학생 ID 수)
-            const uniqueStudentIds = new Set(input.attendance.map((a) => a.id));
-            const studentCount = uniqueStudentIds.size;
+            const studentIdSet = new Set(input.attendance.map((a) => a.id));
+            const studentCount = studentIdSet.size;
 
             // 측정 인프라: 출석 상세 정보 계산
             let fullAttendanceCount = 0; // ◎ (미사+교리)

@@ -7,58 +7,173 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+// ============================================================
+// 신규 모델 (계정 모델 전환)
+// ============================================================
+
+model Parish {
+    id        BigInt    @id @default(autoincrement()) @map("_id")
+    name      String    @db.VarChar(50)
+    createdAt DateTime  @map("create_at")
+    deletedAt DateTime? @map("delete_at")
+
+    churches Church[]
+
+    @@map("parish")
+}
+
+model Church {
+    id        BigInt    @id @default(autoincrement()) @map("_id")
+    name      String    @db.VarChar(50)
+    parishId  BigInt    @map("parish_id")
+    createdAt DateTime  @map("create_at")
+    deletedAt DateTime? @map("delete_at")
+
+    parish        Parish         @relation(fields: [parishId], references: [id])
+    organizations Organization[]
+
+    @@index([parishId])
+    @@map("church")
+}
+
+model Organization {
+    id        BigInt    @id @default(autoincrement()) @map("_id")
+    name      String    @db.VarChar(50)
+    churchId  BigInt    @map("church_id")
+    createdAt DateTime  @map("create_at")
+    deletedAt DateTime? @map("delete_at")
+
+    church       Church          @relation(fields: [churchId], references: [id])
+    accounts     Account[]
+    groups       Group[]
+    students     Student[]
+    joinRequests JoinRequest[]
+
+    @@index([churchId])
+    @@map("organization")
+}
+
+model StudentGroup {
+    id        BigInt   @id @default(autoincrement()) @map("_id")
+    studentId BigInt   @map("student_id")
+    groupId   BigInt   @map("group_id")
+    createdAt DateTime @map("create_at")
+
+    student Student @relation(fields: [studentId], references: [id])
+    group   Group   @relation(fields: [groupId], references: [id])
+
+    @@unique([studentId, groupId])
+    @@index([studentId])
+    @@index([groupId])
+    @@map("student_group")
+}
+
+model JoinRequest {
+    id             BigInt   @id @default(autoincrement()) @map("_id")
+    accountId      BigInt   @map("account_id")
+    organizationId BigInt   @map("organization_id")
+    status         String   @db.VarChar(20)
+    createdAt      DateTime @map("create_at")
+    updatedAt      DateTime @map("update_at")
+
+    account      Account      @relation(fields: [accountId], references: [id])
+    organization Organization @relation(fields: [organizationId], references: [id])
+
+    @@index([organizationId, status])
+    @@index([accountId, status])
+    @@map("join_request")
+}
+
+model AccountSnapshot {
+    id             BigInt   @id @default(autoincrement()) @map("_id")
+    accountId      BigInt   @map("account_id")
+    name           String   @db.VarChar(20)
+    displayName    String   @map("display_name") @db.VarChar(20)
+    organizationId BigInt   @map("organization_id")
+    snapshotAt     DateTime @map("snapshot_at")
+
+    account Account @relation(fields: [accountId], references: [id])
+
+    @@index([accountId, snapshotAt])
+    @@map("account_snapshot")
+}
+
+// ============================================================
+// 기존 모델 (계정 모델 전환으로 변경)
+// ============================================================
+
 model Account {
-    id          BigInt    @id @default(autoincrement()) @map("_id")
-    name        String    @db.VarChar(20)
-    displayName String    @map("display_name") @db.VarChar(20)
-    password    String    @db.VarChar(200)
-    createdAt   DateTime  @map("create_at")
-    updatedAt   DateTime? @map("update_at")
+    id              BigInt    @id @default(autoincrement()) @map("_id")
+    name            String    @db.VarChar(20)
+    displayName     String    @map("display_name") @db.VarChar(20)
+    password        String    @db.VarChar(200)
+    createdAt       DateTime  @map("create_at")
+    updatedAt       DateTime? @map("update_at")
     deletedAt       DateTime? @map("delete_at")
     privacyAgreedAt DateTime? @map("privacy_agreed_at")
+    organizationId  BigInt?   @map("organization_id")
+    role            String?   @db.VarChar(20)
 
-    groups Group[]
+    organization Organization? @relation(fields: [organizationId], references: [id])
+    groups       Group[]
+    joinRequests JoinRequest[]
+    snapshots    AccountSnapshot[]
 
+    @@index([organizationId])
     @@map("account")
 }
 
 model Group {
-    id        BigInt    @id @default(autoincrement()) @map("_id")
-    name      String    @db.VarChar(50)
-    createdAt DateTime  @map("create_at")
-    updatedAt DateTime? @map("update_at")
-    deletedAt DateTime? @map("delete_at")
-    accountId BigInt    @map("account_id")
+    id             BigInt    @id @default(autoincrement()) @map("_id")
+    name           String    @db.VarChar(50)
+    createdAt      DateTime  @map("create_at")
+    updatedAt      DateTime? @map("update_at")
+    deletedAt      DateTime? @map("delete_at")
+    accountId      BigInt    @map("account_id")
+    organizationId BigInt?   @map("organization_id")
 
-    account   Account         @relation(fields: [accountId], references: [id])
-    students  Student[]
-    snapshots GroupSnapshot[]
+    account       Account         @relation(fields: [accountId], references: [id])
+    organization  Organization?   @relation(fields: [organizationId], references: [id])
+    students      Student[]
+    studentGroups StudentGroup[]
+    snapshots     GroupSnapshot[]
 
+    @@index([accountId])
+    @@index([organizationId])
     @@map("group")
 }
 
 model Student {
-    id           BigInt    @id @default(autoincrement()) @map("_id")
-    societyName  String    @map("society_name") @db.VarChar(50)
-    catholicName String?   @map("catholic_name") @db.VarChar(50)
-    gender       String?   @db.VarChar(10)
-    age          BigInt?
-    contact      BigInt?
-    description  String?   @db.Text
-    baptizedAt   String?   @map("baptized_at") @db.VarChar(10)
-    graduatedAt  DateTime? @map("graduated_at")
-    createdAt    DateTime  @map("create_at")
-    updatedAt    DateTime? @map("update_at")
-    deletedAt    DateTime? @map("delete_at")
-    groupId      BigInt    @map("group_id")
+    id             BigInt    @id @default(autoincrement()) @map("_id")
+    societyName    String    @map("society_name") @db.VarChar(50)
+    catholicName   String?   @map("catholic_name") @db.VarChar(50)
+    gender         String?   @db.VarChar(10)
+    age            BigInt?
+    contact        BigInt?
+    description    String?   @db.Text
+    baptizedAt     String?   @map("baptized_at") @db.VarChar(10)
+    graduatedAt    DateTime? @map("graduated_at")
+    createdAt      DateTime  @map("create_at")
+    updatedAt      DateTime? @map("update_at")
+    deletedAt      DateTime? @map("delete_at")
+    groupId        BigInt    @map("group_id")
+    organizationId BigInt?   @map("organization_id")
 
-    group         Group              @relation(fields: [groupId], references: [id])
-    attendances   Attendance[]
-    snapshots     StudentSnapshot[]
-    registrations Registration[]
+    group          Group              @relation(fields: [groupId], references: [id])
+    organization   Organization?      @relation(fields: [organizationId], references: [id])
+    studentGroups  StudentGroup[]
+    attendances    Attendance[]
+    snapshots      StudentSnapshot[]
+    registrations  Registration[]
 
+    @@index([groupId])
+    @@index([organizationId])
     @@map("student")
 }
+
+// ============================================================
+// 변경 없는 모델
+// ============================================================
 
 model Registration {
     id           BigInt    @id @default(autoincrement()) @map("_id")
@@ -91,16 +206,17 @@ model Attendance {
 }
 
 model StudentSnapshot {
-    id           BigInt   @id @default(autoincrement()) @map("_id")
-    studentId    BigInt   @map("student_id")
-    societyName  String   @map("society_name") @db.VarChar(50)
-    catholicName String?  @map("catholic_name") @db.VarChar(50)
-    gender       String?  @db.VarChar(10)
-    contact      BigInt?
-    description  String?  @db.Text
-    baptizedAt   String?  @map("baptized_at") @db.VarChar(10)
-    groupId      BigInt   @map("group_id")
-    snapshotAt   DateTime @map("snapshot_at")
+    id             BigInt   @id @default(autoincrement()) @map("_id")
+    studentId      BigInt   @map("student_id")
+    societyName    String   @map("society_name") @db.VarChar(50)
+    catholicName   String?  @map("catholic_name") @db.VarChar(50)
+    gender         String?  @db.VarChar(10)
+    contact        BigInt?
+    description    String?  @db.Text
+    baptizedAt     String?  @map("baptized_at") @db.VarChar(10)
+    groupId        BigInt   @map("group_id")
+    organizationId BigInt?  @map("organization_id")
+    snapshotAt     DateTime @map("snapshot_at")
 
     student Student @relation(fields: [studentId], references: [id])
 

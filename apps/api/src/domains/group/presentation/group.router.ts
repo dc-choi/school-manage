@@ -12,12 +12,12 @@ import { ListGroupsUseCase } from '../application/list-groups.usecase.ts';
 import { UpdateGroupUseCase } from '../application/update-group.usecase.ts';
 import {
     bulkDeleteGroupsInputSchema,
-    consentedProcedure,
     createGroupInputSchema,
     deleteGroupInputSchema,
     getGroupAttendanceInputSchema,
     getGroupInputSchema,
     router,
+    scopedProcedure,
     updateGroupInputSchema,
 } from '@school/trpc';
 
@@ -26,29 +26,33 @@ export const groupRouter = router({
      * 그룹 목록 조회
      * GET /api/group -> trpc.group.list
      */
-    list: consentedProcedure.query(async ({ ctx }) => {
+    list: scopedProcedure.query(async ({ ctx }) => {
         const usecase = new ListGroupsUseCase();
-        return usecase.execute(ctx.account.id);
+        return usecase.execute(ctx.organization.id);
     }),
 
     /**
      * 단일 그룹 조회
      * GET /api/group/:groupId -> trpc.group.get
      */
-    get: consentedProcedure.input(getGroupInputSchema).query(async ({ input }) => {
+    get: scopedProcedure.input(getGroupInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetGroupUseCase();
-        return usecase.execute(input);
+        return usecase.execute({
+            id: input.id,
+            organizationId: ctx.organization.id,
+        });
     }),
 
     /**
      * 그룹 생성
      * POST /api/group -> trpc.group.create
      */
-    create: consentedProcedure.input(createGroupInputSchema).mutation(async ({ input, ctx }) => {
+    create: scopedProcedure.input(createGroupInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new CreateGroupUseCase();
         return usecase.execute({
             name: input.name,
             accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
         });
     }),
 
@@ -56,12 +60,13 @@ export const groupRouter = router({
      * 그룹 수정
      * PUT /api/group/:groupId -> trpc.group.update
      */
-    update: consentedProcedure.input(updateGroupInputSchema).mutation(async ({ input, ctx }) => {
+    update: scopedProcedure.input(updateGroupInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new UpdateGroupUseCase();
         return usecase.execute({
             id: input.id,
             name: input.name,
             accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
         });
     }),
 
@@ -69,26 +74,29 @@ export const groupRouter = router({
      * 그룹 삭제
      * DELETE /api/group/:groupId -> trpc.group.delete
      */
-    delete: consentedProcedure.input(deleteGroupInputSchema).mutation(async ({ input }) => {
+    delete: scopedProcedure.input(deleteGroupInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new DeleteGroupUseCase();
-        return usecase.execute(input);
+        return usecase.execute({
+            id: input.id,
+            organizationId: ctx.organization.id,
+        });
     }),
 
     /**
      * 그룹 일괄 삭제 (로드맵 1단계)
      * POST /api/group/bulk-delete -> trpc.group.bulkDelete
      */
-    bulkDelete: consentedProcedure.input(bulkDeleteGroupsInputSchema).mutation(async ({ input, ctx }) => {
+    bulkDelete: scopedProcedure.input(bulkDeleteGroupsInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new BulkDeleteGroupsUseCase();
-        return usecase.execute(input, ctx.account.id);
+        return usecase.execute(input, ctx.organization.id);
     }),
 
     /**
      * 그룹별 출석 조회
      * GET /api/group/:groupId/attendance -> trpc.group.attendance
      */
-    attendance: consentedProcedure.input(getGroupAttendanceInputSchema).query(async ({ input }) => {
+    attendance: scopedProcedure.input(getGroupAttendanceInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetGroupAttendanceUseCase();
-        return usecase.execute(input);
+        return usecase.execute(input, ctx.organization.id);
     }),
 });

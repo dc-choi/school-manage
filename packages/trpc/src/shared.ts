@@ -6,10 +6,68 @@
  */
 
 /**
+ * 조직 내 역할
+ */
+export const ROLE = {
+    ADMIN: 'ADMIN',
+    TEACHER: 'TEACHER',
+} as const;
+
+export type Role = (typeof ROLE)[keyof typeof ROLE];
+
+/**
+ * 합류 요청 상태
+ */
+export const JOIN_REQUEST_STATUS = {
+    PENDING: 'pending',
+    APPROVED: 'approved',
+    REJECTED: 'rejected',
+} as const;
+
+export type JoinRequestStatus = (typeof JOIN_REQUEST_STATUS)[keyof typeof JOIN_REQUEST_STATUS];
+
+/**
+ * 성별
+ */
+export const GENDER = {
+    MALE: 'M',
+    FEMALE: 'F',
+} as const;
+
+export type Gender = (typeof GENDER)[keyof typeof GENDER];
+
+/**
+ * 출석 표시 (출석으로 인정되는 마크)
+ */
+export const PRESENT_MARKS = new Set(['◎', '○', '△']) as ReadonlySet<string>;
+
+/**
  * 인증된 계정 정보
  */
 export interface AccountInfo {
     id: string;
     name: string;
     displayName: string;
+    organizationId?: string;
+    role?: Role;
+}
+
+/**
+ * 조직 정보 (Organization + Church 요약)
+ */
+export interface OrganizationInfo {
+    id: string;
+    name: string;
+    churchId: string;
+    churchName: string;
+}
+
+/**
+ * 본당 정보 (Church + Parish 요약)
+ */
+export interface ChurchInfo {
+    id: string;
+    name: string;
+    parishId: string;
+    parishName: string;
 }

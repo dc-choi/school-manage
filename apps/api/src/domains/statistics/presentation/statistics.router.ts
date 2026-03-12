@@ -10,9 +10,9 @@ import { GetGroupStatisticsUseCase } from '../application/get-group-statistics.u
 import { GetTopGroupsUseCase } from '../application/get-top-groups.usecase.ts';
 import { GetTopOverallUseCase } from '../application/get-top-overall.usecase.ts';
 import {
-    consentedProcedure,
     getExcellentStudentsInputSchema,
     router,
+    scopedProcedure,
     statisticsInputSchema,
     topStatisticsInputSchema,
 } from '@school/trpc';
@@ -21,10 +21,10 @@ export const statisticsRouter = router({
     /**
      * 우수 출석 학생 조회
      */
-    excellent: consentedProcedure.input(getExcellentStudentsInputSchema).query(async ({ input, ctx }) => {
+    excellent: scopedProcedure.input(getExcellentStudentsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetExcellentStudentsUseCase();
         return usecase.execute({
-            accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
             year: input.year,
         });
     }),
@@ -32,11 +32,11 @@ export const statisticsRouter = router({
     /**
      * 주간 출석률 + 평균 출석 인원 조회
      */
-    weekly: consentedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
+    weekly: scopedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetAttendanceRateUseCase();
         return usecase.execute(
             {
-                accountId: ctx.account.id,
+                organizationId: ctx.organization.id,
                 year: input.year,
                 month: input.month,
                 week: input.week,
@@ -48,11 +48,11 @@ export const statisticsRouter = router({
     /**
      * 월간 출석률 + 평균 출석 인원 조회
      */
-    monthly: consentedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
+    monthly: scopedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetAttendanceRateUseCase();
         return usecase.execute(
             {
-                accountId: ctx.account.id,
+                organizationId: ctx.organization.id,
                 year: input.year,
                 month: input.month,
                 week: input.week,
@@ -64,11 +64,11 @@ export const statisticsRouter = router({
     /**
      * 연간 출석률 + 평균 출석 인원 조회
      */
-    yearly: consentedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
+    yearly: scopedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetAttendanceRateUseCase();
         return usecase.execute(
             {
-                accountId: ctx.account.id,
+                organizationId: ctx.organization.id,
                 year: input.year,
                 month: input.month,
                 week: input.week,
@@ -80,10 +80,10 @@ export const statisticsRouter = router({
     /**
      * 성별 분포 조회
      */
-    byGender: consentedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
+    byGender: scopedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetByGenderUseCase();
         return usecase.execute({
-            accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
             year: input.year,
             month: input.month,
             week: input.week,
@@ -93,10 +93,10 @@ export const statisticsRouter = router({
     /**
      * 그룹별 출석률 순위 TOP N
      */
-    topGroups: consentedProcedure.input(topStatisticsInputSchema).query(async ({ input, ctx }) => {
+    topGroups: scopedProcedure.input(topStatisticsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetTopGroupsUseCase();
         return usecase.execute({
-            accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
             year: input.year,
             month: input.month,
             week: input.week,
@@ -107,10 +107,10 @@ export const statisticsRouter = router({
     /**
      * 전체 우수 학생 TOP N
      */
-    topOverall: consentedProcedure.input(topStatisticsInputSchema).query(async ({ input, ctx }) => {
+    topOverall: scopedProcedure.input(topStatisticsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetTopOverallUseCase();
         return usecase.execute({
-            accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
             year: input.year,
             month: input.month,
             week: input.week,
@@ -121,10 +121,10 @@ export const statisticsRouter = router({
     /**
      * 그룹별 상세 통계 (주간/월간/연간 출석률 + 평균 출석 인원)
      */
-    groupStatistics: consentedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
+    groupStatistics: scopedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetGroupStatisticsUseCase();
         return usecase.execute({
-            accountId: ctx.account.id,
+            organizationId: ctx.organization.id,
             year: input.year,
             month: input.month,
             week: input.week,

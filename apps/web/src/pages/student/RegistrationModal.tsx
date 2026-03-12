@@ -88,7 +88,11 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
             ),
         },
         { key: 'societyName', header: '이름' },
-        { key: 'groupName', header: '학년' },
+        {
+            key: 'groups',
+            header: '학년',
+            render: (row: StudentItem) => (row.groups?.length ? row.groups.map((g) => g.name).join(', ') : '-'),
+        },
         {
             key: 'isRegistered',
             header: '등록',

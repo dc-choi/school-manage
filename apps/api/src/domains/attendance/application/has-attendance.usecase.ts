@@ -1,18 +1,18 @@
 /**
  * Has Attendance UseCase
  *
- * 계정에 출석 기록이 존재하는지 확인
+ * 조직에 출석 기록이 존재하는지 확인
  */
 import type { HasAttendanceOutput } from '@school/trpc';
 import { database } from '~/infrastructure/database/database.js';
 
 export class HasAttendanceUseCase {
-    async execute(accountId: string): Promise<HasAttendanceOutput> {
+    async execute(organizationId: string): Promise<HasAttendanceOutput> {
         const count = await database.attendance.count({
             where: {
                 student: {
                     group: {
-                        accountId: BigInt(accountId),
+                        organizationId: BigInt(organizationId),
                     },
                     deletedAt: null,
                 },

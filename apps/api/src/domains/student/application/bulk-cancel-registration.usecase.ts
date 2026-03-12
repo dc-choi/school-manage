@@ -9,15 +9,15 @@ import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 export class BulkCancelRegistrationUseCase {
-    async execute(input: BulkCancelRegistrationInput, accountId: string): Promise<BulkCancelRegistrationOutput> {
+    async execute(input: BulkCancelRegistrationInput, organizationId: string): Promise<BulkCancelRegistrationOutput> {
         try {
             const ids = input.ids.map((id) => BigInt(id));
             const year = input.year ?? new Date().getFullYear();
 
-            // 해당 계정 소유 그룹 조회 (권한 스코프)
+            // 해당 조직 소유 그룹 조회 (권한 스코프)
             const groups = await database.group.findMany({
                 where: {
-                    accountId: BigInt(accountId),
+                    organizationId: BigInt(organizationId),
                     deletedAt: null,
                 },
                 select: { id: true },
@@ -26,7 +26,7 @@ export class BulkCancelRegistrationUseCase {
 
             const now = getNowKST();
 
-            // 소프트 삭제: 해당 계정 소속 학생의 등록 레코드만 취소
+            // 소프트 삭제: 해당 조직 소속 학생의 등록 레코드만 취소
             const result = await database.registration.updateMany({
                 where: {
                     studentId: { in: ids },

@@ -1,8 +1,8 @@
 /**
  * Group 도메인 Zod 스키마
  */
-import { idSchema } from './common';
-import type { StudentBase } from './student';
+import { idSchema } from './common.js';
+import type { StudentBase } from './student.js';
 import { z } from 'zod';
 
 /**
@@ -67,7 +67,7 @@ export type GetGroupAttendanceInput = z.infer<typeof getGroupAttendanceInputSche
 export interface GroupOutput {
     id: string;
     name: string;
-    accountId: string;
+    organizationId: string;
     studentCount: number;
 }
 

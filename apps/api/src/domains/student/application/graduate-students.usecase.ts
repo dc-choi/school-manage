@@ -10,22 +10,22 @@ import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { ga4 } from '~/infrastructure/analytics/ga4.js';
 import { database } from '~/infrastructure/database/database.js';
 
-type GraduateStudentsUseCaseInput = GraduateStudentsInput & { accountId: string };
+type GraduateStudentsUseCaseInput = GraduateStudentsInput & { organizationId: string };
 
 export class GraduateStudentsUseCase {
     async execute(input: GraduateStudentsUseCaseInput): Promise<GraduateStudentsOutput> {
-        const { ids, accountId } = input;
+        const { ids, organizationId } = input;
 
         try {
             const result = await database.$transaction(async (tx) => {
-                // 본인 계정의 재학생만 조회
+                // 본인 조직의 재학생만 조회
                 const students = await tx.student.findMany({
                     where: {
                         id: { in: ids.map((id) => BigInt(id)) },
                         graduatedAt: null, // 재학생만
                         deletedAt: null,
                         group: {
-                            accountId: BigInt(accountId),
+                            organizationId: BigInt(organizationId),
                         },
                     },
                     include: { group: true },
@@ -66,7 +66,7 @@ export class GraduateStudentsUseCase {
 
             // GA4 이벤트: 졸업 처리 완료
             if (result.graduatedCount > 0) {
-                await ga4.trackStudentGraduated(accountId, result.graduatedCount);
+                await ga4.trackStudentGraduated(organizationId, result.graduatedCount);
             }
 
             return result;

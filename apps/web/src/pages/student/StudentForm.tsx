@@ -3,6 +3,7 @@ import { formatContact } from '@school/utils';
 import { type FormEvent, useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { Checkbox } from '~/components/ui/checkbox';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
@@ -15,7 +16,7 @@ interface StudentFormData {
     age?: number;
     contact?: string;
     description?: string;
-    groupId: string;
+    groupIds: string[];
     baptizedAt?: string;
 }
 
@@ -44,7 +45,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
         age: initialData?.age,
         contact: initialData?.contact,
         description: initialData?.description ?? '',
-        groupId: initialData?.groupId ?? '',
+        groupIds: initialData?.groupIds ?? [],
         baptizedAt: toFeastDayFormat(initialData?.baptizedAt),
     });
     const [contactInput, setContactInput] = useState(() =>
@@ -64,8 +65,8 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
         if (!formData.societyName.trim()) {
             newErrors.societyName = '이름을 입력해주세요.';
         }
-        if (!formData.groupId) {
-            newErrors.groupId = '학년을 선택해주세요.';
+        if (formData.groupIds.length === 0) {
+            newErrors.groupIds = '학년을 선택해주세요.';
         }
         const baptizedAtValue = formData.baptizedAt?.trim();
         if (baptizedAtValue && !/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/.test(baptizedAtValue)) {
@@ -134,28 +135,34 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="groupId" className="text-lg">
-                            학년
-                        </Label>
-                        <Select
-                            value={formData.groupId}
-                            onValueChange={(value) => handleChange('groupId', value)}
-                            disabled={isSubmitting}
-                        >
-                            <SelectTrigger id="groupId" className="h-12 text-lg">
-                                <SelectValue placeholder="학년을 선택하세요…" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {groups.map((g) => (
-                                    <SelectItem key={g.id} value={g.id} className="text-lg">
-                                        {g.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {errors.groupId && <p className="text-base text-destructive">{errors.groupId}</p>}
-                    </div>
+                    <fieldset className="space-y-2">
+                        <legend className="text-lg font-medium">학년</legend>
+                        <div className="space-y-2">
+                            {groups.map((g) => (
+                                <label
+                                    key={g.id}
+                                    className="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50"
+                                >
+                                    <Checkbox
+                                        id={`group-${g.id}`}
+                                        checked={formData.groupIds.includes(g.id)}
+                                        onCheckedChange={(checked) => {
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                groupIds: checked
+                                                    ? [...prev.groupIds, g.id]
+                                                    : prev.groupIds.filter((id) => id !== g.id),
+                                            }));
+                                            setErrors((prev) => ({ ...prev, groupIds: '' }));
+                                        }}
+                                        disabled={isSubmitting}
+                                    />
+                                    <span className="text-lg">{g.name}</span>
+                                </label>
+                            ))}
+                        </div>
+                        {errors.groupIds && <p className="text-base text-destructive">{errors.groupIds}</p>}
+                    </fieldset>
 
                     <div className="space-y-2">
                         <Label htmlFor="gender" className="text-lg">

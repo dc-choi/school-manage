@@ -1,7 +1,9 @@
 /**
  * Student 도메인 Zod 스키마
  */
-import { idSchema, pageSchema, searchOptionSchema, searchWordSchema } from './common';
+import { GENDER } from '../shared.js';
+import type { Gender } from '../shared.js';
+import { idSchema, pageSchema, searchOptionSchema, searchWordSchema } from './common.js';
 import { z } from 'zod';
 
 /**
@@ -31,11 +33,11 @@ export const getStudentInputSchema = z.object({
 export const createStudentInputSchema = z.object({
     societyName: z.string().min(1, 'Society name is required'),
     catholicName: z.string().optional(),
-    gender: z.enum(['M', 'F']).optional(),
+    gender: z.enum([GENDER.MALE, GENDER.FEMALE]).optional(),
     age: z.number().int().positive().optional(),
     contact: z.string().optional(),
     description: z.string().optional(),
-    groupId: idSchema,
+    groupIds: z.array(idSchema).min(1, 'At least one group is required'),
     baptizedAt: z
         .string()
         .regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/, '축일은 MM/DD 형식으로 입력해주세요.')
@@ -53,11 +55,11 @@ export const updateStudentInputSchema = z.object({
     id: idSchema,
     societyName: z.string().min(1, 'Society name is required').optional(),
     catholicName: z.string().nullable().optional(),
-    gender: z.enum(['M', 'F']).nullable().optional(),
+    gender: z.enum([GENDER.MALE, GENDER.FEMALE]).nullable().optional(),
     age: z.number().int().positive().nullable().optional(),
     contact: z.string().nullable().optional(),
     description: z.string().nullable().optional(),
-    groupId: idSchema.optional(),
+    groupIds: z.array(idSchema).min(1, 'At least one group is required').optional(),
     baptizedAt: z
         .string()
         .regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/, '축일은 MM/DD 형식으로 입력해주세요.')
@@ -153,30 +155,36 @@ export type FeastDayListInput = z.infer<typeof feastDayListInputSchema>;
 // ============================================================
 
 /**
- * 기본 학생 정보 (그룹명 미포함)
+ * 학생이 속한 그룹 항목
+ */
+export interface StudentGroupItem {
+    id: string;
+    name: string;
+}
+
+/**
+ * 기본 학생 정보
  * - group.attendance에서 사용
  */
 export interface StudentBase {
     id: string;
     societyName: string;
     catholicName?: string;
-    gender?: string;
+    gender?: Gender;
     age?: number;
     contact?: string;
     description?: string;
-    groupId: string;
+    groups: StudentGroupItem[];
     baptizedAt?: string;
     graduatedAt?: string;
     deletedAt?: string;
 }
 
 /**
- * 그룹명 포함 학생 정보
+ * 그룹 포함 학생 정보
  * - student.list, student.get, student.create, student.update, student.delete에서 사용
  */
 export interface StudentWithGroup extends StudentBase {
-    groupName: string;
-    deletedAt?: string;
     isRegistered?: boolean;
 }
 
@@ -210,10 +218,10 @@ export type DeleteStudentOutput = StudentBase;
  * - 측정 인프라용 필드 포함 (선택적)
  */
 export interface CreateStudentOutput extends StudentBase {
-    /** 이 계정의 첫 번째 학생인지 (측정 인프라용) */
+    /** 이 조직의 첫 번째 학생인지 (측정 인프라용) */
     isFirstStudent?: boolean;
-    /** 가입 후 경과일 (측정 인프라용) */
-    daysSinceSignup?: number;
+    /** 조직 생성 후 경과일 (측정 인프라용) */
+    daysSinceCreation?: number;
 }
 
 /**

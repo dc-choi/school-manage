@@ -10,30 +10,30 @@ import { createGroupSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드
-type CreateGroupInput = CreateGroupSchemaInput & { accountId: string };
+type CreateGroupInput = CreateGroupSchemaInput & { accountId: string; organizationId: string };
 
 export class CreateGroupUseCase {
     async execute(input: CreateGroupInput): Promise<CreateGroupOutput> {
         try {
-            // 측정 인프라: 계정의 첫 그룹인지 확인 (생성 전)
+            // 측정 인프라: 조직의 첫 그룹인지 확인 (생성 전)
             const existingGroupCount = await database.group.count({
                 where: {
-                    accountId: BigInt(input.accountId),
+                    organizationId: BigInt(input.organizationId),
                     deletedAt: null,
                 },
             });
             const isFirstGroup = existingGroupCount === 0;
 
-            // 측정 인프라: 가입 후 경과일 계산
+            // 측정 인프라: 조직 생성 후 경과일 계산
             let daysSinceSignup: number | undefined;
             if (isFirstGroup) {
-                const account = await database.account.findUnique({
-                    where: { id: BigInt(input.accountId) },
+                const organization = await database.organization.findUnique({
+                    where: { id: BigInt(input.organizationId) },
                     select: { createdAt: true },
                 });
-                if (account?.createdAt) {
+                if (organization?.createdAt) {
                     const now = getNowKST();
-                    const diffMs = now.getTime() - account.createdAt.getTime();
+                    const diffMs = now.getTime() - organization.createdAt.getTime();
                     daysSinceSignup = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                 }
             }
@@ -43,6 +43,7 @@ export class CreateGroupUseCase {
                     data: {
                         name: input.name,
                         accountId: BigInt(input.accountId),
+                        organizationId: BigInt(input.organizationId),
                         createdAt: getNowKST(),
                     },
                 });
@@ -56,7 +57,7 @@ export class CreateGroupUseCase {
             return {
                 id: String(group.id),
                 name: group.name,
-                accountId: String(group.accountId),
+                organizationId: String(group.organizationId),
                 studentCount: 0,
                 isFirstGroup,
                 daysSinceSignup,

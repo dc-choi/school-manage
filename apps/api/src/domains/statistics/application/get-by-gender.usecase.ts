@@ -3,6 +3,7 @@
  *
  * 성별 분포 조회 (스냅샷 기반)
  */
+import { PRESENT_MARKS } from '@school/trpc';
 import type { GenderDistributionOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
 import {
     clampToToday,
@@ -16,20 +17,20 @@ import {
 import { getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
-type StatisticsInput = StatisticsSchemaInput & { accountId: string };
+type StatisticsInput = StatisticsSchemaInput & { organizationId: string };
 
 export class GetByGenderUseCase {
     async execute(input: StatisticsInput): Promise<GenderDistributionOutput> {
         const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
-        const accountId = BigInt(input.accountId);
+        const organizationId = BigInt(input.organizationId);
 
         // 1. 날짜 범위 계산
         const { startDateStr, endDateStr, totalDays } = this.getDateRange(year, month, week);
 
         // 2. 계정 소속 그룹 ID 조회 (deletedAt 필터 없이 전체)
         const groups = await database.group.findMany({
-            where: { accountId },
+            where: { organizationId },
             select: { id: true },
         });
         const groupIds = groups.map((g) => g.id);
@@ -99,7 +100,7 @@ export class GetByGenderUseCase {
             if (count === 0 || totalDays === 0) return { count, rate: 0 };
 
             const presentCount = allAttendances.filter(
-                (a) => studentIds.has(a.studentId) && a.content && ['◎', '○', '△'].includes(a.content)
+                (a) => studentIds.has(a.studentId) && a.content && PRESENT_MARKS.has(a.content)
             ).length;
 
             const expected = count * totalDays;

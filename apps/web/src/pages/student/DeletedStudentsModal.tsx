@@ -69,7 +69,11 @@ export function DeletedStudentsModal({
         },
         { key: 'societyName', header: '이름' },
         { key: 'catholicName', header: '세례명' },
-        { key: 'groupName', header: '학년' },
+        {
+            key: 'groups',
+            header: '학년',
+            render: (row: StudentItem) => (row.groups?.length ? row.groups.map((g) => g.name).join(', ') : '-'),
+        },
         {
             key: 'deletedAt',
             header: '삭제일',

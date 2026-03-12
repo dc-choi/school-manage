@@ -8,22 +8,22 @@ import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
-type CancelGraduationUseCaseInput = CancelGraduationInput & { accountId: string };
+type CancelGraduationUseCaseInput = CancelGraduationInput & { organizationId: string };
 
 export class CancelGraduationUseCase {
     async execute(input: CancelGraduationUseCaseInput): Promise<CancelGraduationOutput> {
-        const { ids, accountId } = input;
+        const { ids, organizationId } = input;
 
         try {
             return await database.$transaction(async (tx) => {
-                // 본인 계정의 졸업생만 조회
+                // 본인 조직의 졸업생만 조회
                 const students = await tx.student.findMany({
                     where: {
                         id: { in: ids.map((id) => BigInt(id)) },
                         graduatedAt: { not: null }, // 졸업생만
                         deletedAt: null,
                         group: {
-                            accountId: BigInt(accountId),
+                            organizationId: BigInt(organizationId),
                         },
                     },
                     include: { group: true },

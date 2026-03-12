@@ -7,8 +7,11 @@ import { router } from '@school/trpc';
 import { accountRouter } from '~/domains/account/presentation/account.router.js';
 import { attendanceRouter } from '~/domains/attendance/presentation/attendance.router.js';
 import { authRouter } from '~/domains/auth/presentation/auth.router.js';
+import { churchRouter } from '~/domains/church/presentation/church.router.js';
 import { groupRouter } from '~/domains/group/presentation/group.router.js';
 import { liturgicalRouter } from '~/domains/liturgical/presentation/liturgical.router.js';
+import { organizationRouter } from '~/domains/organization/presentation/organization.router.js';
+import { parishRouter } from '~/domains/parish/presentation/parish.router.js';
 import { statisticsRouter } from '~/domains/statistics/presentation/statistics.router.js';
 import { studentRouter } from '~/domains/student/presentation/student.router.js';
 import { healthRouter } from '~/global/health.router.js';
@@ -20,6 +23,9 @@ export const appRouter = router({
     health: healthRouter,
     auth: authRouter,
     account: accountRouter,
+    parish: parishRouter,
+    church: churchRouter,
+    organization: organizationRouter,
     group: groupRouter,
     student: studentRouter,
     attendance: attendanceRouter,

@@ -8,14 +8,14 @@ import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 
 export class RestoreStudentsUseCase {
-    async execute(input: RestoreStudentsInput, accountId: string): Promise<RestoreStudentsOutput> {
+    async execute(input: RestoreStudentsInput, organizationId: string): Promise<RestoreStudentsOutput> {
         try {
             const ids = input.ids.map((id) => BigInt(id));
 
-            // 해당 계정 소유 그룹의 학생만 복구
+            // 해당 조직 소유 그룹의 학생만 복구
             const groups = await database.group.findMany({
                 where: {
-                    accountId: BigInt(accountId),
+                    organizationId: BigInt(organizationId),
                     deletedAt: null,
                 },
                 select: { id: true },

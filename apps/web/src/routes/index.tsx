@@ -32,6 +32,8 @@ const AttendancePage = lazy(() =>
     import('~/pages/attendance/AttendancePage').then((m) => ({ default: m.AttendancePage }))
 );
 const CalendarPage = lazy(() => import('~/pages/attendance/CalendarPage').then((m) => ({ default: m.CalendarPage })));
+const JoinPage = lazy(() => import('~/pages/join/JoinPage').then((m) => ({ default: m.JoinPage })));
+const PendingPage = lazy(() => import('~/pages/pending/PendingPage').then((m) => ({ default: m.PendingPage })));
 
 const routes: RouteObject[] = [
     {
@@ -64,7 +66,24 @@ const routes: RouteObject[] = [
                 path: '/reset-password',
                 element: <ResetPasswordPage />,
             },
-            // Protected routes (lazy)
+            // 조직 미가입 상태 라우트 (인증 필요, 조직 불요)
+            {
+                path: '/join',
+                element: (
+                    <ProtectedRoute requireOrganization={false}>
+                        <JoinPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: '/pending',
+                element: (
+                    <ProtectedRoute requireOrganization={false}>
+                        <PendingPage />
+                    </ProtectedRoute>
+                ),
+            },
+            // Protected routes (lazy) — 조직 필요
             {
                 path: '/',
                 element: (

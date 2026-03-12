@@ -5,7 +5,7 @@
  */
 import { mockPrismaClient } from '../../vitest.setup.ts';
 import { createMockGroup, createMockStudent, getTestAccount } from '../helpers/mock-data.ts';
-import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.ts';
+import { createPublicCaller, createScopedCaller } from '../helpers/trpc-caller.ts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('student 통합 테스트', () => {
@@ -15,10 +15,12 @@ describe('student 통합 테스트', () => {
         mockPrismaClient.student.findFirst.mockReset();
         mockPrismaClient.student.create.mockReset();
         mockPrismaClient.student.update.mockReset();
+        mockPrismaClient.student.count.mockReset();
         mockPrismaClient.group.findFirst.mockReset();
         mockPrismaClient.group.findMany.mockReset();
         mockPrismaClient.registration.count.mockReset();
         mockPrismaClient.registration.updateMany.mockReset();
+        mockPrismaClient.organization.findUnique.mockReset();
     });
 
     describe('student.list', () => {
@@ -31,15 +33,23 @@ describe('student 통합 테스트', () => {
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
 
             const mockStudentsWithGroup = [
-                { ...createMockStudent({}), group: { name: '테스트그룹' }, registrations: [] },
-                { ...createMockStudent({}), group: { name: '테스트그룹' }, registrations: [] },
+                {
+                    ...createMockStudent({}),
+                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
+                    registrations: [],
+                },
+                {
+                    ...createMockStudent({}),
+                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
+                    registrations: [],
+                },
             ];
             mockPrismaClient.student.findMany.mockResolvedValueOnce(mockStudentsWithGroup);
             mockPrismaClient.student.count.mockResolvedValueOnce(2);
             mockPrismaClient.registration.count.mockResolvedValueOnce(0);
             mockPrismaClient.student.count.mockResolvedValueOnce(2);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             // listStudentsInputSchema: { page, searchOption, searchWord }
             const result = await caller.student.list({});
 
@@ -69,10 +79,21 @@ describe('student 통합 테스트', () => {
                 groupId: BigInt(groupId),
             });
 
-            // $transaction mock (create-student now uses transaction + snapshot)
+            // student.count → isFirstStudent 판정 (0이면 첫 학생)
+            mockPrismaClient.student.count.mockResolvedValueOnce(0);
+            // organization.findUnique → daysSinceCreation 계산
+            mockPrismaClient.organization.findUnique.mockResolvedValueOnce({ createdAt: new Date() });
+            // group.count → groupIds 소유권 검증 (1개 그룹이 조직 소속)
+            mockPrismaClient.group.count.mockResolvedValueOnce(1);
+
+            // $transaction mock (create-student now uses transaction + snapshot + studentGroup)
             const txMock = {
                 student: {
                     create: vi.fn().mockResolvedValue(newStudent),
+                },
+                studentGroup: {
+                    create: vi.fn().mockResolvedValue({}),
+                    findMany: vi.fn().mockResolvedValue([{ group: { id: BigInt(groupId), name: '테스트그룹' } }]),
                 },
                 studentSnapshot: {
                     create: vi.fn().mockResolvedValue({}),
@@ -80,10 +101,10 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.create({
                 societyName: '홍길동',
-                groupId,
+                groupIds: [groupId],
             });
 
             expect(result).toHaveProperty('id');
@@ -98,7 +119,7 @@ describe('student 통합 테스트', () => {
 
             const caller = createPublicCaller();
 
-            await expect(caller.student.create({ societyName: '홍길동', groupId })).rejects.toMatchObject({
+            await expect(caller.student.create({ societyName: '홍길동', groupIds: [groupId] })).rejects.toMatchObject({
                 code: 'UNAUTHORIZED',
             });
         });
@@ -110,9 +131,9 @@ describe('student 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
-            await expect(caller.student.create({ societyName: '', groupId })).rejects.toMatchObject({
+            await expect(caller.student.create({ societyName: '', groupIds: [groupId] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
             });
         });
@@ -127,9 +148,12 @@ describe('student 통합 테스트', () => {
             const groupId = String(mockGroup.id);
 
             const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
-            mockPrismaClient.student.findFirst.mockResolvedValueOnce(mockStudent);
+            mockPrismaClient.student.findFirst.mockResolvedValueOnce({
+                ...mockStudent,
+                studentGroups: [{ group: { id: BigInt(groupId), name: '테스트그룹', organizationId: BigInt(1) } }],
+            });
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.get({ id: String(mockStudent.id) });
 
             expect(result).toHaveProperty('id');
@@ -149,7 +173,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.get({ id: 'invalid-id' })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -167,12 +191,20 @@ describe('student 통합 테스트', () => {
 
             const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
             const updatedStudent = { ...mockStudent, societyName: '수정된이름' };
-            mockPrismaClient.student.findFirst.mockResolvedValueOnce(mockStudent);
 
-            // $transaction mock (update-student now uses transaction + snapshot)
+            // $transaction mock (update-student now uses transaction + snapshot + studentGroup)
             const txMock = {
                 student: {
                     update: vi.fn().mockResolvedValue(updatedStudent),
+                },
+                group: {
+                    count: vi.fn().mockResolvedValue(1),
+                },
+                studentGroup: {
+                    findFirst: vi.fn().mockResolvedValue({ studentId: mockStudent.id, groupId: BigInt(groupId) }),
+                    deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
+                    create: vi.fn().mockResolvedValue({}),
+                    findMany: vi.fn().mockResolvedValue([{ group: { id: BigInt(groupId), name: '테스트그룹' } }]),
                 },
                 studentSnapshot: {
                     create: vi.fn().mockResolvedValue({}),
@@ -180,11 +212,11 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.update({
                 id: String(mockStudent.id),
                 societyName: '수정된이름',
-                groupId,
+                groupIds: [groupId],
             });
 
             expect(result).toHaveProperty('id');
@@ -195,7 +227,9 @@ describe('student 통합 테스트', () => {
         it('미인증 시 UNAUTHORIZED 에러', async () => {
             const caller = createPublicCaller();
 
-            await expect(caller.student.update({ id: '1', societyName: '수정', groupId: '1' })).rejects.toMatchObject({
+            await expect(
+                caller.student.update({ id: '1', societyName: '수정', groupIds: ['1'] })
+            ).rejects.toMatchObject({
                 code: 'UNAUTHORIZED',
             });
         });
@@ -205,10 +239,10 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(
-                caller.student.update({ id: 'invalid-id', societyName: '수정', groupId: '1' })
+                caller.student.update({ id: 'invalid-id', societyName: '수정', groupIds: ['1'] })
             ).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
             });
@@ -224,13 +258,18 @@ describe('student 통합 테스트', () => {
             const groupId = String(mockGroup.id);
 
             const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
-            mockPrismaClient.student.findFirst.mockResolvedValueOnce(mockStudent);
+            const studentGroups = [{ group: { id: BigInt(groupId), name: '테스트그룹', organizationId: BigInt(1) } }];
+            mockPrismaClient.student.findFirst.mockResolvedValueOnce({
+                ...mockStudent,
+                studentGroups,
+            });
             mockPrismaClient.student.update.mockResolvedValueOnce({
                 ...mockStudent,
                 deletedAt: new Date(),
+                studentGroups,
             });
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.delete({ id: String(mockStudent.id) });
 
             expect(result).toHaveProperty('id');
@@ -249,7 +288,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.delete({ id: 'invalid-id' })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -269,7 +308,7 @@ describe('student 통합 테스트', () => {
             // updateMany 결과 반환
             mockPrismaClient.student.updateMany.mockResolvedValueOnce({ count: 3 });
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.bulkDelete({ ids: ['1', '2', '3'] });
 
             expect(result).toHaveProperty('deletedCount');
@@ -289,7 +328,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.bulkDelete({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -301,7 +340,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.bulkDelete({ ids: ['invalid-id'] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -321,7 +360,7 @@ describe('student 통합 테스트', () => {
             // updateMany 결과 반환
             mockPrismaClient.student.updateMany.mockResolvedValueOnce({ count: 2 });
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.restore({ ids: ['1', '2'] });
 
             expect(result).toHaveProperty('restoredCount');
@@ -341,7 +380,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.restore({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -353,7 +392,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.restore({ ids: ['invalid-id'] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -398,7 +437,7 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.graduate({ ids: ['1', '2'] });
 
             expect(result).toHaveProperty('success');
@@ -422,7 +461,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.graduate({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -434,7 +473,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const manyIds = Array.from({ length: 101 }, (_, i) => String(i + 1));
 
             await expect(caller.student.graduate({ ids: manyIds })).rejects.toMatchObject({
@@ -470,7 +509,7 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.cancelGraduation({ ids: ['1'] });
 
             expect(result).toHaveProperty('success');
@@ -494,7 +533,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.cancelGraduation({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -530,7 +569,7 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.promote();
 
             expect(result).toHaveProperty('row');
@@ -562,6 +601,9 @@ describe('student 통합 테스트', () => {
                 student: {
                     create: vi.fn().mockResolvedValue(createdStudent),
                 },
+                studentGroup: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
                 studentSnapshot: {
                     create: vi.fn().mockResolvedValue({}),
                 },
@@ -571,11 +613,11 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.bulkCreate({
                 students: [
-                    { societyName: '김철수', groupId: '1' },
-                    { societyName: '이영희', groupId: '1', gender: 'F' },
+                    { societyName: '김철수', groupIds: ['1'] },
+                    { societyName: '이영희', groupIds: ['1'], gender: 'F' },
                 ],
             });
 
@@ -600,6 +642,9 @@ describe('student 통합 테스트', () => {
                 student: {
                     create: vi.fn().mockResolvedValue(createdStudent),
                 },
+                studentGroup: {
+                    create: vi.fn().mockResolvedValue({}),
+                },
                 studentSnapshot: {
                     create: vi.fn().mockResolvedValue({}),
                 },
@@ -609,11 +654,11 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             await caller.student.bulkCreate({
                 students: [
-                    { societyName: '김철수', groupId: '1', registered: true },
-                    { societyName: '이영희', groupId: '1', registered: false },
+                    { societyName: '김철수', groupIds: ['1'], registered: true },
+                    { societyName: '이영희', groupIds: ['1'], registered: false },
                 ],
             });
 
@@ -626,7 +671,7 @@ describe('student 통합 테스트', () => {
 
             await expect(
                 caller.student.bulkCreate({
-                    students: [{ societyName: '김철수', groupId: '1' }],
+                    students: [{ societyName: '김철수', groupIds: ['1'] }],
                 })
             ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
         });
@@ -636,7 +681,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.bulkCreate({ students: [] })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -662,7 +707,7 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.bulkRegister({ ids: ['1', '2'] });
 
             expect(result).toHaveProperty('registeredCount');
@@ -687,7 +732,7 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.bulkRegister({ ids: ['1'] });
 
             expect(result.registeredCount).toBe(0);
@@ -711,7 +756,7 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.bulkRegister({ ids: ['1'] });
 
             expect(result.registeredCount).toBe(1);
@@ -735,7 +780,7 @@ describe('student 통합 테스트', () => {
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.bulkRegister({ ids: ['1'], year: 2027 });
 
             expect(result.registeredCount).toBe(1);
@@ -758,7 +803,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.bulkRegister({ ids: [] })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -776,7 +821,7 @@ describe('student 통합 테스트', () => {
             // updateMany 결과
             mockPrismaClient.registration.updateMany.mockResolvedValueOnce({ count: 2 });
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.bulkCancelRegistration({ ids: ['1', '2'] });
 
             expect(result).toHaveProperty('cancelledCount');
@@ -792,7 +837,7 @@ describe('student 통합 테스트', () => {
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.registration.updateMany.mockResolvedValueOnce({ count: 1 });
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.bulkCancelRegistration({ ids: ['1'], year: 2026 });
 
             expect(result.cancelledCount).toBe(1);
@@ -811,7 +856,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
 
             await expect(caller.student.bulkCancelRegistration({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -828,7 +873,7 @@ describe('student 통합 테스트', () => {
 
             const mockActiveStudent = {
                 ...createMockStudent({ groupId: mockGroup.id, graduatedAt: null }),
-                group: { name: '테스트그룹' },
+                studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
                 registrations: [],
             };
 
@@ -838,7 +883,7 @@ describe('student 통합 테스트', () => {
             mockPrismaClient.registration.count.mockResolvedValueOnce(0);
             mockPrismaClient.student.count.mockResolvedValueOnce(1);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.list({ graduated: false });
 
             expect(result.students.length).toBe(1);
@@ -853,7 +898,7 @@ describe('student 통합 테스트', () => {
 
             const mockGraduatedStudent = {
                 ...createMockStudent({ groupId: mockGroup.id, graduatedAt: new Date() }),
-                group: { name: '테스트그룹' },
+                studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
                 registrations: [],
             };
 
@@ -863,7 +908,7 @@ describe('student 통합 테스트', () => {
             mockPrismaClient.registration.count.mockResolvedValueOnce(0);
             mockPrismaClient.student.count.mockResolvedValueOnce(1);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.list({ graduated: true });
 
             expect(result.students.length).toBe(1);
@@ -879,12 +924,12 @@ describe('student 통합 테스트', () => {
             const mockStudents = [
                 {
                     ...createMockStudent({ groupId: mockGroup.id, graduatedAt: null }),
-                    group: { name: '테스트그룹' },
+                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
                     registrations: [],
                 },
                 {
                     ...createMockStudent({ groupId: mockGroup.id, graduatedAt: new Date() }),
-                    group: { name: '테스트그룹' },
+                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
                     registrations: [],
                 },
             ];
@@ -895,7 +940,7 @@ describe('student 통합 테스트', () => {
             mockPrismaClient.registration.count.mockResolvedValueOnce(0);
             mockPrismaClient.student.count.mockResolvedValueOnce(2);
 
-            const caller = createAuthenticatedCaller(accountId, accountName);
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.student.list({ graduated: null });
 
             expect(result.students.length).toBe(2);

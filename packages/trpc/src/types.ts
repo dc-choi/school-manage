@@ -6,7 +6,7 @@
  */
 
 // AppRouter 타입 (타입 추론용)
-export type { AppRouter } from './routers';
+export type { AppRouter } from './routers/index.js';
 
 // 공유 타입 (서버 런타임 의존 없음)
-export type { AccountInfo } from './shared';
+export type { AccountInfo } from './shared.js';

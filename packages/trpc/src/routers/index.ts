@@ -1,5 +1,5 @@
-import { router } from '../trpc';
-import { healthRouter } from './health';
+import { router } from '../trpc.js';
+import { healthRouter } from './health.js';
 
 /**
  * AppRouter - 모든 라우터의 단일 진입점

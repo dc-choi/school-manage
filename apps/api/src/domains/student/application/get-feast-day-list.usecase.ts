@@ -7,16 +7,16 @@ import type { FeastDayListOutput, FeastDayListInput as FeastDayListSchemaInput }
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드
-type FeastDayListInput = FeastDayListSchemaInput & { accountId: string };
+type FeastDayListInput = FeastDayListSchemaInput & { organizationId: string };
 
 const BAPTIZED_AT_PATTERN = /^\d{2}\/\d{2}$/;
 
 export class GetFeastDayListUseCase {
     async execute(input: FeastDayListInput): Promise<FeastDayListOutput> {
-        // 1. accountId 소속 그룹 조회 (deletedAt=null)
+        // 1. organizationId 소속 그룹 조회 (deletedAt=null)
         const groups = await database.group.findMany({
             where: {
-                accountId: BigInt(input.accountId),
+                organizationId: BigInt(input.organizationId),
                 deletedAt: null,
             },
         });

@@ -3,6 +3,7 @@
  *
  * 주간/월간/연간 출석률 조회 (스냅샷 기반)
  */
+import { PRESENT_MARKS } from '@school/trpc';
 import type { AttendanceRateOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
 import {
     clampToToday,
@@ -16,7 +17,7 @@ import {
 } from '@school/utils';
 import { database } from '~/infrastructure/database/database.js';
 
-type StatisticsInput = StatisticsSchemaInput & { accountId: string };
+type StatisticsInput = StatisticsSchemaInput & { organizationId: string };
 
 type Period = 'weekly' | 'monthly' | 'yearly';
 
@@ -24,7 +25,7 @@ export class GetAttendanceRateUseCase {
     async execute(input: StatisticsInput, period: Period): Promise<AttendanceRateOutput> {
         const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
-        const accountId = BigInt(input.accountId);
+        const organizationId = BigInt(input.organizationId);
 
         // 1. 기간 계산
         const { startDate, endDate } = this.calculateDateRange(year, period, month, week);
@@ -33,7 +34,7 @@ export class GetAttendanceRateUseCase {
 
         // 2. 계정 소속 그룹 ID 조회 (deletedAt 필터 없이 전체)
         const groups = await database.group.findMany({
-            where: { accountId },
+            where: { organizationId },
             select: { id: true },
         });
         const groupIds = groups.map((g) => g.id);
@@ -101,7 +102,7 @@ export class GetAttendanceRateUseCase {
         }
 
         // 6. 실제 출석 수 (◎, ○, △)
-        const actualAttendances = allAttendances.filter((a) => a.content && ['◎', '○', '△'].includes(a.content)).length;
+        const actualAttendances = allAttendances.filter((a) => a.content && PRESENT_MARKS.has(a.content)).length;
 
         // 7. 출석률 계산
         const expectedAttendances = totalStudents * totalDays;
