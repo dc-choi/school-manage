@@ -36,7 +36,7 @@ const FAQ_ITEMS = [
     },
     {
         question: '선생님이 여러 명인데, 각각 가입해야 하나요?',
-        answer: '아니요. 모임 하나당 계정 하나를 만들고, 선생님들이 같은 계정을 공유하시면 돼요.',
+        answer: '각자 가입한 뒤 같은 본당/모임에 합류하면 돼요. 관리자가 승인하면 바로 함께 쓸 수 있어요.',
     },
     {
         question: '가입하면 뭘 먼저 해야 하나요?',
@@ -198,7 +198,7 @@ export function LandingPage() {
                             </div>
                         )}
                         <p className="text-lg text-muted-foreground sm:text-xl">
-                            무료로 시작할 수 있어요. 30초면 충분해요.
+                            바로 시작할 수 있어요. 30초면 충분해요.
                             <br />
                             이번 주일부터 써보세요.
                         </p>
