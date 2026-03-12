@@ -33,7 +33,7 @@ export const createStudentInputSchema = z.object({
     catholicName: z.string().optional(),
     gender: z.enum(['M', 'F']).optional(),
     age: z.number().int().positive().optional(),
-    contact: z.number().optional(),
+    contact: z.string().optional(),
     description: z.string().optional(),
     groupId: idSchema,
     baptizedAt: z
@@ -55,7 +55,7 @@ export const updateStudentInputSchema = z.object({
     catholicName: z.string().nullable().optional(),
     gender: z.enum(['M', 'F']).nullable().optional(),
     age: z.number().int().positive().nullable().optional(),
-    contact: z.number().nullable().optional(),
+    contact: z.string().nullable().optional(),
     description: z.string().nullable().optional(),
     groupId: idSchema.optional(),
     baptizedAt: z
@@ -162,7 +162,7 @@ export interface StudentBase {
     catholicName?: string;
     gender?: string;
     age?: number;
-    contact?: number;
+    contact?: string;
     description?: string;
     groupId: string;
     baptizedAt?: string;

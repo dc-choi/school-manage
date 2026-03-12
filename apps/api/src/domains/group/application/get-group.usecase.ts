@@ -44,7 +44,7 @@ export class GetGroupUseCase {
                 societyName: student.societyName,
                 catholicName: student.catholicName ?? undefined,
                 age: student.age ? Number(student.age) : undefined,
-                contact: student.contact ? Number(student.contact) : undefined,
+                contact: student.contact ? String(student.contact) : undefined,
                 description: student.description ?? undefined,
                 groupId: String(student.groupId),
                 baptizedAt: student.baptizedAt ?? undefined,

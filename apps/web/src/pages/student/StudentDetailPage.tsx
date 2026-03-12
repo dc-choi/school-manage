@@ -1,5 +1,5 @@
 import { StudentForm } from './StudentForm';
-import { formatDateKR } from '@school/utils';
+import { formatContact, formatDateKR } from '@school/utils';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
@@ -33,10 +33,7 @@ export function StudentDetailPage() {
     const isDeleted = !!student?.deletedAt;
 
     // 연락처 표시값 변환
-    const contactRaw = student?.contact ? String(student.contact).padStart(11, '0') : '';
-    const contactDisplay = contactRaw
-        ? `${contactRaw.slice(0, 3)}-${contactRaw.slice(3, 7)}-${contactRaw.slice(7)}`
-        : '-';
+    const contactDisplay = student?.contact ? formatContact(student.contact) : '-';
 
     // 성별 표시값 변환
     const getGenderDisplay = (gender?: string | null): string => {

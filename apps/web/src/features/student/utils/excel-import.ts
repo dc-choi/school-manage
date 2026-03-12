@@ -21,7 +21,7 @@ export interface ParsedRow {
 export interface ValidatedRow extends ParsedRow {
     groupId: string | null;
     normalizedGender: 'M' | 'F' | null;
-    normalizedContact: number | null;
+    normalizedContact: string | null;
     normalizedAge: number | null;
     normalizedRegistered: boolean;
     status: 'success' | 'error';
@@ -77,7 +77,7 @@ export const validateRows = (rows: ParsedRow[], groups: GroupInfo[]): ValidatedR
         const errors: string[] = [];
         let groupId: string | null = null;
         let normalizedGender: 'M' | 'F' | null = null;
-        let normalizedContact: number | null = null;
+        let normalizedContact: string | null = null;
         let normalizedAge: number | null = null;
         const REGISTERED_VALUES = new Set(['O', 'o', 'ㅇ', '○']);
         const normalizedRegistered = row.registered !== null && REGISTERED_VALUES.has(row.registered);
@@ -117,7 +117,7 @@ export const validateRows = (rows: ParsedRow[], groups: GroupInfo[]): ValidatedR
         if (row.contact) {
             const digits = row.contact.replace(/\D/g, '');
             if (digits) {
-                normalizedContact = Number(digits);
+                normalizedContact = digits;
             } else {
                 errors.push('전화번호는 숫자만 입력해 주세요. 예: 01012345678');
             }

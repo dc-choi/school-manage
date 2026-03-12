@@ -6,16 +6,15 @@ import { describe, expect, it } from 'vitest';
 
 describe('format 유틸리티', () => {
     describe('formatContact', () => {
-        it('11자리 숫자를 010-XXXX-XXXX 형식으로 포맷한다', () => {
-            const result = formatContact(1012345678);
+        it('10자리 문자열을 010-XXXX-XXXX 형식으로 포맷한다', () => {
+            const result = formatContact('1012345678');
 
             // 앞에 0이 붙어서 01012345678이 됨
             expect(result).toBe('010-1234-5678');
         });
 
-        it('이미 11자리인 숫자를 올바르게 포맷한다', () => {
-            // 실제로는 BigInt 범위이지만, 일반 숫자로 처리 가능한 범위
-            const result = formatContact(1098765432);
+        it('이미 11자리인 문자열을 올바르게 포맷한다', () => {
+            const result = formatContact('1098765432');
 
             expect(result).toBe('010-9876-5432');
         });
@@ -32,15 +31,27 @@ describe('format 유틸리티', () => {
             expect(result).toBe('-');
         });
 
-        it('0을 입력하면 "-"를 반환한다', () => {
-            const result = formatContact(0);
+        it('빈 문자열을 입력하면 "-"를 반환한다', () => {
+            const result = formatContact('');
 
             expect(result).toBe('-');
         });
 
-        it('10자리 숫자를 11자리로 패딩하여 포맷한다', () => {
+        it('10자리 문자열을 11자리로 패딩하여 포맷한다', () => {
             // 10자리: 1012341234 → 01012341234
-            const result = formatContact(1012341234);
+            const result = formatContact('1012341234');
+
+            expect(result).toBe('010-1234-1234');
+        });
+
+        it('하이픈이 포함된 문자열을 올바르게 포맷한다', () => {
+            const result = formatContact('010-1234-1234');
+
+            expect(result).toBe('010-1234-1234');
+        });
+
+        it('공백이 포함된 문자열을 올바르게 포맷한다', () => {
+            const result = formatContact('010 1234 1234');
 
             expect(result).toBe('010-1234-1234');
         });

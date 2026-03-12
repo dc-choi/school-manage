@@ -101,7 +101,7 @@ export class ListStudentsUseCase {
                 catholicName: row.catholicName ?? undefined,
                 gender: row.gender ?? undefined,
                 age: row.age != null ? Number(row.age) : undefined,
-                contact: row.contact != null ? Number(row.contact) : undefined,
+                contact: row.contact != null ? String(row.contact) : undefined,
                 description: row.description ?? undefined,
                 groupId: String(row.groupId),
                 groupName: row.group?.name ?? '',
