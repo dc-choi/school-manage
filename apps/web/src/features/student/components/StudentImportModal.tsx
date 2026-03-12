@@ -6,6 +6,7 @@
 import type { ValidatedRow } from '../utils/excel-import';
 import { parseExcelFile, validateRows } from '../utils/excel-import';
 import { downloadExcelTemplate } from '../utils/excel-template';
+import { formatContact } from '@school/utils';
 import { Download, FileSpreadsheet, Loader2, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -291,7 +292,9 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                                       ? '여'
                                                       : row.gender || '-'}
                                             </TableCell>
-                                            <TableCell>{row.contact || '-'}</TableCell>
+                                            <TableCell>
+                                                {row.normalizedContact ? formatContact(row.normalizedContact) : '-'}
+                                            </TableCell>
                                             <TableCell>{row.baptizedAt || '-'}</TableCell>
                                             <TableCell>{row.age || '-'}</TableCell>
                                             <TableCell>{row.description || '-'}</TableCell>

@@ -113,11 +113,11 @@ export const validateRows = (rows: ParsedRow[], groups: GroupInfo[]): ValidatedR
             }
         }
 
-        // 전화번호 숫자 추출
+        // 전화번호 숫자 추출 (Excel이 숫자로 처리하면서 앞자리 0이 사라지는 경우 복원)
         if (row.contact) {
             const digits = row.contact.replace(/\D/g, '');
             if (digits) {
-                normalizedContact = digits;
+                normalizedContact = digits.padStart(11, '0');
             } else {
                 errors.push('전화번호는 숫자만 입력해 주세요. 예: 01012345678');
             }
