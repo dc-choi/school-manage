@@ -40,10 +40,12 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                     }}
                 />
 
-                {countData && countData.count > 0 && (
+                {countData && countData.churchCount > 0 && (
                     <div className="flex items-center gap-3 text-lg text-muted-foreground xl:text-xl">
                         <Users className="h-6 w-6" />
-                        <span>{countData.count}개 단체가 이미 사용하고 있어요</span>
+                        <span>
+                            {countData.churchCount}개 본당에서 {countData.accountCount}개 계정을 사용중입니다
+                        </span>
                     </div>
                 )}
             </div>
@@ -53,10 +55,12 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 {/* 모바일 히어로 (compact) */}
                 <div className="mb-6 space-y-2 text-center lg:hidden">
                     <h1 className="text-2xl font-bold tracking-tight">매주 일요일, 이거 하나면 됩니다</h1>
-                    {countData && countData.count > 0 && (
+                    {countData && countData.churchCount > 0 && (
                         <div className="flex items-center justify-center gap-2 text-base text-muted-foreground">
                             <Users className="h-5 w-5" />
-                            <span>{countData.count}개 단체가 이미 사용하고 있어요</span>
+                            <span>
+                                {countData.churchCount}개 본당에서 {countData.accountCount}개 계정을 사용중입니다
+                            </span>
                         </div>
                     )}
                 </div>
