@@ -46,15 +46,15 @@
 
 | 도메인          | 경로                                                      | 포함 내용                                                      |
 |--------------|---------------------------------------------------------|------------------------------------------------------------|
-| Auth/Account | `docs/specs/functional-design/auth-account.md`          | 기본 인증/계정 관리 + 회원가입 + 서비스 소개/계정 모델 안내 + 전환율 개선 (로드맵 1단계) + 개인정보 제공동의 + 계정 자기 관리 + 셀프 온보딩 (로드맵 2단계) + 계정 모델 전환 (로드맵 3단계) |
-| Account Model | `docs/specs/functional-design/account-model-transition.md` | 계정 모델 전환 (데이터 모델, 플로우, API, 접근 제어) |
-| Landing      | `docs/specs/functional-design/landing-page.md`          | 랜딩 페이지 + 포지셔닝 개선 (로드맵 1단계) + FAQ 섹션 + 메타 태그/브랜딩 정비 (로드맵 2단계) |
-| Group        | `docs/specs/functional-design/group-management.md`      | 기본 + 일괄 삭제 + 페이지네이션 상태 유지 (로드맵 1단계)                        |
-| Student      | `docs/specs/functional-design/student-management.md`    | 기본 + 일괄 삭제/복구 + 졸업 처리 + 페이지네이션 상태 유지 (로드맵 1단계) + 이달의 축일자 목록 + 엑셀 Import + 등록 관리 (로드맵 2단계) |
-| Attendance   | `docs/specs/functional-design/attendance-management.md` | 기본 + 달력 UI + 자동 저장 (로드맵 1단계)                               |
-| Statistics   | `docs/specs/functional-design/statistics.md`            | 우수 출석 학생 + 대시보드 통계 (로드맵 1단계) + 학년별 통계 총계 행 + 통계 스냅샷 + 졸업생 필터링 (로드맵 2단계) |
-| Liturgical   | `docs/specs/functional-design/liturgical-calendar.md`   | 전례 시기 계산 + 대시보드 전례 카드 (로드맵 2단계)                            |
-| 도메인 용어 변경    | `docs/specs/functional-design/domain-terminology-change.md` | 그룹→학년, 멤버→학생 UI 라벨 변경 (로드맵 2단계, 횡단 관심사)                    |
+| Auth/Account | `auth-account.md` + `auth-account-extended.md`          | 기본 인증 + 회원가입 / UI 개선, 개인정보 동의, 계정 관리, 셀프 온보딩              |
+| Account Model | `account-model-transition.md` + `account-model-transition-flows.md` | 데이터 모델 / 플로우, API, 접근 제어                                   |
+| Landing      | `landing-page.md`                                       | 랜딩 페이지 + FAQ + 메타 태그/브랜딩                                   |
+| Group        | `group-management.md`                                   | 기본 + 일괄 삭제 + 페이지네이션 상태 유지                                  |
+| Student      | `student-management.md` + `-import.md` + `-registration.md` | 기본 CRUD / 엑셀 Import / 등록 관리                                |
+| Attendance   | `attendance-management.md`                              | 기본 + 달력 UI + 자동 저장                                         |
+| Statistics   | `statistics.md`                                         | 대시보드 통계 + 스냅샷 + 졸업생 필터링                                    |
+| Liturgical   | `liturgical-calendar.md`                                | 전례 시기 계산 + 대시보드 전례 카드                                      |
+| 도메인 용어 변경    | `domain-terminology-change.md`                          | 그룹→학년, 멤버→학생 UI 라벨 변경 (횡단 관심사)                             |
 
 ---
 
