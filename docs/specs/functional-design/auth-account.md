@@ -8,6 +8,8 @@
 - PRD: `docs/specs/prd/privacy-consent.md` (개인정보 제공동의)
 - PRD: `docs/specs/prd/account-self-management.md` (계정 자기 관리)
 - PRD: `docs/specs/prd/self-onboarding.md` (셀프 온보딩)
+- PRD: `docs/specs/prd/admin-transfer.md` (관리자 양도)
+- 기능 설계: `docs/specs/functional-design/admin-transfer.md` (관리자 양도 상세)
 
 ## 기능 범위
 
@@ -19,6 +21,7 @@
 | 개인정보 제공동의 (2단계) | 신규 가입 시 동의, 기존 회원 소급 동의 | 구현 완료 |
 | 계정 자기 관리 (2단계) | 비밀번호 재설정/변경, 이름 변경, 탈퇴/복원 | 구현 완료 |
 | 셀프 온보딩 (2단계) | 대시보드 3단계 체크리스트 | 구현 완료 |
+| 관리자 양도 | ADMIN↔TEACHER 역할 교환, 유일 멤버 조직 삭제 | 구현 완료 |
 
 ---
 

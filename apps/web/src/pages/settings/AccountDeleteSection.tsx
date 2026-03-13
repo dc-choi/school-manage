@@ -1,3 +1,4 @@
+import { ROLE } from '@school/shared';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -19,14 +20,23 @@ import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
 
 export function AccountDeleteSection() {
-    const { logout } = useAuth();
+    const { logout, role } = useAuth();
     const navigate = useNavigate();
 
     const [deletePassword, setDeletePassword] = useState('');
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+    const { data: membersData } = trpc.organization.members.useQuery(undefined, {
+        enabled: role === ROLE.ADMIN,
+    });
+    const memberCount = membersData?.members.length ?? 0;
+
     const deleteAccountMutation = trpc.account.deleteAccount.useMutation();
+
+    const isAdmin = role === ROLE.ADMIN;
+    const isAdminWithMembers = isAdmin && memberCount > 1;
+    const isSoleMember = isAdmin && memberCount === 1;
 
     const handleDelete = async () => {
         setDeleteError(null);
@@ -45,31 +55,42 @@ export function AccountDeleteSection() {
         }
     };
 
+    const descriptionText = isAdminWithMembers
+        ? '먼저 관리자를 양도한 후 탈퇴할 수 있습니다.'
+        : isSoleMember
+          ? '조직의 유일한 관리자입니다. 탈퇴 시 조직과 모든 데이터(학년, 학생, 출석)가 삭제됩니다.'
+          : '계정을 삭제해도 학년, 학생, 출석 기록은 유지됩니다.';
+
+    const dialogDescription = isSoleMember
+        ? '조직의 유일한 관리자입니다. 탈퇴 시 조직과 모든 데이터(학년, 학생, 출석)가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.'
+        : '계정이 삭제됩니다. 학년, 학생, 출석 기록은 유지됩니다. 삭제 후 2년 이내에 동일한 아이디와 비밀번호로 로그인하면 계정을 복원할 수 있습니다.';
+
     return (
         <Card className="border-destructive/50">
             <CardHeader>
                 <CardTitle className="text-destructive">위험 영역</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">계정을 삭제해도 학년, 학생, 출석 기록은 유지됩니다.</p>
+                <p className="text-sm text-muted-foreground">{descriptionText}</p>
                 <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                     <AlertDialogTrigger asChild>
-                        <Button variant="destructive">계정 삭제</Button>
+                        <Button variant="destructive" disabled={isAdminWithMembers}>
+                            {isSoleMember ? '조직 삭제 및 탈퇴' : '계정 삭제'}
+                        </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <AlertDialogTitle>정말로 계정을 삭제하시겠습니까?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                계정이 삭제됩니다. 학년, 학생, 출석 기록은 유지됩니다. 삭제 후 2년 이내에 동일한
-                                아이디와 비밀번호로 로그인하면 계정을 복원할 수 있습니다.
-                            </AlertDialogDescription>
+                            <AlertDialogTitle>
+                                {isSoleMember ? '정말 탈퇴하시겠습니까?' : '정말로 계정을 삭제하시겠습니까?'}
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>{dialogDescription}</AlertDialogDescription>
                         </AlertDialogHeader>
                         <div className="space-y-2 px-1">
-                            {deleteError && (
+                            {deleteError ? (
                                 <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                                     {deleteError}
                                 </div>
-                            )}
+                            ) : null}
                             <Label htmlFor="deletePassword">확인을 위해 비밀번호를 입력하세요</Label>
                             <Input
                                 id="deletePassword"
@@ -94,7 +115,7 @@ export function AccountDeleteSection() {
                                 onClick={handleDelete}
                                 disabled={deleteAccountMutation.isPending}
                             >
-                                {deleteAccountMutation.isPending ? '삭제 중...' : '삭제'}
+                                {deleteAccountMutation.isPending ? '삭제 중...' : isSoleMember ? '탈퇴' : '삭제'}
                             </Button>
                         </AlertDialogFooter>
                     </AlertDialogContent>
