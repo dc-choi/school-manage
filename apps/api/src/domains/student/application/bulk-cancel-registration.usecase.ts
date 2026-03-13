@@ -14,16 +14,6 @@ export class BulkCancelRegistrationUseCase {
             const ids = input.ids.map((id) => BigInt(id));
             const year = input.year ?? new Date().getFullYear();
 
-            // 해당 조직 소유 그룹 조회 (권한 스코프)
-            const groups = await database.group.findMany({
-                where: {
-                    organizationId: BigInt(organizationId),
-                    deletedAt: null,
-                },
-                select: { id: true },
-            });
-            const groupIds = groups.map((g) => g.id);
-
             const now = getNowKST();
 
             // 소프트 삭제: 해당 조직 소속 학생의 등록 레코드만 취소
@@ -33,7 +23,7 @@ export class BulkCancelRegistrationUseCase {
                     year,
                     deletedAt: null,
                     student: {
-                        groupId: { in: groupIds },
+                        organizationId: BigInt(organizationId),
                     },
                 },
                 data: {

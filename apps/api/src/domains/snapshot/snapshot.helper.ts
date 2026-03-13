@@ -20,7 +20,7 @@ interface CreateStudentSnapshotInput {
     contact: bigint | null;
     description: string | null;
     baptizedAt: string | null;
-    groupId: bigint;
+    groupId: bigint | null;
     organizationId?: bigint | null;
 }
 
@@ -37,7 +37,7 @@ export const createStudentSnapshot = async (
             contact: input.contact,
             description: input.description,
             baptizedAt: input.baptizedAt,
-            groupId: input.groupId,
+            groupId: input.groupId ?? 0n,
             organizationId: input.organizationId ?? null,
             snapshotAt: getNowKST(),
         },

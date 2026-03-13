@@ -127,6 +127,7 @@ model Account {
 model Group {
     id             BigInt    @id @default(autoincrement()) @map("_id")
     name           String    @db.VarChar(50)
+    type           String    @default("GRADE") @db.VarChar(20)
     createdAt      DateTime  @map("create_at")
     updatedAt      DateTime? @map("update_at")
     deletedAt      DateTime? @map("delete_at")
@@ -135,7 +136,6 @@ model Group {
 
     account       Account         @relation(fields: [accountId], references: [id])
     organization  Organization?   @relation(fields: [organizationId], references: [id])
-    students      Student[]
     studentGroups StudentGroup[]
     snapshots     GroupSnapshot[]
 
@@ -157,17 +157,14 @@ model Student {
     createdAt      DateTime  @map("create_at")
     updatedAt      DateTime? @map("update_at")
     deletedAt      DateTime? @map("delete_at")
-    groupId        BigInt    @map("group_id")
     organizationId BigInt?   @map("organization_id")
 
-    group          Group              @relation(fields: [groupId], references: [id])
     organization   Organization?      @relation(fields: [organizationId], references: [id])
     studentGroups  StudentGroup[]
     attendances    Attendance[]
     snapshots      StudentSnapshot[]
     registrations  Registration[]
 
-    @@index([groupId])
     @@index([organizationId])
     @@map("student")
 }

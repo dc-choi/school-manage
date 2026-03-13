@@ -39,10 +39,10 @@ export class GetGroupStatisticsUseCase {
         const { month, week } = input;
         const organizationId = BigInt(input.organizationId);
 
-        // 1. 계정 소속 그룹 조회 (deletedAt 필터 없이 전체)
+        // 1. 학년(GRADE) 그룹만 조회 (부서는 통계 제외)
         const groups = await database.group.findMany({
-            where: { organizationId },
-            select: { id: true, name: true },
+            where: { organizationId, type: 'GRADE' },
+            select: { id: true, name: true, type: true },
         });
         const groupIds = groups.map((g) => g.id);
 
@@ -50,29 +50,31 @@ export class GetGroupStatisticsUseCase {
             return { year, groups: [] };
         }
 
-        // 2. 그룹별 학생 수 조회 (조회 기간 시작일 기준 졸업 필터 적용)
+        // 2. 그룹별 학생 수 조회 (조회 기간 시작일 기준 졸업 필터 적용, StudentGroup 기반)
         const graduationCutoff = getGraduationCutoff(year, month, week);
-        const students = await database.student.findMany({
+        const studentGroupRecords = await database.studentGroup.findMany({
             where: {
                 groupId: { in: groupIds },
-                deletedAt: null,
-                OR: [{ graduatedAt: null }, { graduatedAt: { gte: graduationCutoff } }],
+                student: {
+                    deletedAt: null,
+                    OR: [{ graduatedAt: null }, { graduatedAt: { gte: graduationCutoff } }],
+                },
             },
-            select: { id: true, groupId: true },
+            select: { studentId: true, groupId: true },
         });
 
         const studentsByGroup = new Map<bigint, Set<bigint>>();
-        for (const s of students) {
-            let set = studentsByGroup.get(s.groupId);
+        for (const sg of studentGroupRecords) {
+            let set = studentsByGroup.get(sg.groupId);
             if (!set) {
                 set = new Set();
-                studentsByGroup.set(s.groupId, set);
+                studentsByGroup.set(sg.groupId, set);
             }
-            set.add(s.id);
+            set.add(sg.studentId);
         }
 
         // 2b. 그룹별 등록 학생 수 조회 (해당 연도)
-        const studentIds = students.map((s) => s.id);
+        const studentIds = [...new Set(studentGroupRecords.map((sg) => sg.studentId))];
         const registrations =
             studentIds.length > 0
                 ? await database.registration.findMany({
@@ -82,9 +84,9 @@ export class GetGroupStatisticsUseCase {
                 : [];
         const registeredStudentIds = new Set(registrations.map((r) => r.studentId));
         const registeredByGroup = new Map<bigint, number>();
-        for (const s of students) {
-            if (registeredStudentIds.has(s.id)) {
-                registeredByGroup.set(s.groupId, (registeredByGroup.get(s.groupId) ?? 0) + 1);
+        for (const sg of studentGroupRecords) {
+            if (registeredStudentIds.has(sg.studentId)) {
+                registeredByGroup.set(sg.groupId, (registeredByGroup.get(sg.groupId) ?? 0) + 1);
             }
         }
 
@@ -128,6 +130,7 @@ export class GetGroupStatisticsUseCase {
             return {
                 groupId: String(groupId),
                 groupName,
+                groupType: group?.type ?? 'GRADE',
                 weekly: {
                     ...calcStats(weeklyData),
                     startDate: weeklyData.startDateStr,

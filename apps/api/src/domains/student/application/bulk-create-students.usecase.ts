@@ -49,7 +49,6 @@ export class BulkCreateStudentsUseCase {
                             age: student.age ? BigInt(student.age) : null,
                             contact: student.contact ? BigInt(student.contact) : null,
                             description: student.description,
-                            groupId: BigInt(student.groupIds[0]),
                             organizationId: BigInt(organizationId),
                             baptizedAt: student.baptizedAt,
                             createdAt: now,
@@ -75,7 +74,7 @@ export class BulkCreateStudentsUseCase {
                         contact: created.contact,
                         description: created.description,
                         baptizedAt: created.baptizedAt,
-                        groupId: created.groupId,
+                        groupId: student.groupIds.length > 0 ? BigInt(student.groupIds[0]) : null,
                     });
 
                     if (student.registered === true) {

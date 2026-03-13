@@ -38,12 +38,14 @@ export class GetCalendarUseCase {
         const holydaysResult = await holydaysUseCase.execute({ year });
         const holydayMap = new Map(holydaysResult.holydays.map((h) => [h.date, h.name]));
 
-        // 4. 그룹의 전체 학생 수 조회 (졸업생 제외)
-        const totalStudents = await database.student.count({
+        // 4. 그룹의 전체 학생 수 조회 (졸업생 제외, StudentGroup 기반)
+        const totalStudents = await database.studentGroup.count({
             where: {
                 groupId: BigInt(groupId),
-                deletedAt: null,
-                graduatedAt: null,
+                student: {
+                    deletedAt: null,
+                    graduatedAt: null,
+                },
             },
         });
 
@@ -101,16 +103,18 @@ export class GetCalendarUseCase {
         startDate: string,
         endDate: string
     ): Promise<Map<string, number>> {
-        // 그룹에 속한 학생 ID 조회 (졸업생 제외)
-        const students = await database.student.findMany({
+        // 그룹에 속한 학생 ID 조회 (졸업생 제외, StudentGroup 기반)
+        const studentGroupRecords = await database.studentGroup.findMany({
             where: {
                 groupId: BigInt(groupId),
-                deletedAt: null,
-                graduatedAt: null,
+                student: {
+                    deletedAt: null,
+                    graduatedAt: null,
+                },
             },
-            select: { id: true },
+            select: { studentId: true },
         });
-        const studentIds = students.map((s) => s.id);
+        const studentIds = studentGroupRecords.map((sg) => sg.studentId);
 
         if (studentIds.length === 0) {
             return new Map();

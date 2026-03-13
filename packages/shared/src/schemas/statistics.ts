@@ -123,6 +123,7 @@ export interface TopOverallOutput {
 export interface GroupStatisticsItem {
     groupId: string;
     groupName: string;
+    groupType: string;
     weekly: {
         attendanceRate: number;
         avgAttendance: number;

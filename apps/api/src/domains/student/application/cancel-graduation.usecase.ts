@@ -22,11 +22,13 @@ export class CancelGraduationUseCase {
                         id: { in: ids.map((id) => BigInt(id)) },
                         graduatedAt: { not: null }, // 졸업생만
                         deletedAt: null,
-                        group: {
-                            organizationId: BigInt(organizationId),
+                        organizationId: BigInt(organizationId),
+                    },
+                    include: {
+                        studentGroups: {
+                            include: { group: { select: { id: true, type: true } } },
                         },
                     },
-                    include: { group: true },
                 });
 
                 // 졸업 취소
@@ -45,7 +47,7 @@ export class CancelGraduationUseCase {
                         contact: student.contact,
                         description: student.description,
                         baptizedAt: student.baptizedAt,
-                        groupId: student.groupId,
+                        groupId: student.studentGroups.find((sg) => sg.group.type === 'GRADE')?.group.id ?? null,
                     });
                     cancelledStudents.push({
                         id: String(student.id),

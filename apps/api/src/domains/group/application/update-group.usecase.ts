@@ -30,15 +30,16 @@ export class UpdateGroupUseCase {
                     },
                     data: {
                         name: input.name,
+                        type: input.type,
                         organizationId: BigInt(input.organizationId),
                         updatedAt: getNowKST(),
                     },
                     include: {
                         _count: {
                             select: {
-                                students: {
+                                studentGroups: {
                                     where: {
-                                        deletedAt: null,
+                                        student: { deletedAt: null },
                                     },
                                 },
                             },
@@ -55,8 +56,9 @@ export class UpdateGroupUseCase {
             return {
                 id: String(group.id),
                 name: group.name,
+                type: group.type,
                 organizationId: String(group.organizationId),
-                studentCount: group._count.students,
+                studentCount: group._count.studentGroups,
             };
         } catch (e) {
             console.error('[UpdateGroupUseCase]', e);

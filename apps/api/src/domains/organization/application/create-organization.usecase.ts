@@ -46,7 +46,7 @@ export class CreateOrganizationUseCase {
 
             await tx.student.updateMany({
                 where: {
-                    group: { accountId: BigInt(accountId) },
+                    studentGroups: { some: { group: { accountId: BigInt(accountId) } } },
                     organizationId: null,
                 },
                 data: { organizationId: organization.id },

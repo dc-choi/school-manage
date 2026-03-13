@@ -14,6 +14,8 @@ describe('attendance 통합 테스트', () => {
         mockPrismaClient.group.findFirst.mockReset();
         mockPrismaClient.student.findMany.mockReset();
         mockPrismaClient.student.count.mockReset();
+        mockPrismaClient.studentGroup.findMany.mockReset();
+        mockPrismaClient.studentGroup.count.mockReset();
         mockPrismaClient.attendance.findMany.mockReset();
         mockPrismaClient.attendance.updateMany.mockReset();
         mockPrismaClient.attendance.create.mockReset();
@@ -27,13 +29,15 @@ describe('attendance 통합 테스트', () => {
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
-            const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
+            const mockStudent = createMockStudent({});
             const mockAttendance = createMockAttendance({ studentId: mockStudent.id });
 
             // 소유권 검증: 그룹이 해당 조직 소속인지 확인
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            // UseCase가 students와 attendances를 별도로 조회함
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
+            // UseCase가 StudentGroup 기반으로 students와 attendances를 별도로 조회함
+            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
+                { studentId: mockStudent.id, student: mockStudent },
+            ]);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
 
             const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
@@ -51,12 +55,15 @@ describe('attendance 통합 테스트', () => {
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
-            const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
+            const mockStudent = createMockStudent({});
             const mockAttendance = createMockAttendance({ studentId: mockStudent.id });
 
             // 소유권 검증
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
+            // StudentGroup 기반 학생 조회
+            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
+                { studentId: mockStudent.id, student: mockStudent },
+            ]);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
 
             const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
@@ -101,7 +108,7 @@ describe('attendance 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
-            const mockStudent = createMockStudent({ groupId: mockGroup.id });
+            const mockStudent = createMockStudent({});
 
             // 측정 인프라: 조직의 첫 출석인지 확인
             mockPrismaClient.attendance.count.mockResolvedValueOnce(0);
@@ -147,7 +154,7 @@ describe('attendance 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
-            const mockStudent = createMockStudent({ groupId: mockGroup.id });
+            const mockStudent = createMockStudent({});
             const existingAttendance = createMockAttendance({ studentId: mockStudent.id });
 
             // 측정 인프라 + 소유권 검증
@@ -231,7 +238,7 @@ describe('attendance 통합 테스트', () => {
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
-            const mockStudent = createMockStudent({ groupId: mockGroup.id });
+            const mockStudent = createMockStudent({});
             const mockAttendance = createMockAttendance({
                 studentId: mockStudent.id,
                 date: '2024-01-07',
@@ -240,10 +247,10 @@ describe('attendance 통합 테스트', () => {
 
             // Group 권한 검증
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            // 전체 학생 수
-            mockPrismaClient.student.count.mockResolvedValueOnce(1);
-            // 학생 ID 조회
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
+            // 전체 학생 수 (StudentGroup 기반)
+            mockPrismaClient.studentGroup.count.mockResolvedValueOnce(1);
+            // 학생 ID 조회 (StudentGroup 기반)
+            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([{ studentId: mockStudent.id }]);
             // 월별 출석 데이터
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
 
@@ -310,8 +317,8 @@ describe('attendance 통합 테스트', () => {
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
-            const mockStudent1 = createMockStudent({ groupId: mockGroup.id, societyName: '홍길동' });
-            const mockStudent2 = createMockStudent({ groupId: mockGroup.id, societyName: '김철수' });
+            const mockStudent1 = createMockStudent({ societyName: '홍길동' });
+            const mockStudent2 = createMockStudent({ societyName: '김철수' });
             const mockAttendance = createMockAttendance({
                 studentId: mockStudent1.id,
                 date: '2024-01-07',
@@ -320,8 +327,11 @@ describe('attendance 통합 테스트', () => {
 
             // Group 권한 검증
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            // 학생 목록
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent1, mockStudent2]);
+            // 학생 목록 (StudentGroup 기반, include: { student })
+            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
+                { studentId: mockStudent1.id, student: mockStudent1 },
+                { studentId: mockStudent2.id, student: mockStudent2 },
+            ]);
             // 출석 데이터
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
 
@@ -352,10 +362,13 @@ describe('attendance 통합 테스트', () => {
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
-            const mockStudent = createMockStudent({ groupId: mockGroup.id });
+            const mockStudent = createMockStudent({});
 
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockStudent]);
+            // StudentGroup 기반 학생 조회
+            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
+                { studentId: mockStudent.id, student: mockStudent },
+            ]);
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([]);
 
             const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');

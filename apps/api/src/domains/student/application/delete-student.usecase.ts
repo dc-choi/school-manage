@@ -52,7 +52,7 @@ export class DeleteStudentUseCase {
                 include: {
                     studentGroups: {
                         include: {
-                            group: { select: { id: true, name: true } },
+                            group: { select: { id: true, name: true, type: true } },
                         },
                     },
                 },
@@ -68,6 +68,7 @@ export class DeleteStudentUseCase {
                 groups: student.studentGroups.map((sg) => ({
                     id: String(sg.group.id),
                     name: sg.group.name,
+                    type: sg.group.type,
                 })),
                 baptizedAt: student.baptizedAt ?? undefined,
             };

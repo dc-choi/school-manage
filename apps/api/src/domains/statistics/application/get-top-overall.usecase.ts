@@ -30,7 +30,7 @@ export class GetTopOverallUseCase {
         // 날짜 범위 계산
         const { startDateStr, endDateStr } = this.getDateRange(year, month, week);
 
-        // 전체 우수 학생 TOP N 조회 (Raw Query)
+        // 전체 우수 학생 TOP N 조회 (Raw Query — StudentGroup 경유)
         const rawResults = await database.$queryRaw<StudentScoreRaw[]>(
             Prisma.sql`
                 SELECT
@@ -45,12 +45,13 @@ export class GetTopOverallUseCase {
                         ELSE 0
                     END) as score
                 FROM student s
-                JOIN \`group\` g ON s.group_id = g._id
+                JOIN student_group sg ON s._id = sg.student_id
+                JOIN \`group\` g ON sg.group_id = g._id
                 LEFT JOIN attendance a ON s._id = a.student_id
                     AND a.date >= ${startDateStr}
                     AND a.date <= ${endDateStr}
                     AND a.delete_at IS NULL
-                WHERE g.organization_id = ${organizationId}
+                WHERE s.organization_id = ${organizationId}
                 AND s.delete_at IS NULL
                 AND (s.graduated_at IS NULL OR s.graduated_at >= ${startDateStr})
                 GROUP BY s._id, g._id, g.name

@@ -13,30 +13,17 @@ const BAPTIZED_AT_PATTERN = /^\d{2}\/\d{2}$/;
 
 export class GetFeastDayListUseCase {
     async execute(input: FeastDayListInput): Promise<FeastDayListOutput> {
-        // 1. organizationId 소속 그룹 조회 (deletedAt=null)
-        const groups = await database.group.findMany({
-            where: {
-                organizationId: BigInt(input.organizationId),
-                deletedAt: null,
-            },
-        });
-        const groupIds = groups.map((g) => g.id);
-
-        if (groupIds.length === 0) {
-            return { students: [] };
-        }
-
-        // 2. 해당 그룹들의 재학생 조회 (deletedAt=null, graduatedAt=null, baptizedAt not null)
+        // 해당 조직의 재학생 조회 (deletedAt=null, graduatedAt=null, baptizedAt not null)
         const rows = await database.student.findMany({
             where: {
-                groupId: { in: groupIds },
+                organizationId: BigInt(input.organizationId),
                 deletedAt: null,
                 graduatedAt: null,
                 baptizedAt: { not: null },
             },
             include: {
-                group: {
-                    select: { name: true },
+                studentGroups: {
+                    include: { group: { select: { name: true, type: true } } },
                 },
             },
         });
@@ -63,7 +50,7 @@ export class GetFeastDayListUseCase {
                 societyName: row.societyName,
                 catholicName: row.catholicName ?? '',
                 baptizedAt: row.baptizedAt!,
-                groupName: row.group?.name ?? '',
+                groupName: row.studentGroups.find((sg) => sg.group.type === 'GRADE')?.group.name ?? '',
             })),
         };
     }

@@ -19,13 +19,18 @@ export class GetGroupUseCase {
                 deletedAt: null,
             },
             include: {
-                students: {
+                studentGroups: {
                     where: {
-                        deletedAt: null,
-                        graduatedAt: null,
+                        student: {
+                            deletedAt: null,
+                            graduatedAt: null,
+                        },
+                    },
+                    include: {
+                        student: true,
                     },
                     orderBy: {
-                        societyName: 'asc',
+                        student: { societyName: 'asc' },
                     },
                 },
             },
@@ -41,17 +46,18 @@ export class GetGroupUseCase {
         return {
             id: String(group.id),
             name: group.name,
+            type: group.type,
             organizationId: String(group.organizationId),
-            studentCount: group.students.length,
-            students: group.students.map((student) => ({
-                id: String(student.id),
-                societyName: student.societyName,
-                catholicName: student.catholicName ?? undefined,
-                age: student.age ? Number(student.age) : undefined,
-                contact: student.contact ? String(student.contact) : undefined,
-                description: student.description ?? undefined,
-                groups: [{ id: String(student.groupId), name: group.name }],
-                baptizedAt: student.baptizedAt ?? undefined,
+            studentCount: group.studentGroups.length,
+            students: group.studentGroups.map((sg) => ({
+                id: String(sg.student.id),
+                societyName: sg.student.societyName,
+                catholicName: sg.student.catholicName ?? undefined,
+                age: sg.student.age ? Number(sg.student.age) : undefined,
+                contact: sg.student.contact ? String(sg.student.contact) : undefined,
+                description: sg.student.description ?? undefined,
+                groups: [{ id: String(group.id), name: group.name, type: group.type }],
+                baptizedAt: sg.student.baptizedAt ?? undefined,
             })),
         };
     }

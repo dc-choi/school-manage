@@ -53,8 +53,8 @@
 | 요소 | 변경 |
 |------|------|
 | 학생 목록 | 기존 유지 (소속 학생 표시) |
-| 학생 추가 | 미소속 학생 검색 → 추가 버튼. GRADE 그룹: 기존 GRADE 있으면 자동 이동 |
-| 학생 제거 | 학생별 제거 버튼 (StudentGroup 삭제) |
+| 학생 추가 | 미소속 학생 검색 → 체크박스 다중 선택 → 일괄 추가. GRADE 그룹: 기존 GRADE 있으면 자동 이동 |
+| 학생 제거 | 테이블 체크박스 다중 선택 → 일괄 제거 (AlertDialog 확인) |
 
 ### 통계
 
@@ -74,6 +74,8 @@
 | group.update | 수정 | type 변경 허용. GRADE→DEPARTMENT 시 소속 학생 GRADE 검증 |
 | group.addStudent | 신규 | 학생을 그룹에 추가. GRADE 그룹이면 기존 GRADE 자동 제거 |
 | group.removeStudent | 신규 | 학생을 그룹에서 제거 (StudentGroup 삭제) |
+| group.bulkAddStudents | 신규 | 학생 일괄 추가 (트랜잭션). GRADE 자동 이동 포함 |
+| group.bulkRemoveStudents | 신규 | 학생 일괄 제거 (단일 deleteMany) |
 | group.delete | 수정 | GRADE 삭제 시 소속 학생 검증 |
 | group.bulkDelete | 수정 | GRADE 삭제 시 소속 학생 검증 |
 | group.attendance | 수정 | StudentGroup 기반 학생 조회 |
@@ -120,6 +122,8 @@
 | ListGroupsInput | type 필터 추가 |
 | StudentGroupItem | type 필드 추가 |
 | StudentBase | groups에 type 포함 |
+| BulkAddStudentsToGroupInput | groupId + studentIds[] |
+| BulkRemoveStudentsFromGroupInput | groupId + studentIds[] |
 
 ## 권한/보안
 
@@ -140,4 +144,4 @@
 
 **작성일**: 2026-03-13
 **작성자**: SDD 작성자
-**상태**: Draft
+**상태**: Approved (구현 완료)

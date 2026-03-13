@@ -17,15 +17,6 @@ export class ListStudentsUseCase {
         const skip = (page - 1) * size;
         const registrationYear = input.registrationYear ?? new Date().getFullYear();
 
-        // 조직에 속한 그룹 IDs 조회
-        const groups = await database.group.findMany({
-            where: {
-                organizationId: BigInt(input.organizationId),
-                deletedAt: null,
-            },
-        });
-        const groupIds = groups.map((g) => g.id);
-
         // 검색 조건 구성
         const searchFilter = this.buildSearchFilter(input.searchOption, input.searchWord);
 
@@ -39,7 +30,7 @@ export class ListStudentsUseCase {
         const registeredFilter = this.buildRegisteredFilter(input.registered, registrationYear);
 
         const where: Prisma.StudentWhereInput = {
-            groupId: { in: groupIds },
+            organizationId: BigInt(input.organizationId),
             ...deletedFilter,
             ...graduatedFilter,
             ...searchFilter,
@@ -55,7 +46,7 @@ export class ListStudentsUseCase {
                 where,
                 include: {
                     studentGroups: {
-                        include: { group: { select: { id: true, name: true } } },
+                        include: { group: { select: { id: true, name: true, type: true } } },
                     },
                     registrations: {
                         where: { year: registrationYear, deletedAt: null },
@@ -74,7 +65,7 @@ export class ListStudentsUseCase {
                     year: registrationYear,
                     deletedAt: null,
                     student: {
-                        groupId: { in: groupIds },
+                        organizationId: BigInt(input.organizationId),
                         deletedAt: null,
                         ...summaryGraduatedFilter,
                     },
@@ -83,7 +74,7 @@ export class ListStudentsUseCase {
             // 전체 재학생 수 (등록 현황 요약용)
             database.student.count({
                 where: {
-                    groupId: { in: groupIds },
+                    organizationId: BigInt(input.organizationId),
                     deletedAt: null,
                     ...summaryGraduatedFilter,
                 },
@@ -106,6 +97,7 @@ export class ListStudentsUseCase {
                 groups: row.studentGroups.map((sg) => ({
                     id: String(sg.group.id),
                     name: sg.group.name,
+                    type: sg.group.type,
                 })),
                 baptizedAt: row.baptizedAt ?? undefined,
                 graduatedAt: row.graduatedAt?.toISOString(),

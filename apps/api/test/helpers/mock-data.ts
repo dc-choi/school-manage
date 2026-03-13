@@ -39,6 +39,7 @@ export function createMockGroup(overrides: Partial<MockGroup> = {}): MockGroup {
     return {
         id: nextId(),
         name: '테스트그룹',
+        type: 'GRADE',
         accountId: BigInt(1),
         organizationId: BigInt(1),
         createdAt: new Date(),
@@ -61,7 +62,7 @@ export function createMockStudent(overrides: Partial<MockStudent> = {}): MockStu
         contact: BigInt(1012345678),
         description: '테스트 학생',
         baptizedAt: '2020-01-01',
-        groupId: BigInt(1),
+        organizationId: BigInt(1),
         graduatedAt: null,
         createdAt: new Date(),
         updatedAt: null,
@@ -156,6 +157,7 @@ export interface MockAccount {
 export interface MockGroup {
     id: bigint;
     name: string;
+    type: string;
     accountId: bigint;
     organizationId?: bigint | null;
     createdAt: Date;
@@ -172,7 +174,7 @@ export interface MockStudent {
     contact: bigint | null;
     description: string | null;
     baptizedAt: string | null;
-    groupId: bigint;
+    organizationId: bigint | null;
     graduatedAt: Date | null;
     createdAt: Date;
     updatedAt: Date | null;

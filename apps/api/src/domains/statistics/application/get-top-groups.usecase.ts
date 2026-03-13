@@ -44,20 +44,22 @@ export class GetTopGroupsUseCase {
             return { year, groups: [] };
         }
 
-        // 3. 그룹별 학생 수 조회 (조회 기간 시작일 기준 졸업 필터 적용)
+        // 3. 그룹별 학생 수 조회 (조회 기간 시작일 기준 졸업 필터 적용, StudentGroup 기반)
         const graduationCutoff = getGraduationCutoff(year, month, week);
-        const students = await database.student.findMany({
+        const studentGroupRecords = await database.studentGroup.findMany({
             where: {
                 groupId: { in: groupIds },
-                deletedAt: null,
-                OR: [{ graduatedAt: null }, { graduatedAt: { gte: graduationCutoff } }],
+                student: {
+                    deletedAt: null,
+                    OR: [{ graduatedAt: null }, { graduatedAt: { gte: graduationCutoff } }],
+                },
             },
             select: { groupId: true },
         });
 
         const studentCountByGroup = new Map<bigint, number>();
-        for (const s of students) {
-            studentCountByGroup.set(s.groupId, (studentCountByGroup.get(s.groupId) ?? 0) + 1);
+        for (const sg of studentGroupRecords) {
+            studentCountByGroup.set(sg.groupId, (studentCountByGroup.get(sg.groupId) ?? 0) + 1);
         }
 
         // 4. 기간 내 출석 데이터 조회 (attendance.groupId 기반)

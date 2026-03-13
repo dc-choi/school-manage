@@ -42,6 +42,7 @@ export class CreateGroupUseCase {
                 const created = await tx.group.create({
                     data: {
                         name: input.name,
+                        type: input.type,
                         accountId: BigInt(input.accountId),
                         organizationId: BigInt(input.organizationId),
                         createdAt: getNowKST(),
@@ -57,6 +58,7 @@ export class CreateGroupUseCase {
             return {
                 id: String(group.id),
                 name: group.name,
+                type: group.type,
                 organizationId: String(group.organizationId),
                 studentCount: 0,
                 isFirstGroup,

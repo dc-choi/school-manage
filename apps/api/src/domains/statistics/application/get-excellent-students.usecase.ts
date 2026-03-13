@@ -42,11 +42,7 @@ export class GetExcellentStudentsUseCase {
                 FROM student s
                 JOIN attendance a ON s._id = a.student_id
                 WHERE a.date LIKE ${year + '%'}
-                AND s.group_id IN (
-                    SELECT _id
-                    FROM \`group\`
-                    WHERE organization_id = ${organizationId}
-                )
+                AND s.organization_id = ${organizationId}
                 AND s.delete_at IS NULL
                 AND a.delete_at IS NULL
                 AND (s.graduated_at IS NULL OR YEAR(s.graduated_at) >= ${yearNum})

@@ -70,17 +70,19 @@ export class RestoreAccountUseCase {
                     data: { deletedAt: null },
                 });
 
-                // 4c. 학생 복원
-                const students = await tx.student.findMany({
-                    where: { groupId: { in: groupIds }, deletedAt: { not: null } },
-                    select: { id: true },
+                // 4c. 학생 복원 (StudentGroup 기반)
+                const studentGroupRecords = await tx.studentGroup.findMany({
+                    where: { groupId: { in: groupIds } },
+                    select: { studentId: true },
                 });
-                const studentIds = students.map((s) => s.id);
+                const studentIds = [...new Set(studentGroupRecords.map((sg) => sg.studentId))];
 
-                await tx.student.updateMany({
-                    where: { groupId: { in: groupIds }, deletedAt: { not: null } },
-                    data: { deletedAt: null },
-                });
+                if (studentIds.length > 0) {
+                    await tx.student.updateMany({
+                        where: { id: { in: studentIds }, deletedAt: { not: null } },
+                        data: { deletedAt: null },
+                    });
+                }
 
                 // 4d. 출석 복원
                 if (studentIds.length > 0) {

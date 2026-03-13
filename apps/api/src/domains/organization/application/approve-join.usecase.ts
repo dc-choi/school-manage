@@ -65,7 +65,7 @@ export class ApproveJoinUseCase {
 
             await tx.student.updateMany({
                 where: {
-                    group: { accountId: joinRequest.accountId },
+                    studentGroups: { some: { group: { accountId: joinRequest.accountId } } },
                     organizationId: null,
                 },
                 data: { organizationId: BigInt(organizationId) },

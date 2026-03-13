@@ -36,7 +36,6 @@ export class UpdateStudentUseCase {
                 if (input.age !== undefined) data.age = input.age ? BigInt(input.age) : null;
                 if (input.contact !== undefined) data.contact = input.contact ? BigInt(input.contact) : null;
                 if (input.description !== undefined) data.description = input.description;
-                if (input.groupIds !== undefined) data.groupId = BigInt(input.groupIds[0]);
                 if (input.baptizedAt !== undefined) data.baptizedAt = input.baptizedAt;
 
                 const updated = await tx.student.update({
@@ -74,6 +73,14 @@ export class UpdateStudentUseCase {
                     }
                 }
 
+                // StudentGroup + Group 이름/타입 조회
+                const sgs = await tx.studentGroup.findMany({
+                    where: { studentId: updated.id },
+                    include: { group: { select: { id: true, name: true, type: true } } },
+                });
+
+                const gradeGroup = sgs.find((sg) => sg.group.type === 'GRADE');
+
                 await createStudentSnapshot(tx, {
                     studentId: updated.id,
                     societyName: updated.societyName,
@@ -82,13 +89,7 @@ export class UpdateStudentUseCase {
                     contact: updated.contact,
                     description: updated.description,
                     baptizedAt: updated.baptizedAt,
-                    groupId: updated.groupId,
-                });
-
-                // StudentGroup + Group 이름 조회
-                const sgs = await tx.studentGroup.findMany({
-                    where: { studentId: updated.id },
-                    include: { group: { select: { id: true, name: true } } },
+                    groupId: gradeGroup?.group.id ?? null,
                 });
 
                 return { student: updated, studentGroups: sgs };
@@ -105,6 +106,7 @@ export class UpdateStudentUseCase {
                 groups: studentGroups.map((sg) => ({
                     id: String(sg.group.id),
                     name: sg.group.name,
+                    type: sg.group.type,
                 })),
                 baptizedAt: student.baptizedAt ?? undefined,
             };

@@ -1,6 +1,7 @@
-import type { GroupStatisticsItem, GroupStatisticsOutput } from '@school/shared';
+import { GROUP_TYPE, type GroupStatisticsItem, type GroupStatisticsOutput } from '@school/shared';
 import { roundToDecimal } from '@school/utils';
 import { LoadingSpinner } from '~/components/common/LoadingSpinner';
+import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
 
@@ -97,7 +98,15 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                     <TableBody>
                         {data.groups.map((group) => (
                             <TableRow key={group.groupId}>
-                                <TableCell className="font-medium">{group.groupName}</TableCell>
+                                <TableCell className="font-medium">
+                                    {group.groupName}
+                                    <Badge
+                                        variant={group.groupType === GROUP_TYPE.GRADE ? 'default' : 'secondary'}
+                                        className="ml-2"
+                                    >
+                                        {group.groupType === GROUP_TYPE.GRADE ? '학년' : '부서'}
+                                    </Badge>
+                                </TableCell>
                                 <TableCell className="hidden text-center tabular-nums md:table-cell">
                                     {group.totalStudents}명
                                 </TableCell>

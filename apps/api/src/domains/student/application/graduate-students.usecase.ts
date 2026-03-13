@@ -38,11 +38,13 @@ export class GraduateStudentsUseCase {
                         id: { in: ids.map((id) => BigInt(id)) },
                         graduatedAt: null, // 재학생만
                         deletedAt: null,
-                        group: {
-                            organizationId: BigInt(organizationId),
+                        organizationId: BigInt(organizationId),
+                    },
+                    include: {
+                        studentGroups: {
+                            include: { group: { select: { id: true, type: true } } },
                         },
                     },
-                    include: { group: true },
                 });
 
                 // 나이 기반 졸업 대상 필터링
@@ -88,7 +90,7 @@ export class GraduateStudentsUseCase {
                         contact: student.contact,
                         description: student.description,
                         baptizedAt: student.baptizedAt,
-                        groupId: student.groupId,
+                        groupId: student.studentGroups.find((sg) => sg.group.type === 'GRADE')?.group.id ?? null,
                     });
                     graduatedStudents.push({
                         id: String(student.id),

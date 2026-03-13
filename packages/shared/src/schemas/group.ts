@@ -1,9 +1,12 @@
 /**
  * Group 도메인 Zod 스키마
  */
+import { GROUP_TYPE } from '../constants.js';
 import { idSchema } from './common.js';
 import type { StudentBase } from './student.js';
 import { z } from 'zod';
+
+const groupTypeSchema = z.enum([GROUP_TYPE.GRADE, GROUP_TYPE.DEPARTMENT]);
 
 /**
  * 그룹 ID 입력 스키마
@@ -13,10 +16,18 @@ export const getGroupInputSchema = z.object({
 });
 
 /**
+ * 그룹 목록 조회 입력 스키마
+ */
+export const listGroupsInputSchema = z.object({
+    type: groupTypeSchema.optional(),
+});
+
+/**
  * 그룹 생성 입력 스키마
  */
 export const createGroupInputSchema = z.object({
     name: z.string().min(1, 'Name is required'),
+    type: groupTypeSchema.default(GROUP_TYPE.GRADE),
 });
 
 /**
@@ -25,6 +36,39 @@ export const createGroupInputSchema = z.object({
 export const updateGroupInputSchema = z.object({
     id: idSchema,
     name: z.string().min(1, 'Name is required'),
+    type: groupTypeSchema.optional(),
+});
+
+/**
+ * 그룹 학생 추가 입력 스키마
+ */
+export const addStudentToGroupInputSchema = z.object({
+    groupId: idSchema,
+    studentId: idSchema,
+});
+
+/**
+ * 그룹 학생 제거 입력 스키마
+ */
+export const removeStudentFromGroupInputSchema = z.object({
+    groupId: idSchema,
+    studentId: idSchema,
+});
+
+/**
+ * 그룹 학생 일괄 추가 입력 스키마
+ */
+export const bulkAddStudentsToGroupInputSchema = z.object({
+    groupId: idSchema,
+    studentIds: z.array(idSchema).min(1, 'At least one student id is required'),
+});
+
+/**
+ * 그룹 학생 일괄 제거 입력 스키마
+ */
+export const bulkRemoveStudentsFromGroupInputSchema = z.object({
+    groupId: idSchema,
+    studentIds: z.array(idSchema).min(1, 'At least one student id is required'),
 });
 
 /**
@@ -51,11 +95,16 @@ export const getGroupAttendanceInputSchema = z.object({
 
 // 입력 타입 export
 export type GetGroupInput = z.infer<typeof getGroupInputSchema>;
+export type ListGroupsInput = z.infer<typeof listGroupsInputSchema>;
 export type CreateGroupInput = z.infer<typeof createGroupInputSchema>;
 export type UpdateGroupInput = z.infer<typeof updateGroupInputSchema>;
 export type DeleteGroupInput = z.infer<typeof deleteGroupInputSchema>;
 export type BulkDeleteGroupsInput = z.infer<typeof bulkDeleteGroupsInputSchema>;
 export type GetGroupAttendanceInput = z.infer<typeof getGroupAttendanceInputSchema>;
+export type AddStudentToGroupInput = z.infer<typeof addStudentToGroupInputSchema>;
+export type RemoveStudentFromGroupInput = z.infer<typeof removeStudentFromGroupInputSchema>;
+export type BulkAddStudentsToGroupInput = z.infer<typeof bulkAddStudentsToGroupInputSchema>;
+export type BulkRemoveStudentsFromGroupInput = z.infer<typeof bulkRemoveStudentsFromGroupInputSchema>;
 
 // ============================================================
 // 출력 타입 (Output Types)
@@ -67,6 +116,7 @@ export type GetGroupAttendanceInput = z.infer<typeof getGroupAttendanceInputSche
 export interface GroupOutput {
     id: string;
     name: string;
+    type: string;
     organizationId: string;
     studentCount: number;
 }

@@ -5,7 +5,7 @@
  * 현재: 단일 조직 내 그룹 이동
  * 향후: 본당 내 조직 간 졸업생 데이터 이관 (예: 초등부 -> 중고등부)
  */
-import { PrismaClient, Student } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import type { ITXClientDenyList } from '@prisma/client/runtime/library';
 import type { PromoteStudentsOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
@@ -79,13 +79,20 @@ export class PromoteStudentsUseCase {
             let count = 0;
 
             for (const group of groups) {
-                const students = await tx.student.findMany({
-                    where: {
-                        groupId: group.id,
-                        deletedAt: null,
-                    },
-                    orderBy: [{ age: 'asc' }, { societyName: 'asc' }],
+                // StudentGroup을 통해 해당 그룹의 학생 조회
+                const studentGroups = await tx.studentGroup.findMany({
+                    where: { groupId: group.id },
+                    include: { student: true },
                 });
+                const students = studentGroups
+                    .map((sg) => sg.student)
+                    .filter((s) => s.deletedAt === null)
+                    .sort((a, b) => {
+                        const ageDiff = Number(a.age ?? 0) - Number(b.age ?? 0);
+                        if (ageDiff !== 0) return ageDiff;
+                        return a.societyName.localeCompare(b.societyName);
+                    });
+
                 logger.log(
                     '진급하는 초등부 학생들',
                     students.map((s) => s.societyName)
@@ -93,13 +100,13 @@ export class PromoteStudentsUseCase {
 
                 if (group.name === '6학년') {
                     // 6학년 -> 예비 중1 (중고등부로 이동)
-                    count += await this.moveStudentsToGroup(students, targetGroup.id, tx);
+                    count += await this.moveStudentsToGroup(students, group.id, targetGroup.id, tx);
                 } else {
                     // 다른 학년은 다음 학년으로 진급
                     const nextGrade = gradeMap.find(([from]) => from === group.name)?.[1];
                     const nextGroup = nextGrade ? groupMap.get(nextGrade) : null;
                     if (nextGroup) {
-                        count += await this.moveStudentsToGroup(students, nextGroup.id, tx);
+                        count += await this.moveStudentsToGroup(students, group.id, nextGroup.id, tx);
                     }
                 }
             }
@@ -139,9 +146,10 @@ export class PromoteStudentsUseCase {
             where: {
                 age: BigInt(20),
                 deletedAt: null,
-                group: {
-                    organizationId: BigInt(organizationId),
-                },
+                organizationId: BigInt(organizationId),
+            },
+            include: {
+                studentGroups: { where: { group: { type: 'GRADE' } }, select: { groupId: true } },
             },
             orderBy: { societyName: 'asc' },
         });
@@ -151,9 +159,10 @@ export class PromoteStudentsUseCase {
             where: {
                 age: BigInt(19),
                 deletedAt: null,
-                group: {
-                    organizationId: BigInt(organizationId),
-                },
+                organizationId: BigInt(organizationId),
+            },
+            include: {
+                studentGroups: { where: { group: { type: 'GRADE' } }, select: { groupId: true } },
             },
             orderBy: { societyName: 'asc' },
         });
@@ -170,30 +179,62 @@ export class PromoteStudentsUseCase {
         return await database.$transaction(async (tx) => {
             let count = 0;
 
-            if (adults.length > 0) {
-                count += await this.moveStudentsToGroup(adults, adultGroup.id, tx);
+            for (const student of adults) {
+                if (student.age && Number(student.age) >= 8) {
+                    const oldGradeGroupId = student.studentGroups[0]?.groupId;
+                    if (oldGradeGroupId) {
+                        await tx.studentGroup.deleteMany({
+                            where: { studentId: student.id, groupId: oldGradeGroupId },
+                        });
+                    }
+                    await tx.studentGroup.create({
+                        data: { studentId: student.id, groupId: adultGroup.id, createdAt: getNowKST() },
+                    });
+                    count++;
+                }
             }
-            if (candidates.length > 0) {
-                count += await this.moveStudentsToGroup(candidates, high3Group.id, tx);
+            for (const student of candidates) {
+                if (student.age && Number(student.age) >= 8) {
+                    const oldGradeGroupId = student.studentGroups[0]?.groupId;
+                    if (oldGradeGroupId) {
+                        await tx.studentGroup.deleteMany({
+                            where: { studentId: student.id, groupId: oldGradeGroupId },
+                        });
+                    }
+                    await tx.studentGroup.create({
+                        data: { studentId: student.id, groupId: high3Group.id, createdAt: getNowKST() },
+                    });
+                    count++;
+                }
             }
             return count;
         });
     }
 
     /**
-     * 학생들을 새 그룹으로 이동
+     * 학생들을 새 그룹으로 이동 (StudentGroup junction 레코드 교체)
      */
-    private async moveStudentsToGroup(students: Student[], groupId: bigint, tx: TransactionClient): Promise<number> {
+    private async moveStudentsToGroup(
+        students: { id: bigint; age: bigint | null; societyName: string }[],
+        oldGroupId: bigint,
+        newGroupId: bigint,
+        tx: TransactionClient
+    ): Promise<number> {
         let count = 0;
 
         for (const student of students) {
             // 8세 이상인 학생만 진급 처리
             if (student.age && Number(student.age) >= 8) {
-                await tx.student.update({
-                    where: { id: student.id },
+                // 기존 GRADE 그룹 StudentGroup 삭제
+                await tx.studentGroup.deleteMany({
+                    where: { studentId: student.id, groupId: oldGroupId },
+                });
+                // 새 그룹 StudentGroup 생성
+                await tx.studentGroup.create({
                     data: {
-                        groupId,
-                        updatedAt: getNowKST(),
+                        studentId: student.id,
+                        groupId: newGroupId,
+                        createdAt: getNowKST(),
                     },
                 });
                 count++;
