@@ -98,6 +98,9 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
                 setOrganizationName(accountData.organizationName ?? null);
                 setOrganizationType(accountData.organizationType ?? null);
                 setChurchName(accountData.churchName ?? null);
+
+                // GA4 사용자 속성 설정
+                analytics.setUserProperties(accountData.displayName, accountData.organizationName ?? null);
             } else {
                 clearAuthState();
                 setAccount(null);
@@ -152,6 +155,9 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         setOrganizationName(null);
         setOrganizationType(null);
         setChurchName(null);
+
+        // GA4 사용자 속성 초기화
+        analytics.clearUserProperties();
     }, [logoutMutation]);
 
     const value = useMemo(
