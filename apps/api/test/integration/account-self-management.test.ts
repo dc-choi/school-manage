@@ -91,12 +91,15 @@ describe('계정 자기 관리 통합 테스트', () => {
     // account.changePassword
     // ================================================================
     describe('account.changePassword', () => {
+        beforeEach(() => {
+            mockPrismaClient.$transaction = vi.fn().mockResolvedValue([{}, { count: 0 }]);
+        });
+
         it('TC-SM3: 정상 비밀번호 변경 → success', async () => {
             mockPrismaClient.account.findFirst.mockResolvedValueOnce({
                 id: testAccount.id,
                 password: testAccount.password,
             });
-            mockPrismaClient.account.update.mockResolvedValueOnce({});
 
             const caller = createAuthenticatedCaller(accountId, accountName);
             const result = await caller.account.changePassword({
@@ -105,7 +108,7 @@ describe('계정 자기 관리 통합 테스트', () => {
             });
 
             expect(result).toEqual({ success: true });
-            expect(mockPrismaClient.account.update).toHaveBeenCalledOnce();
+            expect(mockPrismaClient.$transaction).toHaveBeenCalledOnce();
         });
 
         it('TC-SM4: 현재 비밀번호 불일치 → UNAUTHORIZED', async () => {
@@ -154,6 +157,9 @@ describe('계정 자기 관리 통합 테스트', () => {
                 findMany: vi.fn().mockResolvedValue([]),
                 updateMany: vi.fn().mockResolvedValue({ count: 0 }),
             },
+            studentGroup: {
+                findMany: vi.fn().mockResolvedValue([]),
+            },
             student: {
                 findMany: vi.fn().mockResolvedValue([]),
                 updateMany: vi.fn().mockResolvedValue({ count: 0 }),
@@ -164,6 +170,9 @@ describe('계정 자기 관리 통합 테스트', () => {
             account: {
                 update: vi.fn().mockResolvedValue({}),
             },
+            refreshToken: {
+                deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+            },
         };
 
         beforeEach(() => {
@@ -172,10 +181,12 @@ describe('계정 자기 관리 통합 테스트', () => {
             // mockTx 초기화
             mockTx.group.findMany.mockReset().mockResolvedValue([]);
             mockTx.group.updateMany.mockReset().mockResolvedValue({ count: 0 });
+            mockTx.studentGroup.findMany.mockReset().mockResolvedValue([]);
             mockTx.student.findMany.mockReset().mockResolvedValue([]);
             mockTx.student.updateMany.mockReset().mockResolvedValue({ count: 0 });
             mockTx.attendance.updateMany.mockReset().mockResolvedValue({ count: 0 });
             mockTx.account.update.mockReset().mockResolvedValue({});
+            mockTx.refreshToken.deleteMany.mockReset().mockResolvedValue({ count: 0 });
         });
 
         it('TC-SM6: 정상 삭제 → success, $transaction 호출', async () => {

@@ -1,5 +1,5 @@
 import type { AccountInfo } from '@school/shared';
-import { type ReactNode, createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { type ReactNode, createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
@@ -24,6 +24,10 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
+const clearAuthState = () => {
+    sessionStorage.removeItem('token');
+};
+
 export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const [account, setAccount] = useState<AccountInfo | null>(null);
     const [privacyAgreedAt, setPrivacyAgreedAt] = useState<Date | null>(null);
@@ -33,12 +37,40 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const [organizationType, setOrganizationType] = useState<string | null>(null);
     const [churchName, setChurchName] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [authReady, setAuthReady] = useState(false);
+    const refreshAttempted = useRef(false);
 
     const loginMutation = trpc.auth.login.useMutation();
     const restoreMutation = trpc.auth.restoreAccount.useMutation();
+    const refreshMutation = trpc.auth.refresh.useMutation();
+    const logoutMutation = trpc.auth.logout.useMutation();
 
-    // 토큰 존재 여부 확인
-    const hasToken = typeof window !== 'undefined' && !!sessionStorage.getItem('token');
+    // 앱 초기화: sessionStorage에 토큰이 없으면 refresh 시도 (브라우저 재시작 대응)
+    useEffect(() => {
+        const initAuth = async () => {
+            const existingToken = sessionStorage.getItem('token');
+            if (existingToken) {
+                setAuthReady(true);
+                return;
+            }
+
+            // 토큰 없음 → cookie RT로 refresh 시도
+            if (!refreshAttempted.current) {
+                refreshAttempted.current = true;
+                try {
+                    const result = await refreshMutation.mutateAsync();
+                    sessionStorage.setItem('token', result.accessToken);
+                } catch {
+                    // RT도 없거나 만료 → 미인증 상태
+                }
+            }
+            setAuthReady(true);
+        };
+        initAuth();
+    }, []);
+
+    // authReady 이후 토큰 존재 여부 확인
+    const hasToken = authReady && typeof window !== 'undefined' && !!sessionStorage.getItem('token');
 
     // 초기 인증 상태 확인 (토큰이 있을 때만)
     const { data: accountData, isFetching: isAccountFetching } = trpc.account.get.useQuery(undefined, {
@@ -47,6 +79,8 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     });
 
     useEffect(() => {
+        if (!authReady) return;
+
         // 토큰이 없으면 바로 로딩 종료
         if (!hasToken) {
             setIsLoading(false);
@@ -64,8 +98,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
                 setOrganizationType(accountData.organizationType ?? null);
                 setChurchName(accountData.churchName ?? null);
             } else {
-                // 토큰이 있지만 계정 정보를 가져오지 못함 (토큰 만료 등)
-                sessionStorage.removeItem('token');
+                clearAuthState();
                 setAccount(null);
                 setPrivacyAgreedAt(null);
                 setOrganizationId(null);
@@ -76,7 +109,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             }
             setIsLoading(false);
         }
-    }, [hasToken, accountData, isAccountFetching]);
+    }, [authReady, hasToken, accountData, isAccountFetching]);
 
     const login = useCallback(
         async (name: string, password: string) => {
@@ -101,8 +134,13 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         [restoreMutation]
     );
 
-    const logout = useCallback(() => {
-        sessionStorage.removeItem('token');
+    const logout = useCallback(async () => {
+        try {
+            await logoutMutation.mutateAsync();
+        } catch {
+            // 서버 로그아웃 실패해도 클라이언트는 정리
+        }
+        clearAuthState();
         setAccount(null);
         setPrivacyAgreedAt(null);
         setOrganizationId(null);
@@ -110,7 +148,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         setOrganizationName(null);
         setOrganizationType(null);
         setChurchName(null);
-    }, []);
+    }, [logoutMutation]);
 
     const value = useMemo(
         () => ({

@@ -144,6 +144,8 @@ export type {
     SignupOutput,
     ResetPasswordOutput,
     RestoreAccountOutput,
+    RefreshOutput,
+    LogoutOutput,
     // Account
     GetAccountOutput,
     AgreePrivacyOutput,

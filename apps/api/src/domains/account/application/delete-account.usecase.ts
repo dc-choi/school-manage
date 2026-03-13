@@ -89,6 +89,11 @@ export class DeleteAccountUseCase {
                 where: { id: account.id },
                 data: { deletedAt: now, organizationId: null },
             });
+
+            // 3g. 모든 Refresh Token 삭제 (강제 로그아웃)
+            await tx.refreshToken.deleteMany({
+                where: { accountId: account.id },
+            });
         });
 
         return { success: true };
