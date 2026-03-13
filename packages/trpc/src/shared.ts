@@ -37,6 +37,30 @@ export const GENDER = {
 export type Gender = (typeof GENDER)[keyof typeof GENDER];
 
 /**
+ * 조직 타입
+ */
+export const ORGANIZATION_TYPE = {
+    ELEMENTARY: 'ELEMENTARY',
+    MIDDLE_HIGH: 'MIDDLE_HIGH',
+    YOUNG_ADULT: 'YOUNG_ADULT',
+} as const;
+
+export type OrganizationType = (typeof ORGANIZATION_TYPE)[keyof typeof ORGANIZATION_TYPE];
+
+/**
+ * 타입별 졸업 연령 (한국 나이 기준)
+ */
+export const MAX_GRADUATION_AGE: Record<OrganizationType, number | null> = {
+    ELEMENTARY: 14,
+    MIDDLE_HIGH: 20,
+    YOUNG_ADULT: null,
+} as const;
+
+export const getMaxGraduationAge = (type: OrganizationType): number | null => {
+    return MAX_GRADUATION_AGE[type];
+};
+
+/**
  * 출석 표시 (출석으로 인정되는 마크)
  */
 export const PRESENT_MARKS = new Set(['◎', '○', '△']) as ReadonlySet<string>;

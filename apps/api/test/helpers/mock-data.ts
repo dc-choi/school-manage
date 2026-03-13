@@ -210,6 +210,7 @@ export interface MockGroupSnapshot {
 export interface MockOrganization {
     id: bigint;
     name: string;
+    type: string;
     churchId: bigint;
     createdAt: Date;
     updatedAt: Date | null;
@@ -223,6 +224,7 @@ export function createMockOrganization(overrides: Partial<MockOrganization> = {}
     return {
         id: nextId(),
         name: '테스트조직',
+        type: 'MIDDLE_HIGH',
         churchId: BigInt(1),
         createdAt: new Date(),
         updatedAt: null,

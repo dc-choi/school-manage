@@ -150,6 +150,7 @@ export type {
     BulkDeleteStudentsOutput,
     RestoreStudentsOutput,
     GraduatedStudent,
+    SkippedStudent,
     GraduateStudentsOutput,
     CancelGraduationOutput,
     FeastDayStudentItem,

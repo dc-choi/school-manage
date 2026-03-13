@@ -46,6 +46,7 @@ export class GetAccountUseCase {
                 where: { id: organizationId, deletedAt: null },
                 select: {
                     name: true,
+                    type: true,
                     church: {
                         select: { name: true },
                     },
@@ -54,6 +55,7 @@ export class GetAccountUseCase {
 
             if (organization) {
                 result.organizationName = organization.name;
+                result.organizationType = organization.type;
                 result.churchName = organization.church.name;
             }
         } else {

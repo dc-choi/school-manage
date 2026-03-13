@@ -50,6 +50,7 @@ export interface GetAccountOutput {
     organizationId?: string;
     role?: Role;
     organizationName?: string;
+    organizationType?: string;
     churchName?: string;
     joinRequestStatus?: JoinRequestStatus;
 }

@@ -9,6 +9,7 @@
 - PRD: `docs/specs/prd/statistics-snapshot.md` (통계 스냅샷)
 - PRD: `docs/specs/prd/statistics-graduation-filter.md` (졸업생 필터링)
 
+
 ## 기능 범위
 
 | 기능 | 설명 | 상태 |
@@ -109,13 +110,10 @@
 
 ## 비즈니스 로직
 
-| 기능 | 핵심 로직 |
-|------|----------|
-| 우수 출석 학생 | raw SQL ◎=2, ○/△=1 합산, TOP 10. 스냅샷 + 졸업 필터 적용 |
-| 출석률 | 출석 횟수 / (학생 수 x 일요일 수) x 100. 졸업 필터 적용 |
-| 성별 분포 | 성별 분류 → 각 성별 출석률. 스냅샷 gender + 졸업 필터 적용 |
-| 학년 순위 | 학년별 출석률 내림차순. attendance.groupId + GroupSnapshot + 졸업 필터 적용 |
-| 학년별 상세 | 주간/월간/연간 출석률 + 평균 인원. 졸업 필터 적용 |
+- **우수 출석**: raw SQL ◎=2, ○/△=1 합산 TOP 10. 스냅샷 + 졸업 필터
+- **출석률**: 출석 횟수 / (학생 수 x 일요일 수) x 100
+- **성별 분포**: 성별 분류 → 각 성별 출석률. 스냅샷 gender 사용
+- **학년 순위/상세**: attendance.groupId + GroupSnapshot 기준 집계
 
 > **졸업 필터**: 모든 통계에서 `graduatedAt IS NULL OR graduatedAt >= 조회_기간_시작일` 적용
 

@@ -8,6 +8,7 @@
 - PRD: `docs/specs/prd/patron-saint-feast.md` (이달의 축일자 목록)
 - PRD: `docs/specs/prd/student-excel-import.md` (엑셀 Import)
 - PRD: `docs/specs/prd/student-registration.md` (학생 등록 관리)
+- PRD: `docs/specs/prd/graduation-normalization.md` (졸업일 정규화 + 나이 기반 필터링)
 
 ## 기능 범위
 
@@ -71,12 +72,12 @@
 | society_name | varchar(50) | 이름 (필수) |
 | catholic_name | varchar(50) | 세례명 |
 | gender | varchar(1) | 성별 (M/F) |
-| age | bigint | 나이 |
+| age | bigint | 나이 (한국 나이) |
 | contact | bigint | 연락처 |
 | description | mediumtext | 상세 설명 |
 | baptized_at | varchar(10) | 축일 |
 | group_id | bigint (FK) | 소속 그룹 |
-| graduated_at | datetime | 졸업일시 |
+| graduated_at | datetime | 졸업일시 (정규화: YYYY-12-31, 로드맵 2단계) |
 | create_at / update_at / delete_at | datetime | 생성/수정/삭제일시 |
 
 ## API
@@ -105,7 +106,7 @@
 | 목록 | accountId 소속 학년의 학생 조회 + 삭제 필터/검색/페이지네이션 |
 | 일괄 삭제 | 존재하는 재학생만 소프트 삭제, deletedCount 반환 |
 | 삭제 복구 | deletedAt IS NOT NULL인 학생만 복구 |
-| 졸업 처리 | graduatedAt IS NULL + deletedAt IS NULL인 학생만 처리, 트랜잭션 |
+| 졸업 처리 | graduatedAt IS NULL + deletedAt IS NULL인 학생만 처리, 트랜잭션. graduatedAt = 해당 연도 12/31 00:00:00 KST로 정규화. Organization.type의 maxAge 이상인 학생(`age >= maxAge`)만 졸업 대상 (로드맵 2단계) |
 | 졸업 취소 | graduatedAt IS NOT NULL인 학생만 null로, 트랜잭션 |
 | 진급 (promote) | 초등부: 학년별 이동(age>=8), 중고등부: 19세→고3, 20세→성인 |
 | 연례 나이 증가 | 매년 1/1 스케줄러: 전체 학생 age + 1 |
@@ -123,6 +124,12 @@
 | 이미 졸업한 학생 재졸업 | 무시 (처리 수에서 제외) |
 | baptizedAt 비어있음/형식 불일치 | 축일자 목록에서 제외 |
 
+## 마이그레이션 (로드맵 2단계)
+
+| 대상 | 변환 규칙 |
+|------|----------|
+| Student.graduatedAt | `YEAR(graduatedAt)-12-31 00:00:00 KST` (기존 졸업 데이터 정규화) |
+
 ## 의사결정
 
 | 항목 | 결정 |
@@ -131,6 +138,8 @@
 | 출석 데이터 | 절대 삭제 안 함 |
 | 졸업 처리 | 상태 변경 (데이터 보존) |
 | 졸업 시점 | 수동 (주일학교마다 다름) |
+| graduatedAt 정규화 | 클릭 시점 → 해당 연도 12/31로 변경 (학사 연도 정합) |
+| 나이 기반 졸업 대상 | age(한국 나이) >= Organization.type별 maxAge인 학생만 졸업 대상 |
 
 > 엑셀 Import 상세 → `student-management-import.md` 참조
 > 학생 등록 관리 상세 → `student-management-registration.md` 참조
@@ -138,6 +147,6 @@
 ---
 
 **작성일**: 2026-01-13
-**수정일**: 2026-03-12 (엑셀 Import, 등록 관리 분리)
+**수정일**: 2026-03-12 (graduatedAt 정규화, 나이 기반 졸업 대상 필터 추가)
 **작성자**: PM 에이전트 / SDD 작성자
 **상태**: Approved (구현 완료)

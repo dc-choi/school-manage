@@ -1,3 +1,4 @@
+import { ORGANIZATION_TYPE } from '@school/trpc/shared';
 import { Loader2, Plus, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,8 +8,15 @@ import { Button } from '~/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
+
+const ORG_TYPE_LABELS: Record<string, string> = {
+    ELEMENTARY: '초등부',
+    MIDDLE_HIGH: '중고등부',
+    YOUNG_ADULT: '청년',
+};
 
 interface OrganizationSelectProps {
     churchId: string;
@@ -18,6 +26,9 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
     const navigate = useNavigate();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [newOrgName, setNewOrgName] = useState('');
+    const [newOrgType, setNewOrgType] = useState<'ELEMENTARY' | 'MIDDLE_HIGH' | 'YOUNG_ADULT'>(
+        ORGANIZATION_TYPE.MIDDLE_HIGH
+    );
     const [createError, setCreateError] = useState<string | null>(null);
     const [joinError, setJoinError] = useState<string | null>(null);
 
@@ -37,6 +48,7 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
         onSuccess: () => {
             setDialogOpen(false);
             setNewOrgName('');
+            setNewOrgType(ORGANIZATION_TYPE.MIDDLE_HIGH);
             setCreateError(null);
             toast.success('단체가 생성되었습니다.');
             // 새로고침으로 AuthProvider 초기화 (새 organizationId 반영)
@@ -55,7 +67,7 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
     const handleCreate = () => {
         if (!newOrgName.trim()) return;
         setCreateError(null);
-        createMutation.mutate({ churchId, name: newOrgName.trim() });
+        createMutation.mutate({ churchId, name: newOrgName.trim(), type: newOrgType });
     };
 
     const organizations = data?.organizations ?? [];
@@ -63,11 +75,11 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
 
     return (
         <div className="space-y-4">
-            {joinError && (
+            {joinError ? (
                 <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                     {joinError}
                 </div>
-            )}
+            ) : null}
 
             {/* 단체 목록 */}
             <div className="min-h-[120px]">
@@ -87,7 +99,7 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                             <li key={org.id} role="option" aria-selected={false}>
                                 <button
                                     type="button"
-                                    className="flex w-full items-center justify-between rounded-md px-3 py-3 text-left transition-colors hover:bg-accent disabled:opacity-50 disabled:pointer-events-none"
+                                    className="flex w-full items-center justify-between rounded-md px-3 py-3 text-left transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
                                     onClick={() => handleJoin(org.id)}
                                     disabled={isMutating}
                                 >
@@ -114,6 +126,7 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                     setDialogOpen(true);
                     setCreateError(null);
                     setNewOrgName('');
+                    setNewOrgType(ORGANIZATION_TYPE.MIDDLE_HIGH);
                 }}
                 disabled={isMutating}
             >
@@ -128,11 +141,11 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                         <DialogTitle>단체 만들기</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
-                        {createError && (
+                        {createError ? (
                             <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                                 {createError}
                             </div>
-                        )}
+                        ) : null}
                         <div className="space-y-2">
                             <Label htmlFor="new-org-name">단체 이름</Label>
                             <Input
@@ -149,6 +162,21 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                                     }
                                 }}
                             />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="new-org-type">단체 유형</Label>
+                            <Select value={newOrgType} onValueChange={(v) => setNewOrgType(v as typeof newOrgType)}>
+                                <SelectTrigger id="new-org-type">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {Object.entries(ORG_TYPE_LABELS).map(([value, label]) => (
+                                        <SelectItem key={value} value={value}>
+                                            {label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                     <DialogFooter>

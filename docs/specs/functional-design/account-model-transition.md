@@ -50,6 +50,7 @@ Parish(교구)
 |------|------|------|
 | id | BigInt | PK |
 | name | String(50) | 조직 이름 (예: "중고등부") |
+| type | String(20) | 조직 타입: ELEMENTARY / MIDDLE_HIGH / YOUNG_ADULT. NOT NULL, 기본값 MIDDLE_HIGH (로드맵 2단계) |
 | churchId | BigInt | FK → Church |
 | createdAt / deletedAt | DateTime | 생성일 / 소프트 삭제 |
 

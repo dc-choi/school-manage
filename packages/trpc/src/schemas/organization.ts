@@ -1,6 +1,7 @@
 /**
  * Organization 도메인 Zod 스키마
  */
+import { ORGANIZATION_TYPE } from '../shared.js';
 import type { Role } from '../shared.js';
 import { idSchema } from './common.js';
 import { z } from 'zod';
@@ -18,6 +19,10 @@ export const listOrganizationsInputSchema = z.object({
 export const createOrganizationInputSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     churchId: idSchema,
+    type: z
+        .enum([ORGANIZATION_TYPE.ELEMENTARY, ORGANIZATION_TYPE.MIDDLE_HIGH, ORGANIZATION_TYPE.YOUNG_ADULT])
+        .default(ORGANIZATION_TYPE.MIDDLE_HIGH)
+        .optional(),
 });
 
 /**
@@ -75,6 +80,7 @@ export interface CreateOrganizationOutput {
     id: string;
     name: string;
     churchId: string;
+    type: string;
 }
 
 /**

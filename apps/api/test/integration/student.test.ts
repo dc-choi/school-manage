@@ -401,34 +401,18 @@ describe('student 통합 테스트', () => {
     });
 
     describe('student.graduate', () => {
-        it('학생 일괄 졸업 처리 성공', async () => {
+        const setupGraduateTest = (orgType: string, students: any[]) => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
 
-            const mockStudent1 = createMockStudent({
-                id: BigInt(1),
-                societyName: '홍길동',
-                groupId: mockGroup.id,
-                graduatedAt: null,
-                deletedAt: null,
-            });
-            const mockStudent2 = createMockStudent({
-                id: BigInt(2),
-                societyName: '김철수',
-                groupId: mockGroup.id,
-                graduatedAt: null,
-                deletedAt: null,
-            });
-
-            // $transaction mock
             const txMock = {
+                organization: {
+                    findUnique: vi.fn().mockResolvedValue({ type: orgType }),
+                },
                 student: {
-                    findMany: vi.fn().mockResolvedValue([
-                        { ...mockStudent1, group: mockGroup },
-                        { ...mockStudent2, group: mockGroup },
-                    ]),
+                    findMany: vi.fn().mockResolvedValue(students.map((s) => ({ ...s, group: mockGroup }))),
                     update: vi.fn().mockResolvedValue({}),
                 },
                 studentSnapshot: {
@@ -438,14 +422,134 @@ describe('student 통합 테스트', () => {
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
             const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            return { caller, txMock, mockGroup };
+        };
+
+        it('중고등부 나이 >= 20 졸업 처리 성공', async () => {
+            const mockStudent = createMockStudent({
+                id: BigInt(1),
+                age: BigInt(20),
+                graduatedAt: null,
+                deletedAt: null,
+            });
+            const { caller } = setupGraduateTest('MIDDLE_HIGH', [mockStudent]);
+
+            const result = await caller.student.graduate({ ids: ['1'] });
+
+            expect(result.success).toBe(true);
+            expect(result.graduatedCount).toBe(1);
+            // KST 12/31 00:00:00 → UTC 12/30 15:00:00
+            expect(result.students[0]?.graduatedAt).toBeDefined();
+            expect(result.skipped).toHaveLength(0);
+        });
+
+        it('초등부 나이 >= 14 졸업 처리 성공', async () => {
+            const mockStudent = createMockStudent({
+                id: BigInt(1),
+                age: BigInt(14),
+                graduatedAt: null,
+                deletedAt: null,
+            });
+            const { caller } = setupGraduateTest('ELEMENTARY', [mockStudent]);
+
+            const result = await caller.student.graduate({ ids: ['1'] });
+
+            expect(result.success).toBe(true);
+            expect(result.graduatedCount).toBe(1);
+        });
+
+        it('청년부 전원 졸업 가능', async () => {
+            const mockStudent = createMockStudent({
+                id: BigInt(1),
+                age: BigInt(18),
+                graduatedAt: null,
+                deletedAt: null,
+            });
+            const { caller } = setupGraduateTest('YOUNG_ADULT', [mockStudent]);
+
+            const result = await caller.student.graduate({ ids: ['1'] });
+
+            expect(result.success).toBe(true);
+            expect(result.graduatedCount).toBe(1);
+        });
+
+        it('나이 null인 학생도 졸업 가능', async () => {
+            const mockStudent = createMockStudent({
+                id: BigInt(1),
+                age: null,
+                graduatedAt: null,
+                deletedAt: null,
+            });
+            const { caller } = setupGraduateTest('MIDDLE_HIGH', [mockStudent]);
+
+            const result = await caller.student.graduate({ ids: ['1'] });
+
+            expect(result.success).toBe(true);
+            expect(result.graduatedCount).toBe(1);
+        });
+
+        it('미달 나이 학생 제외', async () => {
+            const mockStudent = createMockStudent({
+                id: BigInt(1),
+                age: BigInt(15),
+                graduatedAt: null,
+                deletedAt: null,
+            });
+            const { caller } = setupGraduateTest('MIDDLE_HIGH', [mockStudent]);
+
+            const result = await caller.student.graduate({ ids: ['1'] });
+
+            expect(result.success).toBe(true);
+            expect(result.graduatedCount).toBe(0);
+            expect(result.students).toHaveLength(0);
+            expect(result.skipped).toHaveLength(1);
+            expect(result.skipped[0]?.societyName).toBeDefined();
+            expect(result.skipped[0]?.reason).toContain('15살');
+        });
+
+        it('혼합 나이 학생 중 대상자만 졸업', async () => {
+            const young = createMockStudent({
+                id: BigInt(1),
+                age: BigInt(15),
+                graduatedAt: null,
+                deletedAt: null,
+            });
+            const eligible = createMockStudent({
+                id: BigInt(2),
+                age: BigInt(20),
+                graduatedAt: null,
+                deletedAt: null,
+            });
+            const { caller } = setupGraduateTest('MIDDLE_HIGH', [young, eligible]);
+
             const result = await caller.student.graduate({ ids: ['1', '2'] });
 
-            expect(result).toHaveProperty('success');
             expect(result.success).toBe(true);
-            expect(result).toHaveProperty('graduatedCount');
-            expect(result.graduatedCount).toBe(2);
-            expect(result).toHaveProperty('students');
-            expect(result.students.length).toBe(2);
+            expect(result.graduatedCount).toBe(1);
+            expect(result.students[0]?.id).toBe('2');
+            expect(result.skipped).toHaveLength(1);
+            expect(result.skipped[0]?.reason).toContain('15살');
+        });
+
+        it('graduatedAt이 전년도 12/31로 정규화됨', async () => {
+            const mockStudent = createMockStudent({
+                id: BigInt(1),
+                age: BigInt(20),
+                graduatedAt: null,
+                deletedAt: null,
+            });
+            const { caller, txMock } = setupGraduateTest('MIDDLE_HIGH', [mockStudent]);
+
+            await caller.student.graduate({ ids: ['1'] });
+
+            const updateCall = txMock.student.update.mock.calls[0]?.[0];
+            const graduatedAt = updateCall?.data?.graduatedAt as Date;
+            const currentYear = new Date().getUTCFullYear();
+            // 나이는 1/1에 올라가므로 졸업일은 전년도 12/31
+            expect(graduatedAt.getUTCFullYear()).toBe(currentYear - 1);
+            expect(graduatedAt.getUTCMonth()).toBe(11); // December (0-indexed)
+            expect(graduatedAt.getUTCDate()).toBe(31);
+            expect(graduatedAt.getUTCHours()).toBe(0);
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {

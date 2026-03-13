@@ -35,7 +35,7 @@
 
 ### 신규 가입 (새 조직 생성)
 
-회원가입 → 개인정보 동의 → /join → 교구 선택 → 본당 검색/생성 → 조직 생성 → admin, 즉시 대시보드
+회원가입 → 개인정보 동의 → /join → 교구 선택 → 본당 검색/생성 → 조직 생성 (타입 선택: 초등부/중고등부/청년, 기본값 중고등부) → admin, 즉시 대시보드
 
 ### 신규 가입 (기존 조직 합류)
 
@@ -67,7 +67,7 @@
 
 ### 신규 화면
 
-- **/join**: 교구 선택 (드롭다운) → 본당 검색/생성 → 조직 선택(합류)/생성(즉시 진입). AuthLayout.
+- **/join**: 교구 선택 (드롭다운) → 본당 검색/생성 → 조직 선택(합류)/생성(즉시 진입). 조직 생성 시 타입 드롭다운 포함 (초등부/중고등부/청년, 기본값: 중고등부). AuthLayout.
 - **/pending**: 승인 대기 + 요청 취소 버튼.
 
 ### 변경 화면
@@ -87,7 +87,7 @@
 | church.create | mutation | consented | 본당 생성 |
 | church.search | query | consented | 본당 검색 |
 | organization.list | query | consented | Church 하위 조직 목록 |
-| organization.create | mutation | consented | 조직 생성 → admin 즉시 진입 |
+| organization.create | mutation | consented | 조직 생성 → admin 즉시 진입. 입력: name, churchId, type(기본값 MIDDLE_HIGH) |
 | organization.requestJoin | mutation | consented | 합류 요청 |
 | organization.pendingRequests | query | scoped (admin) | 합류 요청 목록 |
 | organization.approveJoin | mutation | scoped (admin) | 승인 |

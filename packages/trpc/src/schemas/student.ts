@@ -263,12 +263,22 @@ export interface GraduatedStudent {
 }
 
 /**
+ * 졸업 제외된 학생 정보
+ */
+export interface SkippedStudent {
+    id: string;
+    societyName: string;
+    reason: string;
+}
+
+/**
  * 일괄 졸업 처리 응답
  */
 export interface GraduateStudentsOutput {
     success: boolean;
     graduatedCount: number;
     students: GraduatedStudent[];
+    skipped: SkippedStudent[];
 }
 
 /**

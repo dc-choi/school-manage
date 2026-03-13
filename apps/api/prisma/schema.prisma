@@ -39,6 +39,7 @@ model Church {
 model Organization {
     id        BigInt    @id @default(autoincrement()) @map("_id")
     name      String    @db.VarChar(50)
+    type      String    @default("MIDDLE_HIGH") @db.VarChar(20)
     churchId  BigInt    @map("church_id")
     createdAt DateTime  @map("create_at")
     deletedAt DateTime? @map("delete_at")
