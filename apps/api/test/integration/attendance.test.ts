@@ -133,6 +133,7 @@ describe('attendance 통합 테스트', () => {
             const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.attendance.update({
                 year: 2024,
+                groupId: String(mockGroup.id),
                 attendance: [
                     {
                         id: String(mockStudent.id),
@@ -176,6 +177,7 @@ describe('attendance 통합 테스트', () => {
             const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
             const result = await caller.attendance.update({
                 year: 2024,
+                groupId: String(mockGroup.id),
                 attendance: [
                     {
                         id: String(mockStudent.id),
@@ -197,6 +199,7 @@ describe('attendance 통합 테스트', () => {
             await expect(
                 caller.attendance.update({
                     year: 2024,
+                    groupId: '1',
                     attendance: [
                         {
                             id: '1',
@@ -222,6 +225,7 @@ describe('attendance 통합 테스트', () => {
             await expect(
                 caller.attendance.update({
                     year: 2024,
+                    groupId: '1',
                     attendance: [],
                     isFull: true,
                 })

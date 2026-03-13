@@ -35,6 +35,7 @@ export function useAttendance(groupId: string, year?: number) {
         if (!year && !data?.year) return;
         return updateMutation.mutateAsync({
             year: year || data!.year,
+            groupId,
             attendance: attendanceData,
             isFull,
         });

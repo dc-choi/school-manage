@@ -64,7 +64,7 @@ export class UpdateAttendanceUseCase {
 
             if (input.isFull) {
                 // 출석 입력 (insert or update)
-                row = await this.updateAttendance(input.year, input.attendance);
+                row = await this.updateAttendance(input.year, input.groupId, input.attendance);
             } else {
                 // 출석 삭제 (hard delete)
                 row = await this.deleteAttendance(input.year, input.attendance);
@@ -127,7 +127,7 @@ export class UpdateAttendanceUseCase {
     /**
      * 출석 데이터 업데이트 (insert or update)
      */
-    private async updateAttendance(year: number, attendance: AttendanceData[]): Promise<number> {
+    private async updateAttendance(year: number, groupId: string, attendance: AttendanceData[]): Promise<number> {
         return await database.$transaction(async (tx) => {
             let count = 0;
 
@@ -147,7 +147,7 @@ export class UpdateAttendanceUseCase {
                             date: fullTime,
                             content: item.data,
                             studentId: BigInt(item.id),
-                            groupId: null,
+                            groupId: BigInt(groupId),
                             createdAt: getNowKST(),
                         },
                     });
