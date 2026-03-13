@@ -22,6 +22,7 @@ describe('관리자 양도 통합 테스트', () => {
     describe('organization.transferAdmin', () => {
         const mockTx = {
             account: {
+                findFirst: vi.fn(),
                 update: vi.fn().mockResolvedValue({
                     id: BigInt(1),
                     name: '중고등부',
@@ -34,7 +35,7 @@ describe('관리자 양도 통합 테스트', () => {
         };
 
         beforeEach(() => {
-            mockPrismaClient.account.findFirst.mockReset();
+            mockTx.account.findFirst.mockReset();
             mockPrismaClient.$transaction = vi.fn().mockImplementation(async (cb) => cb(mockTx));
             mockTx.account.update.mockReset().mockResolvedValue({
                 id: BigInt(1),
@@ -51,7 +52,7 @@ describe('관리자 양도 통합 테스트', () => {
                 displayName: '선생님',
                 role: ROLE.TEACHER,
             });
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(targetAccount);
+            mockTx.account.findFirst.mockResolvedValueOnce(targetAccount);
 
             const caller = createScopedCaller(accountId, testAccount.name, orgId, orgName, {
                 role: ROLE.ADMIN,
@@ -80,7 +81,7 @@ describe('관리자 양도 통합 테스트', () => {
         });
 
         it('대상이 같은 조직에 없음 → NOT_FOUND', async () => {
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(null);
+            mockTx.account.findFirst.mockResolvedValueOnce(null);
 
             const caller = createScopedCaller(accountId, testAccount.name, orgId, orgName, {
                 role: ROLE.ADMIN,
@@ -102,7 +103,7 @@ describe('관리자 양도 통합 테스트', () => {
                 displayName: '다른관리자',
                 role: ROLE.ADMIN,
             });
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(targetAccount);
+            mockTx.account.findFirst.mockResolvedValueOnce(targetAccount);
 
             const caller = createScopedCaller(accountId, testAccount.name, orgId, orgName, {
                 role: ROLE.ADMIN,
@@ -138,6 +139,7 @@ describe('관리자 양도 통합 테스트', () => {
     describe('account.deleteAccount (ADMIN 분기)', () => {
         const mockTx = {
             account: {
+                count: vi.fn().mockResolvedValue(1),
                 update: vi.fn().mockResolvedValue({}),
             },
             refreshToken: {
@@ -159,8 +161,8 @@ describe('관리자 양도 통합 테스트', () => {
 
         beforeEach(() => {
             mockPrismaClient.account.findFirst.mockReset();
-            mockPrismaClient.account.count.mockReset();
             mockPrismaClient.$transaction = vi.fn().mockImplementation(async (cb) => cb(mockTx));
+            mockTx.account.count.mockReset().mockResolvedValue(1);
             mockTx.account.update.mockReset().mockResolvedValue({});
             mockTx.refreshToken.deleteMany.mockReset().mockResolvedValue({ count: 0 });
             mockTx.joinRequest.updateMany.mockReset().mockResolvedValue({ count: 0 });
@@ -170,15 +172,12 @@ describe('관리자 양도 통합 테스트', () => {
         });
 
         it('ADMIN + 다른 멤버 존재 → FORBIDDEN', async () => {
-            mockPrismaClient.account.count.mockResolvedValueOnce(2);
+            mockPrismaClient.account.findFirst.mockResolvedValueOnce({
+                id: testAccount.id,
+                password: testAccount.password,
+            });
+            mockTx.account.count.mockResolvedValueOnce(2);
 
-            const caller = createAuthenticatedCaller(accountId, testAccount.name);
-            // consentedProcedure에서는 ctx.account에 organizationId와 role이 있어야 함
-            // createAuthenticatedCaller에서는 AccountInfo에 이 필드가 없음
-            // account router는 consentedProcedure를 사용하므로 ctx.account.role, ctx.account.organizationId를 전달
-            // createAuthenticatedCaller는 account에 role/organizationId가 없음
-            // → 실제로 UseCase에 role, organizationId를 전달하는 것은 router에서 하므로
-            // → 여기서는 UseCase를 직접 테스트
             const { DeleteAccountUseCase } = await import('~/domains/account/application/delete-account.usecase.js');
             const usecase = new DeleteAccountUseCase();
 
@@ -190,7 +189,7 @@ describe('관리자 양도 통합 테스트', () => {
         });
 
         it('ADMIN 유일 멤버 → 조직 소프트 삭제 + 계정 삭제', async () => {
-            mockPrismaClient.account.count.mockResolvedValueOnce(1);
+            mockTx.account.count.mockResolvedValueOnce(1);
             mockPrismaClient.account.findFirst.mockResolvedValueOnce({
                 id: testAccount.id,
                 password: testAccount.password,

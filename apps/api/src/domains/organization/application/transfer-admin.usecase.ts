@@ -32,35 +32,35 @@ export class TransferAdminUseCase {
             });
         }
 
-        // 3. 대상 계정 검증 (같은 조직 + TEACHER)
-        const target = await database.account.findFirst({
-            where: {
-                id: BigInt(input.targetAccountId),
-                organizationId: BigInt(organizationId),
-                deletedAt: null,
-            },
-            select: { id: true, name: true, displayName: true, role: true },
-        });
-
-        if (!target) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: '대상 계정을 찾을 수 없습니다.',
-            });
-        }
-
-        if (target.role !== ROLE.TEACHER) {
-            throw new TRPCError({
-                code: 'BAD_REQUEST',
-                message: '선생님 역할의 계정에게만 양도할 수 있습니다.',
-            });
-        }
-
-        // 4. 트랜잭션: 역할 교환
+        // 3. 트랜잭션: 대상 검증 + 역할 교환 (TOCTOU 방지)
         const now = getNowKST();
 
         await database.$transaction(async (tx) => {
-            // 4a. 현재 ADMIN → TEACHER
+            // 3a. 대상 계정 검증 (같은 조직 + TEACHER)
+            const target = await tx.account.findFirst({
+                where: {
+                    id: BigInt(input.targetAccountId),
+                    organizationId: BigInt(organizationId),
+                    deletedAt: null,
+                },
+                select: { id: true, name: true, displayName: true, role: true },
+            });
+
+            if (!target) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: '대상 계정을 찾을 수 없습니다.',
+                });
+            }
+
+            if (target.role !== ROLE.TEACHER) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: '선생님 역할의 계정에게만 양도할 수 있습니다.',
+                });
+            }
+
+            // 3b. 현재 ADMIN → TEACHER
             const currentAdmin = await tx.account.update({
                 where: { id: BigInt(accountId) },
                 data: { role: ROLE.TEACHER, updatedAt: now },
@@ -73,7 +73,7 @@ export class TransferAdminUseCase {
                 organizationId: BigInt(organizationId),
             });
 
-            // 4b. 대상 TEACHER → ADMIN
+            // 3c. 대상 TEACHER → ADMIN
             const newAdmin = await tx.account.update({
                 where: { id: target.id },
                 data: { role: ROLE.ADMIN, updatedAt: now },

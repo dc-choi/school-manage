@@ -19,20 +19,6 @@ export class DeleteAccountUseCase {
         role?: string,
         organizationId?: string
     ): Promise<DeleteAccountOutput> {
-        // 0. ADMIN + 다른 멤버 존재 시 차단
-        if (role === ROLE.ADMIN && organizationId) {
-            const memberCount = await database.account.count({
-                where: { organizationId: BigInt(organizationId), deletedAt: null },
-            });
-
-            if (memberCount > 1) {
-                throw new TRPCError({
-                    code: 'FORBIDDEN',
-                    message: '먼저 관리자를 양도한 후 탈퇴할 수 있습니다.',
-                });
-            }
-        }
-
         // 1. 계정 조회 (비밀번호 포함)
         const account = await database.account.findFirst({
             where: { id: BigInt(accountId), deletedAt: null },
@@ -57,42 +43,54 @@ export class DeleteAccountUseCase {
 
         const now = getNowKST();
 
-        // 3. ADMIN 유일 멤버: 조직 소프트 삭제 + 계정 소프트 삭제
+        // 3. ADMIN: 멤버 수 확인 + 조직 소프트 삭제 (트랜잭션 내부, TOCTOU 방지)
         if (role === ROLE.ADMIN && organizationId) {
             await database.$transaction(async (tx) => {
                 const orgId = BigInt(organizationId);
 
-                // 3a. 대기 중인 합류 요청 거부
+                // 3a. 멤버 수 확인 (트랜잭션 내부)
+                const memberCount = await tx.account.count({
+                    where: { organizationId: orgId, deletedAt: null },
+                });
+
+                if (memberCount > 1) {
+                    throw new TRPCError({
+                        code: 'FORBIDDEN',
+                        message: '먼저 관리자를 양도한 후 탈퇴할 수 있습니다.',
+                    });
+                }
+
+                // 3b. 대기 중인 합류 요청 거부
                 await tx.joinRequest.updateMany({
                     where: { organizationId: orgId, status: JOIN_REQUEST_STATUS.PENDING },
                     data: { status: JOIN_REQUEST_STATUS.REJECTED, updatedAt: now },
                 });
 
-                // 3b. 학생 소프트 삭제
+                // 3c. 학생 소프트 삭제
                 await tx.student.updateMany({
                     where: { organizationId: orgId, deletedAt: null },
                     data: { deletedAt: now },
                 });
 
-                // 3c. 그룹 소프트 삭제
+                // 3d. 그룹 소프트 삭제
                 await tx.group.updateMany({
                     where: { organizationId: orgId, deletedAt: null },
                     data: { deletedAt: now },
                 });
 
-                // 3d. 조직 소프트 삭제
+                // 3e. 조직 소프트 삭제
                 await tx.organization.update({
                     where: { id: orgId },
                     data: { deletedAt: now },
                 });
 
-                // 3e. 계정 소프트 삭제 + 조직 연결 해제
+                // 3f. 계정 소프트 삭제 + 조직 연결 해제
                 await tx.account.update({
                     where: { id: account.id },
                     data: { deletedAt: now, organizationId: null },
                 });
 
-                // 3f. 모든 Refresh Token 삭제
+                // 3g. 모든 Refresh Token 삭제
                 await tx.refreshToken.deleteMany({
                     where: { accountId: account.id },
                 });
