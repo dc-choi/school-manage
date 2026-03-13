@@ -82,6 +82,7 @@ export {
     requestJoinInputSchema,
     approveJoinInputSchema,
     rejectJoinInputSchema,
+    transferAdminInputSchema,
 } from './schemas/index.js';
 
 // 입력 타입 (Input)
@@ -134,6 +135,7 @@ export type {
     RequestJoinInput,
     ApproveJoinInput,
     RejectJoinInput,
+    TransferAdminInput,
 } from './schemas/index.js';
 
 // 출력 타입 (Output)
@@ -222,4 +224,5 @@ export type {
     PendingRequestsOutput,
     MemberItem,
     MembersOutput,
+    TransferAdminOutput,
 } from './schemas/index.js';

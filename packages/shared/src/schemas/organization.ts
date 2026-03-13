@@ -46,12 +46,20 @@ export const rejectJoinInputSchema = z.object({
     joinRequestId: idSchema,
 });
 
+/**
+ * 관리자 양도 입력 스키마
+ */
+export const transferAdminInputSchema = z.object({
+    targetAccountId: idSchema,
+});
+
 // 입력 타입 export
 export type ListOrganizationsInput = z.infer<typeof listOrganizationsInputSchema>;
 export type CreateOrganizationInput = z.infer<typeof createOrganizationInputSchema>;
 export type RequestJoinInput = z.infer<typeof requestJoinInputSchema>;
 export type ApproveJoinInput = z.infer<typeof approveJoinInputSchema>;
 export type RejectJoinInput = z.infer<typeof rejectJoinInputSchema>;
+export type TransferAdminInput = z.infer<typeof transferAdminInputSchema>;
 
 // ============================================================
 // 출력 타입 (Output Types)
@@ -121,4 +129,11 @@ export interface MemberItem {
  */
 export interface MembersOutput {
     members: MemberItem[];
+}
+
+/**
+ * 관리자 양도 응답
+ */
+export interface TransferAdminOutput {
+    success: boolean;
 }

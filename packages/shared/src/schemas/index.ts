@@ -104,6 +104,7 @@ export {
     requestJoinInputSchema,
     approveJoinInputSchema,
     rejectJoinInputSchema,
+    transferAdminInputSchema,
 } from './organization.js';
 export type {
     ListOrganizationsInput,
@@ -111,6 +112,7 @@ export type {
     RequestJoinInput,
     ApproveJoinInput,
     RejectJoinInput,
+    TransferAdminInput,
 } from './organization.js';
 
 // ============================================================
@@ -222,4 +224,5 @@ export type {
     PendingRequestsOutput,
     MemberItem,
     MembersOutput,
+    TransferAdminOutput,
 } from './organization.js';

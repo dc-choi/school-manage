@@ -8,12 +8,14 @@ import { ListOrganizationsUseCase } from '../application/list-organizations.usec
 import { PendingRequestsUseCase } from '../application/pending-requests.usecase.ts';
 import { RejectJoinUseCase } from '../application/reject-join.usecase.ts';
 import { RequestJoinUseCase } from '../application/request-join.usecase.ts';
+import { TransferAdminUseCase } from '../application/transfer-admin.usecase.ts';
 import {
     approveJoinInputSchema,
     createOrganizationInputSchema,
     listOrganizationsInputSchema,
     rejectJoinInputSchema,
     requestJoinInputSchema,
+    transferAdminInputSchema,
 } from '@school/shared';
 import { consentedProcedure, router, scopedProcedure } from '@school/trpc';
 
@@ -64,6 +66,14 @@ export const organizationRouter = router({
     rejectJoin: scopedProcedure.input(rejectJoinInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new RejectJoinUseCase();
         return usecase.execute(input, ctx.organization.id, ctx.account.role);
+    }),
+
+    /**
+     * 관리자 양도 (scoped, admin)
+     */
+    transferAdmin: scopedProcedure.input(transferAdminInputSchema).mutation(async ({ input, ctx }) => {
+        const usecase = new TransferAdminUseCase();
+        return usecase.execute(input, ctx.account.id, ctx.organization.id, ctx.account.role);
     }),
 
     /**
