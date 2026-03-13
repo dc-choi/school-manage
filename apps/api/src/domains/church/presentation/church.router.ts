@@ -3,8 +3,8 @@
  */
 import { CreateChurchUseCase } from '../application/create-church.usecase.ts';
 import { SearchChurchesUseCase } from '../application/search-churches.usecase.ts';
-import { consentedProcedure, router } from '@school/trpc';
 import { createChurchInputSchema, searchChurchesInputSchema } from '@school/shared';
+import { consentedProcedure, router } from '@school/trpc';
 
 export const churchRouter = router({
     /**

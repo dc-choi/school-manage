@@ -3,7 +3,6 @@
  *
  * Express/tRPC에 의존하지 않는 순수 도메인 인증 상태 정의
  */
-
 import type { AccountInfo, ChurchInfo, OrganizationInfo } from './constants.js';
 
 /**

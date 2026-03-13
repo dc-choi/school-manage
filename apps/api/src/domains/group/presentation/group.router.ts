@@ -10,7 +10,6 @@ import { GetGroupAttendanceUseCase } from '../application/get-group-attendance.u
 import { GetGroupUseCase } from '../application/get-group.usecase.ts';
 import { ListGroupsUseCase } from '../application/list-groups.usecase.ts';
 import { UpdateGroupUseCase } from '../application/update-group.usecase.ts';
-import { router, scopedProcedure } from '@school/trpc';
 import {
     bulkDeleteGroupsInputSchema,
     createGroupInputSchema,
@@ -19,6 +18,7 @@ import {
     getGroupInputSchema,
     updateGroupInputSchema,
 } from '@school/shared';
+import { router, scopedProcedure } from '@school/trpc';
 
 export const groupRouter = router({
     /**

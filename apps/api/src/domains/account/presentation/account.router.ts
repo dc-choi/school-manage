@@ -9,8 +9,8 @@ import { CountAccountsUseCase } from '../application/count-accounts.usecase.ts';
 import { DeleteAccountUseCase } from '../application/delete-account.usecase.ts';
 import { GetAccountUseCase } from '../application/get-account.usecase.ts';
 import { UpdateProfileUseCase } from '../application/update-profile.usecase.ts';
-import { consentedProcedure, protectedProcedure, publicProcedure, router } from '@school/trpc';
 import { changePasswordInputSchema, deleteAccountInputSchema, updateProfileInputSchema } from '@school/shared';
+import { consentedProcedure, protectedProcedure, publicProcedure, router } from '@school/trpc';
 
 export const accountRouter = router({
     /**

@@ -9,8 +9,8 @@ import { GetExcellentStudentsUseCase } from '../application/get-excellent-studen
 import { GetGroupStatisticsUseCase } from '../application/get-group-statistics.usecase.ts';
 import { GetTopGroupsUseCase } from '../application/get-top-groups.usecase.ts';
 import { GetTopOverallUseCase } from '../application/get-top-overall.usecase.ts';
-import { router, scopedProcedure } from '@school/trpc';
 import { getExcellentStudentsInputSchema, statisticsInputSchema, topStatisticsInputSchema } from '@school/shared';
+import { router, scopedProcedure } from '@school/trpc';
 
 export const statisticsRouter = router({
     /**

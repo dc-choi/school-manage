@@ -8,7 +8,6 @@ import { ListOrganizationsUseCase } from '../application/list-organizations.usec
 import { PendingRequestsUseCase } from '../application/pending-requests.usecase.ts';
 import { RejectJoinUseCase } from '../application/reject-join.usecase.ts';
 import { RequestJoinUseCase } from '../application/request-join.usecase.ts';
-import { consentedProcedure, router, scopedProcedure } from '@school/trpc';
 import {
     approveJoinInputSchema,
     createOrganizationInputSchema,
@@ -16,6 +15,7 @@ import {
     rejectJoinInputSchema,
     requestJoinInputSchema,
 } from '@school/shared';
+import { consentedProcedure, router, scopedProcedure } from '@school/trpc';
 
 export const organizationRouter = router({
     /**

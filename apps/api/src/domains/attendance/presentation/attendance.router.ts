@@ -7,8 +7,8 @@ import { GetCalendarUseCase } from '../application/get-calendar.usecase.ts';
 import { GetDayDetailUseCase } from '../application/get-day-detail.usecase.ts';
 import { HasAttendanceUseCase } from '../application/has-attendance.usecase.ts';
 import { UpdateAttendanceUseCase } from '../application/update-attendance.usecase.ts';
-import { router, scopedProcedure } from '@school/trpc';
 import { getCalendarInputSchema, getDayDetailInputSchema, updateAttendanceInputSchema } from '@school/shared';
+import { router, scopedProcedure } from '@school/trpc';
 
 export const attendanceRouter = router({
     /**

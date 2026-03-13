@@ -8,7 +8,6 @@ import { LoginUseCase } from '../application/login.usecase.ts';
 import { ResetPasswordUseCase } from '../application/reset-password.usecase.ts';
 import { RestoreAccountUseCase } from '../application/restore-account.usecase.ts';
 import { SignupUseCase } from '../application/signup.usecase.ts';
-import { publicProcedure, router } from '@school/trpc';
 import {
     checkIdInputSchema,
     loginInputSchema,
@@ -16,6 +15,7 @@ import {
     restoreAccountInputSchema,
     signupInputSchema,
 } from '@school/shared';
+import { publicProcedure, router } from '@school/trpc';
 
 export const authRouter = router({
     /**
