@@ -61,6 +61,16 @@ export const getMaxGraduationAge = (type: OrganizationType): number | null => {
 };
 
 /**
+ * 그룹 타입
+ */
+export const GROUP_TYPE = {
+    GRADE: 'GRADE',
+    DEPARTMENT: 'DEPARTMENT',
+} as const;
+
+export type GroupType = (typeof GROUP_TYPE)[keyof typeof GROUP_TYPE];
+
+/**
  * 출석 표시 (출석으로 인정되는 마크)
  */
 export const PRESENT_MARKS = new Set(['◎', '○', '△']) as ReadonlySet<string>;

@@ -1,4 +1,4 @@
-import type { AttendanceData } from '@school/shared';
+import { type AttendanceData, GROUP_TYPE } from '@school/shared';
 import { Check, Loader2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LoadingSpinner } from '~/components/common';
@@ -6,7 +6,16 @@ import { MainLayout } from '~/components/layout';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent } from '~/components/ui/card';
 import { Label } from '~/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectSeparator,
+    SelectTrigger,
+    SelectValue,
+} from '~/components/ui/select';
 import { useAttendance } from '~/features/attendance';
 import { useGroups } from '~/features/group';
 
@@ -142,17 +151,37 @@ export function AttendancePage() {
             <div className="mb-6 flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
                 <div className="grid grid-cols-2 gap-6 sm:flex sm:gap-6">
                     <div className="space-y-2">
-                        <Label>학년</Label>
+                        <Label>학년&부서</Label>
                         <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
                             <SelectTrigger className="w-full sm:w-40">
-                                <SelectValue placeholder="학년 선택" />
+                                <SelectValue placeholder="학년&부서 선택" />
                             </SelectTrigger>
                             <SelectContent>
-                                {groups.map((g) => (
-                                    <SelectItem key={g.id} value={g.id}>
-                                        {g.name}
-                                    </SelectItem>
-                                ))}
+                                <SelectGroup>
+                                    <SelectLabel>학년</SelectLabel>
+                                    {groups
+                                        .filter((g) => g.type === GROUP_TYPE.GRADE)
+                                        .map((g) => (
+                                            <SelectItem key={g.id} value={g.id}>
+                                                {g.name}
+                                            </SelectItem>
+                                        ))}
+                                </SelectGroup>
+                                {groups.some((g) => g.type === GROUP_TYPE.DEPARTMENT) ? (
+                                    <>
+                                        <SelectSeparator />
+                                        <SelectGroup>
+                                            <SelectLabel>부서</SelectLabel>
+                                            {groups
+                                                .filter((g) => g.type === GROUP_TYPE.DEPARTMENT)
+                                                .map((g) => (
+                                                    <SelectItem key={g.id} value={g.id}>
+                                                        {g.name}
+                                                    </SelectItem>
+                                                ))}
+                                        </SelectGroup>
+                                    </>
+                                ) : null}
                             </SelectContent>
                         </Select>
                     </div>

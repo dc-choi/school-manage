@@ -6,9 +6,9 @@
 
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
-| **Current Functional**    | 100% | 9개 도메인 기능 설계에 통합 + 계정 모델 전환 완료                              |
-| **Target Functional**     | -    | 미착수 3건 (P0 졸업일 정규화 + P0 졸업생 필터링 + P0 계정 모델 전환 + P1 엑셀 Import + P0 등록 관리 완료) |
-| **Target Non-Functional** | -    | UI 1건 (반응형 구현 완료), SECURITY 1건 완료 + 1건 미착수, PERFORMANCE 3건 미착수 |
+| **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 완료               |
+| **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성) |
+| **Target Non-Functional** | -    | SECURITY 1건 미착수, ANALYTICS 1건 미착수, PERFORMANCE 3건 미착수 |
 
 ## 관련 문서
 
@@ -39,6 +39,7 @@
 | 학생 등록 관리        | `docs/specs/prd/student-registration.md`         | Approved (구현 완료) | 로드맵 2단계 (4단계 선행)  |
 | 계정 모델 전환        | `docs/specs/prd/account-model-transition.md`     | Approved (구현 완료) | 로드맵 3단계           |
 | 졸업일 정규화 + 나이 기반 필터링 | `docs/specs/prd/graduation-normalization.md` | Approved (구현 완료) | 로드맵 2단계           |
+| 학년/부서 두 축 그룹핑    | `docs/specs/prd/dual-axis-grouping.md`       | Approved (구현 완료) | 로드맵 2단계           |
 
 ### Functional Design (기능 설계)
 
@@ -51,6 +52,7 @@
 | Account Model | `account-model-transition.md` + `account-model-transition-flows.md` | 데이터 모델 / 플로우, API, 접근 제어                                   |
 | Landing      | `landing-page.md`                                       | 랜딩 페이지 + FAQ + 메타 태그/브랜딩                                   |
 | Group        | `group-management.md`                                   | 기본 + 일괄 삭제 + 페이지네이션 상태 유지                                  |
+| Dual Grouping | `dual-axis-grouping.md` + `dual-axis-grouping-flows.md` | 학년/부서 두 축 그룹핑, 데이터 모델 / 플로우, API, UI                       |
 | Student      | `student-management.md` + `-import.md` + `-registration.md` | 기본 CRUD / 엑셀 Import / 등록 관리                                |
 | Attendance   | `attendance-management.md`                              | 기본 + 달력 UI + 자동 저장                                         |
 | Statistics   | `statistics.md`                                         | 대시보드 통계 + 스냅샷 + 졸업생 필터링                                    |
@@ -72,20 +74,12 @@
 
 | 우선순위 | 기능명          | SDD 상태 | 비고                                         |
 |------|--------------|--------|--------------------------------------------|
-| ~~P0~~ | ~~통계 졸업생 필터링~~ | **완료** | 조회 기간 시작일 기준 졸업 필터 — 6개 UseCase 적용 완료 |
-| ~~P0~~ | ~~계정 모델 전환 (공유→개인)~~ | **완료** | 개인 계정 + 본당/모임 합류 구조. StudentGroup N:M 도입. 38개 계정 마이그레이션 SQL 포함 |
-| ~~P0~~ | ~~졸업일 정규화 + 나이 기반 졸업 대상 필터링~~ | **완료** | graduatedAt 정규화(12/31) + Organization.type별 maxAge 기반 졸업 대상 필터링 + 기존 데이터 보정 |
-| ~~P1~~ | ~~학생 엑셀 Import~~ | **완료** | 엑셀 파일로 학생 일괄 등록. GA4 입력 부담 시그널 + 파워 유저 100명+ 등록 수요 |
-| ~~P0~~ | ~~학생 등록 관리~~ | **완료** | 연/학기 단위 등록 이력 관리 (Registration 테이블). 등록 시즌 대응. 4단계 "등록 관리"의 핵심 선행 (전자서명·보상 제외) |
 | P1   | 미사 참례 확인     | 미착수    | 학생별 미사 참례 횟수 기록 (첫영성체 준비 필수 조건)            |
 | P2   | 가정 통신문 자동 생성 | 미착수    | 월별 출석/일정/공지 템플릿 기반 PDF/이미지 내보내기            |
-| P1   | 학년/부서 두 축 그룹핑 | 미착수    | StudentGroup N:M 활용하여 학생을 학년 그룹 + 부서 그룹에 동시 소속. 기존 컬럼 정리 (Group.accountId, Student.groupId 제거 + NOT NULL 전환) 포함 |
 | P2   | 반편성 자동화      | 미착수    | 신학기 학년 진급 시 반 자동 재배정, 교사-반 매칭              |
 
 **의존성 체인:**
-- ~~계정 모델 전환 (P0)~~ ← 행사 메모 카드, 사제 보고용 공유 링크, Organization 단위 구독의 선행 조건 (**완료**)
-- ~~계정 모델 전환 (P0)~~ ← 학년/부서 두 축 그룹핑 (P1) — 계정 모델 전환의 deferred Step 4 포함 (**선행 완료**)
-- 브레인스토밍 조건부 승인 항목은 계정 모델 전환 완료 + 검증 후 등록 예정 (`docs/brainstorm/2026-02-21.md`, `2026-02-23.md` 참조)
+- 브레인스토밍 조건부 승인 항목은 검증 후 등록 예정 (`docs/brainstorm/2026-02-21.md`, `2026-02-23.md` 참조)
 
 ### 보류 (Hold)
 
@@ -99,31 +93,10 @@
 
 | 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
 |------|----------------------|--------|------------------------------------------------------|
-| ~~P1~~ | ~~계정 소유권 검증 강화~~    | **완료**  | 계정 모델 전환 시 organizationId 기반 소유권 검증으로 전면 전환           |
 | P1   | Refresh token 인증 확장  | 미작성    | 재명세 예정                                               |
-
-**~~계정 소유권 검증 강화~~:** (계정 모델 전환에서 해결)
-- scopedProcedure + organizationId 기반 소유권 검증으로 전면 전환
-- group/student/attendance 모든 엔드포인트에서 organizationId 검증 적용 완료
 
 **Refresh token 인증 확장:**
 - 재명세 예정
-
-### UI (Non-Functional)
-
-| 우선순위 | 기능명          | SDD 상태      | 비고                                     |
-|------|--------------|-------------|----------------------------------------|
-| ~~P0~~ | ~~반응형 디자인 수정~~ | **구현 완료** | 사이드바/헤더/테이블 모바일 대응. 전 페이지 영향            |
-| ~~P2~~ | ~~대시보드 축일자/전례력 카드 통일~~ | **구현 완료** | PatronFeastCard를 LiturgicalSeasonCard와 시각적 통일 (위치/스타일) |
-
-**반응형 디자인 수정:**
-- 기능 설계: `docs/specs/functional-design/responsive-design.md`
-- 사이드바 모바일 미대응 (항상 80px 표시), 헤더 고정 패딩, Table 가로 스크롤 없음
-- ~~EditableField 고정 너비~~ → EditableField 제거됨 (폼 기반 수정으로 전환), 미사용 Header.tsx 정리
-
-**대시보드 축일자/전례력 카드 통일:**
-- PatronFeastCard와 LiturgicalSeasonCard가 가톨릭 특화 정보임에도 위치/스타일 불일치
-- 두 카드를 나란히 배치하고 카드 스타일 통일
 
 ### ANALYTICS (Non-Functional)
 

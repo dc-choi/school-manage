@@ -15,9 +15,7 @@ export class CreateStudentUseCase {
             // 측정 인프라: 조직의 첫 학생인지 확인
             const existingStudentCount = await database.student.count({
                 where: {
-                    group: {
-                        organizationId: BigInt(organizationId),
-                    },
+                    organizationId: BigInt(organizationId),
                     deletedAt: null,
                 },
             });
@@ -55,7 +53,6 @@ export class CreateStudentUseCase {
                         age: input.age ? BigInt(input.age) : null,
                         contact: input.contact ? BigInt(input.contact) : null,
                         description: input.description,
-                        groupId: BigInt(input.groupIds[0]),
                         organizationId: BigInt(organizationId),
                         baptizedAt: input.baptizedAt,
                         createdAt: getNowKST(),
@@ -73,6 +70,14 @@ export class CreateStudentUseCase {
                     });
                 }
 
+                // 생성된 StudentGroup + Group 이름/타입 조회
+                const sgs = await tx.studentGroup.findMany({
+                    where: { studentId: created.id },
+                    include: { group: { select: { id: true, name: true, type: true } } },
+                });
+
+                const gradeGroup = sgs.find((sg) => sg.group.type === 'GRADE');
+
                 await createStudentSnapshot(tx, {
                     studentId: created.id,
                     societyName: created.societyName,
@@ -81,13 +86,7 @@ export class CreateStudentUseCase {
                     contact: created.contact,
                     description: created.description,
                     baptizedAt: created.baptizedAt,
-                    groupId: created.groupId,
-                });
-
-                // 생성된 StudentGroup + Group 이름 조회
-                const sgs = await tx.studentGroup.findMany({
-                    where: { studentId: created.id },
-                    include: { group: { select: { id: true, name: true } } },
+                    groupId: gradeGroup?.group.id ?? null,
                 });
 
                 return { student: created, studentGroups: sgs };
@@ -104,6 +103,7 @@ export class CreateStudentUseCase {
                 groups: studentGroups.map((sg) => ({
                     id: String(sg.group.id),
                     name: sg.group.name,
+                    type: sg.group.type,
                 })),
                 baptizedAt: student.baptizedAt ?? undefined,
                 // 측정 인프라용 필드

@@ -5,7 +5,7 @@ import { cn } from '~/lib/utils';
 export const navItems = [
     { path: '/', label: '대시보드', icon: Home },
     { path: '/attendance', label: '출석부', icon: Calendar },
-    { path: '/groups', label: '학년 관리', icon: Users },
+    { path: '/groups', label: '학년&부서', icon: Users },
     { path: '/students', label: '학생 관리', icon: UserCog },
 ];
 

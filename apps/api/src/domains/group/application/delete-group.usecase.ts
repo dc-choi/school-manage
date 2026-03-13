@@ -27,6 +27,7 @@ export class DeleteGroupUseCase {
             return {
                 id: String(group.id),
                 name: group.name,
+                type: group.type,
                 organizationId: String(group.organizationId),
                 studentCount: 0,
             };

@@ -22,13 +22,13 @@ describe('group 통합 테스트', () => {
         it('인증된 사용자의 그룹 목록 반환', async () => {
             const testAccount = getTestAccount();
             const mockGroups = [
-                { ...createMockGroup({ accountId: testAccount.id }), _count: { students: 3 } },
-                { ...createMockGroup({ accountId: testAccount.id }), _count: { students: 5 } },
+                { ...createMockGroup({ accountId: testAccount.id }), _count: { studentGroups: 3 } },
+                { ...createMockGroup({ accountId: testAccount.id }), _count: { studentGroups: 5 } },
             ];
             mockPrismaClient.group.findMany.mockResolvedValueOnce(mockGroups);
 
             const caller = createScopedCaller(String(testAccount.id), testAccount.name, '1', '장위동 중고등부');
-            const result = await caller.group.list();
+            const result = await caller.group.list({});
 
             expect(result).toHaveProperty('groups');
             expect(Array.isArray(result.groups)).toBe(true);
@@ -39,7 +39,7 @@ describe('group 통합 테스트', () => {
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
             const caller = createPublicCaller();
-            await expect(caller.group.list()).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+            await expect(caller.group.list({})).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
         });
     });
 
@@ -89,12 +89,12 @@ describe('group 통합 테스트', () => {
             const testAccount = getTestAccount();
             const mockGroup = createMockGroup({ accountId: testAccount.id });
             const mockStudents = [
-                createMockStudent({ groupId: mockGroup.id, societyName: '홍길동' }),
-                createMockStudent({ groupId: mockGroup.id, societyName: '김철수' }),
+                createMockStudent({ societyName: '홍길동' }),
+                createMockStudent({ societyName: '김철수' }),
             ];
             mockPrismaClient.group.findFirst.mockResolvedValueOnce({
                 ...mockGroup,
-                students: mockStudents,
+                studentGroups: mockStudents.map((s) => ({ student: s })),
             });
 
             const caller = createScopedCaller(String(testAccount.id), testAccount.name, '1', '장위동 중고등부');
@@ -112,7 +112,7 @@ describe('group 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: testAccount.id });
             mockPrismaClient.group.findFirst.mockResolvedValueOnce({
                 ...mockGroup,
-                students: [],
+                studentGroups: [],
             });
 
             const caller = createScopedCaller(String(testAccount.id), testAccount.name, '1', '장위동 중고등부');
@@ -138,7 +138,7 @@ describe('group 통합 테스트', () => {
         it('그룹 수정 성공', async () => {
             const testAccount = getTestAccount();
             const mockGroup = createMockGroup({ accountId: testAccount.id });
-            const updatedGroup = { ...mockGroup, name: '수정된그룹', _count: { students: 2 } };
+            const updatedGroup = { ...mockGroup, name: '수정된그룹', _count: { studentGroups: 2 } };
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
 
             // $transaction mock (update-group now uses transaction + snapshot)

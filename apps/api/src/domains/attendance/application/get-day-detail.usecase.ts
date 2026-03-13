@@ -36,22 +36,29 @@ export class GetDayDetailUseCase {
         const holydaysResult = await holydaysUseCase.execute({ year });
         const holyday = holydaysResult.holydays.find((h) => h.date === date)?.name ?? null;
 
-        // 3. 그룹의 모든 학생 조회 (졸업생 제외)
-        const students = await database.student.findMany({
+        // 3. 그룹의 모든 학생 조회 (졸업생 제외, StudentGroup 기반)
+        const studentGroupRecords = await database.studentGroup.findMany({
             where: {
                 groupId: BigInt(groupId),
-                deletedAt: null,
-                graduatedAt: null,
+                student: {
+                    deletedAt: null,
+                    graduatedAt: null,
+                },
+            },
+            include: {
+                student: {
+                    select: {
+                        id: true,
+                        societyName: true,
+                        catholicName: true,
+                    },
+                },
             },
             orderBy: {
-                societyName: 'asc',
-            },
-            select: {
-                id: true,
-                societyName: true,
-                catholicName: true,
+                student: { societyName: 'asc' },
             },
         });
+        const students = studentGroupRecords.map((sg) => sg.student);
 
         // 4. 해당 날짜의 출석 데이터 조회
         // 입력 형식(YYYY-MM-DD)을 DB 형식(YYYYMMDD)으로 변환

@@ -37,7 +37,7 @@ export const createStudentInputSchema = z.object({
     age: z.number().int().positive().optional(),
     contact: z.string().optional(),
     description: z.string().optional(),
-    groupIds: z.array(idSchema).min(1, 'At least one group is required'),
+    groupIds: z.array(idSchema),
     baptizedAt: z
         .string()
         .regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/, '축일은 MM/DD 형식으로 입력해주세요.')
@@ -59,7 +59,7 @@ export const updateStudentInputSchema = z.object({
     age: z.number().int().positive().nullable().optional(),
     contact: z.string().nullable().optional(),
     description: z.string().nullable().optional(),
-    groupIds: z.array(idSchema).min(1, 'At least one group is required').optional(),
+    groupIds: z.array(idSchema).optional(),
     baptizedAt: z
         .string()
         .regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/, '축일은 MM/DD 형식으로 입력해주세요.')
@@ -160,6 +160,7 @@ export type FeastDayListInput = z.infer<typeof feastDayListInputSchema>;
 export interface StudentGroupItem {
     id: string;
     name: string;
+    type: string;
 }
 
 /**

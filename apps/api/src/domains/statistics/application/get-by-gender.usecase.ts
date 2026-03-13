@@ -39,11 +39,11 @@ export class GetByGenderUseCase {
             return { year, male: { count: 0, rate: 0 }, female: { count: 0, rate: 0 }, unknown: { count: 0, rate: 0 } };
         }
 
-        // 3. 그룹에 속한 전체 학생 ID 조회 (조회 기간 시작일 기준 졸업 필터 적용)
+        // 3. 조직에 속한 전체 학생 ID 조회 (조회 기간 시작일 기준 졸업 필터 적용)
         const graduationCutoff = getGraduationCutoff(year, month, week);
         const students = await database.student.findMany({
             where: {
-                groupId: { in: groupIds },
+                organizationId,
                 deletedAt: null,
                 OR: [{ graduatedAt: null }, { graduatedAt: { gte: graduationCutoff } }],
             },

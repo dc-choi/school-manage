@@ -1,12 +1,12 @@
-import type { CreateGroupInput, UpdateGroupInput } from '@school/shared';
+import type { CreateGroupInput, GroupType, UpdateGroupInput } from '@school/shared';
 import { toast } from 'sonner';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
-export function useGroups() {
+export function useGroups(typeFilter?: GroupType) {
     const utils = trpc.useUtils();
 
-    const listQuery = trpc.group.list.useQuery();
+    const listQuery = trpc.group.list.useQuery({ type: typeFilter });
 
     const getQuery = (id: string) => trpc.group.get.useQuery({ id }, { enabled: !!id });
 
@@ -22,7 +22,7 @@ export function useGroups() {
             // GA4 이벤트: 그룹 생성
             analytics.trackGroupCreated();
 
-            toast.success('학년이 생성되었습니다.');
+            toast.success('학년&부서가 생성되었습니다.');
         },
     });
 
@@ -34,7 +34,7 @@ export function useGroups() {
             // GA4 이벤트: 그룹 수정
             analytics.trackGroupUpdated();
 
-            toast.success('학년이 수정되었습니다.');
+            toast.success('학년&부서가 수정되었습니다.');
         },
     });
 
@@ -45,7 +45,7 @@ export function useGroups() {
             // GA4 이벤트: 그룹 삭제
             analytics.trackGroupDeleted(1);
 
-            toast.success('학년이 삭제되었습니다.');
+            toast.success('학년&부서가 삭제되었습니다.');
         },
     });
 
@@ -56,7 +56,37 @@ export function useGroups() {
             // GA4 이벤트: 그룹 일괄 삭제
             analytics.trackGroupDeleted(variables.ids.length);
 
-            toast.success('선택한 학년이 삭제되었습니다.');
+            toast.success('선택한 학년&부서가 삭제되었습니다.');
+        },
+    });
+
+    const addStudentMutation = trpc.group.addStudent.useMutation({
+        onSuccess: () => {
+            utils.group.get.invalidate();
+            utils.group.list.invalidate();
+            toast.success('학생이 추가되었습니다.');
+        },
+    });
+
+    const removeStudentMutation = trpc.group.removeStudent.useMutation({
+        onSuccess: () => {
+            utils.group.get.invalidate();
+            utils.group.list.invalidate();
+            toast.success('학생이 제거되었습니다.');
+        },
+    });
+
+    const bulkAddStudentsMutation = trpc.group.bulkAddStudents.useMutation({
+        onSuccess: () => {
+            utils.group.get.invalidate();
+            utils.group.list.invalidate();
+        },
+    });
+
+    const bulkRemoveStudentsMutation = trpc.group.bulkRemoveStudents.useMutation({
+        onSuccess: () => {
+            utils.group.get.invalidate();
+            utils.group.list.invalidate();
         },
     });
 
@@ -78,5 +108,20 @@ export function useGroups() {
 
         bulkDelete: (ids: string[]) => bulkDeleteMutation.mutateAsync({ ids }),
         isBulkDeleting: bulkDeleteMutation.isPending,
+
+        addStudent: (groupId: string, studentId: string) => addStudentMutation.mutateAsync({ groupId, studentId }),
+        isAddingStudent: addStudentMutation.isPending,
+
+        removeStudent: (groupId: string, studentId: string) =>
+            removeStudentMutation.mutateAsync({ groupId, studentId }),
+        isRemovingStudent: removeStudentMutation.isPending,
+
+        bulkAddStudents: (groupId: string, studentIds: string[]) =>
+            bulkAddStudentsMutation.mutateAsync({ groupId, studentIds }),
+        isBulkAddingStudents: bulkAddStudentsMutation.isPending,
+
+        bulkRemoveStudents: (groupId: string, studentIds: string[]) =>
+            bulkRemoveStudentsMutation.mutateAsync({ groupId, studentIds }),
+        isBulkRemovingStudents: bulkRemoveStudentsMutation.isPending,
     };
 }

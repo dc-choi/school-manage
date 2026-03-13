@@ -23,9 +23,7 @@ export class UpdateAttendanceUseCase {
             const existingAttendanceCount = await database.attendance.count({
                 where: {
                     student: {
-                        group: {
-                            organizationId: BigInt(organizationId),
-                        },
+                        organizationId: BigInt(organizationId),
                         deletedAt: null,
                     },
                     deletedAt: null,
@@ -52,7 +50,7 @@ export class UpdateAttendanceUseCase {
             const orgStudentCount = await database.student.count({
                 where: {
                     id: { in: uniqueStudentIds },
-                    group: { organizationId: BigInt(organizationId) },
+                    organizationId: BigInt(organizationId),
                 },
             });
             if (orgStudentCount !== uniqueStudentIds.length) {
@@ -131,14 +129,6 @@ export class UpdateAttendanceUseCase {
      */
     private async updateAttendance(year: number, attendance: AttendanceData[]): Promise<number> {
         return await database.$transaction(async (tx) => {
-            // 학생 → groupId 매핑을 한 번에 조회
-            const studentIds = [...new Set(attendance.map((a) => BigInt(a.id)))];
-            const students = await tx.student.findMany({
-                where: { id: { in: studentIds } },
-                select: { id: true, groupId: true },
-            });
-            const studentGroupMap = new Map(students.map((s) => [s.id, s.groupId]));
-
             let count = 0;
 
             for (const item of attendance) {
@@ -152,14 +142,12 @@ export class UpdateAttendanceUseCase {
                 });
 
                 if (existing === null) {
-                    // 새로 생성 (groupId 포함)
-                    const groupId = studentGroupMap.get(BigInt(item.id)) ?? null;
                     await tx.attendance.create({
                         data: {
                             date: fullTime,
                             content: item.data,
                             studentId: BigInt(item.id),
-                            groupId,
+                            groupId: null,
                             createdAt: getNowKST(),
                         },
                     });

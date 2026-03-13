@@ -54,12 +54,12 @@ export class DeleteAccountUseCase {
             const groupIds = groups.map((g) => g.id);
 
             if (groupIds.length > 0) {
-                // 3b. 해당 그룹들의 학생 ID 목록 조회
-                const students = await tx.student.findMany({
-                    where: { groupId: { in: groupIds }, deletedAt: null },
-                    select: { id: true },
+                // 3b. 해당 그룹들의 학생 ID 목록 조회 (StudentGroup 기반)
+                const studentGroupRecords = await tx.studentGroup.findMany({
+                    where: { groupId: { in: groupIds } },
+                    select: { studentId: true },
                 });
-                const studentIds = students.map((s) => s.id);
+                const studentIds = [...new Set(studentGroupRecords.map((sg) => sg.studentId))];
 
                 // 3c. 출석 소프트 삭제
                 if (studentIds.length > 0) {
@@ -70,10 +70,12 @@ export class DeleteAccountUseCase {
                 }
 
                 // 3d. 학생 소프트 삭제
-                await tx.student.updateMany({
-                    where: { groupId: { in: groupIds }, deletedAt: null },
-                    data: { deletedAt: now },
-                });
+                if (studentIds.length > 0) {
+                    await tx.student.updateMany({
+                        where: { id: { in: studentIds }, deletedAt: null },
+                        data: { deletedAt: now },
+                    });
+                }
             }
 
             // 3e. 그룹 소프트 삭제

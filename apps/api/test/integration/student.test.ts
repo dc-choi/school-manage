@@ -35,12 +35,12 @@ describe('student 통합 테스트', () => {
             const mockStudentsWithGroup = [
                 {
                     ...createMockStudent({}),
-                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
+                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
                     registrations: [],
                 },
                 {
                     ...createMockStudent({}),
-                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
+                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
                     registrations: [],
                 },
             ];
@@ -76,7 +76,6 @@ describe('student 통합 테스트', () => {
 
             const newStudent = createMockStudent({
                 societyName: '홍길동',
-                groupId: BigInt(groupId),
             });
 
             // student.count → isFirstStudent 판정 (0이면 첫 학생)
@@ -93,7 +92,9 @@ describe('student 통합 테스트', () => {
                 },
                 studentGroup: {
                     create: vi.fn().mockResolvedValue({}),
-                    findMany: vi.fn().mockResolvedValue([{ group: { id: BigInt(groupId), name: '테스트그룹' } }]),
+                    findMany: vi
+                        .fn()
+                        .mockResolvedValue([{ group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE' } }]),
                 },
                 studentSnapshot: {
                     create: vi.fn().mockResolvedValue({}),
@@ -147,10 +148,12 @@ describe('student 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
 
-            const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
+            const mockStudent = createMockStudent({});
             mockPrismaClient.student.findFirst.mockResolvedValueOnce({
                 ...mockStudent,
-                studentGroups: [{ group: { id: BigInt(groupId), name: '테스트그룹', organizationId: BigInt(1) } }],
+                studentGroups: [
+                    { group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE', organizationId: BigInt(1) } },
+                ],
             });
 
             const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
@@ -189,7 +192,7 @@ describe('student 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
 
-            const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
+            const mockStudent = createMockStudent({});
             const updatedStudent = { ...mockStudent, societyName: '수정된이름' };
 
             // $transaction mock (update-student now uses transaction + snapshot + studentGroup)
@@ -204,7 +207,9 @@ describe('student 통합 테스트', () => {
                     findFirst: vi.fn().mockResolvedValue({ studentId: mockStudent.id, groupId: BigInt(groupId) }),
                     deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
                     create: vi.fn().mockResolvedValue({}),
-                    findMany: vi.fn().mockResolvedValue([{ group: { id: BigInt(groupId), name: '테스트그룹' } }]),
+                    findMany: vi
+                        .fn()
+                        .mockResolvedValue([{ group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE' } }]),
                 },
                 studentSnapshot: {
                     create: vi.fn().mockResolvedValue({}),
@@ -257,8 +262,10 @@ describe('student 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
             const groupId = String(mockGroup.id);
 
-            const mockStudent = createMockStudent({ groupId: BigInt(groupId) });
-            const studentGroups = [{ group: { id: BigInt(groupId), name: '테스트그룹', organizationId: BigInt(1) } }];
+            const mockStudent = createMockStudent({});
+            const studentGroups = [
+                { group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE', organizationId: BigInt(1) } },
+            ];
             mockPrismaClient.student.findFirst.mockResolvedValueOnce({
                 ...mockStudent,
                 studentGroups,
@@ -412,7 +419,12 @@ describe('student 통합 테스트', () => {
                     findUnique: vi.fn().mockResolvedValue({ type: orgType }),
                 },
                 student: {
-                    findMany: vi.fn().mockResolvedValue(students.map((s) => ({ ...s, group: mockGroup }))),
+                    findMany: vi.fn().mockResolvedValue(
+                        students.map((s) => ({
+                            ...s,
+                            studentGroups: [{ group: { id: mockGroup.id, type: 'GRADE' } }],
+                        }))
+                    ),
                     update: vi.fn().mockResolvedValue({}),
                 },
                 studentSnapshot: {
@@ -596,7 +608,6 @@ describe('student 통합 테스트', () => {
             const mockStudent = createMockStudent({
                 id: BigInt(1),
                 societyName: '홍길동',
-                groupId: mockGroup.id,
                 graduatedAt: new Date(),
                 deletedAt: null,
             });
@@ -604,7 +615,12 @@ describe('student 통합 테스트', () => {
             // $transaction mock
             const txMock = {
                 student: {
-                    findMany: vi.fn().mockResolvedValue([{ ...mockStudent, group: mockGroup }]),
+                    findMany: vi.fn().mockResolvedValue([
+                        {
+                            ...mockStudent,
+                            studentGroups: [{ group: { id: mockGroup.id, type: 'GRADE' } }],
+                        },
+                    ]),
                     update: vi.fn().mockResolvedValue({}),
                 },
                 studentSnapshot: {
@@ -976,8 +992,8 @@ describe('student 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
 
             const mockActiveStudent = {
-                ...createMockStudent({ groupId: mockGroup.id, graduatedAt: null }),
-                studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
+                ...createMockStudent({ graduatedAt: null }),
+                studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
                 registrations: [],
             };
 
@@ -1001,8 +1017,8 @@ describe('student 통합 테스트', () => {
             const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
 
             const mockGraduatedStudent = {
-                ...createMockStudent({ groupId: mockGroup.id, graduatedAt: new Date() }),
-                studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
+                ...createMockStudent({ graduatedAt: new Date() }),
+                studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
                 registrations: [],
             };
 
@@ -1027,13 +1043,13 @@ describe('student 통합 테스트', () => {
 
             const mockStudents = [
                 {
-                    ...createMockStudent({ groupId: mockGroup.id, graduatedAt: null }),
-                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
+                    ...createMockStudent({ graduatedAt: null }),
+                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
                     registrations: [],
                 },
                 {
-                    ...createMockStudent({ groupId: mockGroup.id, graduatedAt: new Date() }),
-                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹' } }],
+                    ...createMockStudent({ graduatedAt: new Date() }),
+                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
                     registrations: [],
                 },
             ];

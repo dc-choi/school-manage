@@ -17,7 +17,7 @@ export class GetStudentUseCase {
             include: {
                 studentGroups: {
                     include: {
-                        group: { select: { id: true, name: true, organizationId: true } },
+                        group: { select: { id: true, name: true, type: true, organizationId: true } },
                     },
                 },
             },
@@ -52,6 +52,7 @@ export class GetStudentUseCase {
             groups: student.studentGroups.map((sg) => ({
                 id: String(sg.group.id),
                 name: sg.group.name,
+                type: sg.group.type,
             })),
             baptizedAt: student.baptizedAt ?? undefined,
             deletedAt: student.deletedAt?.toISOString(),

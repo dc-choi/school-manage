@@ -20,6 +20,7 @@ describe('statistics 통합 테스트', () => {
         mockPrismaClient.group.findMany.mockReset();
         mockPrismaClient.student.findMany.mockReset();
         mockPrismaClient.student.count.mockReset();
+        mockPrismaClient.studentGroup.findMany.mockReset();
         mockPrismaClient.attendance.findMany.mockReset();
         mockPrismaClient.studentSnapshot.findMany.mockReset();
         mockPrismaClient.groupSnapshot.findMany.mockReset();
@@ -168,9 +169,9 @@ describe('statistics 통합 테스트', () => {
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             // student.findMany (그룹 소속 전체 학생 조회)
             mockPrismaClient.student.findMany.mockResolvedValueOnce([
-                createMockStudent({ id: BigInt(1), groupId: mockGroup.id, gender: 'M' }),
-                createMockStudent({ id: BigInt(2), groupId: mockGroup.id, gender: 'F' }),
-                createMockStudent({ id: BigInt(3), groupId: mockGroup.id, gender: null }),
+                createMockStudent({ id: BigInt(1), gender: 'M' }),
+                createMockStudent({ id: BigInt(2), gender: 'F' }),
+                createMockStudent({ id: BigInt(3), gender: null }),
             ]);
             // attendance.findMany (기간 내 전체 출석 데이터)
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
@@ -233,10 +234,10 @@ describe('statistics 통합 테스트', () => {
 
             // group.findMany
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup1, mockGroup2]);
-            // student.findMany (그룹별 학생 수 조회)
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([
-                createMockStudent({ id: BigInt(1), groupId: mockGroup1.id }),
-                createMockStudent({ id: BigInt(2), groupId: mockGroup2.id }),
+            // studentGroup.findMany (그룹별 학생 수 조회 — StudentGroup 기반)
+            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
+                { groupId: mockGroup1.id },
+                { groupId: mockGroup2.id },
             ]);
             // attendance.findMany (groupId 기반)
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([
@@ -316,9 +317,9 @@ describe('statistics 통합 테스트', () => {
 
             // group.findMany
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            // student.findMany (그룹별 학생 수 조회)
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([
-                createMockStudent({ id: BigInt(1), groupId: mockGroup.id }),
+            // studentGroup.findMany (그룹별 학생 수 조회 — StudentGroup 기반)
+            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
+                { studentId: BigInt(1), groupId: mockGroup.id },
             ]);
             // registration.findMany (등록 학생 조회)
             mockPrismaClient.registration.findMany.mockResolvedValueOnce([{ studentId: BigInt(1) }]);
@@ -476,7 +477,7 @@ describe('statistics 통합 테스트', () => {
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             // student.findMany (졸업 필터 적용 후 재학생 1명만)
             mockPrismaClient.student.findMany.mockResolvedValueOnce([
-                createMockStudent({ id: BigInt(1), groupId: mockGroup.id, gender: 'M' }),
+                createMockStudent({ id: BigInt(1), gender: 'M' }),
             ]);
             // attendance.findMany
             mockPrismaClient.attendance.findMany.mockResolvedValueOnce([

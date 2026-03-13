@@ -145,7 +145,7 @@ export function StudentListPage() {
         { key: 'catholicName', header: '세례명' },
         {
             key: 'groups',
-            header: '학년',
+            header: '학년&부서',
             render: (row: (typeof students)[0]) =>
                 row.groups?.length ? row.groups.map((g) => g.name).join(', ') : '-',
         },
@@ -300,7 +300,7 @@ export function StudentListPage() {
             <StudentImportModal
                 open={importModalOpen}
                 onOpenChange={setImportModalOpen}
-                groups={groups.map((g) => ({ id: g.id, name: g.name }))}
+                groups={groups.filter((g) => g.type === 'GRADE').map((g) => ({ id: g.id, name: g.name }))}
                 onImportSuccess={() => setImportModalOpen(false)}
             />
 

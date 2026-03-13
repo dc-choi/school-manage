@@ -24,16 +24,21 @@ export class GetGroupAttendanceUseCase {
         // 해당 연도의 토/일 날짜 계산
         const { saturday, sunday } = await getYearDate(year);
 
-        // 그룹에 속한 학생들 조회 (졸업생 제외)
-        const students = await database.student.findMany({
+        // 그룹에 속한 학생들 조회 (졸업생 제외) — StudentGroup 기반
+        const studentGroupRecords = await database.studentGroup.findMany({
             where: {
                 groupId: BigInt(input.groupId),
-                deletedAt: null,
-                graduatedAt: null,
+                student: {
+                    deletedAt: null,
+                    graduatedAt: null,
+                },
             },
-            orderBy: [{ age: 'asc' }, { societyName: 'asc' }],
+            include: {
+                student: true,
+            },
+            orderBy: { student: { age: 'asc' } },
         });
-        const studentIds = students.map((s) => s.id);
+        const studentIds = studentGroupRecords.map((sg) => sg.student.id);
 
         // 학생들의 출석 데이터 조회
         const attendances = await database.attendance.findMany({
@@ -47,15 +52,15 @@ export class GetGroupAttendanceUseCase {
             year,
             sunday,
             saturday,
-            students: students.map((s) => ({
-                id: String(s.id),
-                societyName: s.societyName,
-                catholicName: s.catholicName ?? undefined,
-                age: s.age != null ? Number(s.age) : undefined,
-                contact: s.contact != null ? String(s.contact) : undefined,
-                description: s.description ?? undefined,
-                groups: [{ id: String(s.groupId), name: '' }],
-                baptizedAt: s.baptizedAt ?? undefined,
+            students: studentGroupRecords.map((sg) => ({
+                id: String(sg.student.id),
+                societyName: sg.student.societyName,
+                catholicName: sg.student.catholicName ?? undefined,
+                age: sg.student.age != null ? Number(sg.student.age) : undefined,
+                contact: sg.student.contact != null ? String(sg.student.contact) : undefined,
+                description: sg.student.description ?? undefined,
+                groups: [{ id: String(group.id), name: group.name, type: group.type }],
+                baptizedAt: sg.student.baptizedAt ?? undefined,
             })),
             attendances: attendances.map((a) => ({
                 id: String(a.id),

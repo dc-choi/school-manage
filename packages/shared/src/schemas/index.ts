@@ -24,19 +24,29 @@ export type { LoginInput, CheckIdInput, SignupInput, ResetPasswordInput, Restore
 // Group 스키마
 export {
     getGroupInputSchema,
+    listGroupsInputSchema,
     createGroupInputSchema,
     updateGroupInputSchema,
     deleteGroupInputSchema,
     bulkDeleteGroupsInputSchema,
     getGroupAttendanceInputSchema,
+    addStudentToGroupInputSchema,
+    removeStudentFromGroupInputSchema,
+    bulkAddStudentsToGroupInputSchema,
+    bulkRemoveStudentsFromGroupInputSchema,
 } from './group.js';
 export type {
     GetGroupInput,
+    ListGroupsInput,
     CreateGroupInput,
     UpdateGroupInput,
     DeleteGroupInput,
     BulkDeleteGroupsInput,
     GetGroupAttendanceInput,
+    AddStudentToGroupInput,
+    RemoveStudentFromGroupInput,
+    BulkAddStudentsToGroupInput,
+    BulkRemoveStudentsFromGroupInput,
 } from './group.js';
 
 // Student 스키마

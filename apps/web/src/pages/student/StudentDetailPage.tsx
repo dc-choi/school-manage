@@ -162,12 +162,15 @@ export function StudentDetailPage() {
                                 <InfoRow label="연락처" value={contactDisplay} />
                                 <div className="flex flex-col border-b py-4 last:border-b-0 sm:flex-row sm:items-center">
                                     <dt className="mb-1 shrink-0 text-base font-medium text-muted-foreground sm:mb-0 sm:w-32 sm:text-xl">
-                                        학년
+                                        학년&부서
                                     </dt>
                                     <dd className="flex flex-wrap gap-1">
                                         {student?.groups?.length ? (
                                             student.groups.map((g) => (
-                                                <Badge key={g.id} variant="secondary">
+                                                <Badge
+                                                    key={g.id}
+                                                    variant={g.type === 'GRADE' ? 'default' : 'secondary'}
+                                                >
                                                     {g.name}
                                                 </Badge>
                                             ))

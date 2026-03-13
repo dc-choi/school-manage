@@ -7,19 +7,22 @@ import type { ListGroupsOutput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 export class ListGroupsUseCase {
-    async execute(organizationId: string): Promise<ListGroupsOutput> {
+    async execute(organizationId: string, type?: string): Promise<ListGroupsOutput> {
         const groups = await database.group.findMany({
             where: {
                 organizationId: BigInt(organizationId),
                 deletedAt: null,
+                ...(type ? { type } : {}),
             },
             include: {
                 _count: {
                     select: {
-                        students: {
+                        studentGroups: {
                             where: {
-                                deletedAt: null,
-                                graduatedAt: null,
+                                student: {
+                                    deletedAt: null,
+                                    graduatedAt: null,
+                                },
                             },
                         },
                     },
@@ -31,8 +34,9 @@ export class ListGroupsUseCase {
             groups: groups.map((group) => ({
                 id: String(group.id),
                 name: group.name,
+                type: group.type,
                 organizationId: String(group.organizationId),
-                studentCount: group._count.students,
+                studentCount: group._count.studentGroups,
             })),
         };
     }

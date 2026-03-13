@@ -11,9 +11,7 @@ export class HasAttendanceUseCase {
         const count = await database.attendance.count({
             where: {
                 student: {
-                    group: {
-                        organizationId: BigInt(organizationId),
-                    },
+                    organizationId: BigInt(organizationId),
                     deletedAt: null,
                 },
                 deletedAt: null,

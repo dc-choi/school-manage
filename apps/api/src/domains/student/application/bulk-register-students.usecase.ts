@@ -15,21 +15,11 @@ export class BulkRegisterStudentsUseCase {
             const year = input.year ?? new Date().getFullYear();
             const now = getNowKST();
 
-            // 해당 조직 소유 그룹의 학생만 등록
-            const groups = await database.group.findMany({
-                where: {
-                    organizationId: BigInt(organizationId),
-                    deletedAt: null,
-                },
-                select: { id: true },
-            });
-            const groupIds = groups.map((g) => g.id);
-
             // 조직 소속 학생인지 확인
             const validStudents = await database.student.findMany({
                 where: {
                     id: { in: ids },
-                    groupId: { in: groupIds },
+                    organizationId: BigInt(organizationId),
                 },
                 select: { id: true },
             });

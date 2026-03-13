@@ -1,13 +1,22 @@
 import { AttendanceModal } from './AttendanceModal';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarHeader } from './CalendarHeader';
-import type { AttendanceData } from '@school/shared';
+import { type AttendanceData, GROUP_TYPE } from '@school/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingSpinner } from '~/components/common';
 import { MainLayout } from '~/components/layout';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardHeader } from '~/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectSeparator,
+    SelectTrigger,
+    SelectValue,
+} from '~/components/ui/select';
 import { useCalendar, useDayDetail } from '~/features/attendance';
 import { useGroups } from '~/features/group';
 
@@ -105,9 +114,9 @@ export function CalendarPage() {
                 <Card>
                     <CardContent className="py-6">
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                            {/* 그룹 선택 */}
+                            {/* 학년&부서 선택 */}
                             <div className="flex items-center gap-4">
-                                <span className="text-sm font-medium text-muted-foreground">학년 선택</span>
+                                <span className="text-sm font-medium text-muted-foreground">학년&부서 선택</span>
                                 <Select
                                     value={selectedGroupId}
                                     onValueChange={(value) => {
@@ -115,14 +124,34 @@ export function CalendarPage() {
                                     }}
                                 >
                                     <SelectTrigger className="w-48">
-                                        <SelectValue placeholder="학년을 선택하세요" />
+                                        <SelectValue placeholder="학년&부서를 선택하세요" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {groups.map((g) => (
-                                            <SelectItem key={g.id} value={g.id}>
-                                                {g.name}
-                                            </SelectItem>
-                                        ))}
+                                        <SelectGroup>
+                                            <SelectLabel>학년</SelectLabel>
+                                            {groups
+                                                .filter((g) => g.type === GROUP_TYPE.GRADE)
+                                                .map((g) => (
+                                                    <SelectItem key={g.id} value={g.id}>
+                                                        {g.name}
+                                                    </SelectItem>
+                                                ))}
+                                        </SelectGroup>
+                                        {groups.some((g) => g.type === GROUP_TYPE.DEPARTMENT) ? (
+                                            <>
+                                                <SelectSeparator />
+                                                <SelectGroup>
+                                                    <SelectLabel>부서</SelectLabel>
+                                                    {groups
+                                                        .filter((g) => g.type === GROUP_TYPE.DEPARTMENT)
+                                                        .map((g) => (
+                                                            <SelectItem key={g.id} value={g.id}>
+                                                                {g.name}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectGroup>
+                                            </>
+                                        ) : null}
                                     </SelectContent>
                                 </Select>
                             </div>

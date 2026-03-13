@@ -12,20 +12,10 @@ export class RestoreStudentsUseCase {
         try {
             const ids = input.ids.map((id) => BigInt(id));
 
-            // 해당 조직 소유 그룹의 학생만 복구
-            const groups = await database.group.findMany({
-                where: {
-                    organizationId: BigInt(organizationId),
-                    deletedAt: null,
-                },
-                select: { id: true },
-            });
-            const groupIds = groups.map((g) => g.id);
-
             const result = await database.student.updateMany({
                 where: {
                     id: { in: ids },
-                    groupId: { in: groupIds },
+                    organizationId: BigInt(organizationId),
                     deletedAt: { not: null },
                 },
                 data: {

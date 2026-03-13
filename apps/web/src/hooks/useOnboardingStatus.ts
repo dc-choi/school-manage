@@ -11,7 +11,7 @@ import { trpc } from '~/lib/trpc';
  */
 export const useOnboardingStatus = () => {
     const queryOptions = { staleTime: 0 } as const;
-    const groupsQuery = trpc.group.list.useQuery(undefined, queryOptions);
+    const groupsQuery = trpc.group.list.useQuery({}, queryOptions);
     const studentsQuery = trpc.student.list.useQuery({ page: 1 }, queryOptions);
     const attendanceQuery = trpc.attendance.hasAttendance.useQuery(undefined, queryOptions);
 
