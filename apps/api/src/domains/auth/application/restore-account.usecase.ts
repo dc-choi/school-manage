@@ -2,7 +2,8 @@
  * Restore Account UseCase
  *
  * 삭제된 계정 복원 비즈니스 로직
- * 비밀번호 검증 → 2년 이내 확인 → 트랜잭션 내 cascade 복원 → JWT 발급
+ * 비밀번호 검증 → 2년 이내 확인 → 계정 복원 → JWT 발급
+ * 조직 재합류는 사용자가 직접 수행
  */
 import {
     generateFamilyId,
@@ -57,49 +58,10 @@ export class RestoreAccountUseCase {
             });
         }
 
-        // 4. 트랜잭션 내 cascade 복원
-        await database.$transaction(async (tx) => {
-            // 4a. 계정 복원
-            await tx.account.update({
-                where: { id: account.id },
-                data: { deletedAt: null },
-            });
-
-            // 4b. 그룹 복원
-            const groups = await tx.group.findMany({
-                where: { accountId: account.id, deletedAt: { not: null } },
-                select: { id: true },
-            });
-            const groupIds = groups.map((g) => g.id);
-
-            if (groupIds.length > 0) {
-                await tx.group.updateMany({
-                    where: { accountId: account.id, deletedAt: { not: null } },
-                    data: { deletedAt: null },
-                });
-
-                // 4c. 학생 복원 (StudentGroup 기반)
-                const studentGroupRecords = await tx.studentGroup.findMany({
-                    where: { groupId: { in: groupIds } },
-                    select: { studentId: true },
-                });
-                const studentIds = [...new Set(studentGroupRecords.map((sg) => sg.studentId))];
-
-                if (studentIds.length > 0) {
-                    await tx.student.updateMany({
-                        where: { id: { in: studentIds }, deletedAt: { not: null } },
-                        data: { deletedAt: null },
-                    });
-                }
-
-                // 4d. 출석 복원
-                if (studentIds.length > 0) {
-                    await tx.attendance.updateMany({
-                        where: { studentId: { in: studentIds }, deletedAt: { not: null } },
-                        data: { deletedAt: null },
-                    });
-                }
-            }
+        // 4. 계정 복원 (조직 재합류는 사용자가 직접 수행)
+        await database.account.update({
+            where: { id: account.id },
+            data: { deletedAt: null },
         });
 
         // 5. JWT 발급
