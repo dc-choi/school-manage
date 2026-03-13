@@ -175,83 +175,91 @@ export function StudentListPage() {
 
     return (
         <MainLayout title="학생 목록">
-            <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <Select
-                        value={searchOptionInput}
-                        onValueChange={(value) => setSearchOptionInput(value as typeof searchOptionInput)}
-                    >
-                        <SelectTrigger className="w-full sm:w-24">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">전체</SelectItem>
-                            <SelectItem value="societyName">이름</SelectItem>
-                            <SelectItem value="catholicName">세례명</SelectItem>
-                            <SelectItem value="baptizedAt">축일</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <div className="flex gap-2">
-                        <Input
-                            type="text"
-                            value={searchInput}
-                            onChange={(e) => setSearchInput(e.target.value)}
-                            placeholder="검색어 입력…"
-                            className="flex-1 sm:w-48"
-                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                        />
-                        <Button variant="outline" onClick={handleSearch}>
-                            검색
+            <div className="flex h-[calc(100vh-6.5rem)] flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
+                {/* 컨트롤 영역 */}
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <Select
+                            value={searchOptionInput}
+                            onValueChange={(value) => setSearchOptionInput(value as typeof searchOptionInput)}
+                        >
+                            <SelectTrigger className="h-9 w-full sm:w-24">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">전체</SelectItem>
+                                <SelectItem value="societyName">이름</SelectItem>
+                                <SelectItem value="catholicName">세례명</SelectItem>
+                                <SelectItem value="baptizedAt">축일</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <div className="flex gap-2">
+                            <Input
+                                type="text"
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                placeholder="검색어 입력…"
+                                className="h-9 flex-1 sm:w-48"
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Button variant="outline" size="sm" onClick={handleSearch}>
+                                검색
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {isSomeSelected ? (
+                            <>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => setBulkAction('graduate')}
+                                    disabled={isGraduating}
+                                >
+                                    졸업 처리 ({selectedIds.size})
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => setBulkAction('delete')}
+                                    disabled={isBulkDeleting}
+                                >
+                                    선택 삭제 ({selectedIds.size})
+                                </Button>
+                            </>
+                        ) : null}
+                        <Button variant="outline" size="sm" onClick={() => setRegistrationModalOpen(true)}>
+                            등록 관리
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => setGraduatedModalOpen(true)}>
+                            졸업생 ({graduatedTotal})
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
+                            <Upload className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                            엑셀 업로드
+                        </Button>
+                        <Button size="sm" onClick={() => navigate('/students/new')}>
+                            학생 추가
                         </Button>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                    {isSomeSelected ? (
-                        <>
-                            <Button
-                                variant="secondary"
-                                onClick={() => setBulkAction('graduate')}
-                                disabled={isGraduating}
-                            >
-                                졸업 처리 ({selectedIds.size})
-                            </Button>
-                            <Button
-                                variant="destructive"
-                                onClick={() => setBulkAction('delete')}
-                                disabled={isBulkDeleting}
-                            >
-                                선택 삭제 ({selectedIds.size})
-                            </Button>
-                        </>
-                    ) : null}
-                    <Button variant="outline" onClick={() => setRegistrationModalOpen(true)}>
-                        등록 관리
-                    </Button>
-                    <Button variant="outline" onClick={() => setGraduatedModalOpen(true)}>
-                        졸업생 ({graduatedTotal})
-                    </Button>
-                    <Button variant="outline" onClick={() => setImportModalOpen(true)}>
-                        <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
-                        엑셀 업로드
-                    </Button>
-                    <Button onClick={() => navigate('/students/new')}>학생 추가</Button>
-                </div>
-            </div>
 
-            <Table
-                columns={columns}
-                data={students}
-                keyExtractor={(row) => row.id}
-                isLoading={isLoading}
-                emptyMessage="등록된 학생이 없습니다. 학생을 등록하면 출석 체크를 시작할 수 있어요."
-                onRowClick={(row) => navigate(`/students/${row.id}`)}
-            />
+                {/* 테이블 영역 */}
+                <Table
+                    columns={columns}
+                    data={students}
+                    keyExtractor={(row) => row.id}
+                    isLoading={isLoading}
+                    emptyMessage="등록된 학생이 없습니다. 학생을 등록하면 출석 체크를 시작할 수 있어요."
+                    onRowClick={(row) => navigate(`/students/${row.id}`)}
+                    className="min-h-0 flex-1"
+                />
 
-            {totalPage > 1 && (
-                <div className="mt-4">
+                {/* 페이지네이션 */}
+                {totalPage > 1 ? (
                     <Pagination currentPage={currentPage} totalPages={totalPage} onPageChange={setPage} />
-                </div>
-            )}
+                ) : null}
+            </div>
 
             {/* 일괄 삭제 확인 다이얼로그 */}
             <AlertDialog open={bulkAction === 'delete'} onOpenChange={(open) => !open && setBulkAction(null)}>

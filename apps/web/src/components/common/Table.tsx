@@ -16,6 +16,7 @@ interface TableProps<T> {
     isLoading?: boolean;
     emptyMessage?: string;
     onRowClick?: (row: T) => void;
+    className?: string;
 }
 
 export function Table<T>({
@@ -25,19 +26,20 @@ export function Table<T>({
     isLoading = false,
     emptyMessage = '데이터가 없습니다.',
     onRowClick,
+    className,
 }: TableProps<T>) {
     if (isLoading) {
         return (
-            <Card className="flex h-40 items-center justify-center">
+            <Card className={`flex h-40 items-center justify-center ${className ?? ''}`}>
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </Card>
         );
     }
 
     return (
-        <Card className="overflow-x-auto">
+        <Card className={`overflow-auto ${className ?? ''}`}>
             <UITable>
-                <TableHeader>
+                <TableHeader className="sticky top-0 z-20 bg-muted/80 backdrop-blur-sm">
                     <TableRow>
                         {columns.map((column) => (
                             <TableHead key={column.key} className={column.className}>

@@ -5,13 +5,6 @@ import { Card } from '~/components/ui/card';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
-const LITURGICAL_COLOR_MAP: Record<string, string> = {
-    purple: 'bg-purple-500',
-    white: 'bg-amber-300',
-    green: 'bg-green-500',
-    red: 'bg-red-500',
-};
-
 export function LiturgicalSeasonCard() {
     const currentYear = new Date().getFullYear();
     const { data, isLoading, isError } = trpc.liturgical.season.useQuery(
@@ -43,12 +36,10 @@ export function LiturgicalSeasonCard() {
         return null;
     }
 
-    const colorClass = LITURGICAL_COLOR_MAP[data.color] ?? 'bg-gray-400';
-
     return (
         <Card className="p-4">
             <div className="flex items-center gap-2">
-                <span className={`h-3 w-3 shrink-0 rounded-full ${colorClass}`} aria-hidden="true" />
+                <span className="h-3 w-3 shrink-0 rounded-full bg-primary" aria-hidden="true" />
                 <span className="font-semibold">{data.season}</span>
             </div>
 

@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '~/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet';
 import { useAuth } from '~/features/auth';
+import { useLiturgicalTheme } from '~/hooks/useLiturgicalTheme';
 import { cn } from '~/lib/utils';
 
 export interface MainLayoutProps {
@@ -17,6 +18,7 @@ export function MainLayout({ children, title }: MainLayoutProps) {
     const navigate = useNavigate();
     const location = useLocation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    useLiturgicalTheme();
 
     const handleLogout = () => {
         logout();
