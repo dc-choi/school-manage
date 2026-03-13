@@ -3,7 +3,7 @@
  *
  * 전체 교구 목록 조회
  */
-import type { ListParishesOutput } from '@school/trpc';
+import type { ListParishesOutput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 export class ListParishesUseCase {

@@ -32,7 +32,8 @@ school_back/
 │   ├── api/              # Express + tRPC API 서버 (@school/api)
 │   └── web/              # Vite + React 웹 앱 (@school/web)
 ├── packages/
-│   ├── trpc/             # 공유 tRPC 타입/라우터 (@school/trpc)
+│   ├── shared/           # 도메인 공유 상수/타입/스키마 (@school/shared)
+│   ├── trpc/             # tRPC 인프라 (@school/trpc)
 │   └── utils/            # 공유 유틸리티 함수 (@school/utils)
 ├── docs/
 │   ├── business/         # 사업 문서
@@ -45,8 +46,10 @@ school_back/
 
 ### 패키지 의존성
 ```
-@school/api → @school/trpc, @school/utils
-@school/web → @school/trpc, @school/utils
+@school/shared ← zod (도메인 상수, Zod 스키마, Input/Output 타입)
+@school/trpc   ← @school/shared (tRPC router, procedures, middleware, context)
+@school/api    ← @school/shared, @school/trpc, @school/utils
+@school/web    ← @school/shared, @school/trpc, @school/utils, AppRouter(api, type-only)
 ```
 
 ### 경로별 Rules
@@ -56,7 +59,8 @@ school_back/
 | `apps/api/**`       | `rules/api.md`      | API 서버 아키텍처, UseCase 패턴, DB        |
 | `apps/web/**`       | `rules/web.md`      | 웹 앱 구조, 라우팅, tRPC 클라이언트            |
 | `apps/web/**`       | `rules/design.md`   | UI/UX 디자인 가이드, shadcn/ui, Tailwind |
-| `packages/trpc/**`  | `rules/trpc.md`     | tRPC 라우터 작성 규칙                     |
+| `packages/shared/**`| `rules/shared.md`   | 도메인 상수, 타입, Zod 스키마               |
+| `packages/trpc/**`  | `rules/trpc.md`     | tRPC 인프라 (router, procedures)      |
 | `packages/utils/**` | `rules/utils.md`    | 공유 유틸리티 함수                         |
 | `docs/business/**`  | `rules/business.md` | 사업 에이전트 가이드                        |
 | `docs/specs/**`     | `rules/specs.md`    | SDD 워크플로우, 문서 작성 규칙               |
@@ -134,7 +138,7 @@ tsc -b -v tsconfig.build.json   # 전체 의존성 순서대로 빌드
 ### Turborepo
 - `turbo.json`에서 태스크 의존성 정의
 - `start` 태스크는 `^build`, `^start` 의존 (빌드 선행 보장)
-- `dev` 태스크는 `@school/trpc#build` 의존 (tRPC 패키지 빌드 후 실행)
+- `dev` 태스크는 `@school/shared#build`, `@school/trpc#build` 의존
 - 캐시: `.turbo/cache/`
 
 ### TypeScript Project References

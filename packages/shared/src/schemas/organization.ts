@@ -1,8 +1,8 @@
 /**
  * Organization 도메인 Zod 스키마
  */
-import { ORGANIZATION_TYPE } from '../shared.js';
-import type { Role } from '../shared.js';
+import { ORGANIZATION_TYPE } from '../constants.js';
+import type { Role } from '../constants.js';
 import { idSchema } from './common.js';
 import { z } from 'zod';
 

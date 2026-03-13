@@ -66,7 +66,7 @@ export const createContext = async ({ req, res }: CreateExpressContextOptions): 
                 name: decoded.name,
                 displayName: account?.displayName ?? decoded.name,
                 organizationId: account?.organizationId ? String(account.organizationId) : undefined,
-                role: (account?.role as import('@school/trpc').Role) ?? undefined,
+                role: (account?.role as import('@school/shared').Role) ?? undefined,
             },
             privacyAgreedAt: account?.privacyAgreedAt ?? null,
         };

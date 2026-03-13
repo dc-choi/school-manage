@@ -3,7 +3,7 @@
  *
  * 학생 일괄 등록 취소 — 소프트 삭제 (로드맵 2단계 — 등록 관리)
  */
-import type { BulkCancelRegistrationInput, BulkCancelRegistrationOutput } from '@school/trpc';
+import type { BulkCancelRegistrationInput, BulkCancelRegistrationOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';

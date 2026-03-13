@@ -3,7 +3,7 @@
  *
  * 계정에 속한 모든 그룹 목록 조회
  */
-import type { ListGroupsOutput } from '@school/trpc';
+import type { ListGroupsOutput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 export class ListGroupsUseCase {

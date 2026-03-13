@@ -4,7 +4,7 @@
  * 삭제된 계정 복원 비즈니스 로직
  * 비밀번호 검증 → 2년 이내 확인 → 트랜잭션 내 cascade 복원 → JWT 발급
  */
-import type { RestoreAccountInput, RestoreAccountOutput } from '@school/trpc';
+import type { RestoreAccountInput, RestoreAccountOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';

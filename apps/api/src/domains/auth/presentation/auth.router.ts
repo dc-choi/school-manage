@@ -11,12 +11,11 @@ import { SignupUseCase } from '../application/signup.usecase.ts';
 import {
     checkIdInputSchema,
     loginInputSchema,
-    publicProcedure,
     resetPasswordInputSchema,
     restoreAccountInputSchema,
-    router,
     signupInputSchema,
-} from '@school/trpc';
+} from '@school/shared';
+import { publicProcedure, router } from '@school/trpc';
 
 export const authRouter = router({
     /**

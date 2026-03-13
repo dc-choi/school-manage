@@ -3,7 +3,7 @@
  *
  * 출석 데이터 업데이트/삭제
  */
-import type { AttendanceData, UpdateAttendanceInput, UpdateAttendanceOutput } from '@school/trpc';
+import type { AttendanceData, UpdateAttendanceInput, UpdateAttendanceOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { getFullTime } from '~/global/utils/utils.js';

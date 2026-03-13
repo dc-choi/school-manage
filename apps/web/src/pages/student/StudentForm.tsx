@@ -1,4 +1,4 @@
-import type { GroupOutput } from '@school/trpc';
+import type { GroupOutput } from '@school/shared';
 import { formatContact } from '@school/utils';
 import { type FormEvent, useState } from 'react';
 import { Button } from '~/components/ui/button';

@@ -7,7 +7,7 @@
  */
 import { PrismaClient, Student } from '@prisma/client';
 import type { ITXClientDenyList } from '@prisma/client/runtime/library';
-import type { PromoteStudentsOutput } from '@school/trpc';
+import type { PromoteStudentsOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';

@@ -9,6 +9,7 @@ WORKDIR /app
 # 의존성 설치 (캐시 활용)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
+COPY packages/shared/package.json ./packages/shared/
 COPY packages/trpc/package.json ./packages/trpc/
 COPY packages/utils/package.json ./packages/utils/
 
@@ -28,6 +29,7 @@ WORKDIR /app
 # 프로덕션 의존성만 설치
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
+COPY packages/shared/package.json ./packages/shared/
 COPY packages/trpc/package.json ./packages/trpc/
 COPY packages/utils/package.json ./packages/utils/
 
@@ -36,6 +38,7 @@ RUN pnpm install --frozen-lockfile --prod
 # 빌드 산출물 복사
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/trpc/dist ./packages/trpc/dist
 COPY --from=builder /app/packages/utils/dist ./packages/utils/dist
 

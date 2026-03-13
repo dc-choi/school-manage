@@ -20,7 +20,7 @@ module.exports = defineConfig([
             sourceType: 'module',
 
             parserOptions: {
-                project: ['apps/api/tsconfig.json', 'apps/web/tsconfig.json', 'packages/trpc/tsconfig.json'],
+                project: ['apps/api/tsconfig.json', 'apps/web/tsconfig.json', 'packages/shared/tsconfig.json', 'packages/trpc/tsconfig.json'],
                 tsconfigRootDir: __dirname,
             },
 

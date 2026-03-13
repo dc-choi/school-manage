@@ -3,7 +3,7 @@
  *
  * 로그인 비즈니스 로직을 캡슐화
  */
-import type { LoginInput, LoginOutput } from '@school/trpc';
+import type { LoginInput, LoginOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';

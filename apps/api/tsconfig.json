@@ -15,7 +15,9 @@
         "outDir": "./dist",
         "baseUrl": "./",
         "paths": {
-            "~/*": ["./src/*"]
+            "~/*": [
+                "./src/*"
+            ]
         },
         "incremental": true,
         "skipLibCheck": true,
@@ -27,7 +29,23 @@
         "composite": true,
         "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
     },
-    "include": ["src", "test", "vitest.setup.ts", "package.json"],
-    "exclude": ["node_modules", "dist", "vitest.config.ts"],
-    "references": [{ "path": "../../packages/trpc" }]
+    "include": [
+        "src",
+        "test",
+        "vitest.setup.ts",
+        "package.json"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "vitest.config.ts"
+    ],
+    "references": [
+        {
+            "path": "../../packages/shared"
+        },
+        {
+            "path": "../../packages/trpc"
+        }
+    ]
 }

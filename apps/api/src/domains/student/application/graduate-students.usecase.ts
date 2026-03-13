@@ -9,8 +9,8 @@ import type {
     GraduatedStudent,
     OrganizationType,
     SkippedStudent,
-} from '@school/trpc';
-import { getMaxGraduationAge } from '@school/trpc';
+} from '@school/shared';
+import { getMaxGraduationAge } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';

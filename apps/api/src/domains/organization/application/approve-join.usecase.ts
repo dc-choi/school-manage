@@ -3,7 +3,7 @@
  *
  * 합류 요청 승인 (admin 전용)
  */
-import { type ApproveJoinInput, JOIN_REQUEST_STATUS, ROLE } from '@school/trpc';
+import { type ApproveJoinInput, JOIN_REQUEST_STATUS, ROLE } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createAccountSnapshot } from '~/domains/snapshot/snapshot.helper.js';

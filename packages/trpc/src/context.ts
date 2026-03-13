@@ -1,8 +1,8 @@
-import type { AccountInfo, ChurchInfo, OrganizationInfo } from './shared.js';
-import { Request, Response } from 'express';
+import type { AccountInfo, ChurchInfo, OrganizationInfo } from '@school/shared';
+import type { Request, Response } from 'express';
 
-// AccountInfo 재export (호환성 유지)
-export type { AccountInfo, OrganizationInfo, ChurchInfo } from './shared.js';
+// 하위호환: 기존 consumer가 @school/trpc에서 import 가능
+export type { AccountInfo, OrganizationInfo, ChurchInfo } from '@school/shared';
 
 /**
  * 기본 컨텍스트 (모든 요청)

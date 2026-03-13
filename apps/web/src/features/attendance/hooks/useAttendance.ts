@@ -1,4 +1,4 @@
-import type { AttendanceData } from '@school/trpc';
+import type { AttendanceData } from '@school/shared';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 

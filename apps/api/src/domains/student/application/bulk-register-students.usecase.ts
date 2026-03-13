@@ -3,7 +3,7 @@
  *
  * 학생 일괄 등록 (로드맵 2단계 — 등록 관리)
  */
-import type { BulkRegisterStudentsInput, BulkRegisterStudentsOutput } from '@school/trpc';
+import type { BulkRegisterStudentsInput, BulkRegisterStudentsOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';

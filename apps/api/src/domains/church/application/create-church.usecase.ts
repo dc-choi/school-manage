@@ -3,7 +3,7 @@
  *
  * 새 본당 생성
  */
-import type { CreateChurchInput, CreateChurchOutput } from '@school/trpc';
+import type { CreateChurchInput, CreateChurchOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { database } from '~/infrastructure/database/database.js';
 

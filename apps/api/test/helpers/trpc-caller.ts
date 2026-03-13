@@ -3,8 +3,10 @@
  *
  * HTTP 오버헤드 없이 프로시저를 직접 호출하여 테스트할 수 있습니다.
  */
-import { ROLE, createCallerFactory } from '@school/trpc';
-import type { AuthContext, Context, Role, ScopedContext } from '@school/trpc';
+import { ROLE } from '@school/shared';
+import type { Role } from '@school/shared';
+import { createCallerFactory } from '@school/trpc';
+import type { AuthContext, Context } from '@school/trpc';
 import type { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { appRouter } from '~/app.router.js';

@@ -3,7 +3,7 @@
  *
  * 개인정보 수집·이용 동의 기록 (멱등)
  */
-import type { AgreePrivacyOutput } from '@school/trpc';
+import type { AgreePrivacyOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';

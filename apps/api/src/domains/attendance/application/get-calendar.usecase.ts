@@ -3,7 +3,7 @@
  *
  * 월별 달력 데이터 조회 (출석 현황 + 의무축일)
  */
-import type { CalendarDay, GetCalendarInput, GetCalendarOutput } from '@school/trpc';
+import type { CalendarDay, GetCalendarInput, GetCalendarOutput } from '@school/shared';
 import { TRPCError } from '@trpc/server';
 import { GetHolydaysUseCase } from '~/domains/liturgical/application/get-holydays.usecase.js';
 import { database } from '~/infrastructure/database/database.js';

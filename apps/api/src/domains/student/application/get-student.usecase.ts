@@ -3,7 +3,7 @@
  *
  * 단일 학생 조회
  */
-import type { Gender, GetStudentInput, GetStudentOutput } from '@school/trpc';
+import type { Gender, GetStudentInput, GetStudentOutput } from '@school/shared';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 

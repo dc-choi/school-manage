@@ -3,8 +3,8 @@
  *
  * 그룹별 출석률 순위 TOP N 조회 (스냅샷 기반)
  */
-import { PRESENT_MARKS } from '@school/trpc';
-import type { TopGroupsOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/trpc';
+import { PRESENT_MARKS } from '@school/shared';
+import type { TopGroupsOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/shared';
 import {
     clampToToday,
     countSundays,

@@ -1,7 +1,7 @@
 {
-    "name": "@school/trpc",
+    "name": "@school/shared",
     "version": "0.0.1",
-    "description": "tRPC infrastructure (router, procedures, middleware, context)",
+    "description": "Shared domain constants, types, and Zod schemas",
     "private": true,
     "type": "module",
     "main": "dist/index.js",
@@ -19,14 +19,9 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@school/shared": "workspace:*",
-        "@trpc/server": "catalog:",
-        "superjson": "catalog:"
+        "zod": "^3.23.8"
     },
     "devDependencies": {
-        "@types/express": "catalog:",
-        "@types/express-serve-static-core": "catalog:",
-        "@types/qs": "catalog:",
         "typescript": "catalog:",
         "@types/node": "catalog:",
         "@eslint/eslintrc": "catalog:",

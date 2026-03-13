@@ -16,10 +16,9 @@ import {
     deleteGroupInputSchema,
     getGroupAttendanceInputSchema,
     getGroupInputSchema,
-    router,
-    scopedProcedure,
     updateGroupInputSchema,
-} from '@school/trpc';
+} from '@school/shared';
+import { router, scopedProcedure } from '@school/trpc';
 
 export const groupRouter = router({
     /**

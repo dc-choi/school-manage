@@ -1,4 +1,4 @@
-import type { GroupStatisticsItem, GroupStatisticsOutput } from '@school/trpc';
+import type { GroupStatisticsItem, GroupStatisticsOutput } from '@school/shared';
 import { roundToDecimal } from '@school/utils';
 import { LoadingSpinner } from '~/components/common/LoadingSpinner';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';

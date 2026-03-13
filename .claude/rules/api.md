@@ -72,7 +72,7 @@ pnpm typecheck          # 타입 체크
 ### UseCase 패턴
 
 ```typescript
-import type { CreateStudentInput, CreateStudentOutput } from '@school/trpc';
+import type { CreateStudentInput, CreateStudentOutput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 export class CreateStudentUseCase {
@@ -88,7 +88,8 @@ export class CreateStudentUseCase {
 ### tRPC Router 정의
 
 ```typescript
-import { router, protectedProcedure, createStudentInputSchema } from '@school/trpc';
+import { router, protectedProcedure } from '@school/trpc';
+import { createStudentInputSchema } from '@school/shared';
 
 export const studentRouter = router({
     create: protectedProcedure

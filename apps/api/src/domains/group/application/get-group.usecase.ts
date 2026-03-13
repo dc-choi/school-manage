@@ -3,7 +3,7 @@
  *
  * 단일 그룹 조회 (학생 목록 포함)
  */
-import type { GetGroupInput, GetGroupOutput } from '@school/trpc';
+import type { GetGroupInput, GetGroupOutput } from '@school/shared';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 

@@ -3,7 +3,7 @@
  *
  * 조직에 출석 기록이 존재하는지 확인
  */
-import type { HasAttendanceOutput } from '@school/trpc';
+import type { HasAttendanceOutput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 export class HasAttendanceUseCase {

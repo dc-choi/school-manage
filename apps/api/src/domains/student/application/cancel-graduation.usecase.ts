@@ -3,7 +3,7 @@
  *
  * 학생 졸업 취소 (graduatedAt을 null로 설정)
  */
-import type { CancelGraduationInput, CancelGraduationOutput, GraduatedStudent } from '@school/trpc';
+import type { CancelGraduationInput, CancelGraduationOutput, GraduatedStudent } from '@school/shared';
 import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';

@@ -39,7 +39,7 @@
         "xlsx": "^0.18.5"
     },
     "devDependencies": {
-        "@school/trpc": "workspace:*",
+        "@school/shared": "workspace:*",
         "@tailwindcss/postcss": "^4.1.18",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.1",

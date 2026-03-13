@@ -3,7 +3,7 @@
  *
  * 조직 생성 + 생성자를 admin으로 설정
  */
-import { type CreateOrganizationInput, type CreateOrganizationOutput, ORGANIZATION_TYPE, ROLE } from '@school/trpc';
+import { type CreateOrganizationInput, type CreateOrganizationOutput, ORGANIZATION_TYPE, ROLE } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { createAccountSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';

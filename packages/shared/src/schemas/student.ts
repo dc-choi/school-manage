@@ -1,8 +1,8 @@
 /**
  * Student 도메인 Zod 스키마
  */
-import { GENDER } from '../shared.js';
-import type { Gender } from '../shared.js';
+import { GENDER } from '../constants.js';
+import type { Gender } from '../constants.js';
 import { idSchema, pageSchema, searchOptionSchema, searchWordSchema } from './common.js';
 import { z } from 'zod';
 
