@@ -106,3 +106,17 @@ export interface RestoreAccountOutput {
     displayName: string;
     accessToken: string;
 }
+
+/**
+ * 토큰 갱신 응답
+ */
+export interface RefreshOutput {
+    accessToken: string;
+}
+
+/**
+ * 로그아웃 응답
+ */
+export interface LogoutOutput {
+    success: boolean;
+}

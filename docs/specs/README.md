@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 완료               |
 | **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성) |
-| **Target Non-Functional** | -    | SECURITY 1건 미착수, ANALYTICS 1건 미착수, PERFORMANCE 3건 미착수 |
+| **Target Non-Functional** | -    | SECURITY 1건 완료, ANALYTICS 1건 미착수, PERFORMANCE 3건 미착수 |
 
 ## 관련 문서
 
@@ -93,10 +93,7 @@
 
 | 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
 |------|----------------------|--------|------------------------------------------------------|
-| P1   | Refresh token 인증 확장  | 미작성    | 재명세 예정                                               |
-
-**Refresh token 인증 확장:**
-- 재명세 예정
+| P1   | Refresh token 인증 확장  | **구현 완료** | RTR + Token Family, 브라우저 재시작 후 자동 로그인 |
 
 ### ANALYTICS (Non-Functional)
 

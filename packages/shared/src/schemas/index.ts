@@ -122,7 +122,15 @@ export { changePasswordInputSchema, updateProfileInputSchema, deleteAccountInput
 export type { ChangePasswordInput, UpdateProfileInput, DeleteAccountInput } from './account.js';
 
 // Auth 출력 타입
-export type { LoginOutput, CheckIdOutput, SignupOutput, ResetPasswordOutput, RestoreAccountOutput } from './auth.js';
+export type {
+    LoginOutput,
+    CheckIdOutput,
+    SignupOutput,
+    ResetPasswordOutput,
+    RestoreAccountOutput,
+    RefreshOutput,
+    LogoutOutput,
+} from './auth.js';
 
 // Account 출력 타입
 export type {

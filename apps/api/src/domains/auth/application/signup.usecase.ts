@@ -3,17 +3,25 @@
  *
  * 회원가입 비즈니스 로직
  */
+import {
+    generateFamilyId,
+    generateRefreshToken,
+    getRefreshTokenExpiry,
+    hashRefreshToken,
+    setRefreshTokenCookie,
+} from '../utils/refresh-token.utils.js';
 import type { SignupInput, SignupOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';
+import type { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '~/global/config/env.js';
 import { database } from '~/infrastructure/database/database.js';
 import { mailService } from '~/infrastructure/mail/mail.service.js';
 
 export class SignupUseCase {
-    async execute(input: SignupInput): Promise<SignupOutput> {
+    async execute(input: SignupInput, res: Response): Promise<SignupOutput> {
         // 1. ID를 소문자로 정규화
         const normalizedName = input.name.toLowerCase();
 
@@ -60,7 +68,25 @@ export class SignupUseCase {
             expiresIn: env.jwt.expire.access as jwt.SignOptions['expiresIn'],
         });
 
-        // 7. 결과 반환
+        // 7. Refresh Token 발급 (new family)
+        const rawRefreshToken = generateRefreshToken();
+        const tokenHash = hashRefreshToken(rawRefreshToken);
+        const familyId = generateFamilyId();
+        const expiresAt = getRefreshTokenExpiry();
+
+        await database.refreshToken.create({
+            data: {
+                accountId: account.id,
+                tokenHash,
+                familyId,
+                expiresAt,
+                createdAt: new Date(),
+            },
+        });
+
+        setRefreshTokenCookie(res, rawRefreshToken);
+
+        // 8. 결과 반환
         return {
             name: account.name,
             displayName: account.displayName,

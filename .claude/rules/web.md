@@ -109,11 +109,12 @@ export const trpcClient = trpc.createClient({
 
 ## 인증 플로우
 
-1. **로그인**: `POST /api/auth/login` → `accessToken` 수신
-2. **토큰 저장**: `sessionStorage.setItem('token', accessToken)`
-3. **API 요청**: tRPC httpBatchLink에서 Authorization 헤더 자동 추가
-4. **인증 체크**: `AuthProvider`에서 토큰 유효성 검증 + `privacyAgreedAt` 상태 관리
-5. **동의 체크**: `ProtectedRoute`에서 `privacyAgreedAt` null → `/consent` 리다이렉트
-6. **로그아웃**: `sessionStorage.clear()` → `/login`으로 리다이렉트
+1. **로그인**: `trpc.auth.login` → AT(sessionStorage) + RT(httpOnly 쿠키)
+2. **API 요청**: `httpBatchLink`에서 Authorization 헤더 + `credentials: 'include'`
+3. **AT 만료**: `fetchWithRefresh`가 401 감지 → `auth.refresh` → 새 AT로 재시도
+4. **브라우저 재시작**: `AuthProvider` 초기화 시 `auth.refresh` → AT 복원
+5. **인증 체크**: `AuthProvider`에서 토큰 유효성 검증 + `privacyAgreedAt` 관리
+6. **동의 체크**: `ProtectedRoute`에서 `privacyAgreedAt` null → `/consent` 리다이렉트
+7. **로그아웃**: `trpc.auth.logout` (서버 RT 삭제) → sessionStorage 정리
 
 > 코드 스플리팅, ErrorBoundary, Testing, 라우트 구조, React 성능 규칙 → `rules/web-patterns.md` 참조
