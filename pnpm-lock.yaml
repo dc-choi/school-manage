@@ -301,9 +301,6 @@ importers:
       '@school/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      '@school/trpc':
-        specifier: workspace:*
-        version: link:../../packages/trpc
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18
