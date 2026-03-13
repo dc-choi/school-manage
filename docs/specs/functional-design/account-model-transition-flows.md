@@ -35,7 +35,7 @@
 
 ### 신규 가입 (새 조직 생성)
 
-회원가입 → 개인정보 동의 → /join → 교구 선택 → 본당 검색/생성 → 조직 생성 (타입 선택: 초등부/중고등부/청년, 기본값 중고등부) → admin, 즉시 대시보드
+회원가입 → 개인정보 동의 → /join → 교구 선택 → 본당 검색/생성 → 조직 생성 (타입 선택: 초등부/중고등부/청년, 기본값 없음 — 능동 선택 필수) → admin, 즉시 대시보드
 
 ### 신규 가입 (기존 조직 합류)
 
@@ -67,15 +67,33 @@
 
 ### 신규 화면
 
-- **/join**: 교구 선택 (드롭다운) → 본당 검색/생성 → 조직 선택(합류)/생성(즉시 진입). 조직 생성 시 타입 드롭다운 포함 (초등부/중고등부/청년, 기본값: 중고등부). AuthLayout.
+- **/join**: 교구 선택 (드롭다운) → 본당 검색/생성 → 조직 선택(합류)/생성(즉시 진입). AuthLayout.
 - **/pending**: 승인 대기 + 요청 취소 버튼.
+
+### 조직 생성 다이얼로그 (로드맵 2단계 UX 개선)
+
+- 다이얼로그 상단에 단체 설명("본당 내 초등부, 중고등부, 청년부 등의 조직 단위") + "먼저 목록에서 단체를 찾아보세요" 안내 문구 표시
+
+**타입 선택 개선:**
+- 기본값 없음 (미선택 placeholder). 사용자가 반드시 능동 선택해야 생성 가능
+- 각 옵션에 설명 텍스트 표시: "초등부 — 만 14세 졸업", "중고등부 — 만 20세 졸업", "청년 — 졸업 없음"
+- 타입 미선택 시 "만들기" 버튼 비활성화
+
+**이름-타입 불일치 경고:**
+- 이름 키워드(초등/중고등/청년)와 선택한 타입 불일치 시 경고 표시. 비차단 (dismissable)
+
+**동일 이름 모임 차단:**
+- 이미 로드된 organization.list 데이터에서 클라이언트 비교 (추가 API 호출 없음)
+- 동일 이름 존재 시: "이미 '{이름}'이(가) 있습니다." 안내 + "만들기" 버튼 비활성화
+
+### 본당 생성 다이얼로그 (로드맵 2단계 UX 개선)
+
+- 다이얼로그 상단에 "먼저 검색에서 본당을 찾아보세요" 안내 문구 표시
+- 이름 입력 시 church.search API로 유사 본당 검색 (300ms 디바운스), 동일 이름 시 "추가" 버튼 비활성화
 
 ### 변경 화면
 
-- **헤더**: Organization 이름 (Church 이름) + displayName + 로그아웃
-- **회원가입**: 완료 후 대시보드 대신 /join으로 리다이렉트
-- **학생 생성/수정**: groupIds 복수 선택 (체크박스/멀티셀렉트)
-- **학생 목록**: 다중 그룹 필터
+헤더(Organization+Church 이름), 회원가입(/join 리다이렉트), 학생(복수 Group 선택/필터).
 
 ---
 
@@ -84,10 +102,10 @@
 | 프로시저 | 타입 | 인증 | 설명 |
 |---------|------|------|------|
 | parish.list | query | consented | 교구 목록 |
-| church.create | mutation | consented | 본당 생성 |
+| church.create | mutation | consented | 본당 생성. 같은 교구 동명 존재 시 에러 |
 | church.search | query | consented | 본당 검색 |
 | organization.list | query | consented | Church 하위 조직 목록 |
-| organization.create | mutation | consented | 조직 생성 → admin 즉시 진입. 입력: name, churchId, type(기본값 MIDDLE_HIGH) |
+| organization.create | mutation | consented | 조직 생성 → admin. 입력: name, churchId, type(필수). 같은 Church 동명 존재 시 에러 |
 | organization.requestJoin | mutation | consented | 합류 요청 |
 | organization.pendingRequests | query | scoped (admin) | 합류 요청 목록 |
 | organization.approveJoin | mutation | scoped (admin) | 승인 |
@@ -132,7 +150,9 @@ scopedProcedure에서 ctx.organization.id 자동 설정 → UseCase에서 organi
 | admin 삭제 시도 | 에러 (삭제 불가) |
 | teacher 삭제 | organizationId null, Organization 유지 |
 | 학생 모든 Group 제거 | StudentGroup 0건 허용 (미배정) |
-| 같은 Church 동명 Organization | 허용 (ID 구분) |
+| 같은 Church 동명 Organization | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT) |
+| 이름-타입 키워드 불일치 | 프론트엔드 경고만 (비차단). 예: "초등부"인데 MIDDLE_HIGH 선택 |
+| 같은 교구 동명 Church | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT) |
 
 ---
 
@@ -153,6 +173,8 @@ scopedProcedure에서 ctx.organization.id 자동 설정 → UseCase에서 organi
 3. 중복 합류 요청 → 에러
 4. teacher 승인/거절 시도 → FORBIDDEN
 5. 마이그레이션 데이터 정합성 (Group/Student/Attendance 건수 보존)
+6. 타입 미선택으로 조직 생성 시도 → 버튼 비활성화 (프론트엔드), 스키마 검증 실패 (백엔드)
+7. 동일 이름 단체/본당 생성 시도 → 프론트엔드 버튼 비활성화 + 백엔드 CONFLICT 에러
 
 ---
 
@@ -164,7 +186,3 @@ scopedProcedure에서 ctx.organization.id 자동 설정 → UseCase에서 organi
 | organization_created | 조직 생성 |
 | join_requested / join_approved / join_rejected | 합류 플로우 |
 | join_flow_completed / join_flow_abandoned | 합류 완료/이탈 |
-
----
-
-**상태**: 미구현

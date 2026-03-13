@@ -18,10 +18,11 @@ export function ChurchSelect({ parishId, value, onChange }: ChurchSelectProps) {
     const [debouncedQuery, setDebouncedQuery] = useState('');
     const [dialogOpen, setDialogOpen] = useState(false);
     const [newChurchName, setNewChurchName] = useState('');
+    const [debouncedNewName, setDebouncedNewName] = useState('');
     const [createError, setCreateError] = useState<string | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
-    // 300ms 디바운스
+    // 300ms 디바운스 (검색)
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedQuery(query);
@@ -29,9 +30,23 @@ export function ChurchSelect({ parishId, value, onChange }: ChurchSelectProps) {
         return () => clearTimeout(timer);
     }, [query]);
 
+    // 300ms 디바운스 (생성 다이얼로그 내 중복 검사)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedNewName(newChurchName);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [newChurchName]);
+
     const { data, isLoading, error } = trpc.church.search.useQuery(
         { parishId, query: debouncedQuery || undefined },
         { keepPreviousData: true }
+    );
+
+    // F5: 다이얼로그 내 중복 검사용 검색 쿼리
+    const similarChurches = trpc.church.search.useQuery(
+        { parishId, query: debouncedNewName },
+        { enabled: dialogOpen && debouncedNewName.trim().length > 0 }
     );
 
     const createMutation = trpc.church.create.useMutation({
@@ -53,6 +68,11 @@ export function ChurchSelect({ parishId, value, onChange }: ChurchSelectProps) {
     };
 
     const churches = data?.churches ?? [];
+
+    // F5: 동일 이름 본당 차단 (파생 계산)
+    const trimmedNewName = newChurchName.trim();
+    const duplicateChurchName =
+        trimmedNewName.length > 0 && (similarChurches.data?.churches ?? []).some((c) => c.name === trimmedNewName);
 
     return (
         <div className="space-y-4">
@@ -112,6 +132,10 @@ export function ChurchSelect({ parishId, value, onChange }: ChurchSelectProps) {
                 )}
             </div>
 
+            <p className="text-sm text-muted-foreground">
+                먼저 검색에서 본당을 찾아보세요. 이미 등록된 본당이 있을 수 있습니다.
+            </p>
+
             {/* 새로 만들기 */}
             <Button
                 type="button"
@@ -134,11 +158,19 @@ export function ChurchSelect({ parishId, value, onChange }: ChurchSelectProps) {
                         <DialogTitle>본당 추가</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
-                        {createError && (
+                        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                            먼저 검색에서 본당을 찾아보세요. 이미 등록된 본당이 있을 수 있습니다.
+                        </div>
+                        {createError ? (
                             <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                                 {createError}
                             </div>
-                        )}
+                        ) : null}
+                        {duplicateChurchName ? (
+                            <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                                이미 &apos;{trimmedNewName}&apos;이(가) 있습니다. 검색에서 선택하세요.
+                            </div>
+                        ) : null}
                         <div className="space-y-2">
                             <Label htmlFor="new-church-name">본당 이름</Label>
                             <Input
@@ -169,7 +201,7 @@ export function ChurchSelect({ parishId, value, onChange }: ChurchSelectProps) {
                         <Button
                             type="button"
                             onClick={handleCreate}
-                            disabled={!newChurchName.trim() || createMutation.isPending}
+                            disabled={!trimmedNewName || duplicateChurchName || createMutation.isPending}
                         >
                             {createMutation.isPending ? (
                                 <>

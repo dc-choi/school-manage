@@ -19,10 +19,7 @@ export const listOrganizationsInputSchema = z.object({
 export const createOrganizationInputSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     churchId: idSchema,
-    type: z
-        .enum([ORGANIZATION_TYPE.ELEMENTARY, ORGANIZATION_TYPE.MIDDLE_HIGH, ORGANIZATION_TYPE.YOUNG_ADULT])
-        .default(ORGANIZATION_TYPE.MIDDLE_HIGH)
-        .optional(),
+    type: z.enum([ORGANIZATION_TYPE.ELEMENTARY, ORGANIZATION_TYPE.MIDDLE_HIGH, ORGANIZATION_TYPE.YOUNG_ADULT]),
 });
 
 /**

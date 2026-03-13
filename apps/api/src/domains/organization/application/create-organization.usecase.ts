@@ -3,8 +3,9 @@
  *
  * 조직 생성 + 생성자를 admin으로 설정
  */
-import { type CreateOrganizationInput, type CreateOrganizationOutput, ORGANIZATION_TYPE, ROLE } from '@school/shared';
+import { type CreateOrganizationInput, type CreateOrganizationOutput, ROLE } from '@school/shared';
 import { getNowKST } from '@school/utils';
+import { TRPCError } from '@trpc/server';
 import { createAccountSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
@@ -13,10 +14,25 @@ export class CreateOrganizationUseCase {
         const now = getNowKST();
 
         const result = await database.$transaction(async (tx) => {
+            const existingOrg = await tx.organization.findFirst({
+                where: {
+                    name: input.name,
+                    churchId: BigInt(input.churchId),
+                    deletedAt: null,
+                },
+            });
+
+            if (existingOrg) {
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: '이미 존재하는 단체명입니다.',
+                });
+            }
+
             const organization = await tx.organization.create({
                 data: {
                     name: input.name,
-                    type: input.type ?? ORGANIZATION_TYPE.MIDDLE_HIGH,
+                    type: input.type,
                     churchId: BigInt(input.churchId),
                     createdAt: now,
                 },
