@@ -6,7 +6,7 @@ interface GtagEventParams {
 }
 
 declare function gtag(
-    command: 'js' | 'config' | 'event',
+    command: 'js' | 'config' | 'event' | 'set',
     targetIdOrEventName: Date | string,
     params?: GtagEventParams | { [key: string]: unknown }
 ): void;
