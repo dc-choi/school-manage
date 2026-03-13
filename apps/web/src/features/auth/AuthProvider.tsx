@@ -11,6 +11,7 @@ export interface AuthContextValue {
     organizationId: string | null;
     role: string | null;
     organizationName: string | null;
+    organizationType: string | null;
     churchName: string | null;
     login: (name: string, password: string) => Promise<void>;
     restoreAccount: (name: string, password: string) => Promise<void>;
@@ -29,6 +30,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const [organizationId, setOrganizationId] = useState<string | null>(null);
     const [role, setRole] = useState<string | null>(null);
     const [organizationName, setOrganizationName] = useState<string | null>(null);
+    const [organizationType, setOrganizationType] = useState<string | null>(null);
     const [churchName, setChurchName] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -59,6 +61,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
                 setOrganizationId(accountData.organizationId ?? null);
                 setRole(accountData.role ?? null);
                 setOrganizationName(accountData.organizationName ?? null);
+                setOrganizationType(accountData.organizationType ?? null);
                 setChurchName(accountData.churchName ?? null);
             } else {
                 // 토큰이 있지만 계정 정보를 가져오지 못함 (토큰 만료 등)
@@ -68,6 +71,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
                 setOrganizationId(null);
                 setRole(null);
                 setOrganizationName(null);
+                setOrganizationType(null);
                 setChurchName(null);
             }
             setIsLoading(false);
@@ -104,6 +108,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         setOrganizationId(null);
         setRole(null);
         setOrganizationName(null);
+        setOrganizationType(null);
         setChurchName(null);
     }, []);
 
@@ -116,6 +121,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             organizationId,
             role,
             organizationName,
+            organizationType,
             churchName,
             login,
             restoreAccount,
@@ -128,6 +134,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             organizationId,
             role,
             organizationName,
+            organizationType,
             churchName,
             login,
             restoreAccount,

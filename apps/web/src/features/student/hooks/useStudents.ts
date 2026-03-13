@@ -155,8 +155,6 @@ export function useStudents(options: UseStudentsOptions = {}) {
     const graduateMutation = trpc.student.graduate.useMutation({
         onSuccess: () => {
             utils.student.list.invalidate();
-
-            toast.success('졸업 처리되었습니다.');
         },
     });
 

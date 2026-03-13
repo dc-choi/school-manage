@@ -3,7 +3,7 @@
  *
  * 조직 생성 + 생성자를 admin으로 설정
  */
-import { type CreateOrganizationInput, type CreateOrganizationOutput, ROLE } from '@school/trpc';
+import { type CreateOrganizationInput, type CreateOrganizationOutput, ORGANIZATION_TYPE, ROLE } from '@school/trpc';
 import { getNowKST } from '@school/utils';
 import { createAccountSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
@@ -16,6 +16,7 @@ export class CreateOrganizationUseCase {
             const organization = await tx.organization.create({
                 data: {
                     name: input.name,
+                    type: input.type ?? ORGANIZATION_TYPE.MIDDLE_HIGH,
                     churchId: BigInt(input.churchId),
                     createdAt: now,
                 },
@@ -58,6 +59,7 @@ export class CreateOrganizationUseCase {
             id: String(result.id),
             name: result.name,
             churchId: String(result.churchId),
+            type: result.type,
         };
     }
 }

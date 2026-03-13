@@ -2,7 +2,7 @@ import { GraduatedStudentsModal } from './GraduatedStudentsModal';
 import { RegistrationModal } from './RegistrationModal';
 import { formatContact } from '@school/utils';
 import { Upload } from 'lucide-react';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Pagination, Table } from '~/components/common';
@@ -21,13 +21,21 @@ import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { useAuth } from '~/features/auth';
 import { useGroups } from '~/features/group/hooks/useGroups';
 import { useCheckboxSelection, useStudents } from '~/features/student';
 import { StudentImportModal } from '~/features/student/components/StudentImportModal';
 import { extractErrorMessage } from '~/lib/error';
 
+const GRADUATION_AGE_LABEL: Record<string, string> = {
+    ELEMENTARY: '14살 이상만 졸업 대상입니다.',
+    MIDDLE_HIGH: '20살 이상만 졸업 대상입니다.',
+    YOUNG_ADULT: '나이 제한 없이 전원 졸업 처리됩니다.',
+};
+
 export function StudentListPage() {
     const navigate = useNavigate();
+    const { organizationType } = useAuth();
     const [searchInput, setSearchInput] = useState('');
     const [searchOptionInput, setSearchOptionInput] = useState<'all' | 'societyName' | 'catholicName' | 'baptizedAt'>(
         'all'
@@ -89,9 +97,30 @@ export function StudentListPage() {
     const handleGraduate = async () => {
         if (selectedIds.size > 0) {
             try {
-                await graduate(Array.from(selectedIds));
+                const result = await graduate(Array.from(selectedIds));
                 clearSelection();
                 setBulkAction(null);
+
+                if (result.skipped.length > 0) {
+                    const criteria = organizationType ? GRADUATION_AGE_LABEL[organizationType] : '';
+                    toast.warning(`${result.graduatedCount}명 졸업 처리, ${result.skipped.length}명 제외`, {
+                        description: (
+                            <>
+                                {criteria}
+                                <br />
+                                {result.skipped.map((s) => (
+                                    <Fragment key={s.id}>
+                                        <br />
+                                        {s.societyName} ({s.reason})
+                                    </Fragment>
+                                ))}
+                            </>
+                        ),
+                        duration: 8000,
+                    });
+                } else {
+                    toast.success(`${result.graduatedCount}명 졸업 처리되었습니다.`);
+                }
             } catch (err) {
                 toast.error(extractErrorMessage(err));
             }
@@ -247,6 +276,11 @@ export function StudentListPage() {
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>졸업 처리</AlertDialogTitle>
+                        {organizationType ? (
+                            <p className="text-sm text-muted-foreground">
+                                {GRADUATION_AGE_LABEL[organizationType]} 나이 미달 학생은 자동으로 제외됩니다.
+                            </p>
+                        ) : null}
                         <AlertDialogDescription>
                             선택한 {selectedIds.size}명의 학생을 졸업 처리하시겠습니까? 졸업 처리된 학생은
                             &apos;졸업생&apos; 버튼에서 확인할 수 있습니다.

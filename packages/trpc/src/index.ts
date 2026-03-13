@@ -8,8 +8,24 @@
 export type { Context, AuthContext, ScopedContext, BaseContext } from './context.js';
 
 // 공통 타입 + 상수
-export { ROLE, JOIN_REQUEST_STATUS, GENDER, PRESENT_MARKS } from './shared.js';
-export type { AccountInfo, OrganizationInfo, ChurchInfo, Role, JoinRequestStatus, Gender } from './shared.js';
+export {
+    ROLE,
+    JOIN_REQUEST_STATUS,
+    GENDER,
+    PRESENT_MARKS,
+    ORGANIZATION_TYPE,
+    MAX_GRADUATION_AGE,
+    getMaxGraduationAge,
+} from './shared.js';
+export type {
+    AccountInfo,
+    OrganizationInfo,
+    ChurchInfo,
+    Role,
+    JoinRequestStatus,
+    Gender,
+    OrganizationType,
+} from './shared.js';
 
 // AppRouter 타입 (클라이언트용)
 export type { AppRouter } from './routers/index.js';
@@ -160,6 +176,7 @@ export type {
     BulkDeleteStudentsOutput,
     RestoreStudentsOutput,
     GraduatedStudent,
+    SkippedStudent,
     GraduateStudentsOutput,
     CancelGraduationOutput,
     FeastDayStudentItem,
