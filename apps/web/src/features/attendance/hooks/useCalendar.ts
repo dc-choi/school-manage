@@ -30,6 +30,7 @@ export function useCalendar(groupId: string, year: number, month: number) {
     const updateAttendance = async (attendanceData: AttendanceData[], isFull: boolean) => {
         return updateMutation.mutateAsync({
             year,
+            groupId,
             attendance: attendanceData,
             isFull,
         });
