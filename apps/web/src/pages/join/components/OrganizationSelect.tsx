@@ -12,10 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
 
-const ORG_TYPE_LABELS: Record<string, string> = {
-    ELEMENTARY: '초등부',
-    MIDDLE_HIGH: '중고등부',
-    YOUNG_ADULT: '청년',
+const ORG_TYPE_LABELS: Record<string, { label: string; desc: string }> = {
+    ELEMENTARY: { label: '초등부', desc: '만 14세 졸업' },
+    MIDDLE_HIGH: { label: '중고등부', desc: '만 20세 졸업' },
+    YOUNG_ADULT: { label: '청년', desc: '졸업 없음' },
 };
 
 interface OrganizationSelectProps {
@@ -26,9 +26,7 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
     const navigate = useNavigate();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [newOrgName, setNewOrgName] = useState('');
-    const [newOrgType, setNewOrgType] = useState<'ELEMENTARY' | 'MIDDLE_HIGH' | 'YOUNG_ADULT'>(
-        ORGANIZATION_TYPE.MIDDLE_HIGH
-    );
+    const [newOrgType, setNewOrgType] = useState<'' | 'ELEMENTARY' | 'MIDDLE_HIGH' | 'YOUNG_ADULT'>('');
     const [createError, setCreateError] = useState<string | null>(null);
     const [joinError, setJoinError] = useState<string | null>(null);
 
@@ -48,10 +46,9 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
         onSuccess: () => {
             setDialogOpen(false);
             setNewOrgName('');
-            setNewOrgType(ORGANIZATION_TYPE.MIDDLE_HIGH);
+            setNewOrgType('');
             setCreateError(null);
             toast.success('단체가 생성되었습니다.');
-            // 새로고침으로 AuthProvider 초기화 (새 organizationId 반영)
             window.location.href = '/';
         },
         onError: (err) => {
@@ -65,13 +62,29 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
     };
 
     const handleCreate = () => {
-        if (!newOrgName.trim()) return;
+        if (!newOrgName.trim() || !newOrgType) return;
         setCreateError(null);
         createMutation.mutate({ churchId, name: newOrgName.trim(), type: newOrgType });
     };
 
     const organizations = data?.organizations ?? [];
     const isMutating = joinMutation.isPending || createMutation.isPending;
+
+    // F3: 이름-타입 불일치 경고 (파생 계산)
+    const trimmedName = newOrgName.trim();
+    const mismatchWarning = (() => {
+        if (!trimmedName || !newOrgType) return null;
+        if (trimmedName.includes('초등') && newOrgType !== ORGANIZATION_TYPE.ELEMENTARY)
+            return "이름에 '초등'이 포함되어 있습니다. 초등부가 맞는지 확인해주세요.";
+        if (trimmedName.includes('중고등') && newOrgType !== ORGANIZATION_TYPE.MIDDLE_HIGH)
+            return "이름에 '중고등'이 포함되어 있습니다. 중고등부가 맞는지 확인해주세요.";
+        if (trimmedName.includes('청년') && newOrgType !== ORGANIZATION_TYPE.YOUNG_ADULT)
+            return "이름에 '청년'이 포함되어 있습니다. 청년이 맞는지 확인해주세요.";
+        return null;
+    })();
+
+    // F4: 동일 이름 모임 차단 (파생 계산)
+    const duplicateName = trimmedName.length > 0 && organizations.some((org) => org.name === trimmedName);
 
     return (
         <div className="space-y-4">
@@ -117,6 +130,11 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                 )}
             </div>
 
+            <p className="text-sm text-muted-foreground">
+                단체는 본당 내 초등부, 중고등부, 청년부 등의 조직 단위입니다. 먼저 목록에서 단체를 찾아보세요. 이미
+                등록된 단체가 있을 수 있습니다.
+            </p>
+
             {/* 새로 만들기 */}
             <Button
                 type="button"
@@ -126,7 +144,7 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                     setDialogOpen(true);
                     setCreateError(null);
                     setNewOrgName('');
-                    setNewOrgType(ORGANIZATION_TYPE.MIDDLE_HIGH);
+                    setNewOrgType('');
                 }}
                 disabled={isMutating}
             >
@@ -141,9 +159,23 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                         <DialogTitle>단체 만들기</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
+                        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                            단체는 본당 내 초등부, 중고등부, 청년부 등의 조직 단위입니다. 먼저 목록에서 단체를
+                            찾아보세요. 이미 등록된 단체가 있을 수 있습니다.
+                        </div>
                         {createError ? (
                             <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                                 {createError}
+                            </div>
+                        ) : null}
+                        {duplicateName ? (
+                            <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                                이미 &apos;{trimmedName}&apos;이(가) 있습니다. 목록에서 선택하세요.
+                            </div>
+                        ) : null}
+                        {mismatchWarning ? (
+                            <div className="rounded-md border border-yellow-500/50 bg-yellow-50 p-3 text-sm text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400">
+                                {mismatchWarning}
                             </div>
                         ) : null}
                         <div className="space-y-2">
@@ -165,14 +197,20 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="new-org-type">단체 유형</Label>
-                            <Select value={newOrgType} onValueChange={(v) => setNewOrgType(v as typeof newOrgType)}>
+                            <Select
+                                value={newOrgType}
+                                onValueChange={(v) => setNewOrgType(v as 'ELEMENTARY' | 'MIDDLE_HIGH' | 'YOUNG_ADULT')}
+                            >
                                 <SelectTrigger id="new-org-type">
-                                    <SelectValue />
+                                    <SelectValue placeholder="단체 유형을 선택하세요…" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {Object.entries(ORG_TYPE_LABELS).map(([value, label]) => (
+                                    {Object.entries(ORG_TYPE_LABELS).map(([value, { label, desc }]) => (
                                         <SelectItem key={value} value={value}>
-                                            {label}
+                                            <div>
+                                                <div className="font-medium">{label}</div>
+                                                <div className="text-xs text-muted-foreground">{desc}</div>
+                                            </div>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -191,7 +229,7 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                         <Button
                             type="button"
                             onClick={handleCreate}
-                            disabled={!newOrgName.trim() || createMutation.isPending}
+                            disabled={!trimmedName || !newOrgType || duplicateName || createMutation.isPending}
                         >
                             {createMutation.isPending ? (
                                 <>

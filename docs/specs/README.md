@@ -7,7 +7,7 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 완료               |
-| **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성), 관리자 양도 구현 완료 |
+| **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성), 조직 생성 UX 개선 + 관리자 양도 구현 완료 |
 | **Target Non-Functional** | -    | SECURITY 1건 완료, ANALYTICS 1건 완료, PERFORMANCE 3건 미착수 |
 
 ## 관련 문서
@@ -41,6 +41,7 @@
 | 졸업일 정규화 + 나이 기반 필터링 | `docs/specs/prd/graduation-normalization.md` | Approved (구현 완료) | 로드맵 2단계           |
 | 학년/부서 두 축 그룹핑    | `docs/specs/prd/dual-axis-grouping.md`       | Approved (구현 완료) | 로드맵 2단계           |
 | 관리자 양도             | `docs/specs/prd/admin-transfer.md`           | Approved (구현 완료) | 로드맵 2단계           |
+| 조직 생성 UX 개선        | `docs/specs/prd/organization-create-ux.md`   | Approved (구현 완료) | 로드맵 2단계           |
 
 ### Functional Design (기능 설계)
 
@@ -75,6 +76,7 @@
 
 | 우선순위 | 기능명          | SDD 상태 | 비고                                         |
 |------|--------------|--------|--------------------------------------------|
+| P1   | 조직 생성 UX 개선  | **구현 완료** | organization_type 오선택 방지 + 동일 본당/모임 중복 방지 검증 |
 | P1   | 미사 참례 확인     | 미착수    | 학생별 미사 참례 횟수 기록 (첫영성체 준비 필수 조건)            |
 | P2   | 가정 통신문 자동 생성 | 미착수    | 월별 출석/일정/공지 템플릿 기반 PDF/이미지 내보내기            |
 | P2   | 반편성 자동화      | 미착수    | 신학기 학년 진급 시 반 자동 재배정, 교사-반 매칭              |
