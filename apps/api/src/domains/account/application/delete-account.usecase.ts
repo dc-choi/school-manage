@@ -47,7 +47,7 @@ export class DeleteAccountUseCase {
         }
 
         // 2. 비밀번호 검증
-        const isValid = bcrypt.compareSync(input.password, account.password);
+        const isValid = await bcrypt.compare(input.password, account.password);
         if (!isValid) {
             throw new TRPCError({
                 code: 'UNAUTHORIZED',
