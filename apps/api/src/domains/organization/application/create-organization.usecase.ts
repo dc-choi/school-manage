@@ -11,24 +11,24 @@ import { database } from '~/infrastructure/database/database.js';
 
 export class CreateOrganizationUseCase {
     async execute(input: CreateOrganizationInput, accountId: string): Promise<CreateOrganizationOutput> {
-        const existingOrg = await database.organization.findFirst({
-            where: {
-                name: input.name,
-                churchId: BigInt(input.churchId),
-                deletedAt: null,
-            },
-        });
-
-        if (existingOrg) {
-            throw new TRPCError({
-                code: 'CONFLICT',
-                message: '이미 존재하는 단체명입니다.',
-            });
-        }
-
         const now = getNowKST();
 
         const result = await database.$transaction(async (tx) => {
+            const existingOrg = await tx.organization.findFirst({
+                where: {
+                    name: input.name,
+                    churchId: BigInt(input.churchId),
+                    deletedAt: null,
+                },
+            });
+
+            if (existingOrg) {
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: '이미 존재하는 단체명입니다.',
+                });
+            }
+
             const organization = await tx.organization.create({
                 data: {
                     name: input.name,

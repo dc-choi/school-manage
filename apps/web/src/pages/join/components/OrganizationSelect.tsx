@@ -95,7 +95,7 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
             ) : null}
 
             {/* 단체 목록 */}
-            <div className="min-h-[120px]">
+            <div className="min-h-[120px] max-h-[280px] overflow-y-auto">
                 {isLoading ? (
                     <div className="flex justify-center p-8">
                         <Loader2 className="h-6 w-6 animate-spin" aria-label="단체 목록 불러오는 중" />
@@ -107,9 +107,9 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                         등록된 단체가 없습니다. 새로 만들어주세요.
                     </div>
                 ) : (
-                    <ul className="space-y-1" role="listbox" aria-label="단체 목록">
+                    <ul className="space-y-1" role="list" aria-label="단체 목록">
                         {organizations.map((org) => (
-                            <li key={org.id} role="option" aria-selected={false}>
+                            <li key={org.id} role="listitem">
                                 <button
                                     type="button"
                                     className="flex w-full items-center justify-between rounded-md px-3 py-3 text-left transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"

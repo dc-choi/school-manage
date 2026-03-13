@@ -10,27 +10,29 @@ import { database } from '~/infrastructure/database/database.js';
 
 export class CreateChurchUseCase {
     async execute(input: CreateChurchInput): Promise<CreateChurchOutput> {
-        const existingChurch = await database.church.findFirst({
-            where: {
-                name: input.name,
-                parishId: BigInt(input.parishId),
-                deletedAt: null,
-            },
-        });
-
-        if (existingChurch) {
-            throw new TRPCError({
-                code: 'CONFLICT',
-                message: '이미 존재하는 본당명입니다.',
+        const church = await database.$transaction(async (tx) => {
+            const existingChurch = await tx.church.findFirst({
+                where: {
+                    name: input.name,
+                    parishId: BigInt(input.parishId),
+                    deletedAt: null,
+                },
             });
-        }
 
-        const church = await database.church.create({
-            data: {
-                name: input.name,
-                parishId: BigInt(input.parishId),
-                createdAt: getNowKST(),
-            },
+            if (existingChurch) {
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: '이미 존재하는 본당명입니다.',
+                });
+            }
+
+            return tx.church.create({
+                data: {
+                    name: input.name,
+                    parishId: BigInt(input.parishId),
+                    createdAt: getNowKST(),
+                },
+            });
         });
 
         return {

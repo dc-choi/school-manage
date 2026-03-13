@@ -24,12 +24,10 @@ describe('organization 통합 테스트', () => {
             const testAccount = createMockAccount({ id: BigInt(1) });
             const newOrg = createMockOrganization({ name: '초등부', type: 'ELEMENTARY', churchId: BigInt(1) });
 
-            // 동일 이름 없음
-            mockPrismaClient.organization.findFirst.mockResolvedValueOnce(null);
-
-            // $transaction mock
+            // $transaction mock (findFirst + create 모두 tx 내부)
             const txMock = {
                 organization: {
+                    findFirst: vi.fn().mockResolvedValue(null),
                     create: vi.fn().mockResolvedValue(newOrg),
                 },
                 account: {
@@ -63,8 +61,13 @@ describe('organization 통합 테스트', () => {
             const testAccount = createMockAccount({ id: BigInt(1) });
             const existingOrg = createMockOrganization({ name: '중고등부', churchId: BigInt(1) });
 
-            // 동일 이름 존재
-            mockPrismaClient.organization.findFirst.mockResolvedValueOnce(existingOrg);
+            // $transaction 내부에서 동일 이름 발견
+            const txMock = {
+                organization: {
+                    findFirst: vi.fn().mockResolvedValue(existingOrg),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
             const caller = createAuthenticatedCaller(String(testAccount.id), testAccount.name);
             await expect(
@@ -76,11 +79,9 @@ describe('organization 통합 테스트', () => {
             const testAccount = createMockAccount({ id: BigInt(1) });
             const newOrg = createMockOrganization({ name: '중고등부', churchId: BigInt(2) });
 
-            // 다른 churchId이므로 동일 이름 없음
-            mockPrismaClient.organization.findFirst.mockResolvedValueOnce(null);
-
             const txMock = {
                 organization: {
+                    findFirst: vi.fn().mockResolvedValue(null),
                     create: vi.fn().mockResolvedValue(newOrg),
                 },
                 account: {

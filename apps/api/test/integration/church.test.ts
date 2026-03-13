@@ -6,7 +6,7 @@
 import { mockPrismaClient } from '../../vitest.setup.ts';
 import { createMockAccount } from '../helpers/mock-data.ts';
 import { createAuthenticatedCaller, createPublicCaller } from '../helpers/trpc-caller.ts';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('church 통합 테스트', () => {
     beforeEach(() => {
@@ -18,15 +18,19 @@ describe('church 통합 테스트', () => {
         it('고유 이름으로 본당 생성 성공', async () => {
             const testAccount = createMockAccount({ id: BigInt(1) });
 
-            // 동일 이름 없음
-            mockPrismaClient.church.findFirst.mockResolvedValueOnce(null);
-            mockPrismaClient.church.create.mockResolvedValueOnce({
-                id: BigInt(100),
-                name: '양재성당',
-                parishId: BigInt(1),
-                createdAt: new Date(),
-                deletedAt: null,
-            });
+            const txMock = {
+                church: {
+                    findFirst: vi.fn().mockResolvedValue(null),
+                    create: vi.fn().mockResolvedValue({
+                        id: BigInt(100),
+                        name: '양재성당',
+                        parishId: BigInt(1),
+                        createdAt: new Date(),
+                        deletedAt: null,
+                    }),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
             const caller = createAuthenticatedCaller(String(testAccount.id), testAccount.name);
             const result = await caller.church.create({ parishId: '1', name: '양재성당' });
@@ -39,14 +43,18 @@ describe('church 통합 테스트', () => {
         it('같은 Parish 내 동일 이름 본당 생성 시 CONFLICT 에러', async () => {
             const testAccount = createMockAccount({ id: BigInt(1) });
 
-            // 동일 이름 존재
-            mockPrismaClient.church.findFirst.mockResolvedValueOnce({
-                id: BigInt(50),
-                name: '장위동성당',
-                parishId: BigInt(1),
-                createdAt: new Date(),
-                deletedAt: null,
-            });
+            const txMock = {
+                church: {
+                    findFirst: vi.fn().mockResolvedValue({
+                        id: BigInt(50),
+                        name: '장위동성당',
+                        parishId: BigInt(1),
+                        createdAt: new Date(),
+                        deletedAt: null,
+                    }),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
             const caller = createAuthenticatedCaller(String(testAccount.id), testAccount.name);
             await expect(caller.church.create({ parishId: '1', name: '장위동성당' })).rejects.toMatchObject({
@@ -57,15 +65,19 @@ describe('church 통합 테스트', () => {
         it('다른 Parish에서 동일 이름 본당 생성 허용', async () => {
             const testAccount = createMockAccount({ id: BigInt(1) });
 
-            // 다른 parishId이므로 동일 이름 없음
-            mockPrismaClient.church.findFirst.mockResolvedValueOnce(null);
-            mockPrismaClient.church.create.mockResolvedValueOnce({
-                id: BigInt(101),
-                name: '장위동성당',
-                parishId: BigInt(2),
-                createdAt: new Date(),
-                deletedAt: null,
-            });
+            const txMock = {
+                church: {
+                    findFirst: vi.fn().mockResolvedValue(null),
+                    create: vi.fn().mockResolvedValue({
+                        id: BigInt(101),
+                        name: '장위동성당',
+                        parishId: BigInt(2),
+                        createdAt: new Date(),
+                        deletedAt: null,
+                    }),
+                },
+            };
+            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
 
             const caller = createAuthenticatedCaller(String(testAccount.id), testAccount.name);
             const result = await caller.church.create({ parishId: '2', name: '장위동성당' });
