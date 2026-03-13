@@ -3,16 +3,24 @@
  *
  * 로그인 비즈니스 로직을 캡슐화
  */
+import {
+    generateFamilyId,
+    generateRefreshToken,
+    getRefreshTokenExpiry,
+    hashRefreshToken,
+    setRefreshTokenCookie,
+} from '../utils/refresh-token.utils.js';
 import type { LoginInput, LoginOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';
+import type { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '~/global/config/env.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class LoginUseCase {
-    async execute(input: LoginInput): Promise<LoginOutput> {
+    async execute(input: LoginInput, res: Response): Promise<LoginOutput> {
         // 1. 계정 조회
         const account = await database.account.findFirst({
             where: {
@@ -68,7 +76,25 @@ export class LoginUseCase {
             expiresIn: env.jwt.expire.access as jwt.SignOptions['expiresIn'],
         });
 
-        // 4. 결과 반환
+        // 4. Refresh Token 발급 (new family)
+        const rawRefreshToken = generateRefreshToken();
+        const tokenHash = hashRefreshToken(rawRefreshToken);
+        const familyId = generateFamilyId();
+        const expiresAt = getRefreshTokenExpiry();
+
+        await database.refreshToken.create({
+            data: {
+                accountId: account.id,
+                tokenHash,
+                familyId,
+                expiresAt,
+                createdAt: new Date(),
+            },
+        });
+
+        setRefreshTokenCookie(res, rawRefreshToken);
+
+        // 5. 결과 반환
         return {
             name: account.name,
             displayName: account.displayName,

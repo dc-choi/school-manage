@@ -19,15 +19,18 @@ const createCaller = createCallerFactory(appRouter);
 /**
  * Mock Request 객체 생성
  */
-function createMockRequest(): Request {
-    return {} as Request;
+function createMockRequest(overrides: Partial<Request> = {}): Request {
+    return { cookies: {}, ...overrides } as Request;
 }
 
 /**
  * Mock Response 객체 생성
  */
 function createMockResponse(): Response {
-    return {} as Response;
+    return {
+        cookie: () => {},
+        clearCookie: () => {},
+    } as unknown as Response;
 }
 
 /**

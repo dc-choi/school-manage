@@ -12,6 +12,7 @@ describe('auth.login 통합 테스트', () => {
     beforeEach(() => {
         // Mock 초기화
         mockPrismaClient.account.findFirst.mockReset();
+        mockPrismaClient.refreshToken.create.mockReset().mockResolvedValue({});
     });
 
     describe('정상 케이스', () => {
@@ -124,6 +125,7 @@ describe('auth.restoreAccount 통합 테스트', () => {
     const mockTx = {
         account: { update: vi.fn().mockResolvedValue(null) },
         group: { findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn().mockResolvedValue(null) },
+        studentGroup: { findMany: vi.fn().mockResolvedValue([]) },
         student: { findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn().mockResolvedValue(null) },
         attendance: { updateMany: vi.fn().mockResolvedValue(null) },
     };
@@ -131,6 +133,7 @@ describe('auth.restoreAccount 통합 테스트', () => {
     beforeEach(() => {
         mockPrismaClient.account.findFirst.mockReset();
         mockPrismaClient.account.update.mockReset();
+        mockPrismaClient.refreshToken.create.mockReset().mockResolvedValue({});
         mockPrismaClient.$transaction = vi
             .fn()
             .mockImplementation(async (cb: (tx: unknown) => Promise<void>) => cb(mockTx));

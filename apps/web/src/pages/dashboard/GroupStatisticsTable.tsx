@@ -55,6 +55,7 @@ interface GroupStatisticsTableProps {
     data?: GroupStatisticsOutput;
     isLoading: boolean;
     error?: boolean;
+    className?: string;
 }
 
 function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTableProps) {
@@ -70,7 +71,7 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
         return (
             <div className="overflow-x-auto -mx-6">
                 <Table className="md:min-w-[600px]">
-                    <TableHeader>
+                    <TableHeader className="sticky top-0 z-20 bg-muted/80 backdrop-blur-sm">
                         <TableRow>
                             <TableHead className="whitespace-nowrap">학년명</TableHead>
                             <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
@@ -142,13 +143,13 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
     return <p className="text-sm text-muted-foreground">데이터 없음</p>;
 }
 
-export function GroupStatisticsTable({ data, isLoading, error }: GroupStatisticsTableProps) {
+export function GroupStatisticsTable({ data, isLoading, error, className }: GroupStatisticsTableProps) {
     return (
-        <Card>
-            <CardHeader>
+        <Card className={`flex flex-col ${className ?? ''}`}>
+            <CardHeader className="pb-2">
                 <CardTitle className="text-base">학년별 통계</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="min-h-0 flex-1 overflow-auto">
                 <GroupStatisticsContent data={data} isLoading={isLoading} error={error} />
             </CardContent>
         </Card>

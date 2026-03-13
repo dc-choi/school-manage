@@ -4,16 +4,24 @@
  * 삭제된 계정 복원 비즈니스 로직
  * 비밀번호 검증 → 2년 이내 확인 → 트랜잭션 내 cascade 복원 → JWT 발급
  */
+import {
+    generateFamilyId,
+    generateRefreshToken,
+    getRefreshTokenExpiry,
+    hashRefreshToken,
+    setRefreshTokenCookie,
+} from '../utils/refresh-token.utils.js';
 import type { RestoreAccountInput, RestoreAccountOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';
+import type { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '~/global/config/env.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class RestoreAccountUseCase {
-    async execute(input: RestoreAccountInput): Promise<RestoreAccountOutput> {
+    async execute(input: RestoreAccountInput, res: Response): Promise<RestoreAccountOutput> {
         // 1. 삭제된 계정 조회
         const account = await database.account.findFirst({
             where: {
@@ -102,6 +110,24 @@ export class RestoreAccountUseCase {
         const accessToken = jwt.sign(payload, env.jwt.secret, {
             expiresIn: env.jwt.expire.access as jwt.SignOptions['expiresIn'],
         });
+
+        // 6. Refresh Token 발급 (new family)
+        const rawRefreshToken = generateRefreshToken();
+        const tokenHash = hashRefreshToken(rawRefreshToken);
+        const familyId = generateFamilyId();
+        const expiresAt = getRefreshTokenExpiry();
+
+        await database.refreshToken.create({
+            data: {
+                accountId: account.id,
+                tokenHash,
+                familyId,
+                expiresAt,
+                createdAt: new Date(),
+            },
+        });
+
+        setRefreshTokenCookie(res, rawRefreshToken);
 
         return {
             name: account.name,

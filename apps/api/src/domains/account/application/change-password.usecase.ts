@@ -34,15 +34,20 @@ export class ChangePasswordUseCase {
             });
         }
 
-        // 3. 새 비밀번호 해싱 → DB 업데이트
+        // 3. 새 비밀번호 해싱 → DB 업데이트 + 모든 RT 삭제 (강제 재로그인)
         const hashedPassword = bcrypt.hashSync(input.newPassword, 10);
-        await database.account.update({
-            where: { id: account.id },
-            data: {
-                password: hashedPassword,
-                updatedAt: getNowKST(),
-            },
-        });
+        await database.$transaction([
+            database.account.update({
+                where: { id: account.id },
+                data: {
+                    password: hashedPassword,
+                    updatedAt: getNowKST(),
+                },
+            }),
+            database.refreshToken.deleteMany({
+                where: { accountId: account.id },
+            }),
+        ]);
 
         return { success: true };
     }

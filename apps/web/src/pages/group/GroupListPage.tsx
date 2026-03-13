@@ -66,107 +66,111 @@ export function GroupListPage() {
     if (isLoading) {
         return (
             <MainLayout title="학년&부서 목록">
-                <Card className="flex h-40 items-center justify-center">
+                <div className="flex h-64 items-center justify-center">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                </Card>
+                </div>
             </MainLayout>
         );
     }
 
     return (
         <MainLayout title="학년&부서 목록">
-            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
-                <div className="flex gap-2">
-                    <Select
-                        value={typeFilter ?? 'all'}
-                        onValueChange={(v) => {
-                            setTypeFilter(v === 'all' ? undefined : (v as GroupType));
-                            setSelectedIds(new Set());
-                        }}
-                    >
-                        <SelectTrigger className="w-28">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">전체</SelectItem>
-                            <SelectItem value={GROUP_TYPE.GRADE}>학년</SelectItem>
-                            <SelectItem value={GROUP_TYPE.DEPARTMENT}>부서</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    {selectedIds.size > 0 && (
-                        <Button
-                            variant="destructive"
-                            onClick={() => setShowBulkDeleteDialog(true)}
-                            disabled={isBulkDeleting}
+            <div className="flex h-[calc(100vh-6.5rem)] flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
+                {/* 컨트롤 영역 */}
+                <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+                    <div className="flex gap-2">
+                        <Select
+                            value={typeFilter ?? 'all'}
+                            onValueChange={(v) => {
+                                setTypeFilter(v === 'all' ? undefined : (v as GroupType));
+                                setSelectedIds(new Set());
+                            }}
                         >
-                            선택 삭제 ({selectedIds.size})
-                        </Button>
-                    )}
+                            <SelectTrigger className="h-9 w-28">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">전체</SelectItem>
+                                <SelectItem value={GROUP_TYPE.GRADE}>학년</SelectItem>
+                                <SelectItem value={GROUP_TYPE.DEPARTMENT}>부서</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        {selectedIds.size > 0 ? (
+                            <Button
+                                variant="destructive"
+                                onClick={() => setShowBulkDeleteDialog(true)}
+                                disabled={isBulkDeleting}
+                            >
+                                선택 삭제 ({selectedIds.size})
+                            </Button>
+                        ) : null}
+                    </div>
+                    <Button onClick={() => navigate('/groups/new')} className="w-full sm:w-auto">
+                        학년&부서 추가
+                    </Button>
                 </div>
-                <Button onClick={() => navigate('/groups/new')} className="w-full sm:w-auto">
-                    학년&부서 추가
-                </Button>
-            </div>
 
-            <Card className="overflow-x-auto">
-                <UITable>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-12">
-                                <Checkbox
-                                    checked={isAllSelected}
-                                    ref={(el) => {
-                                        if (el) el.indeterminate = isSomeSelected;
-                                    }}
-                                    onCheckedChange={(checked) => {
-                                        if (checked) selectAll();
-                                        else deselectAll();
-                                    }}
-                                    aria-label="전체 선택"
-                                />
-                            </TableHead>
-                            <TableHead>이름</TableHead>
-                            <TableHead className="w-20 text-center">유형</TableHead>
-                            <TableHead className="w-24 text-center">인원</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {groups.length === 0 ? (
+                {/* 테이블 영역 */}
+                <Card className="min-h-0 flex-1 overflow-auto">
+                    <UITable>
+                        <TableHeader className="sticky top-0 z-20 bg-muted/80 backdrop-blur-sm">
                             <TableRow>
-                                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                                    등록된 학년&부서가 없습니다.
-                                    <br />
-                                    학년&부서를 만들면 학생을 등록할 수 있어요.
-                                </TableCell>
+                                <TableHead className="w-12">
+                                    <Checkbox
+                                        checked={isAllSelected}
+                                        ref={(el) => {
+                                            if (el) el.indeterminate = isSomeSelected;
+                                        }}
+                                        onCheckedChange={(checked) => {
+                                            if (checked) selectAll();
+                                            else deselectAll();
+                                        }}
+                                        aria-label="전체 선택"
+                                    />
+                                </TableHead>
+                                <TableHead>이름</TableHead>
+                                <TableHead className="w-20 text-center">유형</TableHead>
+                                <TableHead className="w-24 text-center">인원</TableHead>
                             </TableRow>
-                        ) : (
-                            groups.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    onClick={() => navigate(`/groups/${row.id}`)}
-                                    className="cursor-pointer hover:bg-muted/50"
-                                    data-selected={selectedIds.has(row.id) ? 'true' : undefined}
-                                >
-                                    <TableCell onClick={(e) => e.stopPropagation()}>
-                                        <Checkbox
-                                            checked={selectedIds.has(row.id)}
-                                            onCheckedChange={(checked) => handleSelectOne(row.id, checked)}
-                                            aria-label={`${row.name} 선택`}
-                                        />
+                        </TableHeader>
+                        <TableBody>
+                            {groups.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                                        등록된 학년&부서가 없습니다.
+                                        <br />
+                                        학년&부서를 만들면 학생을 등록할 수 있어요.
                                     </TableCell>
-                                    <TableCell>{row.name}</TableCell>
-                                    <TableCell className="text-center">
-                                        <Badge variant={row.type === GROUP_TYPE.GRADE ? 'default' : 'secondary'}>
-                                            {TYPE_LABEL[row.type] ?? row.type}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-center">{row.studentCount}명</TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </UITable>
-            </Card>
+                            ) : (
+                                groups.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                        onClick={() => navigate(`/groups/${row.id}`)}
+                                        className="cursor-pointer hover:bg-muted/50"
+                                        data-selected={selectedIds.has(row.id) ? 'true' : undefined}
+                                    >
+                                        <TableCell onClick={(e) => e.stopPropagation()}>
+                                            <Checkbox
+                                                checked={selectedIds.has(row.id)}
+                                                onCheckedChange={(checked) => handleSelectOne(row.id, checked)}
+                                                aria-label={`${row.name} 선택`}
+                                            />
+                                        </TableCell>
+                                        <TableCell>{row.name}</TableCell>
+                                        <TableCell className="text-center">
+                                            <Badge variant={row.type === GROUP_TYPE.GRADE ? 'default' : 'secondary'}>
+                                                {TYPE_LABEL[row.type] ?? row.type}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-center">{row.studentCount}명</TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </UITable>
+                </Card>
+            </div>
 
             {/* 일괄 삭제 다이얼로그 */}
             <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
