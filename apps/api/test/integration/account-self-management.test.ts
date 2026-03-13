@@ -151,22 +151,8 @@ describe('계정 자기 관리 통합 테스트', () => {
     // account.deleteAccount
     // ================================================================
     describe('account.deleteAccount', () => {
-        // $transaction mock: 콜백을 실행하는 구현
+        // $transaction mock: 콜백을 실행하는 구현 (계정 soft-delete + RefreshToken 삭제만)
         const mockTx = {
-            group: {
-                findMany: vi.fn().mockResolvedValue([]),
-                updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            studentGroup: {
-                findMany: vi.fn().mockResolvedValue([]),
-            },
-            student: {
-                findMany: vi.fn().mockResolvedValue([]),
-                updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            attendance: {
-                updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
             account: {
                 update: vi.fn().mockResolvedValue({}),
             },
@@ -179,12 +165,6 @@ describe('계정 자기 관리 통합 테스트', () => {
             mockPrismaClient.$transaction = vi.fn().mockImplementation(async (cb) => cb(mockTx));
 
             // mockTx 초기화
-            mockTx.group.findMany.mockReset().mockResolvedValue([]);
-            mockTx.group.updateMany.mockReset().mockResolvedValue({ count: 0 });
-            mockTx.studentGroup.findMany.mockReset().mockResolvedValue([]);
-            mockTx.student.findMany.mockReset().mockResolvedValue([]);
-            mockTx.student.updateMany.mockReset().mockResolvedValue({ count: 0 });
-            mockTx.attendance.updateMany.mockReset().mockResolvedValue({ count: 0 });
             mockTx.account.update.mockReset().mockResolvedValue({});
             mockTx.refreshToken.deleteMany.mockReset().mockResolvedValue({ count: 0 });
         });

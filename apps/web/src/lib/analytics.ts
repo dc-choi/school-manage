@@ -25,6 +25,10 @@
  * - 온보딩 완료: analytics.trackOnboardingCompleted(daysSinceSignup)
  * - 전례 카드 노출: analytics.trackLiturgicalCardViewed()
  * - 축일자 카드 노출: analytics.trackPatronFeastCardViewed()
+ *
+ * 사용자 속성 (커스텀 디멘션):
+ * - 사용자 속성 설정: analytics.setUserProperties(accountName, organizationName)
+ * - 사용자 속성 초기화: analytics.clearUserProperties()
  */
 
 const isGtagAvailable = (): boolean => {
@@ -44,7 +48,42 @@ const safeGtag = (command: 'event', eventName: string, params?: Record<string, u
     }
 };
 
+const safeGtagSet = (targetId: string, params: Record<string, unknown>): void => {
+    if (!isGtagAvailable()) {
+        console.warn('[Analytics] gtag not available, skipping set:', targetId);
+        return;
+    }
+
+    try {
+        window.gtag!('set', targetId, params);
+    } catch (error) {
+        console.error('[Analytics] Failed to set:', targetId, error);
+    }
+};
+
 export const analytics = {
+    /**
+     * GA4 사용자 속성 설정 (커스텀 디멘션)
+     * 트리거: 계정 데이터 로드 완료 시 (AuthProvider)
+     * 설정 후 모든 이벤트에 자동 포함
+     */
+    setUserProperties: (accountName: string, organizationName: string | null): void => {
+        safeGtagSet('user_properties', {
+            account_name: accountName,
+            organization_name: organizationName ?? '',
+        });
+    },
+
+    /**
+     * GA4 사용자 속성 초기화
+     * 트리거: 로그아웃 시 (AuthProvider)
+     */
+    clearUserProperties: (): void => {
+        safeGtagSet('user_properties', {
+            account_name: '',
+            organization_name: '',
+        });
+    },
     /**
      * 회원가입 완료 이벤트
      * 트리거: 회원가입 API 성공 응답 수신 후

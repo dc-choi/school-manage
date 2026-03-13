@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 완료               |
 | **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성) |
-| **Target Non-Functional** | -    | SECURITY 1건 완료, ANALYTICS 1건 미착수, PERFORMANCE 3건 미착수 |
+| **Target Non-Functional** | -    | SECURITY 1건 완료, ANALYTICS 1건 완료, PERFORMANCE 3건 미착수 |
 
 ## 관련 문서
 
@@ -100,13 +100,8 @@
 
 | 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
 |------|----------------------|--------|------------------------------------------------------|
-| P1   | GA4 account_id 커스텀 디멘션 | 미작성    | 클라이언트 GA4 이벤트에 account_id 추가 → 단체별 WAU 자동 측정 |
+| P1   | GA4 커스텀 디멘션 (계정명+단체명) | **구현 완료** | account_name + organization_name user properties 추가 |
 | P2   | 이탈 감지 자동 알림 (운영자용) | 미착수    | 7일/14일 미활동 계정 이메일 알림 — SMTP 인프라 활용 (03-13 승인) |
-
-**GA4 account_id 커스텀 디멘션:**
-- 현재 클라이언트(gtag.js) 19개 이벤트에 account_id 미포함 → GA4에서 단체별 분석 불가
-- 로그인 시 analytics 모듈에 accountId 세팅, 이후 모든 이벤트에 자동 포함
-- GA4 콘솔에서 커스텀 디멘션 등록 필요
 
 ### PERFORMANCE (Non-Functional)
 

@@ -1,6 +1,7 @@
 import type { AccountInfo } from '@school/shared';
 import { type ReactNode, createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { analytics } from '~/lib/analytics';
+import { queryClient } from '~/lib/queryClient';
 import { trpc } from '~/lib/trpc';
 
 export interface AuthContextValue {
@@ -97,6 +98,9 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
                 setOrganizationName(accountData.organizationName ?? null);
                 setOrganizationType(accountData.organizationType ?? null);
                 setChurchName(accountData.churchName ?? null);
+
+                // GA4 사용자 속성 설정
+                analytics.setUserProperties(accountData.displayName, accountData.organizationName ?? null);
             } else {
                 clearAuthState();
                 setAccount(null);
@@ -113,6 +117,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
 
     const login = useCallback(
         async (name: string, password: string) => {
+            queryClient.clear();
             const result = await loginMutation.mutateAsync({ name, password });
             sessionStorage.setItem('token', result.accessToken);
             setAccount({ id: '', name: result.name, displayName: result.displayName });
@@ -125,6 +130,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
 
     const restoreAccount = useCallback(
         async (name: string, password: string) => {
+            queryClient.clear();
             const result = await restoreMutation.mutateAsync({ name, password });
             sessionStorage.setItem('token', result.accessToken);
             setAccount({ id: '', name: result.name, displayName: result.displayName });
@@ -141,6 +147,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             // 서버 로그아웃 실패해도 클라이언트는 정리
         }
         clearAuthState();
+        queryClient.clear();
         setAccount(null);
         setPrivacyAgreedAt(null);
         setOrganizationId(null);
@@ -148,6 +155,9 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         setOrganizationName(null);
         setOrganizationType(null);
         setChurchName(null);
+
+        // GA4 사용자 속성 초기화
+        analytics.clearUserProperties();
     }, [logoutMutation]);
 
     const value = useMemo(
