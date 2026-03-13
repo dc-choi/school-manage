@@ -18,12 +18,12 @@ export function Sidebar() {
     };
 
     return (
-        <aside className="hidden flex-col border-r bg-muted/20 md:flex md:w-20 lg:w-80">
+        <aside className="hidden flex-col bg-sidebar md:flex md:w-20 lg:w-80">
             {/* Logo */}
-            <div className="flex h-20 items-center justify-center border-b">
+            <div className="flex h-20 items-center justify-center border-b border-sidebar-border">
                 <Link
                     to="/"
-                    className="text-lg font-bold tracking-tight transition-colors hover:text-primary lg:text-xl"
+                    className="text-lg font-bold tracking-tight text-sidebar-foreground transition-opacity hover:opacity-80 lg:text-xl"
                 >
                     <span className="lg:hidden">주일</span>
                     <span className="hidden lg:inline">주일학교 출석부</span>
@@ -32,7 +32,7 @@ export function Sidebar() {
 
             {/* Navigation */}
             <nav className="flex-1 space-y-2 px-2 py-6 lg:px-4">
-                <div className="mb-6 hidden px-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground lg:block">
+                <div className="mb-6 hidden px-4 text-sm font-semibold uppercase tracking-wider text-sidebar-foreground/50 lg:block">
                     메뉴
                 </div>
                 {navItems.map((item) => {
@@ -46,8 +46,8 @@ export function Sidebar() {
                             className={cn(
                                 'flex items-center justify-center gap-0 rounded-xl px-0 py-4 text-base font-medium transition-all lg:justify-start lg:gap-5 lg:px-6 lg:py-5 lg:text-lg',
                                 active
-                                    ? 'bg-primary text-primary-foreground shadow-sm'
-                                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    ? 'bg-white/15 text-white shadow-sm'
+                                    : 'text-sidebar-foreground/60 hover:bg-white/10 hover:text-sidebar-foreground'
                             )}
                         >
                             <Icon className="h-6 w-6 lg:h-7 lg:w-7" />
@@ -58,8 +58,8 @@ export function Sidebar() {
             </nav>
 
             {/* Footer */}
-            <div className="hidden border-t p-6 lg:block">
-                <p className="text-center text-sm text-muted-foreground">
+            <div className="hidden border-t border-sidebar-border p-6 lg:block">
+                <p className="text-center text-sm text-sidebar-foreground/50">
                     © 2022–{new Date().getFullYear()} 주일학교 출석부
                 </p>
             </div>

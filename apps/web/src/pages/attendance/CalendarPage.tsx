@@ -109,95 +109,88 @@ export function CalendarPage() {
 
     return (
         <MainLayout title="출석부 달력">
-            <div className="space-y-8">
-                {/* 상단 컨트롤 영역 */}
-                <Card>
-                    <CardContent className="py-6">
-                        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                            {/* 학년&부서 선택 */}
-                            <div className="flex items-center gap-4">
-                                <span className="text-sm font-medium text-muted-foreground">학년&부서 선택</span>
-                                <Select
-                                    value={selectedGroupId}
-                                    onValueChange={(value) => {
-                                        setSelectedGroupId(value);
-                                    }}
-                                >
-                                    <SelectTrigger className="w-48">
-                                        <SelectValue placeholder="학년&부서를 선택하세요" />
-                                    </SelectTrigger>
-                                    <SelectContent>
+            <div className="flex h-[calc(100vh-6.5rem)] flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
+                {/* 컨트롤 영역 */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-muted-foreground">학년&부서</span>
+                        <Select
+                            value={selectedGroupId}
+                            onValueChange={(value) => {
+                                setSelectedGroupId(value);
+                            }}
+                        >
+                            <SelectTrigger className="h-9 w-40">
+                                <SelectValue placeholder="선택" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>학년</SelectLabel>
+                                    {groups
+                                        .filter((g) => g.type === GROUP_TYPE.GRADE)
+                                        .map((g) => (
+                                            <SelectItem key={g.id} value={g.id}>
+                                                {g.name}
+                                            </SelectItem>
+                                        ))}
+                                </SelectGroup>
+                                {groups.some((g) => g.type === GROUP_TYPE.DEPARTMENT) ? (
+                                    <>
+                                        <SelectSeparator />
                                         <SelectGroup>
-                                            <SelectLabel>학년</SelectLabel>
+                                            <SelectLabel>부서</SelectLabel>
                                             {groups
-                                                .filter((g) => g.type === GROUP_TYPE.GRADE)
+                                                .filter((g) => g.type === GROUP_TYPE.DEPARTMENT)
                                                 .map((g) => (
                                                     <SelectItem key={g.id} value={g.id}>
                                                         {g.name}
                                                     </SelectItem>
                                                 ))}
                                         </SelectGroup>
-                                        {groups.some((g) => g.type === GROUP_TYPE.DEPARTMENT) ? (
-                                            <>
-                                                <SelectSeparator />
-                                                <SelectGroup>
-                                                    <SelectLabel>부서</SelectLabel>
-                                                    {groups
-                                                        .filter((g) => g.type === GROUP_TYPE.DEPARTMENT)
-                                                        .map((g) => (
-                                                            <SelectItem key={g.id} value={g.id}>
-                                                                {g.name}
-                                                            </SelectItem>
-                                                        ))}
-                                                </SelectGroup>
-                                            </>
-                                        ) : null}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                    </>
+                                ) : null}
+                            </SelectContent>
+                        </Select>
+                        {calendarData && calendarData.totalStudents > 0 ? (
+                            <Badge variant="secondary" className="text-xs">
+                                {calendarData.totalStudents}명
+                            </Badge>
+                        ) : null}
+                    </div>
 
-                            {/* 범례 */}
-                            <div className="flex flex-wrap items-center gap-3">
-                                <span className="text-sm text-muted-foreground">출석 표시:</span>
-                                <Badge variant="outline" className="gap-1 px-3 py-1">
-                                    <span className="text-green-600">◎</span> 출석
-                                </Badge>
-                                <Badge variant="outline" className="gap-1 px-3 py-1">
-                                    <span className="text-blue-600">○</span> 미사만
-                                </Badge>
-                                <Badge variant="outline" className="gap-1 px-3 py-1">
-                                    <span className="text-orange-600">△</span> 교리만
-                                </Badge>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                    {/* 범례 */}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline" className="gap-1 px-2 py-0.5 text-xs">
+                            <span className="text-green-600">◎</span> 출석
+                        </Badge>
+                        <Badge variant="outline" className="gap-1 px-2 py-0.5 text-xs">
+                            <span className="text-blue-600">○</span> 미사만
+                        </Badge>
+                        <Badge variant="outline" className="gap-1 px-2 py-0.5 text-xs">
+                            <span className="text-orange-600">△</span> 교리만
+                        </Badge>
+                    </div>
+                </div>
 
-                {/* 달력 영역 */}
-                {!selectedGroupId && (
-                    <Card>
-                        <CardContent className="flex h-96 items-center justify-center">
-                            <p className="text-lg text-muted-foreground">학년을 선택해주세요.</p>
-                        </CardContent>
+                {/* 달력 영역 — 나머지 높이를 모두 채움 */}
+                {!selectedGroupId ? (
+                    <Card className="flex flex-1 items-center justify-center">
+                        <p className="text-lg text-muted-foreground">학년을 선택해주세요.</p>
                     </Card>
-                )}
-                {selectedGroupId && calendarLoading && (
-                    <Card>
-                        <CardContent className="flex h-96 items-center justify-center">
-                            <LoadingSpinner />
-                        </CardContent>
+                ) : null}
+                {selectedGroupId && calendarLoading ? (
+                    <Card className="flex flex-1 items-center justify-center">
+                        <LoadingSpinner />
                     </Card>
-                )}
-                {selectedGroupId && !calendarLoading && !calendarData && (
-                    <Card>
-                        <CardContent className="flex h-96 items-center justify-center">
-                            <p className="text-lg text-muted-foreground">데이터를 불러올 수 없습니다.</p>
-                        </CardContent>
+                ) : null}
+                {selectedGroupId && !calendarLoading && !calendarData ? (
+                    <Card className="flex flex-1 items-center justify-center">
+                        <p className="text-lg text-muted-foreground">데이터를 불러올 수 없습니다.</p>
                     </Card>
-                )}
-                {selectedGroupId && !calendarLoading && calendarData && (
-                    <Card>
-                        <CardHeader className="pb-4">
+                ) : null}
+                {selectedGroupId && !calendarLoading && calendarData ? (
+                    <Card className="flex min-h-0 flex-1 flex-col overflow-auto">
+                        <CardHeader className="pb-2 pt-4">
                             <CalendarHeader
                                 year={currentYear}
                                 month={currentMonth}
@@ -205,25 +198,16 @@ export function CalendarPage() {
                                 onNextMonth={handleNextMonth}
                             />
                         </CardHeader>
-                        <CardContent className="px-6 pb-8">
+                        <CardContent className="flex-1 px-4 pb-4">
                             <CalendarGrid
                                 year={currentYear}
                                 month={currentMonth}
                                 days={calendarData.days}
                                 onDateClick={handleDateClick}
                             />
-
-                            {/* 통계 요약 */}
-                            {calendarData.totalStudents > 0 && (
-                                <div className="mt-6 flex justify-center">
-                                    <Badge variant="secondary" className="px-4 py-2 text-sm">
-                                        전체 인원: {calendarData.totalStudents}명
-                                    </Badge>
-                                </div>
-                            )}
                         </CardContent>
                     </Card>
-                )}
+                ) : null}
             </div>
 
             {/* 출석 입력 모달 */}

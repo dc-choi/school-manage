@@ -189,77 +189,69 @@ function DashboardContent() {
 
     return (
         <MainLayout title={`안녕하세요, ${account?.name}님!`}>
-            <div className="space-y-4">
+            <div className="flex h-[calc(100vh-6.5rem)] flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
                 {/* 합류 요청 관리 (admin만) */}
                 {role === ROLE.ADMIN ? <JoinRequestsSection /> : null}
 
-                {/* 전례 시기 & 연도/월/주차 선택 */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-start">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                            <Label>연도</Label>
-                            <Select
-                                value={selectedYear.toString()}
-                                onValueChange={(v) => {
-                                    setSelectedYear(Number(v));
-                                    setSelectedMonth(undefined);
-                                    setSelectedWeek(undefined);
-                                }}
-                            >
-                                <SelectTrigger className="w-24">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {yearOptions.map((y) => (
-                                        <SelectItem key={y.value} value={y.value}>
-                                            {y.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <Label>월　</Label>
-                            <Select
-                                value={selectedMonth?.toString() ?? ''}
-                                onValueChange={(v) => {
-                                    setSelectedMonth(v ? Number(v) : undefined);
-                                    setSelectedWeek(undefined);
-                                }}
-                            >
-                                <SelectTrigger className="w-24">
-                                    <SelectValue placeholder="전체" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {monthOptions.map((m) => (
-                                        <SelectItem key={m.value || 'all'} value={m.value || 'all'}>
-                                            {m.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <Label>주차</Label>
-                            <Select
-                                value={selectedWeek?.toString() ?? ''}
-                                onValueChange={(v) => setSelectedWeek(v && v !== 'all' ? Number(v) : undefined)}
-                                disabled={!selectedMonth}
-                            >
-                                <SelectTrigger className="w-24">
-                                    <SelectValue placeholder="전체" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {weekOptions.map((w) => (
-                                        <SelectItem key={w.value || 'all'} value={w.value || 'all'}>
-                                            {w.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                {/* 필터 + 전례 시기 카드 */}
+                <div className="flex flex-col gap-3 md:flex-row md:items-start">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Label className="text-xs text-muted-foreground">연도</Label>
+                        <Select
+                            value={selectedYear.toString()}
+                            onValueChange={(v) => {
+                                setSelectedYear(Number(v));
+                                setSelectedMonth(undefined);
+                                setSelectedWeek(undefined);
+                            }}
+                        >
+                            <SelectTrigger className="h-9 w-20">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {yearOptions.map((y) => (
+                                    <SelectItem key={y.value} value={y.value}>
+                                        {y.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Label className="text-xs text-muted-foreground">월</Label>
+                        <Select
+                            value={selectedMonth?.toString() ?? ''}
+                            onValueChange={(v) => {
+                                setSelectedMonth(v ? Number(v) : undefined);
+                                setSelectedWeek(undefined);
+                            }}
+                        >
+                            <SelectTrigger className="h-9 w-20">
+                                <SelectValue placeholder="전체" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {monthOptions.map((m) => (
+                                    <SelectItem key={m.value || 'all'} value={m.value || 'all'}>
+                                        {m.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Label className="text-xs text-muted-foreground">주차</Label>
+                        <Select
+                            value={selectedWeek?.toString() ?? ''}
+                            onValueChange={(v) => setSelectedWeek(v && v !== 'all' ? Number(v) : undefined)}
+                            disabled={!selectedMonth}
+                        >
+                            <SelectTrigger className="h-9 w-20">
+                                <SelectValue placeholder="전체" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {weekOptions.map((w) => (
+                                    <SelectItem key={w.value || 'all'} value={w.value || 'all'}>
+                                        {w.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="md:flex-1">
@@ -270,11 +262,16 @@ function DashboardContent() {
                     </div>
                 </div>
 
-                {/* 학년별 상세 통계 테이블 */}
-                <GroupStatisticsTable data={stats.groupStatistics} isLoading={stats.isLoading} error={hasError} />
+                {/* 학년별 상세 통계 테이블 — 남은 공간 채움 */}
+                <GroupStatisticsTable
+                    data={stats.groupStatistics}
+                    isLoading={stats.isLoading}
+                    error={hasError}
+                    className="min-h-0 flex-1"
+                />
 
                 {/* 성별 분포 & 우수 출석 학생 */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <GenderDistributionChart data={stats.byGender} isLoading={stats.isLoading} error={hasError} />
                     <TopRankingCard
                         title="전체 우수 출석 학생 TOP 5"

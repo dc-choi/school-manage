@@ -148,156 +148,167 @@ export function AttendancePage() {
 
     return (
         <MainLayout title="출석부">
-            <div className="mb-6 flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-                <div className="grid grid-cols-2 gap-6 sm:flex sm:gap-6">
-                    <div className="space-y-2">
-                        <Label>학년&부서</Label>
-                        <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
-                            <SelectTrigger className="w-full sm:w-40">
-                                <SelectValue placeholder="학년&부서 선택" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>학년</SelectLabel>
-                                    {groups
-                                        .filter((g) => g.type === GROUP_TYPE.GRADE)
-                                        .map((g) => (
-                                            <SelectItem key={g.id} value={g.id}>
-                                                {g.name}
-                                            </SelectItem>
-                                        ))}
-                                </SelectGroup>
-                                {groups.some((g) => g.type === GROUP_TYPE.DEPARTMENT) ? (
-                                    <>
-                                        <SelectSeparator />
-                                        <SelectGroup>
-                                            <SelectLabel>부서</SelectLabel>
-                                            {groups
-                                                .filter((g) => g.type === GROUP_TYPE.DEPARTMENT)
-                                                .map((g) => (
-                                                    <SelectItem key={g.id} value={g.id}>
-                                                        {g.name}
-                                                    </SelectItem>
-                                                ))}
-                                        </SelectGroup>
-                                    </>
-                                ) : null}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>연도</Label>
-                        <Select
-                            value={selectedYear.toString()}
-                            onValueChange={(value) => setSelectedYear(Number(value))}
-                        >
-                            <SelectTrigger className="w-full sm:w-32">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {yearOptions.map((y) => (
-                                    <SelectItem key={y.value} value={y.value}>
-                                        {y.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-
-                {/* 저장 상태 인디케이터 */}
-                <div className="flex items-center gap-2 text-sm">
-                    {saveStatus === 'saving' && (
-                        <>
-                            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                            <span>저장 중...</span>
-                        </>
-                    )}
-                    {saveStatus === 'saved' && (
-                        <>
-                            <Check className="h-4 w-4 text-green-600" />
-                            <span className="text-green-600">저장 완료</span>
-                        </>
-                    )}
-                    {saveStatus === 'error' && (
-                        <>
-                            <X className="h-4 w-4 text-red-600" />
-                            <span className="text-red-600">저장 실패</span>
-                        </>
-                    )}
-                </div>
-            </div>
-
-            {!selectedGroupId && (
-                <Card>
-                    <CardContent className="py-8 text-center text-muted-foreground">학년을 선택해주세요.</CardContent>
-                </Card>
-            )}
-            {selectedGroupId && attendanceLoading && <LoadingSpinner />}
-            {selectedGroupId && !attendanceLoading && !attendanceData?.students?.length && (
-                <Card>
-                    <CardContent className="py-8 text-center text-muted-foreground">학생이 없습니다.</CardContent>
-                </Card>
-            )}
-            {selectedGroupId && !attendanceLoading && attendanceData?.students?.length && (
-                <Card>
-                    <CardContent className="overflow-x-auto p-4">
-                        <table className="min-w-full border-collapse">
-                            <thead>
-                                <tr className="border-b bg-muted/50">
-                                    <th className="sticky left-0 z-10 border-r bg-muted/50 px-3 py-2 text-left text-sm font-semibold">
-                                        이름
-                                    </th>
-                                    {dates.map((d) => (
-                                        <th key={d.date} className="border-r px-2 py-1 text-center text-xs font-medium">
-                                            <div>
-                                                {d.month}/{d.day}
-                                            </div>
-                                            <Badge
-                                                variant={d.dayOfWeek === '일' ? 'destructive' : 'default'}
-                                                className="mt-1 text-[10px]"
-                                            >
-                                                {d.dayOfWeek}
-                                            </Badge>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {attendanceData.students.map((student) => (
-                                    <tr key={student.id} className="border-b last:border-b-0">
-                                        <td className="sticky left-0 z-10 border-r bg-background px-3 py-2 text-sm font-medium">
-                                            {student.societyName}
-                                        </td>
-                                        {dates.map((d) => (
-                                            <td key={d.date} className="border-r p-0">
-                                                <select
-                                                    value={getAttendanceValue(student.id, d.date)}
-                                                    onChange={(e) =>
-                                                        handleAttendanceChange(
-                                                            student.id,
-                                                            d.month,
-                                                            d.day,
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className="w-full border-0 bg-transparent px-1 py-2 text-center text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                                                >
-                                                    {ATTENDANCE_OPTIONS.map((opt) => (
-                                                        <option key={opt.value} value={opt.value}>
-                                                            {opt.label}
-                                                        </option>
+            <div className="flex h-[calc(100vh-6.5rem)] flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
+                {/* 컨트롤 영역 */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="flex items-end gap-3">
+                        <div className="space-y-1">
+                            <Label className="text-xs">학년&부서</Label>
+                            <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+                                <SelectTrigger className="h-9 w-36">
+                                    <SelectValue placeholder="선택" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>학년</SelectLabel>
+                                        {groups
+                                            .filter((g) => g.type === GROUP_TYPE.GRADE)
+                                            .map((g) => (
+                                                <SelectItem key={g.id} value={g.id}>
+                                                    {g.name}
+                                                </SelectItem>
+                                            ))}
+                                    </SelectGroup>
+                                    {groups.some((g) => g.type === GROUP_TYPE.DEPARTMENT) ? (
+                                        <>
+                                            <SelectSeparator />
+                                            <SelectGroup>
+                                                <SelectLabel>부서</SelectLabel>
+                                                {groups
+                                                    .filter((g) => g.type === GROUP_TYPE.DEPARTMENT)
+                                                    .map((g) => (
+                                                        <SelectItem key={g.id} value={g.id}>
+                                                            {g.name}
+                                                        </SelectItem>
                                                     ))}
-                                                </select>
-                                            </td>
+                                            </SelectGroup>
+                                        </>
+                                    ) : null}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-xs">연도</Label>
+                            <Select
+                                value={selectedYear.toString()}
+                                onValueChange={(value) => setSelectedYear(Number(value))}
+                            >
+                                <SelectTrigger className="h-9 w-28">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {yearOptions.map((y) => (
+                                        <SelectItem key={y.value} value={y.value}>
+                                            {y.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* 저장 상태 인디케이터 */}
+                    <div className="flex items-center gap-2 text-sm">
+                        {saveStatus === 'saving' && (
+                            <>
+                                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                                <span>저장 중...</span>
+                            </>
+                        )}
+                        {saveStatus === 'saved' && (
+                            <>
+                                <Check className="h-4 w-4 text-green-600" />
+                                <span className="text-green-600">저장 완료</span>
+                            </>
+                        )}
+                        {saveStatus === 'error' && (
+                            <>
+                                <X className="h-4 w-4 text-red-600" />
+                                <span className="text-red-600">저장 실패</span>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                {/* 테이블 영역 — 나머지 높이를 모두 채움 */}
+                {!selectedGroupId ? (
+                    <Card className="flex flex-1 items-center justify-center">
+                        <CardContent className="text-center text-muted-foreground">학년을 선택해주세요.</CardContent>
+                    </Card>
+                ) : null}
+                {selectedGroupId && attendanceLoading ? (
+                    <Card className="flex flex-1 items-center justify-center">
+                        <LoadingSpinner />
+                    </Card>
+                ) : null}
+                {selectedGroupId && !attendanceLoading && !attendanceData?.students?.length ? (
+                    <Card className="flex flex-1 items-center justify-center">
+                        <CardContent className="text-center text-muted-foreground">학생이 없습니다.</CardContent>
+                    </Card>
+                ) : null}
+                {selectedGroupId && !attendanceLoading && attendanceData?.students?.length ? (
+                    <Card className="min-h-0 flex-1">
+                        <CardContent className="h-full overflow-auto p-0">
+                            <table className="min-w-full border-collapse">
+                                <thead className="sticky top-0 z-20">
+                                    <tr className="border-b bg-muted/80 backdrop-blur-sm">
+                                        <th className="sticky left-0 z-30 border-r bg-muted/80 px-3 py-2 text-left text-sm font-semibold backdrop-blur-sm">
+                                            이름
+                                        </th>
+                                        {dates.map((d) => (
+                                            <th
+                                                key={d.date}
+                                                className="border-r px-2 py-1 text-center text-xs font-medium"
+                                            >
+                                                <div>
+                                                    {d.month}/{d.day}
+                                                </div>
+                                                <Badge
+                                                    variant={d.dayOfWeek === '일' ? 'destructive' : 'default'}
+                                                    className="mt-0.5 text-[10px]"
+                                                >
+                                                    {d.dayOfWeek}
+                                                </Badge>
+                                            </th>
                                         ))}
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </CardContent>
-                </Card>
-            )}
+                                </thead>
+                                <tbody>
+                                    {attendanceData.students.map((student) => (
+                                        <tr key={student.id} className="border-b last:border-b-0">
+                                            <td className="sticky left-0 z-10 border-r bg-background px-3 py-1.5 text-sm font-medium">
+                                                {student.societyName}
+                                            </td>
+                                            {dates.map((d) => (
+                                                <td key={d.date} className="border-r p-0">
+                                                    <select
+                                                        value={getAttendanceValue(student.id, d.date)}
+                                                        onChange={(e) =>
+                                                            handleAttendanceChange(
+                                                                student.id,
+                                                                d.month,
+                                                                d.day,
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        className="w-full border-0 bg-transparent px-1 py-1.5 text-center text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                                                    >
+                                                        {ATTENDANCE_OPTIONS.map((opt) => (
+                                                            <option key={opt.value} value={opt.value}>
+                                                                {opt.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </CardContent>
+                    </Card>
+                ) : null}
+            </div>
         </MainLayout>
     );
 }
