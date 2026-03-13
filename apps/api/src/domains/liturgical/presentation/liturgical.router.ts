@@ -5,7 +5,8 @@
  */
 import { GetHolydaysUseCase } from '../application/get-holydays.usecase.ts';
 import { GetSeasonUseCase } from '../application/get-season.usecase.ts';
-import { consentedProcedure, getHolydaysInputSchema, getSeasonInputSchema, router } from '@school/trpc';
+import { consentedProcedure, router } from '@school/trpc';
+import { getHolydaysInputSchema, getSeasonInputSchema } from '@school/shared';
 
 export const liturgicalRouter = router({
     /**

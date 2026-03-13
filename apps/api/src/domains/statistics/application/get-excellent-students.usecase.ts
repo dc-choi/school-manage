@@ -7,7 +7,7 @@ import { Prisma } from '@prisma/client';
 import type {
     GetExcellentStudentsOutput,
     GetExcellentStudentsInput as GetExcellentStudentsSchemaInput,
-} from '@school/trpc';
+} from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';

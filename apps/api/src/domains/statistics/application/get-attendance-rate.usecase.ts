@@ -3,8 +3,8 @@
  *
  * 주간/월간/연간 출석률 조회 (스냅샷 기반)
  */
-import { PRESENT_MARKS } from '@school/trpc';
-import type { AttendanceRateOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
+import { PRESENT_MARKS } from '@school/shared';
+import type { AttendanceRateOutput, StatisticsInput as StatisticsSchemaInput } from '@school/shared';
 import {
     clampToToday,
     countSundays,

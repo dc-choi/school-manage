@@ -3,7 +3,7 @@
  *
  * 인증된 사용자의 계정 정보 반환 (DB 조회)
  */
-import type { AccountInfo, GetAccountOutput, JoinRequestStatus, Role } from '@school/trpc';
+import type { AccountInfo, GetAccountOutput, JoinRequestStatus, Role } from '@school/shared';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 

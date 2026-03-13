@@ -22,7 +22,7 @@
             "dependsOn": ["@school/api#build", "^build"]
         },
         "dev": {
-            "dependsOn": ["@school/trpc#build"],
+            "dependsOn": ["@school/shared#build", "@school/trpc#build"],
             "cache": false,
             "persistent": true
         },

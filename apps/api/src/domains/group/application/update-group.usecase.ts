@@ -3,7 +3,7 @@
  *
  * 그룹 정보 수정
  */
-import type { GroupOutput, UpdateGroupInput as UpdateGroupSchemaInput } from '@school/trpc';
+import type { GroupOutput, UpdateGroupInput as UpdateGroupSchemaInput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createGroupSnapshot } from '~/domains/snapshot/snapshot.helper.js';

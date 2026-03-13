@@ -4,7 +4,7 @@
  * 학생 목록 조회 (페이지네이션, 검색, 삭제 필터, 등록 필터)
  */
 import { Prisma } from '@prisma/client';
-import type { Gender, ListStudentsOutput, ListStudentsInput as ListStudentsSchemaInput } from '@school/trpc';
+import type { Gender, ListStudentsOutput, ListStudentsInput as ListStudentsSchemaInput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드

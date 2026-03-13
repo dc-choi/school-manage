@@ -4,7 +4,7 @@
  * 비밀번호 재설정 비즈니스 로직
  * 임시 비밀번호 생성 → 이메일 발송 (동기) → 성공 시 DB 업데이트
  */
-import type { ResetPasswordInput, ResetPasswordOutput } from '@school/trpc';
+import type { ResetPasswordInput, ResetPasswordOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';

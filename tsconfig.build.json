@@ -2,6 +2,7 @@
     "files": [],
     "references": [
         { "path": "packages/utils" },
+        { "path": "packages/shared" },
         { "path": "packages/trpc" },
         { "path": "apps/api" },
         { "path": "apps/web" }

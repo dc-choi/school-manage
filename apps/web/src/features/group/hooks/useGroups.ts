@@ -1,4 +1,4 @@
-import type { CreateGroupInput, UpdateGroupInput } from '@school/trpc';
+import type { CreateGroupInput, UpdateGroupInput } from '@school/shared';
 import { toast } from 'sonner';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';

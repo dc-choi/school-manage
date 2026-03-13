@@ -4,7 +4,7 @@
  * 전체 우수 출석 학생 TOP N 조회 (스냅샷 기반)
  */
 import { Prisma } from '@prisma/client';
-import type { TopOverallOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/trpc';
+import type { TopOverallOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/shared';
 import { clampToToday, formatDateCompact, getNowKST, getWeekRangeInMonth } from '@school/utils';
 import { getBulkGroupSnapshots, getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';

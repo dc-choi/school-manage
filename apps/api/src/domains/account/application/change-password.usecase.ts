@@ -4,7 +4,7 @@
  * 비밀번호 변경 비즈니스 로직
  * 현재 비밀번호 검증 → 새 비밀번호 해싱 → DB 업데이트
  */
-import type { ChangePasswordInput, ChangePasswordOutput } from '@school/trpc';
+import type { ChangePasswordInput, ChangePasswordOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';

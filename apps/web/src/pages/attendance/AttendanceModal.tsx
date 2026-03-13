@@ -1,4 +1,4 @@
-import type { AttendanceData, StudentAttendanceDetail } from '@school/trpc';
+import type { AttendanceData, StudentAttendanceDetail } from '@school/shared';
 import { Check, Loader2, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';

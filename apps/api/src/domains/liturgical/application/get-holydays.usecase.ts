@@ -3,7 +3,7 @@
  *
  * 천주교 전례력에 따른 의무축일(고정 + 이동)을 계산하여 반환합니다.
  */
-import type { GetHolydaysInput, GetHolydaysOutput, Holyday } from '@school/trpc';
+import type { GetHolydaysInput, GetHolydaysOutput, Holyday } from '@school/shared';
 import { addDays, calculateEaster, formatDateISO, getLastSundayOf } from '@school/utils';
 
 export class GetHolydaysUseCase {

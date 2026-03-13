@@ -28,6 +28,7 @@
     "dependencies": {
         "@prisma/adapter-mariadb": "^6.19.2",
         "@prisma/client": "^6.19.1",
+        "@school/shared": "workspace:*",
         "@school/trpc": "workspace:*",
         "@school/utils": "workspace:*",
         "@trpc/server": "catalog:",

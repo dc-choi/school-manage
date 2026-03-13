@@ -1,7 +1,7 @@
 import { AttendanceModal } from './AttendanceModal';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarHeader } from './CalendarHeader';
-import type { AttendanceData } from '@school/trpc';
+import type { AttendanceData } from '@school/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingSpinner } from '~/components/common';
 import { MainLayout } from '~/components/layout';

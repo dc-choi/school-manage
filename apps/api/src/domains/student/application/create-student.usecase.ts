@@ -3,7 +3,7 @@
  *
  * 새 학생 생성
  */
-import type { CreateStudentInput, CreateStudentOutput, Gender } from '@school/trpc';
+import type { CreateStudentInput, CreateStudentOutput, Gender } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';

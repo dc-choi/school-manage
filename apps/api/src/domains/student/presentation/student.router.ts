@@ -17,6 +17,7 @@ import { ListStudentsUseCase } from '../application/list-students.usecase.ts';
 import { PromoteStudentsUseCase } from '../application/promote-students.usecase.ts';
 import { RestoreStudentsUseCase } from '../application/restore-students.usecase.ts';
 import { UpdateStudentUseCase } from '../application/update-student.usecase.ts';
+import { router, scopedProcedure } from '@school/trpc';
 import {
     bulkCancelRegistrationInputSchema,
     bulkCreateStudentsInputSchema,
@@ -30,10 +31,8 @@ import {
     graduateStudentsInputSchema,
     listStudentsInputSchema,
     restoreStudentsInputSchema,
-    router,
-    scopedProcedure,
     updateStudentInputSchema,
-} from '@school/trpc';
+} from '@school/shared';
 
 export const studentRouter = router({
     /**

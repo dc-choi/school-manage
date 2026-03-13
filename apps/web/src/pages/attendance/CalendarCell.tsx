@@ -1,4 +1,4 @@
-import type { CalendarDay } from '@school/trpc';
+import type { CalendarDay } from '@school/shared';
 import { cn } from '~/lib/utils';
 
 interface CalendarCellProps {

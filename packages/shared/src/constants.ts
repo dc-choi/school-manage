@@ -1,5 +1,5 @@
 /**
- * @school/trpc/shared - 공통 타입 정의
+ * @school/shared/constants - 공통 상수 및 도메인 타입
  *
  * 서버/클라이언트 모두에서 사용하는 공통 타입
  * 런타임 의존성 없음

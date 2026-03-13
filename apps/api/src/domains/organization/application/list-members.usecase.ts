@@ -3,7 +3,7 @@
  *
  * 조직 멤버 목록 조회
  */
-import { type MembersOutput, ROLE, type Role } from '@school/trpc';
+import { type MembersOutput, ROLE, type Role } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 export class ListMembersUseCase {
