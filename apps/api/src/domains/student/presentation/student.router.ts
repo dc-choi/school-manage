@@ -30,10 +30,9 @@ import {
     graduateStudentsInputSchema,
     listStudentsInputSchema,
     restoreStudentsInputSchema,
-    router,
-    scopedProcedure,
     updateStudentInputSchema,
-} from '@school/trpc';
+} from '@school/shared';
+import { router, scopedProcedure } from '@school/trpc';
 
 export const studentRouter = router({
     /**

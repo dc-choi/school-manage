@@ -3,7 +3,7 @@
  *
  * 회원가입 비즈니스 로직
  */
-import type { SignupInput, SignupOutput } from '@school/trpc';
+import type { SignupInput, SignupOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';

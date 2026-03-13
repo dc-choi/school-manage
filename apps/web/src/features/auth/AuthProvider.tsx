@@ -1,4 +1,4 @@
-import type { AccountInfo } from '@school/trpc';
+import type { AccountInfo } from '@school/shared';
 import { type ReactNode, createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';

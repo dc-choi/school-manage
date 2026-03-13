@@ -1,7 +1,7 @@
 /**
  * Account 도메인 스키마
  */
-import type { JoinRequestStatus, Role } from '../shared.js';
+import type { JoinRequestStatus, Role } from '../constants.js';
 import { z } from 'zod';
 
 // ============================================================

@@ -3,7 +3,7 @@
  *
  * 조직의 대기 중인 합류 요청 목록 (admin 전용)
  */
-import { JOIN_REQUEST_STATUS, type PendingRequestsOutput, ROLE } from '@school/trpc';
+import { JOIN_REQUEST_STATUS, type PendingRequestsOutput, ROLE } from '@school/shared';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 

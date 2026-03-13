@@ -3,7 +3,7 @@
  *
  * 학생 정보 수정
  */
-import type { Gender, UpdateStudentInput, UpdateStudentOutput } from '@school/trpc';
+import type { Gender, UpdateStudentInput, UpdateStudentOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';

@@ -10,14 +10,12 @@ import { RejectJoinUseCase } from '../application/reject-join.usecase.ts';
 import { RequestJoinUseCase } from '../application/request-join.usecase.ts';
 import {
     approveJoinInputSchema,
-    consentedProcedure,
     createOrganizationInputSchema,
     listOrganizationsInputSchema,
     rejectJoinInputSchema,
     requestJoinInputSchema,
-    router,
-    scopedProcedure,
-} from '@school/trpc';
+} from '@school/shared';
+import { consentedProcedure, router, scopedProcedure } from '@school/trpc';
 
 export const organizationRouter = router({
     /**

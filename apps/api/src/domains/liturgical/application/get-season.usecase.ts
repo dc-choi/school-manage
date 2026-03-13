@@ -4,7 +4,7 @@
  * 현재 날짜 기준 전례 시기를 계산하고 다가오는 축일 목록을 반환한다.
  */
 import { GetHolydaysUseCase } from './get-holydays.usecase.ts';
-import type { GetSeasonInput, GetSeasonOutput } from '@school/trpc';
+import type { GetSeasonInput, GetSeasonOutput } from '@school/shared';
 import { formatDateISO, getLiturgicalSeason, getNowKST } from '@school/utils';
 
 export class GetSeasonUseCase {

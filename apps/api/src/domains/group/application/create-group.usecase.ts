@@ -3,7 +3,7 @@
  *
  * 새 그룹 생성
  */
-import type { CreateGroupOutput, CreateGroupInput as CreateGroupSchemaInput } from '@school/trpc';
+import type { CreateGroupOutput, CreateGroupInput as CreateGroupSchemaInput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createGroupSnapshot } from '~/domains/snapshot/snapshot.helper.js';

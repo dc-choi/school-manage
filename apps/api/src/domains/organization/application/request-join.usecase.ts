@@ -3,7 +3,7 @@
  *
  * 기존 조직에 합류 요청
  */
-import { JOIN_REQUEST_STATUS, type RequestJoinInput, type RequestJoinOutput } from '@school/trpc';
+import { JOIN_REQUEST_STATUS, type RequestJoinInput, type RequestJoinOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';

@@ -3,8 +3,8 @@
  *
  * 성별 분포 조회 (스냅샷 기반)
  */
-import { PRESENT_MARKS } from '@school/trpc';
-import type { GenderDistributionOutput, StatisticsInput as StatisticsSchemaInput } from '@school/trpc';
+import { PRESENT_MARKS } from '@school/shared';
+import type { GenderDistributionOutput, StatisticsInput as StatisticsSchemaInput } from '@school/shared';
 import {
     clampToToday,
     countSundays,

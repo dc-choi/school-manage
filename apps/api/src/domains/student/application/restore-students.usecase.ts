@@ -3,7 +3,7 @@
  *
  * 삭제된 학생 복구
  */
-import type { RestoreStudentsInput, RestoreStudentsOutput } from '@school/trpc';
+import type { RestoreStudentsInput, RestoreStudentsOutput } from '@school/shared';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
 

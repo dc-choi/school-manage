@@ -3,7 +3,7 @@
  *
  * 지정 월에 축일(baptizedAt)이 있는 재학생 목록 조회
  */
-import type { FeastDayListOutput, FeastDayListInput as FeastDayListSchemaInput } from '@school/trpc';
+import type { FeastDayListOutput, FeastDayListInput as FeastDayListSchemaInput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드

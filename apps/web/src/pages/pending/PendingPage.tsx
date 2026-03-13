@@ -1,4 +1,4 @@
-import { JOIN_REQUEST_STATUS } from '@school/trpc/shared';
+import { JOIN_REQUEST_STATUS } from '@school/shared';
 import { Clock, Loader2, XCircle } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';

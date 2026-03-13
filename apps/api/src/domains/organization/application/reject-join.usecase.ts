@@ -3,7 +3,7 @@
  *
  * 합류 요청 거부 (admin 전용)
  */
-import { JOIN_REQUEST_STATUS, ROLE, type RejectJoinInput } from '@school/trpc';
+import { JOIN_REQUEST_STATUS, ROLE, type RejectJoinInput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';

@@ -1,4 +1,4 @@
-import { ORGANIZATION_TYPE } from '@school/trpc/shared';
+import { ORGANIZATION_TYPE } from '@school/shared';
 import { Loader2, Plus, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';

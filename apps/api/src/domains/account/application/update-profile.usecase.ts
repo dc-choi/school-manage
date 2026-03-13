@@ -4,7 +4,7 @@
  * 프로필 수정 비즈니스 로직
  * displayName 업데이트
  */
-import type { UpdateProfileInput, UpdateProfileOutput } from '@school/trpc';
+import type { UpdateProfileInput, UpdateProfileOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';

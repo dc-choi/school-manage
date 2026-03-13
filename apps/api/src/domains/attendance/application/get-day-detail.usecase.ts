@@ -3,7 +3,7 @@
  *
  * 특정 날짜의 학생별 출석 상세 조회
  */
-import type { GetDayDetailInput, GetDayDetailOutput, StudentAttendanceDetail } from '@school/trpc';
+import type { GetDayDetailInput, GetDayDetailOutput, StudentAttendanceDetail } from '@school/shared';
 import { TRPCError } from '@trpc/server';
 import { GetHolydaysUseCase } from '~/domains/liturgical/application/get-holydays.usecase.js';
 import { database } from '~/infrastructure/database/database.js';

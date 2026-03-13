@@ -1,4 +1,4 @@
-import type { CreateStudentInput, UpdateStudentInput } from '@school/trpc';
+import type { CreateStudentInput, UpdateStudentInput } from '@school/shared';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';

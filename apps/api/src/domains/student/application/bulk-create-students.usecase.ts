@@ -3,7 +3,7 @@
  *
  * 엑셀 Import를 통한 학생 일괄 등록 (로드맵 2단계)
  */
-import type { BulkCreateStudentsInput, BulkCreateStudentsOutput } from '@school/trpc';
+import type { BulkCreateStudentsInput, BulkCreateStudentsOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';

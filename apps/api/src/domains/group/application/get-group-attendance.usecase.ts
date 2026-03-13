@@ -3,7 +3,7 @@
  *
  * 그룹별 출석 데이터 조회
  */
-import type { GetGroupAttendanceInput, GetGroupAttendanceOutput } from '@school/trpc';
+import type { GetGroupAttendanceInput, GetGroupAttendanceOutput } from '@school/shared';
 import { TRPCError } from '@trpc/server';
 import { getYearDate } from '~/global/utils/utils.js';
 import { database } from '~/infrastructure/database/database.js';

@@ -5,35 +5,24 @@ paths:
 
 # tRPC Package Rules (@school/trpc)
 
-tRPC 라우터, Zod 스키마, 공유 타입 정의 가이드입니다.
+tRPC 인프라(router, procedures, middleware, context) 전용 패키지입니다.
 
 ## 개요
 
-`@school/trpc`는 서버(`@school/api`)와 클라이언트(`@school/web`)가 공유하는 tRPC 타입과 라우터 정의를 포함합니다.
+`@school/trpc`는 tRPC 서버 인프라만 포함합니다.
+도메인 상수, Zod 스키마, Input/Output 타입은 `@school/shared`에 위치합니다.
 
 ## Directory Structure
 
 ```
 packages/trpc/src/
 ├── index.ts            # 메인 export (public API)
-├── trpc.ts             # tRPC 인스턴스 (router, procedure)
-├── context.ts          # tRPC 컨텍스트 타입
-├── types.ts            # 공유 타입
-├── shared.ts           # 공유 유틸리티
-├── schemas/            # Zod 스키마 + 타입 정의
-│   ├── index.ts        # 스키마/타입 export
-│   ├── common.ts       # 공통 스키마 (id, page 등)
-│   ├── auth.ts         # auth 도메인 (Input + Output)
-│   ├── account.ts      # account 도메인 (Output)
-│   ├── group.ts        # group 도메인 (Input + Output)
-│   ├── student.ts      # student 도메인 (Input + Output)
-│   ├── attendance.ts   # attendance 도메인 (Input + Output)
-│   ├── statistics.ts   # statistics 도메인 (Input + Output)
-│   └── liturgical.ts   # liturgical 도메인 (Input + Output)
-└── routers/            # tRPC 라우터 정의 (health만)
+├── trpc.ts             # tRPC 인스턴스 (router, procedure, middleware)
+└── context.ts          # tRPC 컨텍스트 타입 (Express 바인딩)
 ```
 
 > **Note**: 도메인별 라우터는 `@school/api`의 `src/domains/{domain}/presentation/`에 정의됩니다.
+> Zod 스키마와 도메인 타입은 `@school/shared`에 위치합니다.
 
 ## Commands
 
@@ -46,125 +35,63 @@ pnpm typecheck          # 타입 체크
 ## Exports
 
 ```typescript
-// Context 타입
-export type { Context, AuthContext, BaseContext } from './context';
-
-// 공통 타입
-export type { AccountInfo } from './shared';
+// Context 타입 (Express 바인딩)
+export type { Context, AuthContext, ScopedContext, BaseContext } from './context';
 
 // tRPC 유틸리티
-export { router, publicProcedure, protectedProcedure, consentedProcedure, middleware, transformer } from './trpc';
-
-// AppRouter
-export { appRouter } from './routers';
-export type { AppRouter } from './routers';
-
-// Input 스키마 및 타입
-export { loginInputSchema, createStudentInputSchema, ... } from './schemas';
-export type { LoginInput, CreateStudentInput, ... } from './schemas';
-
-// Output 타입
-export type { LoginOutput, StudentBase, StudentWithGroup, GroupOutput, ... } from './schemas';
+export { router, publicProcedure, protectedProcedure, consentedProcedure, scopedProcedure } from './trpc';
+export { middleware, transformer, createCallerFactory } from './trpc';
 ```
 
 ## Context 타입
 
-```typescript
-// 기본 컨텍스트
-interface BaseContext {
-    req: Request;
-    res: Response;
-}
+도메인 인증 상태(`AccountInfo` 등)는 `@school/shared`에서 가져오고,
+Express `req/res`와 합성하여 tRPC 컨텍스트를 구성합니다.
 
-// 인증된 컨텍스트
-interface AuthContext extends BaseContext {
-    account: AccountInfo;  // { id: string, name: string }
+```typescript
+interface BaseContext { req: Request; res: Response; }
+
+interface Context extends BaseContext {
+    account?: AccountInfo;      // from @school/shared
     privacyAgreedAt?: Date | null;
+    organization?: OrganizationInfo;
+    church?: ChurchInfo;
 }
 
-// 통합 컨텍스트
-type Context = BaseContext & { account?: AccountInfo; privacyAgreedAt?: Date | null };
+interface AuthContext extends BaseContext { account: AccountInfo; ... }
+interface ScopedContext extends BaseContext { ... organization: OrganizationInfo; church: ChurchInfo; }
 ```
 
-> **Note**: `protectedProcedure`에서는 `ctx.account`가 `AccountInfo` 타입으로 보장됩니다.
-> `consentedProcedure`는 `protectedProcedure` + 개인정보 동의 검증 미들웨어로, `ctx.privacyAgreedAt`이 존재해야 통과합니다.
+## Procedure 종류
 
-## 스키마 타입 구조
+| Procedure | 용도 | 인증 | 동의 | 조직 |
+|-----------|------|------|------|------|
+| `publicProcedure` | 공개 API (로그인 등) | 불필요 | 불필요 | 불필요 |
+| `protectedProcedure` | 인증만 필요 | 필요 | 불필요 | 불필요 |
+| `consentedProcedure` | 인증 + 동의 | 필요 | 필요 | 불필요 |
+| `scopedProcedure` | 조직 스코프 | 필요 | 필요 | 필요 |
 
-### Input 타입
-- Zod 스키마로 정의 (`z.object({...})`)
-- `z.infer<typeof schema>`로 타입 추출
-- tRPC `input()`에서 런타임 검증에 사용
-
-### Output 타입
-- 순수 TypeScript `interface`로 정의
-- Zod 스키마 없음 (런타임 검증 불필요)
-- UseCase 반환 타입으로 사용
-
-### 타입 계층 예시 (Student)
+## 라우터 작성 패턴
 
 ```typescript
-// 기본 타입
-interface StudentBase { id, societyName, groupId, ... }
-
-// 확장 타입
-interface StudentWithGroup extends StudentBase { groupName }
-
-// 응답 타입
-interface ListStudentsOutput { page, size, totalPage, students: StudentWithGroup[] }
-```
-
-## 라우터 작성 규칙
-
-### Procedure 종류
-
-| Procedure | 용도 | 인증 | 동의 |
-|-----------|------|------|------|
-| `publicProcedure` | 공개 API (로그인 등) | 불필요 | 불필요 |
-| `protectedProcedure` | 인증만 필요 (account.get, account.agreePrivacy) | 필요 | 불필요 |
-| `consentedProcedure` | 도메인 API (group, student, attendance 등) | 필요 | 필요 |
-
-### 새 라우터 추가
-
-```typescript
-// src/routers/example.ts
-import { router, consentedProcedure } from '../trpc';
-import { z } from 'zod';
+// apps/api/src/domains/example/presentation/example.router.ts
+import { router, scopedProcedure } from '@school/trpc';
+import { createExampleInputSchema } from '@school/shared';
 
 export const exampleRouter = router({
-    getItem: consentedProcedure
-        .input(z.object({ id: z.number() }))
-        .query(({ input, ctx }) => {
-            // 로직
-        }),
-});
-
-// src/routers/index.ts
-import { exampleRouter } from './example';
-
-export const appRouter = router({
-    example: exampleRouter,
+    create: scopedProcedure
+        .input(createExampleInputSchema)
+        .mutation(async ({ input, ctx }) => { ... }),
 });
 ```
 
 ## Transformer (superjson)
 
-Date, BigInt 등 비-JSON 타입 자동 직렬화를 위해 superjson transformer가 적용되어 있습니다.
-
-```typescript
-import superjson from 'superjson';
-
-export const transformer = superjson;
-
-const t = initTRPC.context<Context>().create({
-    transformer: superjson,
-});
-```
-
-> **Note**: 서버/클라이언트가 동일 transformer를 사용해야 합니다.
+Date, BigInt 등 비-JSON 타입 자동 직렬화. 서버/클라이언트 동일 transformer 사용 필수.
 
 ## 주의사항
 
-- 이 패키지는 **타입과 라우터 정의만** 포함
-- 실제 비즈니스 로직은 `@school/api`에 구현
+- 이 패키지는 **tRPC 인프라만** 포함 (도메인 로직/타입 금지)
+- 도메인 상수/스키마/타입 → `@school/shared`
+- 비즈니스 로직 → `@school/api`
 - 변경 시 `pnpm build` 후 의존 패키지 재빌드 필요

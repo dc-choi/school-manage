@@ -3,7 +3,7 @@
  *
  * ID 중복 확인 비즈니스 로직
  */
-import type { CheckIdInput, CheckIdOutput } from '@school/trpc';
+import type { CheckIdInput, CheckIdOutput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 export class CheckIdUseCase {

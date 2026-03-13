@@ -3,7 +3,7 @@
  *
  * 교구 내 본당 검색
  */
-import type { SearchChurchesInput, SearchChurchesOutput } from '@school/trpc';
+import type { SearchChurchesInput, SearchChurchesOutput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 export class SearchChurchesUseCase {

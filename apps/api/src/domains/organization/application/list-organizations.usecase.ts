@@ -3,7 +3,7 @@
  *
  * 본당 내 조직 목록 조회
  */
-import type { ListOrganizationsInput, ListOrganizationsOutput } from '@school/trpc';
+import type { ListOrganizationsInput, ListOrganizationsOutput } from '@school/shared';
 import { database } from '~/infrastructure/database/database.js';
 
 export class ListOrganizationsUseCase {

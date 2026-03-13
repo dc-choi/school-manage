@@ -12,7 +12,7 @@ export default defineConfig({
     },
 
     optimizeDeps: {
-        include: ['@school/trpc'],
+        include: ['@school/shared'],
     },
 
     server: {

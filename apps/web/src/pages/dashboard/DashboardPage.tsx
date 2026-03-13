@@ -4,7 +4,7 @@ import { JoinRequestsSection } from './JoinRequestsSection';
 import { LiturgicalSeasonCard } from './LiturgicalSeasonCard';
 import { PatronFeastCard } from './PatronFeastCard';
 import { TopRankingCard } from './TopRankingCard';
-import { ROLE } from '@school/trpc/shared';
+import { ROLE } from '@school/shared';
 import { getNthSundayOf, getWeeksInMonth } from '@school/utils';
 import { Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';

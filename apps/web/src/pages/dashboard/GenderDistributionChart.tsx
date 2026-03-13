@@ -1,4 +1,4 @@
-import type { GenderDistributionOutput } from '@school/trpc';
+import type { GenderDistributionOutput } from '@school/shared';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { LoadingSpinner } from '~/components/common/LoadingSpinner';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';

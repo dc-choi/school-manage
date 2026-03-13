@@ -1,5 +1,5 @@
 import { CalendarCell } from './CalendarCell';
-import type { CalendarDay } from '@school/trpc';
+import type { CalendarDay } from '@school/shared';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
