@@ -236,7 +236,7 @@ export function StudentListPage() {
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
                             <Upload className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-                            엑셀 업로드
+                            학생 일괄 등록
                         </Button>
                         <Button size="sm" onClick={() => navigate('/students/new')}>
                             학생 추가
