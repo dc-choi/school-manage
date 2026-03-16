@@ -7,7 +7,7 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 완료               |
-| **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성), 조직 생성 UX 개선 + 관리자 양도 + 전례력 개선 구현 완료 |
+| **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성), 조직 생성 UX 개선 + 관리자 양도 + 전례력 개선 + AdSense 크롤링 지원 구현 완료 |
 | **Target Non-Functional** | -    | SECURITY 1건 완료, ANALYTICS 1건 완료, PERFORMANCE 3건 미착수 |
 
 ## 관련 문서
@@ -61,6 +61,7 @@
 | Statistics   | `statistics.md`                                         | 대시보드 통계 + 스냅샷 + 졸업생 필터링                                    |
 | Liturgical   | `liturgical-calendar.md`                                | 전례 시기 계산 + 대시보드 전례 카드                                      |
 | 도메인 용어 변경    | `domain-terminology-change.md`                          | 그룹→학년, 멤버→학생 UI 라벨 변경 (횡단 관심사)                             |
+| AdSense 크롤링  | `adsense-crawling.md`                                   | robots.txt + sitemap.xml + 로그인→랜딩 링크                       |
 
 ---
 
@@ -84,6 +85,7 @@
 | P1   | 관리자 양도        | **구현 완료** | ADMIN→TEACHER 역할 교환, 조직 관리 권한 이전              |
 | P2   | 컨텍스트 배너      | 미착수    | 퍼널 병목 구간 상태 기반 배너로 다음 행동 유도 (03-13 승인)     |
 | P2   | 전례력 개선 (특전미사 + 성주간/성삼일) | **구현 완료** | 토요일→일요일 전례 표시 + 성주간/성삼일 시기/전례색 구분 |
+| P1   | AdSense 크롤링 지원 | **구현 완료** | 로그인→랜딩 링크 + sitemap.xml + robots.txt |
 
 **의존성 체인:**
 - 행사 메모 카드: 계정 모델 전환 완료 + 수요 검증 2곳 후 등록 (`docs/brainstorm/2026-02-23.md`)

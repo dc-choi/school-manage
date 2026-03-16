@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /landing
+Allow: /login
+Allow: /signup
+Disallow: /api/
+Disallow: /join
+Disallow: /pending
+Disallow: /consent
+Disallow: /reset-password
+Disallow: /groups
+Disallow: /students
+Disallow: /attendance
+Disallow: /settings
+
+Sitemap: https://weekly-school.site/sitemap.xml
