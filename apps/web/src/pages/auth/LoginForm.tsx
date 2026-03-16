@@ -76,6 +76,12 @@ export function LoginForm({ onSubmit, error, isLoading }: LoginFormProps) {
                     <Button variant="outline" className="w-full" asChild>
                         <Link to="/signup">아직 계정이 없으신가요?</Link>
                     </Button>
+
+                    <div className="text-center">
+                        <Link to="/landing" className="text-sm text-muted-foreground underline hover:text-foreground">
+                            서비스가 처음이신가요? 소개 보기
+                        </Link>
+                    </div>
                 </form>
             </CardContent>
         </Card>
