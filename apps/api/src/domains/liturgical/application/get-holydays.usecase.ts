@@ -52,6 +52,30 @@ export class GetHolydaysUseCase {
         try {
             const easter = calculateEaster(year);
 
+            // 주님 수난 성지주일 (부활 -7일)
+            holydays.push({
+                date: formatDateISO(addDays(easter, -7)),
+                name: '주님 수난 성지주일',
+            });
+
+            // 주님 만찬 성목요일 (부활 -3일)
+            holydays.push({
+                date: formatDateISO(addDays(easter, -3)),
+                name: '주님 만찬 성목요일',
+            });
+
+            // 주님 수난 성금요일 (부활 -2일)
+            holydays.push({
+                date: formatDateISO(addDays(easter, -2)),
+                name: '주님 수난 성금요일',
+            });
+
+            // 성토요일 (부활 -1일)
+            holydays.push({
+                date: formatDateISO(addDays(easter, -1)),
+                name: '성토요일',
+            });
+
             // 부활 대축일
             holydays.push({
                 date: formatDateISO(easter),

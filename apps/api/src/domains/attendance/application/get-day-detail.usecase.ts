@@ -34,7 +34,11 @@ export class GetDayDetailUseCase {
         const year = Number.parseInt(date.substring(0, 4), 10);
         const holydaysUseCase = new GetHolydaysUseCase();
         const holydaysResult = await holydaysUseCase.execute({ year });
-        const holyday = holydaysResult.holydays.find((h) => h.date === date)?.name ?? null;
+        const holyday =
+            holydaysResult.holydays
+                .filter((h) => h.date === date)
+                .map((h) => h.name)
+                .join(' / ') || null;
 
         // 3. 그룹의 모든 학생 조회 (졸업생 제외, StudentGroup 기반)
         const studentGroupRecords = await database.studentGroup.findMany({

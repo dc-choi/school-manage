@@ -5,25 +5,28 @@
  */
 import { GetHolydaysUseCase } from './get-holydays.usecase.ts';
 import type { GetSeasonInput, GetSeasonOutput } from '@school/shared';
-import { formatDateISO, getLiturgicalSeason, getNowKST } from '@school/utils';
+import { adjustForSaturday, formatDateISO, getLiturgicalSeason, getNowKST } from '@school/utils';
 
 export class GetSeasonUseCase {
     async execute(input: GetSeasonInput): Promise<GetSeasonOutput> {
         const today = getNowKST();
         const year = input.year ?? today.getFullYear();
 
-        // 1. 전례 시기 계산
-        const seasonInfo = getLiturgicalSeason(today, year);
+        // 1. 토요일 보정 (특전미사: 토요일→일요일, 성토요일 제외)
+        const displayDate = adjustForSaturday(today, year);
 
-        // 2. 다가오는 축일 계산 (올해 + 내년)
+        // 2. 전례 시기 계산
+        const seasonInfo = getLiturgicalSeason(displayDate, year);
+
+        // 3. 다가오는 축일 계산 (올해 + 내년)
         const holydaysUseCase = new GetHolydaysUseCase();
         const currentYear = await holydaysUseCase.execute({ year });
         const nextYear = await holydaysUseCase.execute({ year: year + 1 });
 
-        // 3. 오늘 이후 축일 필터 → 날짜순 정렬 → 3개 선택
-        const todayISO = formatDateISO(today);
+        // 4. 보정된 날짜 기준 축일 필터 → 날짜순 정렬 → 3개 선택
+        const displayDateISO = formatDateISO(displayDate);
         const upcomingHolydays = [...currentYear.holydays, ...nextYear.holydays]
-            .filter((h) => h.date > todayISO)
+            .filter((h) => h.date > displayDateISO)
             .sort((a, b) => a.date.localeCompare(b.date))
             .slice(0, 3);
 

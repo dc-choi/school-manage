@@ -45,7 +45,7 @@ export function LiturgicalSeasonCard() {
 
             {data.upcomingHolydays.length > 0 ? (
                 <div className="mt-3">
-                    <p className="text-sm text-muted-foreground">다가오는 축일</p>
+                    <p className="text-sm text-muted-foreground">다가오는 전례시기</p>
                     <ul className="mt-1 space-y-1">
                         {data.upcomingHolydays.map((h) => (
                             <li key={h.date + h.name} className="text-sm">

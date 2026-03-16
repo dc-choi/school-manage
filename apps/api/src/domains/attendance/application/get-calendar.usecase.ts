@@ -36,7 +36,11 @@ export class GetCalendarUseCase {
         // 3. 의무축일 목록 조회
         const holydaysUseCase = new GetHolydaysUseCase();
         const holydaysResult = await holydaysUseCase.execute({ year });
-        const holydayMap = new Map(holydaysResult.holydays.map((h) => [h.date, h.name]));
+        const holydayMap = new Map<string, string>();
+        for (const h of holydaysResult.holydays) {
+            const existing = holydayMap.get(h.date);
+            holydayMap.set(h.date, existing ? `${existing} / ${h.name}` : h.name);
+        }
 
         // 4. 그룹의 전체 학생 수 조회 (졸업생 제외, StudentGroup 기반)
         const totalStudents = await database.studentGroup.count({

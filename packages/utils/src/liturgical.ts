@@ -1,7 +1,7 @@
 /**
  * 전례 시기 계산 유틸리티
  *
- * 가톨릭 전례력의 5개 시기(대림/성탄/사순/부활/연중)를 판별하는 순수 함수.
+ * 가톨릭 전례력의 시기(대림/성탄/사순/성주간/성삼일/부활/연중)를 판별하는 순수 함수.
  * 기존 calculateEaster, addDays, getNthSundayOf 등을 활용한다.
  */
 import { addDays, calculateEaster, getNthSundayOf } from './date.js';
@@ -19,6 +19,22 @@ export interface LiturgicalSeasonInfo {
  * @param year 전례력 연도 (기본: date의 연도)
  * @returns 전례 시기명과 전례색
  */
+/**
+ * 토요일이면 일요일 날짜로 보정한다 (특전미사 반영).
+ * 단, 성토요일(내일이 부활 대축일)이면 보정하지 않는다.
+ */
+export const adjustForSaturday = (today: Date, year: number): Date => {
+    if (today.getDay() !== 6) return today;
+
+    const tomorrow = addDays(today, 1);
+    const tomorrowSeason = getLiturgicalSeason(tomorrow, year);
+
+    // 성토요일: 내일이 부활 대축일이면 보정하지 않음
+    if (tomorrowSeason.season === '부활 대축일') return today;
+
+    return tomorrow;
+};
+
 export const getLiturgicalSeason = (date: Date, year?: number): LiturgicalSeasonInfo => {
     const y = year ?? date.getFullYear();
     const dateISO = formatDateISO(date);
@@ -26,6 +42,8 @@ export const getLiturgicalSeason = (date: Date, year?: number): LiturgicalSeason
     // 주요 날짜 계산
     const easter = calculateEaster(y);
     const ashWednesday = addDays(easter, -46);
+    const palmSunday = addDays(easter, -7);
+    const holyThursday = addDays(easter, -3);
     const pentecost = addDays(easter, 49);
     const advent1 = getAdvent1(y);
     const baptismOfLord = getBaptismOfLord(y);
@@ -58,17 +76,27 @@ export const getLiturgicalSeason = (date: Date, year?: number): LiturgicalSeason
         return { season: `연중 제${weekNum}주일`, color: 'green' };
     }
 
-    // 5. 사순 시기 (재의 수요일 ~ 부활 전날)
+    // 5. 파스카 성삼일 (성목요일 ~ 성토요일)
+    if (dateISO >= toISO(holyThursday) && dateISO < toISO(easter)) {
+        return matchTriduum(dateISO, toISO(holyThursday), holyThursday);
+    }
+
+    // 6. 성주간 (주님 수난 성지주일 ~ 성수요일)
+    if (dateISO >= toISO(palmSunday) && dateISO < toISO(holyThursday)) {
+        return matchHolyWeek(dateISO, toISO(palmSunday));
+    }
+
+    // 7. 사순 시기 (재의 수요일 ~ 성지주일 전날)
     if (dateISO < toISO(easter)) {
         return matchLentenSeason(dateISO, toISO(ashWednesday), ashWednesday, date);
     }
 
-    // 6. 부활 시기 (부활 대축일 ~ 성령 강림)
+    // 8. 부활 시기 (부활 대축일 ~ 성령 강림)
     if (dateISO <= toISO(pentecost)) {
         return matchEasterSeason(dateISO, toISO(easter), toISO(pentecost), easter, date);
     }
 
-    // 7. 연중 시기 후반부 (성령 강림 다음 날 ~ 대림 전날)
+    // 9. 연중 시기 후반부 (성령 강림 다음 날 ~ 대림 전날)
     const weekNum = getOrdinaryWeekAfter(pentecost, advent1, date);
     return { season: `연중 제${weekNum}주일`, color: 'green' };
 };
@@ -84,6 +112,24 @@ const matchLentenSeason = (
     }
     const weekNum = getWeekNumber(ashWednesday, date);
     return { season: `사순 제${weekNum}주일`, color: 'purple' };
+};
+
+const matchHolyWeek = (dateISO: string, palmSundayISO: string): LiturgicalSeasonInfo => {
+    if (dateISO === palmSundayISO) {
+        return { season: '주님 수난 성지주일', color: 'red' };
+    }
+    return { season: '성주간', color: 'purple' };
+};
+
+const matchTriduum = (dateISO: string, holyThursdayISO: string, holyThursday: Date): LiturgicalSeasonInfo => {
+    if (dateISO === holyThursdayISO) {
+        return { season: '파스카 성삼일 — 주님 만찬 성목요일', color: 'white' };
+    }
+    const goodFriday = addDays(holyThursday, 1);
+    if (dateISO === formatDateISO(goodFriday)) {
+        return { season: '파스카 성삼일 — 주님 수난 성금요일', color: 'red' };
+    }
+    return { season: '성토요일', color: 'white' };
 };
 
 const matchEasterSeason = (

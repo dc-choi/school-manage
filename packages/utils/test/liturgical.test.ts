@@ -5,7 +5,10 @@
  * - 주님 공현 대축일: 1/4 (일) → 주님 세례 축일: 1/11 (일)
  * - 연중 시기 전반부: 1/12 ~ 2/17
  * - 재의 수요일: 2/18
- * - 사순 시기: 2/18 ~ 4/4
+ * - 사순 시기: 2/18 ~ 3/28
+ * - 주님 수난 성지주일: 3/29
+ * - 성주간: 3/29 ~ 4/1
+ * - 파스카 성삼일: 4/2 ~ 4/4
  * - 부활 대축일: 4/5
  * - 부활 시기: 4/5 ~ 5/24
  * - 성령 강림 대축일: 5/24
@@ -87,16 +90,63 @@ describe('getLiturgicalSeason', () => {
             expect(result.color).toBe('purple');
         });
 
-        it('성금요일(4/3)은 사순 시기이다', () => {
-            const result = getLiturgicalSeason(d(4, 3));
+        it('성지주일 전날(3/28)은 사순 시기이다', () => {
+            const result = getLiturgicalSeason(d(3, 28));
 
             expect(result.color).toBe('purple');
         });
+    });
 
-        it('성토요일(4/4)은 사순 시기이다', () => {
+    describe('성주간', () => {
+        it('주님 수난 성지주일(3/29)은 빨강 전례색이다', () => {
+            const result = getLiturgicalSeason(d(3, 29));
+
+            expect(result.season).toBe('주님 수난 성지주일');
+            expect(result.color).toBe('red');
+        });
+
+        it('성월요일(3/30)은 성주간이다', () => {
+            const result = getLiturgicalSeason(d(3, 30));
+
+            expect(result.season).toBe('성주간');
+            expect(result.color).toBe('purple');
+        });
+
+        it('성화요일(3/31)은 성주간이다', () => {
+            const result = getLiturgicalSeason(d(3, 31));
+
+            expect(result.season).toBe('성주간');
+            expect(result.color).toBe('purple');
+        });
+
+        it('성수요일(4/1)은 성주간이다', () => {
+            const result = getLiturgicalSeason(d(4, 1));
+
+            expect(result.season).toBe('성주간');
+            expect(result.color).toBe('purple');
+        });
+    });
+
+    describe('파스카 성삼일', () => {
+        it('성목요일(4/2)은 주님 만찬 성목요일이다', () => {
+            const result = getLiturgicalSeason(d(4, 2));
+
+            expect(result.season).toBe('파스카 성삼일 — 주님 만찬 성목요일');
+            expect(result.color).toBe('white');
+        });
+
+        it('성금요일(4/3)은 주님 수난 성금요일이다', () => {
+            const result = getLiturgicalSeason(d(4, 3));
+
+            expect(result.season).toBe('파스카 성삼일 — 주님 수난 성금요일');
+            expect(result.color).toBe('red');
+        });
+
+        it('성토요일(4/4)은 성토요일이다', () => {
             const result = getLiturgicalSeason(d(4, 4));
 
-            expect(result.color).toBe('purple');
+            expect(result.season).toBe('성토요일');
+            expect(result.color).toBe('white');
         });
     });
 
@@ -160,11 +210,25 @@ describe('getLiturgicalSeason', () => {
             expect(result.color).toBe('white');
         });
 
+        it('2025년 성지주일(4/13)은 빨강이다', () => {
+            const result = getLiturgicalSeason(d(4, 13, 2025));
+
+            expect(result.season).toBe('주님 수난 성지주일');
+            expect(result.color).toBe('red');
+        });
+
         it('2027년 부활 대축일(3/28)을 올바르게 판별한다', () => {
             const result = getLiturgicalSeason(d(3, 28, 2027));
 
             expect(result.season).toBe('부활 대축일');
             expect(result.color).toBe('white');
+        });
+
+        it('2027년 성지주일(3/21)은 빨강이다', () => {
+            const result = getLiturgicalSeason(d(3, 21, 2027));
+
+            expect(result.season).toBe('주님 수난 성지주일');
+            expect(result.color).toBe('red');
         });
     });
 
