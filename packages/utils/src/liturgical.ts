@@ -129,7 +129,7 @@ const matchTriduum = (dateISO: string, holyThursdayISO: string, holyThursday: Da
     if (dateISO === formatDateISO(goodFriday)) {
         return { season: '파스카 성삼일 — 주님 수난 성금요일', color: 'red' };
     }
-    return { season: '파스카 성삼일 — 파스카 성야', color: 'white' };
+    return { season: '성토요일', color: 'white' };
 };
 
 const matchEasterSeason = (

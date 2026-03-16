@@ -142,10 +142,10 @@ describe('getLiturgicalSeason', () => {
             expect(result.color).toBe('red');
         });
 
-        it('성토요일(4/4)은 파스카 성야이다', () => {
+        it('성토요일(4/4)은 성토요일이다', () => {
             const result = getLiturgicalSeason(d(4, 4));
 
-            expect(result.season).toBe('파스카 성삼일 — 파스카 성야');
+            expect(result.season).toBe('성토요일');
             expect(result.color).toBe('white');
         });
     });
