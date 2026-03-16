@@ -19,6 +19,22 @@ export interface LiturgicalSeasonInfo {
  * @param year 전례력 연도 (기본: date의 연도)
  * @returns 전례 시기명과 전례색
  */
+/**
+ * 토요일이면 일요일 날짜로 보정한다 (특전미사 반영).
+ * 단, 성토요일(내일이 부활 대축일)이면 보정하지 않는다.
+ */
+export const adjustForSaturday = (today: Date, year: number): Date => {
+    if (today.getDay() !== 6) return today;
+
+    const tomorrow = addDays(today, 1);
+    const tomorrowSeason = getLiturgicalSeason(tomorrow, year);
+
+    // 성토요일: 내일이 부활 대축일이면 보정하지 않음
+    if (tomorrowSeason.season === '부활 대축일') return today;
+
+    return tomorrow;
+};
+
 export const getLiturgicalSeason = (date: Date, year?: number): LiturgicalSeasonInfo => {
     const y = year ?? date.getFullYear();
     const dateISO = formatDateISO(date);

@@ -26,5 +26,5 @@ export { prune } from './object.js';
 export { roundToDecimal, calculateRate } from './math.js';
 
 // Liturgical utilities
-export { getLiturgicalSeason } from './liturgical.js';
+export { adjustForSaturday, getLiturgicalSeason } from './liturgical.js';
 export type { LiturgicalSeasonInfo } from './liturgical.js';

@@ -7,7 +7,7 @@
  * - 일반 토요일 예시: 3/14 (토)
  */
 import { describe, expect, it } from 'vitest';
-import { adjustForSaturday } from '~/domains/liturgical/application/get-season.usecase.js';
+import { adjustForSaturday } from '@school/utils';
 
 describe('adjustForSaturday', () => {
     const d = (month: number, day: number, year = 2026) => new Date(year, month - 1, day);

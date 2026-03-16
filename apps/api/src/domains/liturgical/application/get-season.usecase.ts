@@ -5,23 +5,7 @@
  */
 import { GetHolydaysUseCase } from './get-holydays.usecase.ts';
 import type { GetSeasonInput, GetSeasonOutput } from '@school/shared';
-import { addDays, formatDateISO, getLiturgicalSeason, getNowKST } from '@school/utils';
-
-/**
- * 토요일이면 일요일 날짜로 보정한다 (특전미사 반영).
- * 단, 성토요일(내일이 부활 대축일)이면 보정하지 않는다.
- */
-export const adjustForSaturday = (today: Date, year: number): Date => {
-    if (today.getDay() !== 6) return today;
-
-    const tomorrow = addDays(today, 1);
-    const tomorrowSeason = getLiturgicalSeason(tomorrow, year);
-
-    // 성토요일: 내일이 부활 대축일이면 보정하지 않음
-    if (tomorrowSeason.season === '부활 대축일') return today;
-
-    return tomorrow;
-};
+import { adjustForSaturday, formatDateISO, getLiturgicalSeason, getNowKST } from '@school/utils';
 
 export class GetSeasonUseCase {
     async execute(input: GetSeasonInput): Promise<GetSeasonOutput> {
