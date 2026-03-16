@@ -7,7 +7,7 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 완료               |
-| **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성), 조직 생성 UX 개선 + 관리자 양도 구현 완료 |
+| **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성), 조직 생성 UX 개선 + 관리자 양도 + 전례력 개선 구현 완료 |
 | **Target Non-Functional** | -    | SECURITY 1건 완료, ANALYTICS 1건 완료, PERFORMANCE 3건 미착수 |
 
 ## 관련 문서
@@ -42,6 +42,7 @@
 | 학년/부서 두 축 그룹핑    | `docs/specs/prd/dual-axis-grouping.md`       | Approved (구현 완료) | 로드맵 2단계           |
 | 관리자 양도             | `docs/specs/prd/admin-transfer.md`           | Approved (구현 완료) | 로드맵 2단계           |
 | 조직 생성 UX 개선        | `docs/specs/prd/organization-create-ux.md`   | Approved (구현 완료) | 로드맵 2단계           |
+| 전례력 개선 (특전미사 + 성주간/성삼일) | `docs/specs/prd/liturgical-enhancement.md` | Approved (구현 완료) | 로드맵 2단계           |
 
 ### Functional Design (기능 설계)
 
@@ -82,6 +83,7 @@
 | P2   | 반편성 자동화      | 미착수    | 신학기 학년 진급 시 반 자동 재배정, 교사-반 매칭              |
 | P1   | 관리자 양도        | **구현 완료** | ADMIN→TEACHER 역할 교환, 조직 관리 권한 이전              |
 | P2   | 컨텍스트 배너      | 미착수    | 퍼널 병목 구간 상태 기반 배너로 다음 행동 유도 (03-13 승인)     |
+| P2   | 전례력 개선 (특전미사 + 성주간/성삼일) | **구현 완료** | 토요일→일요일 전례 표시 + 성주간/성삼일 시기/전례색 구분 |
 
 **의존성 체인:**
 - 행사 메모 카드: 계정 모델 전환 완료 + 수요 검증 2곳 후 등록 (`docs/brainstorm/2026-02-23.md`)
