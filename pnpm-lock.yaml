@@ -140,6 +140,9 @@ importers:
       prisma-extension-kysely:
         specifier: ^3.0.1
         version: 3.0.1(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(kysely@0.28.12)
+      prisma-kysely:
+        specifier: ^2.3.0
+        version: 2.3.0(prisma@6.19.2(typescript@5.9.3))
       request-ip:
         specifier: ^3.3.0
         version: 3.3.0
@@ -222,9 +225,6 @@ importers:
       prettier:
         specifier: 'catalog:'
         version: 3.8.1
-      prisma-kysely:
-        specifier: ^2.3.0
-        version: 2.3.0(prisma@6.19.2(typescript@5.9.3))
       tsc-alias:
         specifier: ^1.8.16
         version: 1.8.16
