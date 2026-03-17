@@ -42,12 +42,8 @@ COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/trpc/dist ./packages/trpc/dist
 COPY --from=builder /app/packages/utils/dist ./packages/utils/dist
 
-# Prisma 클라이언트 생성 (prisma-kysely는 devDependency이므로 해당 generator 제외)
-RUN cd apps/api && node -e "\
-const fs=require('fs');\
-const s=fs.readFileSync('prisma/schema.prisma','utf8');\
-fs.writeFileSync('prisma/schema.prisma',s.replace(/generator kysely \{[^}]*\}\n*/,''));\
-" && pnpm prisma generate
+# Prisma 클라이언트 생성
+RUN cd apps/api && pnpm prisma generate
 
 WORKDIR /app/apps/api
 
