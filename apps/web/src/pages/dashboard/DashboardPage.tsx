@@ -1,3 +1,4 @@
+import { ContextBanner } from './ContextBanner';
 import { GenderDistributionChart } from './GenderDistributionChart';
 import { GroupStatisticsTable } from './GroupStatisticsTable';
 import { JoinRequestsSection } from './JoinRequestsSection';
@@ -126,7 +127,7 @@ function OnboardingChecklist({
     );
 }
 
-function DashboardContent() {
+function DashboardContent({ showContextBanner = false }: { showContextBanner?: boolean }) {
     const { account, role } = useAuth();
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -192,6 +193,9 @@ function DashboardContent() {
             <div className="flex flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
                 {/* 합류 요청 관리 (admin만) */}
                 {role === ROLE.ADMIN ? <JoinRequestsSection /> : null}
+
+                {/* 컨텍스트 배너: 학생 있음 + 출석 미시작 */}
+                {showContextBanner ? <ContextBanner /> : null}
 
                 {/* 필터 + 전례 시기 카드 */}
                 <div className="flex flex-col gap-3 md:flex-row md:items-start">
@@ -317,10 +321,15 @@ export function DashboardPage() {
         return <DashboardContent />;
     }
 
+    // step 3 (학생 있음, 출석 미시작): 대시보드 + 컨텍스트 배너
+    if (onboarding.currentStep === 3) {
+        return <DashboardContent showContextBanner />;
+    }
+
     return (
         <MainLayout title={`안녕하세요, ${account?.name}님!`}>
             <OnboardingChecklist
-                currentStep={onboarding.currentStep as 1 | 2 | 3}
+                currentStep={onboarding.currentStep as 1 | 2}
                 hasGroups={onboarding.hasGroups}
                 hasStudents={onboarding.hasStudents}
                 hasAttendance={onboarding.hasAttendance}
