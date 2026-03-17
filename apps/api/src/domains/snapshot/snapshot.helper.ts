@@ -3,12 +3,8 @@
  *
  * 스냅샷 생성/조회 헬퍼. 각 도메인 UseCase 내부에서 호출한다.
  */
-import type { PrismaClient } from '@prisma/client';
-import type { ITXClientDenyList } from '@prisma/client/runtime/library';
 import { getNowKST } from '@school/utils';
-import { database } from '~/infrastructure/database/database.js';
-
-type TransactionClient = Omit<PrismaClient, ITXClientDenyList>;
+import { type TransactionClient, database } from '~/infrastructure/database/database.js';
 
 // --- 생성 함수 (트랜잭션 내에서 호출) ---
 

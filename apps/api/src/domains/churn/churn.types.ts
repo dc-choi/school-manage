@@ -21,6 +21,6 @@ export interface DetectChurnResult {
 }
 
 export interface InactiveOrgRow {
-    organization_id: bigint;
-    last_date: string;
+    organizationId: bigint;
+    lastDate: string;
 }

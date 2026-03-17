@@ -5,15 +5,11 @@
  * 현재: 단일 조직 내 그룹 이동
  * 향후: 본당 내 조직 간 졸업생 데이터 이관 (예: 초등부 -> 중고등부)
  */
-import { PrismaClient } from '@prisma/client';
-import type { ITXClientDenyList } from '@prisma/client/runtime/library';
 import type { PromoteStudentsOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
-import { database } from '~/infrastructure/database/database.js';
+import { type TransactionClient, database } from '~/infrastructure/database/database.js';
 import { logger } from '~/infrastructure/logger/logger.js';
-
-type TransactionClient = Omit<PrismaClient, ITXClientDenyList>;
 
 export class PromoteStudentsUseCase {
     async execute(input: { organizationId: string; organizationName: string }): Promise<PromoteStudentsOutput> {

@@ -25,6 +25,7 @@ describe('statistics 통합 테스트', () => {
         mockPrismaClient.studentSnapshot.findMany.mockReset();
         mockPrismaClient.groupSnapshot.findMany.mockReset();
         mockPrismaClient.$queryRaw.mockReset();
+        mockPrismaClient.$kysely._executeResults.length = 0;
     });
 
     describe('statistics.excellent (우수 출석 학생 조회)', () => {
@@ -33,10 +34,10 @@ describe('statistics 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            // $queryRaw 반환값: 우수 출석 학생
-            mockPrismaClient.$queryRaw.mockResolvedValueOnce([
-                { _id: BigInt(1), society_name: '홍길동', count: BigInt(15) },
-                { _id: BigInt(2), society_name: '김철수', count: BigInt(10) },
+            // $kysely 반환값: 우수 출석 학생
+            mockPrismaClient.$kysely._executeResults.push([
+                { id: BigInt(1), societyName: '홍길동', count: BigInt(15) },
+                { id: BigInt(2), societyName: '김철수', count: BigInt(10) },
             ]);
             // getBulkStudentSnapshots → studentSnapshot.findMany
             mockPrismaClient.studentSnapshot.findMany.mockResolvedValueOnce([
@@ -272,10 +273,10 @@ describe('statistics 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            // $queryRaw 반환값: 전체 학생 점수 (group_id 추가)
-            mockPrismaClient.$queryRaw.mockResolvedValueOnce([
-                { _id: BigInt(1), society_name: '홍길동', group_name: '1반', group_id: BigInt(10), score: BigInt(15) },
-                { _id: BigInt(2), society_name: '김철수', group_name: '1반', group_id: BigInt(10), score: BigInt(10) },
+            // $kysely 반환값: 전체 학생 점수
+            mockPrismaClient.$kysely._executeResults.push([
+                { id: BigInt(1), societyName: '홍길동', groupName: '1반', groupId: BigInt(10), score: BigInt(15) },
+                { id: BigInt(2), societyName: '김철수', groupName: '1반', groupId: BigInt(10), score: BigInt(10) },
             ]);
             // getBulkStudentSnapshots → studentSnapshot.findMany
             mockPrismaClient.studentSnapshot.findMany.mockResolvedValueOnce([

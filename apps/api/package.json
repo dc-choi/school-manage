@@ -15,7 +15,7 @@
         }
     },
     "scripts": {
-        "prisma:generate": "prisma generate",
+        "prisma:generate": "prisma generate && node -e \"const f='src/infrastructure/database/generated/types.ts';require('fs').writeFileSync(f,require('fs').readFileSync(f,'utf8').replaceAll('_Id','id'))\"",
         "build": "pnpm prisma:generate && tsc -b && tsc-alias",
         "start": "cross-env NODE_ENV=production node dist/src/app.js",
         "test": "vitest run",
@@ -42,9 +42,11 @@
         "express-rate-limit": "^8.2.1",
         "http-status": "^2.1.0",
         "jsonwebtoken": "^9.0.3",
+        "kysely": "^0.28.12",
         "node-schedule": "^2.1.0",
         "nodemailer": "^7.0.12",
         "prisma": "^6.19.1",
+        "prisma-extension-kysely": "^3.0.1",
         "request-ip": "^3.3.0",
         "rimraf": "^6.1.2",
         "tracer": "^1.1.5",
@@ -74,6 +76,7 @@
         "eslint-plugin-prettier": "catalog:",
         "globals": "catalog:",
         "prettier": "catalog:",
+        "prisma-kysely": "^2.3.0",
         "tsc-alias": "^1.8.16",
         "typescript": "catalog:",
         "vitest": "catalog:"

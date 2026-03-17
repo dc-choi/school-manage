@@ -71,9 +71,9 @@ describe('DetectChurnUseCase', () => {
             vi.setSystemTime(new Date(2026, 2, 17, 0, 0, 0));
 
             // 미활동 단체 2곳 (마지막 출석 20일 전, 14일 전)
-            mockPrismaClient.$queryRaw.mockResolvedValueOnce([
-                { organization_id: 1n, last_date: '20260225' }, // 20일 전
-                { organization_id: 2n, last_date: '20260303' }, // 14일 전
+            mockPrismaClient.$kysely._executeResults.push([
+                { organizationId: 1n, lastDate: '20260225' }, // 20일 전
+                { organizationId: 2n, lastDate: '20260303' }, // 14일 전
             ]);
 
             // 중복 알림 없음
@@ -110,7 +110,7 @@ describe('DetectChurnUseCase', () => {
             vi.setSystemTime(new Date(2026, 2, 17, 0, 0, 0));
 
             // 미활동 단체 없음
-            mockPrismaClient.$queryRaw.mockResolvedValueOnce([]);
+            mockPrismaClient.$kysely._executeResults.push([]);
 
             const result = await usecase.execute();
 
@@ -122,9 +122,9 @@ describe('DetectChurnUseCase', () => {
             vi.setSystemTime(new Date(2026, 2, 17, 0, 0, 0));
 
             // 미활동 단체 2곳
-            mockPrismaClient.$queryRaw.mockResolvedValueOnce([
-                { organization_id: 1n, last_date: '20260225' },
-                { organization_id: 2n, last_date: '20260225' },
+            mockPrismaClient.$kysely._executeResults.push([
+                { organizationId: 1n, lastDate: '20260225' },
+                { organizationId: 2n, lastDate: '20260225' },
             ]);
 
             // 1곳은 이미 알림됨
@@ -149,8 +149,8 @@ describe('DetectChurnUseCase', () => {
         it('출석 0건 단체는 쿼리에서 제외된다', async () => {
             vi.setSystemTime(new Date(2026, 2, 17, 0, 0, 0));
 
-            // HAVING COUNT >= 1 이므로 0건 단체는 raw query에서 이미 제외
-            mockPrismaClient.$queryRaw.mockResolvedValueOnce([]);
+            // HAVING COUNT >= 1 이므로 0건 단체는 Kysely 쿼리에서 이미 제외
+            mockPrismaClient.$kysely._executeResults.push([]);
 
             const result = await usecase.execute();
 

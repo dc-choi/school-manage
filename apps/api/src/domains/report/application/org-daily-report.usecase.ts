@@ -3,6 +3,7 @@
  *
  * 조직 활성화 현황 + 계정 현황을 DB에서 조회합니다.
  */
+import { sql } from 'kysely';
 import type { OrgAccountRow, OrgActivityRow, OrgDailyReportResult } from '~/domains/report/report.types.js';
 import { database } from '~/infrastructure/database/database.js';
 
@@ -15,44 +16,54 @@ export class OrgDailyReportUseCase {
 
     /** 조직 활성화 현황 */
     private async fetchOrgActivity(): Promise<OrgActivityRow[]> {
-        return database.$queryRaw<OrgActivityRow[]>`
-            SELECT
-                c.name AS church_name,
-                o.name AS organization_name,
-                o.type AS organization_type,
-                COUNT(DISTINCT g._id) AS group_count,
-                COUNT(DISTINCT s._id) AS student_count,
-                COUNT(DISTINCT att._id) AS attendance_count,
-                MAX(g.create_at) AS recent_group_create_at,
-                MAX(s.create_at) AS recent_student_create_at,
-                MAX(att.create_at) AS recent_attendance_at
-            FROM organization o
-            JOIN church c ON c._id = o.church_id AND c.delete_at IS NULL
-            LEFT JOIN \`group\` g ON g.organization_id = o._id AND g.delete_at IS NULL
-            LEFT JOIN student s ON s.organization_id = o._id AND s.delete_at IS NULL
-            LEFT JOIN attendance att ON att.student_id = s._id AND att.delete_at IS NULL
-            WHERE o.delete_at IS NULL
-            GROUP BY o._id, c.name, o.name, o.type
-            ORDER BY recent_attendance_at DESC, recent_student_create_at DESC, recent_group_create_at DESC
-        `;
+        return database.$kysely
+            .selectFrom('organization as o')
+            .innerJoin('church as c', (join) => join.onRef('c.id', '=', 'o.churchId').on('c.deleteAt', 'is', null))
+            .leftJoin('group as g', (join) => join.onRef('g.organizationId', '=', 'o.id').on('g.deleteAt', 'is', null))
+            .leftJoin('student as s', (join) =>
+                join.onRef('s.organizationId', '=', 'o.id').on('s.deleteAt', 'is', null)
+            )
+            .leftJoin('attendance as att', (join) =>
+                join.onRef('att.studentId', '=', 's.id').on('att.deleteAt', 'is', null)
+            )
+            .select(['c.name as churchName', 'o.name as organizationName', 'o.type as organizationType'])
+            .select(({ fn }) => [
+                sql<bigint>`COUNT(DISTINCT g._id)`.as('groupCount'),
+                sql<bigint>`COUNT(DISTINCT s._id)`.as('studentCount'),
+                sql<bigint>`COUNT(DISTINCT att._id)`.as('attendanceCount'),
+                fn.max('g.createAt').as('recentGroupCreateAt'),
+                fn.max('s.createAt').as('recentStudentCreateAt'),
+                fn.max('att.createAt').as('recentAttendanceAt'),
+            ])
+            .where('o.deleteAt', 'is', null)
+            .groupBy(['o.id', 'c.name', 'o.name', 'o.type'])
+            .orderBy(sql`recentAttendanceAt`, 'desc')
+            .orderBy(sql`recentStudentCreateAt`, 'desc')
+            .orderBy(sql`recentGroupCreateAt`, 'desc')
+            .$castTo<OrgActivityRow>()
+            .execute();
     }
 
     /** 조직별 계정 현황 */
     private async fetchOrgAccounts(): Promise<OrgAccountRow[]> {
-        return database.$queryRaw<OrgAccountRow[]>`
-            SELECT
-                c.name AS church_name,
-                o.name AS organization_name,
-                o.type AS organization_type,
-                COUNT(DISTINCT a._id) AS total_accounts,
-                GROUP_CONCAT(DISTINCT a.display_name ORDER BY a.create_at SEPARATOR ', ') AS account_names
-            FROM account a
-            LEFT JOIN organization o ON o._id = a.organization_id AND o.delete_at IS NULL
-            LEFT JOIN church c ON c._id = o.church_id AND c.delete_at IS NULL
-            WHERE a.delete_at IS NULL
-            AND a.privacy_agreed_at IS NOT NULL
-            GROUP BY o._id, c.name, o.name, o.type
-            ORDER BY church_name
-        `;
+        return database.$kysely
+            .selectFrom('account as a')
+            .leftJoin('organization as o', (join) =>
+                join.onRef('o.id', '=', 'a.organizationId').on('o.deleteAt', 'is', null)
+            )
+            .leftJoin('church as c', (join) => join.onRef('c.id', '=', 'o.churchId').on('c.deleteAt', 'is', null))
+            .select(['c.name as churchName', 'o.name as organizationName', 'o.type as organizationType'])
+            .select([
+                sql<bigint>`COUNT(DISTINCT a._id)`.as('totalAccounts'),
+                sql<string | null>`GROUP_CONCAT(DISTINCT a.display_name ORDER BY a.create_at SEPARATOR ', ')`.as(
+                    'accountNames'
+                ),
+            ])
+            .where('a.deleteAt', 'is', null)
+            .where('a.privacyAgreedAt', 'is not', null)
+            .groupBy(['o.id', 'c.name', 'o.name', 'o.type'])
+            .orderBy('churchName')
+            .$castTo<OrgAccountRow>()
+            .execute();
     }
 }

@@ -138,8 +138,12 @@ throw new TRPCError({
 ## Database
 
 - **ORM**: Prisma + Driver Adapter (`@prisma/adapter-mariadb`)
+- **Query Builder**: Kysely (`prisma-extension-kysely` 확장)
 - **스키마**: `apps/api/prisma/schema.prisma`
+- **타입**: `src/infrastructure/database/generated/types.ts` (prisma-kysely 자동 생성)
 - **DB**: MariaDB/MySQL
+
+복잡한 쿼리(JOIN, GROUP BY, HAVING, 집계)는 `database.$kysely` 사용. CamelCasePlugin으로 코드는 camelCase, `sql` 템플릿 내부만 DB snake_case 사용. `prisma generate` 시 Kysely 타입 자동 생성 (lint/prettier 제외).
 
 ### KST 타임스탬프 정책
 
@@ -155,11 +159,7 @@ await database.student.create({
 
 ### Prisma 명령어
 
-```bash
-pnpm prisma generate    # 클라이언트 생성
-pnpm prisma db push     # 스키마 동기화
-pnpm prisma studio      # DB GUI
-```
+`pnpm prisma generate` (클라이언트+Kysely 타입 생성), `pnpm prisma db push`, `pnpm prisma studio`
 
 ## Testing
 
