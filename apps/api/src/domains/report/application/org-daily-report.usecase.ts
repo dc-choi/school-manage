@@ -19,9 +19,7 @@ export class OrgDailyReportUseCase {
         return database.$kysely
             .selectFrom('organization as o')
             .innerJoin('church as c', (join) => join.onRef('c.id', '=', 'o.churchId').on('c.deleteAt', 'is', null))
-            .leftJoin('group as g', (join) =>
-                join.onRef('g.organizationId', '=', 'o.id').on('g.deleteAt', 'is', null)
-            )
+            .leftJoin('group as g', (join) => join.onRef('g.organizationId', '=', 'o.id').on('g.deleteAt', 'is', null))
             .leftJoin('student as s', (join) =>
                 join.onRef('s.organizationId', '=', 'o.id').on('s.deleteAt', 'is', null)
             )

@@ -10,6 +10,7 @@ import type {
 import { getNowKST } from '@school/utils';
 import { sql } from 'kysely';
 import { getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
+import { ATTENDANCE_SCORE_SQL } from '~/domains/statistics/statistics.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드
@@ -25,21 +26,12 @@ export class GetExcellentStudentsUseCase {
             .selectFrom('student as s')
             .innerJoin('attendance as a', 'a.studentId', 's.id')
             .select(['s.id', 's.societyName'])
-            .select(
-                sql<number>`SUM(CASE
-                    WHEN a.content = '◎' THEN 2
-                    WHEN a.content = '○' THEN 1
-                    WHEN a.content = '△' THEN 1
-                    ELSE 0
-                END)`.as('count')
-            )
+            .select(ATTENDANCE_SCORE_SQL.as('count'))
             .where('a.date', 'like', year + '%')
             .where('s.organizationId', '=', organizationId)
             .where('s.deleteAt', 'is', null)
             .where('a.deleteAt', 'is', null)
-            .where(({ or, eb }) =>
-                or([eb('s.graduatedAt', 'is', null), eb(sql`YEAR(s.graduated_at)`, '>=', yearNum)])
-            )
+            .where(({ or, eb }) => or([eb('s.graduatedAt', 'is', null), eb(sql`YEAR(s.graduated_at)`, '>=', yearNum)]))
             .groupBy('s.id')
             .orderBy(sql`count`, 'desc')
             .limit(10)
@@ -51,8 +43,8 @@ export class GetExcellentStudentsUseCase {
         const studentSnapshots = await getBulkStudentSnapshots(studentIds, referenceDate);
 
         // serializable types 변환
-        const excellentStudents = rawResults.map((row) => {
-            const snapshot = studentSnapshots.get(BigInt(row.id));
+        const excellentStudents = rawResults.map((row, i) => {
+            const snapshot = studentSnapshots.get(studentIds[i]);
             return {
                 id: String(row.id),
                 society_name: snapshot?.societyName ?? row.societyName,

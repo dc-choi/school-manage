@@ -7,6 +7,7 @@ import type { TopOverallOutput, TopStatisticsInput as TopStatisticsSchemaInput }
 import { clampToToday, formatDateCompact, getNowKST, getWeekRangeInMonth } from '@school/utils';
 import { type SqlBool, sql } from 'kysely';
 import { getBulkGroupSnapshots, getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
+import { ATTENDANCE_SCORE_SQL } from '~/domains/statistics/statistics.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type TopStatisticsInput = TopStatisticsSchemaInput & { organizationId: string };
@@ -34,14 +35,7 @@ export class GetTopOverallUseCase {
                     .on('a.deleteAt', 'is', null)
             )
             .select(['s.id', 's.societyName', 'g.name as groupName', 'g.id as groupId'])
-            .select(
-                sql<number>`SUM(CASE
-                    WHEN a.content = '◎' THEN 2
-                    WHEN a.content = '○' THEN 1
-                    WHEN a.content = '△' THEN 1
-                    ELSE 0
-                END)`.as('score')
-            )
+            .select(ATTENDANCE_SCORE_SQL.as('score'))
             .where('s.organizationId', '=', organizationId)
             .where('s.deleteAt', 'is', null)
             .where(({ or, eb }) =>
@@ -68,8 +62,8 @@ export class GetTopOverallUseCase {
 
         return {
             year,
-            students: rawResults.map((row) => {
-                const studentSnap = studentSnapshots.get(BigInt(row.id));
+            students: rawResults.map((row, i) => {
+                const studentSnap = studentSnapshots.get(studentIds[i]);
                 const groupSnap = groupSnapshots.get(BigInt(row.groupId));
 
                 return {
