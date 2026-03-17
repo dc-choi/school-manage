@@ -22,6 +22,10 @@ RUN pnpm turbo build --filter=@school/api
 # ===== Stage 2: Runner =====
 FROM node:24-alpine AS runner
 
+# 타임존 설정 (Alpine 기본값은 UTC → 스케줄러/로그를 KST로 맞춤)
+RUN apk add --no-cache tzdata
+ENV TZ=Asia/Seoul
+
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
