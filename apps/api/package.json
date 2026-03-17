@@ -15,7 +15,7 @@
         }
     },
     "scripts": {
-        "prisma:generate": "prisma generate",
+        "prisma:generate": "prisma generate && sed -i '' 's/_Id/id/g' src/infrastructure/database/generated/types.ts",
         "build": "pnpm prisma:generate && tsc -b && tsc-alias",
         "start": "cross-env NODE_ENV=production node dist/src/app.js",
         "test": "vitest run",

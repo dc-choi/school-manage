@@ -24,16 +24,16 @@ export class GetTopOverallUseCase {
         // 전체 우수 학생 TOP N 조회 (Kysely — StudentGroup 경유)
         const rawResults = await database.$kysely
             .selectFrom('student as s')
-            .innerJoin('student_group as sg', 'sg.student_id', 's._id')
-            .innerJoin('group as g', 'g._id', 'sg.group_id')
+            .innerJoin('studentGroup as sg', 'sg.studentId', 's.id')
+            .innerJoin('group as g', 'g.id', 'sg.groupId')
             .leftJoin('attendance as a', (join) =>
                 join
-                    .onRef('a.student_id', '=', 's._id')
+                    .onRef('a.studentId', '=', 's.id')
                     .on('a.date', '>=', startDateStr)
                     .on('a.date', '<=', endDateStr)
-                    .on('a.delete_at', 'is', null)
+                    .on('a.deleteAt', 'is', null)
             )
-            .select(['s._id', 's.society_name', 'g.name as group_name', 'g._id as group_id'])
+            .select(['s.id', 's.societyName', 'g.name as groupName', 'g.id as groupId'])
             .select(
                 sql<number>`SUM(CASE
                     WHEN a.content = '◎' THEN 2
@@ -42,12 +42,12 @@ export class GetTopOverallUseCase {
                     ELSE 0
                 END)`.as('score')
             )
-            .where('s.organization_id', '=', organizationId)
-            .where('s.delete_at', 'is', null)
+            .where('s.organizationId', '=', organizationId)
+            .where('s.deleteAt', 'is', null)
             .where(({ or, eb }) =>
-                or([eb('s.graduated_at', 'is', null), sql<SqlBool>`s.graduated_at >= ${startDateStr}`])
+                or([eb('s.graduatedAt', 'is', null), sql<SqlBool>`s.graduated_at >= ${startDateStr}`])
             )
-            .groupBy(['s._id', 'g._id', 'g.name'])
+            .groupBy(['s.id', 'g.id', 'g.name'])
             .orderBy(sql`score`, 'desc')
             .limit(limit)
             .execute();
@@ -58,8 +58,8 @@ export class GetTopOverallUseCase {
 
         // 스냅샷 기반 이름 대체
         const referenceDate = new Date(year, 11, 31);
-        const studentIds = rawResults.map((r) => BigInt(r._id));
-        const groupIds = [...new Set(rawResults.map((r) => BigInt(r.group_id)))];
+        const studentIds = rawResults.map((r) => BigInt(r.id));
+        const groupIds = [...new Set(rawResults.map((r) => BigInt(r.groupId)))];
 
         const [studentSnapshots, groupSnapshots] = await Promise.all([
             getBulkStudentSnapshots(studentIds, referenceDate),
@@ -69,13 +69,13 @@ export class GetTopOverallUseCase {
         return {
             year,
             students: rawResults.map((row) => {
-                const studentSnap = studentSnapshots.get(BigInt(row._id));
-                const groupSnap = groupSnapshots.get(BigInt(row.group_id));
+                const studentSnap = studentSnapshots.get(BigInt(row.id));
+                const groupSnap = groupSnapshots.get(BigInt(row.groupId));
 
                 return {
-                    id: String(row._id),
-                    societyName: studentSnap?.societyName ?? row.society_name,
-                    groupName: groupSnap?.name ?? row.group_name,
+                    id: String(row.id),
+                    societyName: studentSnap?.societyName ?? row.societyName,
+                    groupName: groupSnap?.name ?? row.groupName,
                     score: Number(row.score ?? 0),
                 };
             }),

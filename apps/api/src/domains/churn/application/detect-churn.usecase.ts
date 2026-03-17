@@ -30,20 +30,20 @@ export class DetectChurnUseCase {
         const dedupDate = addDays(now, -DEDUP_DAYS);
         const recentAlerts = await database.churnAlertLog.findMany({
             where: {
-                organizationId: { in: inactiveOrgs.map((o) => o.organization_id) },
+                organizationId: { in: inactiveOrgs.map((o) => o.organizationId) },
                 sentAt: { gte: dedupDate },
             },
             select: { organizationId: true },
         });
         const recentlyAlertedIds = new Set(recentAlerts.map((a) => a.organizationId));
-        const filtered = inactiveOrgs.filter((o) => !recentlyAlertedIds.has(o.organization_id));
+        const filtered = inactiveOrgs.filter((o) => !recentlyAlertedIds.has(o.organizationId));
 
         if (filtered.length === 0) {
             return { skipped: false, alerts: [] };
         }
 
         // 4. 단체 상세 조회
-        const orgIds = filtered.map((o) => o.organization_id);
+        const orgIds = filtered.map((o) => o.organizationId);
         const organizations = await database.organization.findMany({
             where: { id: { in: orgIds }, deletedAt: null },
             include: {
@@ -56,16 +56,16 @@ export class DetectChurnUseCase {
         // 5. 결과 조합
         const alerts: ChurnAlert[] = [];
         for (const row of filtered) {
-            const org = orgMap.get(row.organization_id);
+            const org = orgMap.get(row.organizationId);
             if (!org) continue;
 
-            const lastDate = `${row.last_date.slice(0, 4)}-${row.last_date.slice(4, 6)}-${row.last_date.slice(6, 8)}`;
+            const lastDate = `${row.lastDate.slice(0, 4)}-${row.lastDate.slice(4, 6)}-${row.lastDate.slice(6, 8)}`;
             const lastActivityDate = new Date(lastDate);
             const diffMs = now.getTime() - lastActivityDate.getTime();
             const inactiveDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
             alerts.push({
-                organizationId: row.organization_id,
+                organizationId: row.organizationId,
                 churchName: org.church.name,
                 organizationName: org.name,
                 studentCount: org._count.students,
@@ -101,15 +101,15 @@ export class DetectChurnUseCase {
     private async findInactiveOrganizations(thresholdDate: string): Promise<InactiveOrgRow[]> {
         return database.$kysely
             .selectFrom('attendance as a')
-            .innerJoin('student as s', 's._id', 'a.student_id')
-            .select(['s.organization_id'])
-            .select((eb) => eb.fn.max('a.date').as('last_date'))
-            .where('a.delete_at', 'is', null)
-            .where('s.delete_at', 'is', null)
-            .where('s.organization_id', 'is not', null)
-            .groupBy('s.organization_id')
+            .innerJoin('student as s', 's.id', 'a.studentId')
+            .select(['s.organizationId'])
+            .select((eb) => eb.fn.max('a.date').as('lastDate'))
+            .where('a.deleteAt', 'is', null)
+            .where('s.deleteAt', 'is', null)
+            .where('s.organizationId', 'is not', null)
+            .groupBy('s.organizationId')
             .having((eb) => eb.fn.max('a.date'), '<', thresholdDate)
-            .having((eb) => eb.fn.count('a._id'), '>=', 1)
+            .having((eb) => eb.fn.count('a.id'), '>=', 1)
             .$castTo<InactiveOrgRow>()
             .execute();
     }

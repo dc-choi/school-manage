@@ -3,8 +3,9 @@ generator client {
 }
 
 generator kysely {
-    provider = "prisma-kysely"
-    output   = "../src/infrastructure/database/generated"
+    provider  = "prisma-kysely"
+    output    = "../src/infrastructure/database/generated"
+    camelCase = true
 }
 
 datasource db {

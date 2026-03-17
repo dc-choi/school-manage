@@ -4,6 +4,7 @@ import type { ITXClientDenyList } from '@prisma/client/runtime/library';
 import { Kysely, MysqlAdapter, MysqlIntrospector, MysqlQueryCompiler } from 'kysely';
 import kyselyExtension from 'prisma-extension-kysely';
 import { env } from '~/global/config/env.js';
+import { CustomCamelCasePlugin } from '~/infrastructure/database/camel-case.plugin.js';
 import type { DB } from '~/infrastructure/database/generated/types.js';
 import { logger } from '~/infrastructure/logger/logger.js';
 
@@ -79,6 +80,7 @@ export const database = baseClient.$extends(
                     createIntrospector: (db) => new MysqlIntrospector(db),
                     createQueryCompiler: () => new MysqlQueryCompiler(),
                 },
+                plugins: [new CustomCamelCasePlugin()],
             }),
     })
 );

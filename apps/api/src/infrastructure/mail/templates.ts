@@ -82,13 +82,13 @@ export const orgDailyReportTemplate = (
     // 섹션 1: 조직 활성화 현황
     const activityLines = activityRows.map(
         (r, i) =>
-            `${i + 1}. ${r.church_name} - ${r.organization_name} (${r.organization_type}) | 그룹 ${r.group_count}개 | 학생 ${r.student_count}명 | 출석 ${r.attendance_count}건 | 최근출석: ${formatDate(r.recent_attendance_at)}`
+            `${i + 1}. ${r.churchName} - ${r.organizationName} (${r.organizationType}) | 그룹 ${r.groupCount}개 | 학생 ${r.studentCount}명 | 출석 ${r.attendanceCount}건 | 최근출석: ${formatDate(r.recentAttendanceAt)}`
     );
 
     // 섹션 2: 조직별 계정 현황
     const accountLines = accountRows.map(
         (r, i) =>
-            `${i + 1}. ${r.church_name ?? '(미소속)'} - ${r.organization_name ?? '(미소속)'} (${r.organization_type ?? '-'}) | 계정 ${r.total_accounts}명 | ${r.account_names ?? '-'}`
+            `${i + 1}. ${r.churchName ?? '(미소속)'} - ${r.organizationName ?? '(미소속)'} (${r.organizationType ?? '-'}) | 계정 ${r.totalAccounts}명 | ${r.accountNames ?? '-'}`
     );
 
     const text = `[조직 활성화 현황] (${dateStr} 기준, ${activityRows.length}곳)

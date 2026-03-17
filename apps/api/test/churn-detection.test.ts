@@ -72,8 +72,8 @@ describe('DetectChurnUseCase', () => {
 
             // 미활동 단체 2곳 (마지막 출석 20일 전, 14일 전)
             mockPrismaClient.$kysely._executeResults.push([
-                { organization_id: 1n, last_date: '20260225' }, // 20일 전
-                { organization_id: 2n, last_date: '20260303' }, // 14일 전
+                { organizationId: 1n, lastDate: '20260225' }, // 20일 전
+                { organizationId: 2n, lastDate: '20260303' }, // 14일 전
             ]);
 
             // 중복 알림 없음
@@ -123,8 +123,8 @@ describe('DetectChurnUseCase', () => {
 
             // 미활동 단체 2곳
             mockPrismaClient.$kysely._executeResults.push([
-                { organization_id: 1n, last_date: '20260225' },
-                { organization_id: 2n, last_date: '20260225' },
+                { organizationId: 1n, lastDate: '20260225' },
+                { organizationId: 2n, lastDate: '20260225' },
             ]);
 
             // 1곳은 이미 알림됨

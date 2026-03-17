@@ -18,30 +18,30 @@ export class OrgDailyReportUseCase {
     private async fetchOrgActivity(): Promise<OrgActivityRow[]> {
         return database.$kysely
             .selectFrom('organization as o')
-            .innerJoin('church as c', (join) => join.onRef('c._id', '=', 'o.church_id').on('c.delete_at', 'is', null))
+            .innerJoin('church as c', (join) => join.onRef('c.id', '=', 'o.churchId').on('c.deleteAt', 'is', null))
             .leftJoin('group as g', (join) =>
-                join.onRef('g.organization_id', '=', 'o._id').on('g.delete_at', 'is', null)
+                join.onRef('g.organizationId', '=', 'o.id').on('g.deleteAt', 'is', null)
             )
             .leftJoin('student as s', (join) =>
-                join.onRef('s.organization_id', '=', 'o._id').on('s.delete_at', 'is', null)
+                join.onRef('s.organizationId', '=', 'o.id').on('s.deleteAt', 'is', null)
             )
             .leftJoin('attendance as att', (join) =>
-                join.onRef('att.student_id', '=', 's._id').on('att.delete_at', 'is', null)
+                join.onRef('att.studentId', '=', 's.id').on('att.deleteAt', 'is', null)
             )
-            .select(['c.name as church_name', 'o.name as organization_name', 'o.type as organization_type'])
+            .select(['c.name as churchName', 'o.name as organizationName', 'o.type as organizationType'])
             .select(({ fn }) => [
-                sql<bigint>`COUNT(DISTINCT g._id)`.as('group_count'),
-                sql<bigint>`COUNT(DISTINCT s._id)`.as('student_count'),
-                sql<bigint>`COUNT(DISTINCT att._id)`.as('attendance_count'),
-                fn.max('g.create_at').as('recent_group_create_at'),
-                fn.max('s.create_at').as('recent_student_create_at'),
-                fn.max('att.create_at').as('recent_attendance_at'),
+                sql<bigint>`COUNT(DISTINCT g._id)`.as('groupCount'),
+                sql<bigint>`COUNT(DISTINCT s._id)`.as('studentCount'),
+                sql<bigint>`COUNT(DISTINCT att._id)`.as('attendanceCount'),
+                fn.max('g.createAt').as('recentGroupCreateAt'),
+                fn.max('s.createAt').as('recentStudentCreateAt'),
+                fn.max('att.createAt').as('recentAttendanceAt'),
             ])
-            .where('o.delete_at', 'is', null)
-            .groupBy(['o._id', 'c.name', 'o.name', 'o.type'])
-            .orderBy(sql`recent_attendance_at`, 'desc')
-            .orderBy(sql`recent_student_create_at`, 'desc')
-            .orderBy(sql`recent_group_create_at`, 'desc')
+            .where('o.deleteAt', 'is', null)
+            .groupBy(['o.id', 'c.name', 'o.name', 'o.type'])
+            .orderBy(sql`recentAttendanceAt`, 'desc')
+            .orderBy(sql`recentStudentCreateAt`, 'desc')
+            .orderBy(sql`recentGroupCreateAt`, 'desc')
             .$castTo<OrgActivityRow>()
             .execute();
     }
@@ -51,20 +51,20 @@ export class OrgDailyReportUseCase {
         return database.$kysely
             .selectFrom('account as a')
             .leftJoin('organization as o', (join) =>
-                join.onRef('o._id', '=', 'a.organization_id').on('o.delete_at', 'is', null)
+                join.onRef('o.id', '=', 'a.organizationId').on('o.deleteAt', 'is', null)
             )
-            .leftJoin('church as c', (join) => join.onRef('c._id', '=', 'o.church_id').on('c.delete_at', 'is', null))
-            .select(['c.name as church_name', 'o.name as organization_name', 'o.type as organization_type'])
+            .leftJoin('church as c', (join) => join.onRef('c.id', '=', 'o.churchId').on('c.deleteAt', 'is', null))
+            .select(['c.name as churchName', 'o.name as organizationName', 'o.type as organizationType'])
             .select([
-                sql<bigint>`COUNT(DISTINCT a._id)`.as('total_accounts'),
+                sql<bigint>`COUNT(DISTINCT a._id)`.as('totalAccounts'),
                 sql<string | null>`GROUP_CONCAT(DISTINCT a.display_name ORDER BY a.create_at SEPARATOR ', ')`.as(
-                    'account_names'
+                    'accountNames'
                 ),
             ])
-            .where('a.delete_at', 'is', null)
-            .where('a.privacy_agreed_at', 'is not', null)
-            .groupBy(['o._id', 'c.name', 'o.name', 'o.type'])
-            .orderBy('church_name')
+            .where('a.deleteAt', 'is', null)
+            .where('a.privacyAgreedAt', 'is not', null)
+            .groupBy(['o.id', 'c.name', 'o.name', 'o.type'])
+            .orderBy('churchName')
             .$castTo<OrgAccountRow>()
             .execute();
     }
