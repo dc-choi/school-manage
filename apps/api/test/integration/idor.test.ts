@@ -83,9 +83,9 @@ describe('IDOR 회귀 테스트', () => {
             mockPrismaClient.group.count.mockResolvedValueOnce(0);
             const caller = createOrgBCaller();
 
-            await expect(
-                caller.student.create({ societyName: '테스트', groupIds: ['1'] })
-            ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+            await expect(caller.student.create({ societyName: '테스트', groupIds: ['1'] })).rejects.toMatchObject({
+                code: 'FORBIDDEN',
+            });
 
             expect(mockPrismaClient.group.count).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -268,7 +268,12 @@ describe('IDOR 회귀 테스트', () => {
         });
 
         it('group.delete — where절에 organizationId 포함', async () => {
-            mockPrismaClient.group.update.mockResolvedValueOnce({ id: BigInt(1), name: '테스트', type: 'GRADE', organizationId: ORG_B_ID });
+            mockPrismaClient.group.update.mockResolvedValueOnce({
+                id: BigInt(1),
+                name: '테스트',
+                type: 'GRADE',
+                organizationId: ORG_B_ID,
+            });
             const caller = createOrgBCaller();
 
             await caller.group.delete({ id: '1' });
