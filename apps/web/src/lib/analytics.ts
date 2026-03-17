@@ -25,6 +25,8 @@
  * - 온보딩 완료: analytics.trackOnboardingCompleted(daysSinceSignup)
  * - 전례 카드 노출: analytics.trackLiturgicalCardViewed()
  * - 축일자 카드 노출: analytics.trackPatronFeastCardViewed()
+ * - 컨텍스트 배너 노출: analytics.trackContextBannerShown(nextSunday)
+ * - 컨텍스트 배너 클릭: analytics.trackContextBannerClicked()
  *
  * 사용자 속성 (커스텀 디멘션):
  * - 사용자 속성 설정: analytics.setUserProperties(accountName, organizationName)
@@ -351,5 +353,22 @@ export const analytics = {
      */
     trackStudentRegistrationCancel: (count: number): void => {
         safeGtag('event', 'student_registration_cancel', { count });
+    },
+
+    /**
+     * 컨텍스트 배너 노출 이벤트
+     * 트리거: 배너 컴포넌트 마운트 시 (useEffect, useRef로 1회)
+     * @param nextSunday 다가오는 주일 날짜 (YYYY-MM-DD)
+     */
+    trackContextBannerShown: (nextSunday: string): void => {
+        safeGtag('event', 'context_banner_shown', { next_sunday: nextSunday });
+    },
+
+    /**
+     * 컨텍스트 배너 CTA 클릭 이벤트
+     * 트리거: "출석부 열기" 버튼 클릭 시
+     */
+    trackContextBannerClicked: (): void => {
+        safeGtag('event', 'context_banner_clicked');
     },
 };
