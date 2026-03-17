@@ -22,6 +22,49 @@ interface MockModel {
     deleteMany: Mock;
 }
 
+// Kysely 체이닝 모킹 — execute()가 호출되면 _executeResult를 반환
+interface MockKyselyBuilder {
+    selectFrom: Mock;
+    innerJoin: Mock;
+    leftJoin: Mock;
+    select: Mock;
+    where: Mock;
+    groupBy: Mock;
+    having: Mock;
+    orderBy: Mock;
+    limit: Mock;
+    $castTo: Mock;
+    execute: Mock;
+    _executeResults: unknown[][];
+}
+
+function createMockKyselyBuilder(): MockKyselyBuilder {
+    const builder: MockKyselyBuilder = {
+        _executeResults: [],
+    } as unknown as MockKyselyBuilder;
+
+    const chainMethods = [
+        'selectFrom',
+        'innerJoin',
+        'leftJoin',
+        'select',
+        'where',
+        'groupBy',
+        'having',
+        'orderBy',
+        'limit',
+        '$castTo',
+    ] as const;
+    for (const method of chainMethods) {
+        builder[method] = vi.fn().mockReturnValue(builder);
+    }
+    builder.execute = vi.fn().mockImplementation(() => {
+        return Promise.resolve(builder._executeResults.shift() ?? []);
+    });
+
+    return builder;
+}
+
 // Mock Prisma Client 타입
 interface MockPrismaClient {
     account: MockModel;
@@ -43,6 +86,7 @@ interface MockPrismaClient {
     $disconnect: Mock;
     $on: Mock;
     $queryRaw: Mock;
+    $kysely: MockKyselyBuilder;
     $transaction?: Mock;
 }
 
@@ -82,6 +126,7 @@ export const mockPrismaClient: MockPrismaClient = {
     $disconnect: vi.fn().mockResolvedValue(undefined),
     $on: vi.fn(),
     $queryRaw: vi.fn().mockResolvedValue([{ '1': 1 }]),
+    $kysely: createMockKyselyBuilder(),
 };
 
 // env 모듈 모킹 (CI에 .env.test 파일 없음)

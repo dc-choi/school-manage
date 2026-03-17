@@ -99,17 +99,18 @@ export class DetectChurnUseCase {
      * 미활동 단체 조회 (출석 기록 1건 이상 + 마지막 출석 < 기준일)
      */
     private async findInactiveOrganizations(thresholdDate: string): Promise<InactiveOrgRow[]> {
-        const rows = await database.$queryRaw<InactiveOrgRow[]>`
-            SELECT s.organization_id, MAX(a.date) as last_date
-            FROM attendance a
-            JOIN student s ON a.student_id = s._id
-            WHERE a.delete_at IS NULL
-              AND s.delete_at IS NULL
-              AND s.organization_id IS NOT NULL
-            GROUP BY s.organization_id
-            HAVING MAX(a.date) < ${thresholdDate}
-               AND COUNT(a._id) >= 1
-        `;
-        return rows;
+        return database.$kysely
+            .selectFrom('attendance as a')
+            .innerJoin('student as s', 's._id', 'a.student_id')
+            .select(['s.organization_id'])
+            .select((eb) => eb.fn.max('a.date').as('last_date'))
+            .where('a.delete_at', 'is', null)
+            .where('s.delete_at', 'is', null)
+            .where('s.organization_id', 'is not', null)
+            .groupBy('s.organization_id')
+            .having((eb) => eb.fn.max('a.date'), '<', thresholdDate)
+            .having((eb) => eb.fn.count('a._id'), '>=', 1)
+            .$castTo<InactiveOrgRow>()
+            .execute();
     }
 }

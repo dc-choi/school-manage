@@ -21,8 +21,8 @@ describe('OrgDailyReportUseCase', () => {
     it('조직 활성화 현황과 계정 현황을 조회한다', async () => {
         vi.setSystemTime(new Date(2026, 2, 17, 6, 0, 0)); // 2026-03-17 15:00 KST
 
-        // 첫 번째 $queryRaw: 조직 활성화 현황
-        mockPrismaClient.$queryRaw.mockResolvedValueOnce([
+        // 첫 번째 $kysely.execute: 조직 활성화 현황
+        mockPrismaClient.$kysely._executeResults.push([
             {
                 church_name: '장위동',
                 organization_name: '중고등부',
@@ -36,8 +36,8 @@ describe('OrgDailyReportUseCase', () => {
             },
         ]);
 
-        // 두 번째 $queryRaw: 조직별 계정 현황
-        mockPrismaClient.$queryRaw.mockResolvedValueOnce([
+        // 두 번째 $kysely.execute: 조직별 계정 현황
+        mockPrismaClient.$kysely._executeResults.push([
             {
                 church_name: '장위동',
                 organization_name: '중고등부',
@@ -62,8 +62,8 @@ describe('OrgDailyReportUseCase', () => {
     it('데이터가 없으면 빈 배열을 반환한다', async () => {
         vi.setSystemTime(new Date(2026, 2, 17, 6, 0, 0));
 
-        mockPrismaClient.$queryRaw.mockResolvedValueOnce([]);
-        mockPrismaClient.$queryRaw.mockResolvedValueOnce([]);
+        mockPrismaClient.$kysely._executeResults.push([]);
+        mockPrismaClient.$kysely._executeResults.push([]);
 
         const result = await usecase.execute();
 
@@ -74,7 +74,7 @@ describe('OrgDailyReportUseCase', () => {
     it('여러 조직의 데이터를 반환한다', async () => {
         vi.setSystemTime(new Date(2026, 2, 17, 6, 0, 0));
 
-        mockPrismaClient.$queryRaw.mockResolvedValueOnce([
+        mockPrismaClient.$kysely._executeResults.push([
             {
                 church_name: '장위동',
                 organization_name: '중고등부',
@@ -99,7 +99,7 @@ describe('OrgDailyReportUseCase', () => {
             },
         ]);
 
-        mockPrismaClient.$queryRaw.mockResolvedValueOnce([
+        mockPrismaClient.$kysely._executeResults.push([
             {
                 church_name: '장위동',
                 organization_name: '중고등부',

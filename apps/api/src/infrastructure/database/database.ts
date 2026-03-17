@@ -1,6 +1,10 @@
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
+import type { ITXClientDenyList } from '@prisma/client/runtime/library';
+import { Kysely, MysqlAdapter, MysqlIntrospector, MysqlQueryCompiler } from 'kysely';
+import kyselyExtension from 'prisma-extension-kysely';
 import { env } from '~/global/config/env.js';
+import type { DB } from '~/infrastructure/database/generated/types.js';
 import { logger } from '~/infrastructure/logger/logger.js';
 
 // 슬로우 쿼리 임계값 (ms)
@@ -37,7 +41,7 @@ const adapter = new PrismaMariaDb({
 });
 
 // PrismaClient 생성 (adapter 주입)
-export const database = new PrismaClient({
+const baseClient = new PrismaClient({
     adapter,
     log: [
         { emit: 'event', level: 'query' },
@@ -46,8 +50,8 @@ export const database = new PrismaClient({
     ],
 });
 
-// Query 이벤트 핸들러 등록
-database.$on('query', (event) => {
+// Query 이벤트 핸들러 등록 ($on은 $extends 전에 호출해야 함)
+baseClient.$on('query', (event) => {
     const duration = event.duration;
     const query = event.query;
     const params = event.params;
@@ -60,6 +64,24 @@ database.$on('query', (event) => {
         logger.sql(`${duration}ms - ${interpolated}`);
     }
 });
+
+// $transaction 콜백의 tx 타입 (확장 포함)
+export type TransactionClient = Omit<typeof database, ITXClientDenyList>;
+
+// Kysely 확장 적용 (Prisma 커넥션 공유)
+export const database = baseClient.$extends(
+    kyselyExtension({
+        kysely: (driver) =>
+            new Kysely<DB>({
+                dialect: {
+                    createDriver: () => driver,
+                    createAdapter: () => new MysqlAdapter(),
+                    createIntrospector: (db) => new MysqlIntrospector(db),
+                    createQueryCompiler: () => new MysqlQueryCompiler(),
+                },
+            }),
+    })
+);
 
 /**
  * DB 연결 및 상태 로깅

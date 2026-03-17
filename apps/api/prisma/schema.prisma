@@ -2,6 +2,11 @@ generator client {
     provider = "prisma-client-js"
 }
 
+generator kysely {
+    provider = "prisma-kysely"
+    output   = "../src/infrastructure/database/generated"
+}
+
 datasource db {
     provider = "mysql"
     url      = env("DATABASE_URL")

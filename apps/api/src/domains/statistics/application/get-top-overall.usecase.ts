@@ -3,62 +3,54 @@
  *
  * 전체 우수 출석 학생 TOP N 조회 (스냅샷 기반)
  */
-import { Prisma } from '@prisma/client';
 import type { TopOverallOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/shared';
 import { clampToToday, formatDateCompact, getNowKST, getWeekRangeInMonth } from '@school/utils';
+import { type SqlBool, sql } from 'kysely';
 import { getBulkGroupSnapshots, getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type TopStatisticsInput = TopStatisticsSchemaInput & { organizationId: string };
-
-// Raw query result
-interface StudentScoreRaw {
-    _id: bigint;
-    society_name: string;
-    group_name: string;
-    group_id: bigint;
-    score: bigint;
-}
 
 export class GetTopOverallUseCase {
     async execute(input: TopStatisticsInput): Promise<TopOverallOutput> {
         const year = input.year ?? getNowKST().getFullYear();
         const { month, week } = input;
         const limit = input.limit ?? 5;
-        const organizationId = BigInt(input.organizationId);
+        const organizationId = Number(input.organizationId);
 
         // 날짜 범위 계산
         const { startDateStr, endDateStr } = this.getDateRange(year, month, week);
 
-        // 전체 우수 학생 TOP N 조회 (Raw Query — StudentGroup 경유)
-        const rawResults = await database.$queryRaw<StudentScoreRaw[]>(
-            Prisma.sql`
-                SELECT
-                    s._id,
-                    s.society_name,
-                    g.name as group_name,
-                    g._id as group_id,
-                    SUM(CASE
-                        WHEN a.content = '◎' THEN 2
-                        WHEN a.content = '○' THEN 1
-                        WHEN a.content = '△' THEN 1
-                        ELSE 0
-                    END) as score
-                FROM student s
-                JOIN student_group sg ON s._id = sg.student_id
-                JOIN \`group\` g ON sg.group_id = g._id
-                LEFT JOIN attendance a ON s._id = a.student_id
-                    AND a.date >= ${startDateStr}
-                    AND a.date <= ${endDateStr}
-                    AND a.delete_at IS NULL
-                WHERE s.organization_id = ${organizationId}
-                AND s.delete_at IS NULL
-                AND (s.graduated_at IS NULL OR s.graduated_at >= ${startDateStr})
-                GROUP BY s._id, g._id, g.name
-                ORDER BY score DESC
-                LIMIT ${limit}
-            `
-        );
+        // 전체 우수 학생 TOP N 조회 (Kysely — StudentGroup 경유)
+        const rawResults = await database.$kysely
+            .selectFrom('student as s')
+            .innerJoin('student_group as sg', 'sg.student_id', 's._id')
+            .innerJoin('group as g', 'g._id', 'sg.group_id')
+            .leftJoin('attendance as a', (join) =>
+                join
+                    .onRef('a.student_id', '=', 's._id')
+                    .on('a.date', '>=', startDateStr)
+                    .on('a.date', '<=', endDateStr)
+                    .on('a.delete_at', 'is', null)
+            )
+            .select(['s._id', 's.society_name', 'g.name as group_name', 'g._id as group_id'])
+            .select(
+                sql<number>`SUM(CASE
+                    WHEN a.content = '◎' THEN 2
+                    WHEN a.content = '○' THEN 1
+                    WHEN a.content = '△' THEN 1
+                    ELSE 0
+                END)`.as('score')
+            )
+            .where('s.organization_id', '=', organizationId)
+            .where('s.delete_at', 'is', null)
+            .where(({ or, eb }) =>
+                or([eb('s.graduated_at', 'is', null), sql<SqlBool>`s.graduated_at >= ${startDateStr}`])
+            )
+            .groupBy(['s._id', 'g._id', 'g.name'])
+            .orderBy(sql`score`, 'desc')
+            .limit(limit)
+            .execute();
 
         if (rawResults.length === 0) {
             return { year, students: [] };
@@ -66,8 +58,8 @@ export class GetTopOverallUseCase {
 
         // 스냅샷 기반 이름 대체
         const referenceDate = new Date(year, 11, 31);
-        const studentIds = rawResults.map((r) => r._id);
-        const groupIds = [...new Set(rawResults.map((r) => r.group_id))];
+        const studentIds = rawResults.map((r) => BigInt(r._id));
+        const groupIds = [...new Set(rawResults.map((r) => BigInt(r.group_id)))];
 
         const [studentSnapshots, groupSnapshots] = await Promise.all([
             getBulkStudentSnapshots(studentIds, referenceDate),
@@ -77,8 +69,8 @@ export class GetTopOverallUseCase {
         return {
             year,
             students: rawResults.map((row) => {
-                const studentSnap = studentSnapshots.get(row._id);
-                const groupSnap = groupSnapshots.get(row.group_id);
+                const studentSnap = studentSnapshots.get(BigInt(row._id));
+                const groupSnap = groupSnapshots.get(BigInt(row.group_id));
 
                 return {
                     id: String(row._id),

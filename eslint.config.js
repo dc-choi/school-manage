@@ -43,5 +43,5 @@ module.exports = defineConfig([
             '@typescript-eslint/no-explicit-any': 'off',
         },
     },
-    globalIgnores(['**/.eslintrc.js', '**/eslint.config.js', '**/**.yml', 'prisma/generated/**']),
+    globalIgnores(['**/.eslintrc.js', '**/eslint.config.js', '**/**.yml', 'prisma/generated/**', '**/database/generated/**']),
 ]);
