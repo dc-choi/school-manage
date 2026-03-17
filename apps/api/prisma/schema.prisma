@@ -3,9 +3,10 @@ generator client {
 }
 
 generator kysely {
-    provider  = "prisma-kysely"
-    output    = "../src/infrastructure/database/generated"
-    camelCase = true
+    provider     = "prisma-kysely"
+    output       = "../src/infrastructure/database/generated"
+    camelCase    = true
+    enumFileName = "enums.ts"
 }
 
 datasource db {

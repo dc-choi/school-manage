@@ -143,7 +143,7 @@ throw new TRPCError({
 - **타입**: `src/infrastructure/database/generated/types.ts` (prisma-kysely 자동 생성)
 - **DB**: MariaDB/MySQL
 
-복잡한 쿼리(JOIN, GROUP BY, HAVING, 집계)는 `database.$kysely` 사용. 컬럼명은 DB snake_case (`_id`, `society_name`). `prisma generate` 시 Kysely 타입 자동 생성 (lint/prettier 제외).
+복잡한 쿼리(JOIN, GROUP BY, HAVING, 집계)는 `database.$kysely` 사용. CamelCasePlugin으로 코드는 camelCase, `sql` 템플릿 내부만 DB snake_case 사용. `prisma generate` 시 Kysely 타입 자동 생성 (lint/prettier 제외).
 
 ### KST 타임스탬프 정책
 
