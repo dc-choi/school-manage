@@ -61,8 +61,9 @@ Q4. 수익 모델/성장에 기여하는가?
 
 ## Phase 4: 결과 저장 및 사용자 결정 요청
 
-1. 전체 과정을 `docs/brainstorm/` 디렉토리에 개별 파일로 저장해라.
-   - 파일명: `YYYY-MM-DD.md` (예: `2026-02-23.md`)
+1. 전체 과정을 `docs/brainstorm/YYYY-MM-DD/` 디렉토리에 저장해라.
+   - 디렉토리: `docs/brainstorm/YYYY-MM-DD/` (날짜별 폴더)
+   - 파일명: `<주제-slug>.md` (예: `revenue-model.md`)
    - 파일 구조는 brainstorm-rules 스킬의 "최종 보고서 형식"을 따라라.
 
 2. 사용자에게 결과를 요약하고 최종 판단을 요청해라:
