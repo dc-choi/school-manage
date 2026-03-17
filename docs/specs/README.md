@@ -7,8 +7,8 @@
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 완료               |
-| **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성), 조직 생성 UX 개선 + 관리자 양도 + 전례력 개선 + AdSense 크롤링 지원 구현 완료 |
-| **Target Non-Functional** | -    | SECURITY 2건 완료, ANALYTICS 2건 완료, PERFORMANCE 3건 미착수 |
+| **Target Functional**     | -    | 미착수 1건 (P2 컨텍스트 배너) |
+| **Target Non-Functional** | -    | PERFORMANCE 3건 미착수 |
 
 ## 관련 문서
 
@@ -24,47 +24,12 @@
 
 ### PRD (제품 요구사항 문서)
 
-| 문서명           | 경로                                    | 상태               | 비고                |
-|---------------|---------------------------------------|------------------|-------------------|
-| 주일학교 출석부 프로그램 | `docs/specs/prd/school-attendance.md` | Approved (구현 완료) | 회원가입 포함 (로드맵 1단계) |
-| 개인정보 제공동의     | `docs/specs/prd/privacy-consent.md`   | Approved (구현 완료) | 로드맵 2단계           |
-| 계정 자기 관리       | `docs/specs/prd/account-self-management.md` | Approved (구현 완료) | 로드맵 2단계           |
-| 랜딩 페이지 FAQ     | `docs/specs/prd/landing-faq.md`             | Approved (구현 완료)  | 로드맵 2단계           |
-| 셀프 온보딩 (최소 가이드) | `docs/specs/prd/self-onboarding.md`         | Approved (구현 완료) | 로드맵 2단계           |
-| 전례 시기/전례력 달력   | `docs/specs/prd/liturgical-calendar.md`     | Approved (구현 완료) | 로드맵 2단계           |
-| 세례명 축일자 명단 + 통계 총계 | `docs/specs/prd/patron-saint-feast.md` | Approved (구현 완료) | 로드맵 2단계           |
-| 통계 스냅샷           | `docs/specs/prd/statistics-snapshot.md`     | Approved (구현 완료) | 로드맵 2단계           |
-| 통계 졸업생 필터링       | `docs/specs/prd/statistics-graduation-filter.md` | Approved (구현 완료) | 로드맵 2단계           |
-| 학생 엑셀 Import     | `docs/specs/prd/student-excel-import.md`         | Approved (구현 완료) | 로드맵 2단계           |
-| 학생 등록 관리        | `docs/specs/prd/student-registration.md`         | Approved (구현 완료) | 로드맵 2단계 (4단계 선행)  |
-| 계정 모델 전환        | `docs/specs/prd/account-model-transition.md`     | Approved (구현 완료) | 로드맵 3단계           |
-| 졸업일 정규화 + 나이 기반 필터링 | `docs/specs/prd/graduation-normalization.md` | Approved (구현 완료) | 로드맵 2단계           |
-| 학년/부서 두 축 그룹핑    | `docs/specs/prd/dual-axis-grouping.md`       | Approved (구현 완료) | 로드맵 2단계           |
-| 관리자 양도             | `docs/specs/prd/admin-transfer.md`           | Approved (구현 완료) | 로드맵 2단계           |
-| 조직 생성 UX 개선        | `docs/specs/prd/organization-create-ux.md`   | Approved (구현 완료) | 로드맵 2단계           |
-| 전례력 개선 (특전미사 + 성주간/성삼일) | `docs/specs/prd/liturgical-enhancement.md` | Approved (구현 완료) | 로드맵 2단계           |
-| 이탈 감지 자동 알림 (운영자용) | `docs/specs/prd/churn-detection-alert.md` | Draft | 로드맵 2단계 (ANALYTICS) |
+> 18건 전체 Approved (구현 완료). 경로: `docs/specs/prd/`
 
 ### Functional Design (기능 설계)
 
-> **병합 규칙**: 기능 설계 문서는 **도메인별 단일 문서**로 관리합니다.
-> 상세: `.claude/rules/specs.md` "기능 개선 시 병합 규칙" 참조
-
-| 도메인          | 경로                                                      | 포함 내용                                                      |
-|--------------|---------------------------------------------------------|------------------------------------------------------------|
-| Auth/Account | `auth-account.md` + `auth-account-extended.md`          | 기본 인증 + 회원가입 / UI 개선, 개인정보 동의, 계정 관리, 셀프 온보딩, 관리자 양도     |
-| Account Model | `account-model-transition.md` + `account-model-transition-flows.md` | 데이터 모델 / 플로우, API, 접근 제어                                   |
-| Landing      | `landing-page.md`                                       | 랜딩 페이지 + FAQ + 메타 태그/브랜딩                                   |
-| Group        | `group-management.md`                                   | 기본 + 일괄 삭제 + 페이지네이션 상태 유지                                  |
-| Dual Grouping | `dual-axis-grouping.md` + `dual-axis-grouping-flows.md` | 학년/부서 두 축 그룹핑, 데이터 모델 / 플로우, API, UI                       |
-| Student      | `student-management.md` + `-import.md` + `-registration.md` | 기본 CRUD / 엑셀 Import / 등록 관리                                |
-| Attendance   | `attendance-management.md`                              | 기본 + 달력 UI + 자동 저장                                         |
-| Statistics   | `statistics.md`                                         | 대시보드 통계 + 스냅샷 + 졸업생 필터링                                    |
-| Liturgical   | `liturgical-calendar.md`                                | 전례 시기 계산 + 대시보드 전례 카드                                      |
-| 도메인 용어 변경    | `domain-terminology-change.md`                          | 그룹→학년, 멤버→학생 UI 라벨 변경 (횡단 관심사)                             |
-| AdSense 크롤링  | `adsense-crawling.md`                                   | robots.txt + sitemap.xml + 로그인→랜딩 링크                       |
-| Churn Alert  | `churn-detection-alert.md`                              | 이탈 감지 크론잡 + 운영자 이메일 알림                                    |
-| IDOR 구조적 해소  | `idor-structural.md`                                    | 공통 소유권 검증 유틸리티 + IDOR 회귀 테스트                              |
+> 13개 도메인 문서 전체 구현 완료. 경로: `docs/specs/functional-design/`
+> **병합 규칙**: 도메인별 단일 문서 관리. 상세: `.claude/rules/specs.md`
 
 ---
 
@@ -81,14 +46,7 @@
 
 | 우선순위 | 기능명          | SDD 상태 | 비고                                         |
 |------|--------------|--------|--------------------------------------------|
-| P1   | 조직 생성 UX 개선  | **구현 완료** | organization_type 오선택 방지 + 동일 본당/모임 중복 방지 검증 |
-| P1   | 미사 참례 확인     | 미착수    | 학생별 미사 참례 횟수 기록 (첫영성체 준비 필수 조건)            |
-| P2   | 가정 통신문 자동 생성 | 미착수    | 월별 출석/일정/공지 템플릿 기반 PDF/이미지 내보내기            |
-| P2   | 반편성 자동화      | 미착수    | 신학기 학년 진급 시 반 자동 재배정, 교사-반 매칭              |
-| P1   | 관리자 양도        | **구현 완료** | ADMIN→TEACHER 역할 교환, 조직 관리 권한 이전              |
 | P2   | 컨텍스트 배너      | 미착수    | 퍼널 병목 구간 상태 기반 배너로 다음 행동 유도 (03-13 승인)     |
-| P2   | 전례력 개선 (특전미사 + 성주간/성삼일) | **구현 완료** | 토요일→일요일 전례 표시 + 성주간/성삼일 시기/전례색 구분 |
-| P1   | AdSense 크롤링 지원 | **구현 완료** | 로그인→랜딩 링크 + sitemap.xml + robots.txt |
 
 **의존성 체인:**
 - 행사 메모 카드: 계정 모델 전환 완료 + 수요 검증 2곳 후 등록 (`docs/brainstorm/2026-02-23.md`)
@@ -100,21 +58,6 @@
 **SDD 문서 작성 시 경로:**
 - Task: `docs/specs/target/functional/tasks/{name}.md`
 - Development: `docs/specs/target/functional/development/{name}-{role}.md` (role: backend, frontend, design)
-
-### SECURITY (Non-Functional)
-
-| 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
-|------|----------------------|--------|------------------------------------------------------|
-| P1   | Refresh token 인증 확장  | **구현 완료** | RTR + Token Family, 브라우저 재시작 후 자동 로그인 |
-| P1   | IDOR 구조적 해소 (계정 소유권 검증 강화) | **구현 완료** | 공통 소유권 검증 유틸리티 + Traversal→Where절 리팩토링 + IDOR 회귀 테스트 15건 |
-
-### ANALYTICS (Non-Functional)
-
-| 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
-|------|----------------------|--------|------------------------------------------------------|
-| P1   | GA4 커스텀 디멘션 (계정명+단체명) | **구현 완료** | account_name + organization_name user properties 추가 |
-| P2   | 이탈 감지 자동 알림 (운영자용) | **구현 완료** | 14일 미활동 단체 감지 + 전례력 예외 + 운영자 이메일 알림 (크론잡) |
-| P2   | 조직 현황 일일 보고서 (운영자용) | **구현 완료** | 크론잡 21:00 KST + 조직 활성화/계정 현황 이메일 보고서 |
 
 ### PERFORMANCE (Non-Functional)
 
