@@ -189,7 +189,7 @@ function DashboardContent() {
 
     return (
         <MainLayout title={`안녕하세요, ${account?.name}님!`}>
-            <div className="flex h-[calc(100vh-6.5rem)] flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
+            <div className="flex flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
                 {/* 합류 요청 관리 (admin만) */}
                 {role === ROLE.ADMIN ? <JoinRequestsSection /> : null}
 
