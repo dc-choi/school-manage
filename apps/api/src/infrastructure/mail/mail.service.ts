@@ -3,8 +3,9 @@
  *
  * Nodemailer + Google SMTP를 사용한 메일 발송 서비스
  */
-import { signupNotificationTemplate, temporaryPasswordTemplate } from './templates.ts';
+import { churnAlertTemplate, signupNotificationTemplate, temporaryPasswordTemplate } from './templates.ts';
 import nodemailer from 'nodemailer';
+import type { ChurnAlert } from '~/domains/churn/churn.types.js';
 import { env } from '~/global/config/env.js';
 import { logger } from '~/infrastructure/logger/logger.js';
 
@@ -62,6 +63,35 @@ export const mailService = {
             logger.log(`Signup notification sent: ${account.displayName}`);
         } catch (error) {
             logger.err(`Signup notification failed: ${account.displayName}, error: ${error}`);
+        }
+    },
+
+    /**
+     * 이탈 감지 알림 메일 발송
+     * @param alerts 이탈 위험 단체 목록
+     * @param dateStr 감지 날짜 (YYYY-MM-DD)
+     */
+    async sendChurnAlert(alerts: ChurnAlert[], dateStr: string): Promise<void> {
+        if (!this.isEnabled()) {
+            logger.log('Mail disabled, skipping churn alert');
+            return;
+        }
+
+        const { subject, text } = churnAlertTemplate(alerts, dateStr);
+
+        try {
+            const transporter = this.createTransporter();
+
+            await transporter.sendMail({
+                from: env.smtp.user,
+                to: env.smtp.adminEmail,
+                subject,
+                text,
+            });
+
+            logger.log(`Churn alert sent: ${alerts.length} organizations`);
+        } catch (error) {
+            logger.err(`Churn alert failed: ${error}`);
         }
     },
 

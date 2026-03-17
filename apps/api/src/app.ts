@@ -129,6 +129,7 @@ export const main = async (): Promise<void> => {
     // 3. Scheduler 시작 (테스트 환경 제외)
     if (!env.mode.test) {
         await Scheduler.studentAge();
+        await Scheduler.churnDetection();
         logger.log('Scheduler started');
     }
 
