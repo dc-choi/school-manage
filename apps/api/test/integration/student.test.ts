@@ -195,16 +195,17 @@ describe('student 통합 테스트', () => {
             const mockStudent = createMockStudent({});
             const updatedStudent = { ...mockStudent, societyName: '수정된이름' };
 
-            // $transaction mock (update-student now uses transaction + snapshot + studentGroup)
+            // 소유권 검증: student.findFirst (트랜잭션 외부)
+            mockPrismaClient.student.findFirst.mockResolvedValueOnce({ id: mockStudent.id });
+            // 그룹 소유권 검증: assertGroupIdsOwnership
+            mockPrismaClient.group.count.mockResolvedValueOnce(1);
+
+            // $transaction mock
             const txMock = {
                 student: {
                     update: vi.fn().mockResolvedValue(updatedStudent),
                 },
-                group: {
-                    count: vi.fn().mockResolvedValue(1),
-                },
                 studentGroup: {
-                    findFirst: vi.fn().mockResolvedValue({ studentId: mockStudent.id, groupId: BigInt(groupId) }),
                     deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
                     create: vi.fn().mockResolvedValue({}),
                     findMany: vi
@@ -712,8 +713,8 @@ describe('student 통합 테스트', () => {
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ id: BigInt(1), accountId: BigInt(accountId) });
 
-            // 계정 소유 그룹 조회 (권한 스코프)
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            // 그룹 소유권 검증 (assertGroupIdsOwnership)
+            mockPrismaClient.group.count.mockResolvedValueOnce(1);
 
             const createdStudent = createMockStudent({ societyName: '김철수' });
 
@@ -753,8 +754,8 @@ describe('student 통합 테스트', () => {
             const accountName = testAccount.name;
             const mockGroup = createMockGroup({ id: BigInt(1), accountId: BigInt(accountId) });
 
-            // 계정 소유 그룹 조회 (권한 스코프)
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
+            // 그룹 소유권 검증 (assertGroupIdsOwnership)
+            mockPrismaClient.group.count.mockResolvedValueOnce(1);
 
             const createdStudent = createMockStudent({ societyName: '김철수' });
 

@@ -7,6 +7,7 @@ import type { CreateStudentInput, CreateStudentOutput, Gender } from '@school/sh
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
+import { assertGroupIdsOwnership } from '~/global/utils/ownership.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class CreateStudentUseCase {
@@ -36,13 +37,7 @@ export class CreateStudentUseCase {
             }
 
             // 권한 검증: groupIds가 해당 조직 소속인지 확인
-            const orgId = BigInt(organizationId);
-            const validGroupCount = await database.group.count({
-                where: { id: { in: input.groupIds.map((gId) => BigInt(gId)) }, organizationId: orgId, deletedAt: null },
-            });
-            if (validGroupCount !== input.groupIds.length) {
-                throw new TRPCError({ code: 'FORBIDDEN', message: '해당 학년에 대한 접근 권한이 없습니다.' });
-            }
+            await assertGroupIdsOwnership(input.groupIds, organizationId);
 
             const { student, studentGroups } = await database.$transaction(async (tx) => {
                 const created = await tx.student.create({
@@ -111,6 +106,7 @@ export class CreateStudentUseCase {
                 daysSinceCreation,
             };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[CreateStudentUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
