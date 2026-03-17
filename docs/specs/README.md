@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 완료               |
 | **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성), 조직 생성 UX 개선 + 관리자 양도 + 전례력 개선 + AdSense 크롤링 지원 구현 완료 |
-| **Target Non-Functional** | -    | SECURITY 1건 완료, ANALYTICS 1건 완료, PERFORMANCE 3건 미착수 |
+| **Target Non-Functional** | -    | SECURITY 1건 완료, ANALYTICS 2건 완료, PERFORMANCE 3건 미착수 |
 
 ## 관련 문서
 
@@ -43,6 +43,7 @@
 | 관리자 양도             | `docs/specs/prd/admin-transfer.md`           | Approved (구현 완료) | 로드맵 2단계           |
 | 조직 생성 UX 개선        | `docs/specs/prd/organization-create-ux.md`   | Approved (구현 완료) | 로드맵 2단계           |
 | 전례력 개선 (특전미사 + 성주간/성삼일) | `docs/specs/prd/liturgical-enhancement.md` | Approved (구현 완료) | 로드맵 2단계           |
+| 이탈 감지 자동 알림 (운영자용) | `docs/specs/prd/churn-detection-alert.md` | Draft | 로드맵 2단계 (ANALYTICS) |
 
 ### Functional Design (기능 설계)
 
@@ -62,6 +63,7 @@
 | Liturgical   | `liturgical-calendar.md`                                | 전례 시기 계산 + 대시보드 전례 카드                                      |
 | 도메인 용어 변경    | `domain-terminology-change.md`                          | 그룹→학년, 멤버→학생 UI 라벨 변경 (횡단 관심사)                             |
 | AdSense 크롤링  | `adsense-crawling.md`                                   | robots.txt + sitemap.xml + 로그인→랜딩 링크                       |
+| Churn Alert  | `churn-detection-alert.md`                              | 이탈 감지 크론잡 + 운영자 이메일 알림                                    |
 
 ---
 
@@ -109,7 +111,7 @@
 | 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
 |------|----------------------|--------|------------------------------------------------------|
 | P1   | GA4 커스텀 디멘션 (계정명+단체명) | **구현 완료** | account_name + organization_name user properties 추가 |
-| P2   | 이탈 감지 자동 알림 (운영자용) | 미착수    | 7일/14일 미활동 계정 이메일 알림 — SMTP 인프라 활용 (03-13 승인) |
+| P2   | 이탈 감지 자동 알림 (운영자용) | **구현 완료** | 14일 미활동 단체 감지 + 전례력 예외 + 운영자 이메일 알림 (크론잡) |
 
 ### PERFORMANCE (Non-Functional)
 

@@ -44,14 +44,27 @@ model Organization {
     createdAt DateTime  @map("create_at")
     deletedAt DateTime? @map("delete_at")
 
-    church       Church          @relation(fields: [churchId], references: [id])
-    accounts     Account[]
-    groups       Group[]
-    students     Student[]
-    joinRequests JoinRequest[]
+    church          Church           @relation(fields: [churchId], references: [id])
+    accounts        Account[]
+    groups          Group[]
+    students        Student[]
+    joinRequests    JoinRequest[]
+    churnAlertLogs  ChurnAlertLog[]
 
     @@index([churchId])
     @@map("organization")
+}
+
+model ChurnAlertLog {
+    id             BigInt   @id @default(autoincrement()) @map("_id")
+    organizationId BigInt   @map("organization_id")
+    inactiveDays   Int      @map("inactive_days")
+    sentAt         DateTime @map("sent_at")
+
+    organization Organization @relation(fields: [organizationId], references: [id])
+
+    @@index([organizationId, sentAt])
+    @@map("churn_alert_log")
 }
 
 model StudentGroup {

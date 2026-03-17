@@ -38,6 +38,7 @@ interface MockPrismaClient {
     studentGroup: MockModel;
     joinRequest: MockModel;
     refreshToken: MockModel;
+    churnAlertLog: MockModel;
     $connect: Mock;
     $disconnect: Mock;
     $on: Mock;
@@ -76,6 +77,7 @@ export const mockPrismaClient: MockPrismaClient = {
     studentGroup: createMockModel(),
     joinRequest: createMockModel(),
     refreshToken: createMockModel(),
+    churnAlertLog: createMockModel(),
     $connect: vi.fn().mockResolvedValue(undefined),
     $disconnect: vi.fn().mockResolvedValue(undefined),
     $on: vi.fn(),
