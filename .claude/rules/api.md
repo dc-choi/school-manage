@@ -101,6 +101,23 @@ export const studentRouter = router({
 });
 ```
 
+### 소유권 검증 (IDOR 방지)
+
+scopedProcedure에서 리소스 접근 시 반드시 organizationId를 검증한다.
+
+```typescript
+import { assertGroupIdsOwnership } from '~/global/utils/ownership.js';
+
+// 복수 그룹/학생 ID 검증
+await assertGroupIdsOwnership(input.groupIds, organizationId);
+await assertStudentIdsOwnership(input.studentIds, organizationId);
+
+// 단일 리소스: where절에 organizationId 직접 포함
+const student = await database.student.findFirst({
+    where: { id: BigInt(input.id), organizationId: BigInt(organizationId) },
+});
+```
+
 ### 에러 처리
 
 ```typescript

@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 완료               |
 | **Target Functional**     | -    | 미착수 3건 (P1 미사 참례 + P2 가정 통신문 + P2 반편성), 조직 생성 UX 개선 + 관리자 양도 + 전례력 개선 + AdSense 크롤링 지원 구현 완료 |
-| **Target Non-Functional** | -    | SECURITY 1건 완료, ANALYTICS 2건 완료, PERFORMANCE 3건 미착수 |
+| **Target Non-Functional** | -    | SECURITY 2건 완료, ANALYTICS 2건 완료, PERFORMANCE 3건 미착수 |
 
 ## 관련 문서
 
@@ -64,6 +64,7 @@
 | 도메인 용어 변경    | `domain-terminology-change.md`                          | 그룹→학년, 멤버→학생 UI 라벨 변경 (횡단 관심사)                             |
 | AdSense 크롤링  | `adsense-crawling.md`                                   | robots.txt + sitemap.xml + 로그인→랜딩 링크                       |
 | Churn Alert  | `churn-detection-alert.md`                              | 이탈 감지 크론잡 + 운영자 이메일 알림                                    |
+| IDOR 구조적 해소  | `idor-structural.md`                                    | 공통 소유권 검증 유틸리티 + IDOR 회귀 테스트                              |
 
 ---
 
@@ -105,6 +106,7 @@
 | 우선순위 | 기능명                  | SDD 상태 | 비고                                                   |
 |------|----------------------|--------|------------------------------------------------------|
 | P1   | Refresh token 인증 확장  | **구현 완료** | RTR + Token Family, 브라우저 재시작 후 자동 로그인 |
+| P1   | IDOR 구조적 해소 (계정 소유권 검증 강화) | **구현 완료** | 공통 소유권 검증 유틸리티 + Traversal→Where절 리팩토링 + IDOR 회귀 테스트 15건 |
 
 ### ANALYTICS (Non-Functional)
 
