@@ -61,6 +61,7 @@ export class UpdateGroupUseCase {
                 studentCount: group._count.studentGroups,
             };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[UpdateGroupUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',

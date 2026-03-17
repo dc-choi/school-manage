@@ -20,8 +20,8 @@ export class UpdateStudentUseCase {
             });
             if (!existing) {
                 throw new TRPCError({
-                    code: 'FORBIDDEN',
-                    message: '해당 학생에 대한 접근 권한이 없습니다.',
+                    code: 'NOT_FOUND',
+                    message: '학생을 찾을 수 없습니다.',
                 });
             }
 
