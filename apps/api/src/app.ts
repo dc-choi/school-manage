@@ -130,6 +130,7 @@ export const main = async (): Promise<void> => {
     if (!env.mode.test) {
         await Scheduler.studentAge();
         await Scheduler.churnDetection();
+        await Scheduler.orgDailyReport();
         logger.log('Scheduler started');
     }
 

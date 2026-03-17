@@ -3,9 +3,15 @@
  *
  * Nodemailer + Google SMTP를 사용한 메일 발송 서비스
  */
-import { churnAlertTemplate, signupNotificationTemplate, temporaryPasswordTemplate } from './templates.ts';
+import {
+    churnAlertTemplate,
+    orgDailyReportTemplate,
+    signupNotificationTemplate,
+    temporaryPasswordTemplate,
+} from './templates.ts';
 import nodemailer from 'nodemailer';
 import type { ChurnAlert } from '~/domains/churn/churn.types.js';
+import type { OrgAccountRow, OrgActivityRow } from '~/domains/report/report.types.js';
 import { env } from '~/global/config/env.js';
 import { logger } from '~/infrastructure/logger/logger.js';
 
@@ -92,6 +98,37 @@ export const mailService = {
             logger.log(`Churn alert sent: ${alerts.length} organizations`);
         } catch (error) {
             logger.err(`Churn alert failed: ${error}`);
+        }
+    },
+
+    /**
+     * 조직 현황 일일 보고서 메일 발송
+     */
+    async sendOrgDailyReport(
+        activityRows: OrgActivityRow[],
+        accountRows: OrgAccountRow[],
+        dateStr: string
+    ): Promise<void> {
+        if (!this.isEnabled()) {
+            logger.log('Mail disabled, skipping org daily report');
+            return;
+        }
+
+        const { subject, text } = orgDailyReportTemplate(activityRows, accountRows, dateStr);
+
+        try {
+            const transporter = this.createTransporter();
+
+            await transporter.sendMail({
+                from: env.smtp.user,
+                to: env.smtp.adminEmail,
+                subject,
+                text,
+            });
+
+            logger.log(`Org daily report sent: ${activityRows.length} orgs, ${accountRows.length} accounts`);
+        } catch (error) {
+            logger.err(`Org daily report failed: ${error}`);
         }
     },
 

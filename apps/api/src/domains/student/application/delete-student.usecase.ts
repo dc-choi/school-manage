@@ -11,17 +11,11 @@ import { database } from '~/infrastructure/database/database.js';
 export class DeleteStudentUseCase {
     async execute(input: DeleteStudentInput, organizationId: string): Promise<DeleteStudentOutput> {
         try {
-            // 권한 검증: 학생이 해당 조직 소속 그룹에 속하는지 확인
+            // 권한 검증: organizationId를 where절에 포함하여 타 조직 접근 차단
             const existing = await database.student.findFirst({
                 where: {
                     id: BigInt(input.id),
-                },
-                include: {
-                    studentGroups: {
-                        include: {
-                            group: { select: { id: true, name: true, organizationId: true } },
-                        },
-                    },
+                    organizationId: BigInt(organizationId),
                 },
             });
 
@@ -32,19 +26,10 @@ export class DeleteStudentUseCase {
                 });
             }
 
-            const orgId = BigInt(organizationId);
-            const hasAccess = existing.studentGroups.some((sg) => sg.group.organizationId === orgId);
-
-            if (!hasAccess) {
-                throw new TRPCError({
-                    code: 'FORBIDDEN',
-                    message: '해당 학생에 대한 접근 권한이 없습니다.',
-                });
-            }
-
             const student = await database.student.update({
                 where: {
                     id: BigInt(input.id),
+                    organizationId: BigInt(organizationId),
                 },
                 data: {
                     deletedAt: getNowKST(),

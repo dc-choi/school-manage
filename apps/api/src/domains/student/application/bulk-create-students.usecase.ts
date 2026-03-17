@@ -7,6 +7,7 @@ import type { BulkCreateStudentsInput, BulkCreateStudentsOutput } from '@school/
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
+import { assertGroupIdsOwnership } from '~/global/utils/ownership.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class BulkCreateStudentsUseCase {
@@ -17,26 +18,10 @@ export class BulkCreateStudentsUseCase {
             const now = getNowKST();
             const currentYear = new Date().getFullYear();
 
-            // 해당 조직 소유 그룹 조회 (권한 스코프)
-            const groups = await database.group.findMany({
-                where: {
-                    organizationId: BigInt(organizationId),
-                    deletedAt: null,
-                },
-                select: { id: true },
-            });
-            const validGroupIds = new Set(groups.map((g) => g.id));
-
-            // 입력된 groupIds가 모두 조직 소속인지 검증
-            for (const student of input.students) {
-                for (const gId of student.groupIds) {
-                    if (!validGroupIds.has(BigInt(gId))) {
-                        throw new TRPCError({
-                            code: 'FORBIDDEN',
-                            message: '접근 권한이 없는 그룹입니다.',
-                        });
-                    }
-                }
+            // 권한 검증: 모든 groupIds가 해당 조직 소속인지 확인
+            const allGroupIds = [...new Set(input.students.flatMap((s) => s.groupIds))];
+            if (allGroupIds.length > 0) {
+                await assertGroupIdsOwnership(allGroupIds, organizationId);
             }
 
             await database.$transaction(async (tx) => {
@@ -96,6 +81,7 @@ export class BulkCreateStudentsUseCase {
                 totalCount,
             };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[BulkCreateStudentsUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',

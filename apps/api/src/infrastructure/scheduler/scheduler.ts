@@ -1,6 +1,7 @@
 import { formatDateISO, getNowKST } from '@school/utils';
 import schedule from 'node-schedule';
 import { DetectChurnUseCase } from '~/domains/churn/application/detect-churn.usecase.js';
+import { OrgDailyReportUseCase } from '~/domains/report/application/org-daily-report.usecase.js';
 import { database } from '~/infrastructure/database/database.js';
 import { logger } from '~/infrastructure/logger/logger.js';
 import { mailService } from '~/infrastructure/mail/mail.service.js';
@@ -70,6 +71,33 @@ export class Scheduler {
                 logger.log(`[Scheduler] churnDetection: ${result.alerts.length} alerts sent`);
             } catch (error) {
                 logger.error('[Scheduler] churnDetection failed:', error);
+            }
+        });
+    }
+
+    static async orgDailyReport() {
+        // 매일 21:00 KST
+        const time = '0 21 * * *';
+        schedule.scheduleJob(time, async () => {
+            try {
+                if (!mailService.isEnabled()) {
+                    logger.log('[Scheduler] orgDailyReport: mail disabled, skipping');
+                    return;
+                }
+
+                const usecase = new OrgDailyReportUseCase();
+                const result = await usecase.execute();
+
+                const now = getNowKST();
+                const dateStr = formatDateISO(now);
+
+                await mailService.sendOrgDailyReport(result.activityRows, result.accountRows, dateStr);
+
+                logger.log(
+                    `[Scheduler] orgDailyReport: sent (${result.activityRows.length} orgs, ${result.accountRows.length} accounts)`
+                );
+            } catch (error) {
+                logger.error('[Scheduler] orgDailyReport failed:', error);
             }
         });
     }
