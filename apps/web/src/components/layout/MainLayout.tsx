@@ -1,5 +1,5 @@
 import { Sidebar, navItems } from './Sidebar';
-import { LogOut, Menu, User } from 'lucide-react';
+import { LogIn, LogOut, Menu, User } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '~/components/ui/button';
@@ -14,7 +14,7 @@ export interface MainLayoutProps {
 }
 
 export function MainLayout({ children, title }: MainLayoutProps) {
-    const { account, logout } = useAuth();
+    const { isAuthenticated, account, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -22,7 +22,6 @@ export function MainLayout({ children, title }: MainLayoutProps) {
 
     const handleLogout = () => {
         logout();
-        navigate('/login');
     };
 
     const isActive = (path: string) => {
@@ -32,7 +31,8 @@ export function MainLayout({ children, title }: MainLayoutProps) {
 
     const handleNavClick = (path: string) => {
         setMobileMenuOpen(false);
-        navigate(path);
+        const target = !isAuthenticated && path !== '/' ? '/login' : path;
+        navigate(target);
     };
 
     return (
@@ -86,28 +86,45 @@ export function MainLayout({ children, title }: MainLayoutProps) {
                             )}
                         </div>
 
-                        {/* 사용자 정보 & 로그아웃 */}
+                        {/* 사용자 정보 & 로그아웃 / 게스트: 로그인/회원가입 */}
                         <div className="flex items-center gap-3 md:gap-6">
-                            <Link
-                                to="/settings"
-                                className="flex items-center gap-2 rounded-full bg-muted/50 py-1.5 pl-2 pr-3 transition-colors hover:bg-muted md:gap-3 md:py-2 md:pl-3 md:pr-5"
-                            >
-                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 md:h-9 md:w-9">
-                                    <User className="h-4 w-4 text-primary md:h-5 md:w-5" />
-                                </div>
-                                <div className="hidden flex-col items-end sm:flex">
-                                    <span className="text-sm font-medium md:text-base">{account?.displayName}</span>
-                                </div>
-                            </Link>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleLogout}
-                                className="gap-2 text-muted-foreground hover:text-foreground"
-                            >
-                                <LogOut className="h-5 w-5" />
-                                <span className="hidden md:inline">로그아웃</span>
-                            </Button>
+                            {isAuthenticated ? (
+                                <>
+                                    <Link
+                                        to="/settings"
+                                        className="flex items-center gap-2 rounded-full bg-muted/50 py-1.5 pl-2 pr-3 transition-colors hover:bg-muted md:gap-3 md:py-2 md:pl-3 md:pr-5"
+                                    >
+                                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 md:h-9 md:w-9">
+                                            <User className="h-4 w-4 text-primary md:h-5 md:w-5" />
+                                        </div>
+                                        <div className="hidden flex-col items-end sm:flex">
+                                            <span className="text-sm font-medium md:text-base">
+                                                {account?.displayName}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handleLogout}
+                                        className="gap-2 text-muted-foreground hover:text-foreground"
+                                    >
+                                        <LogOut className="h-5 w-5" />
+                                        <span className="hidden md:inline">로그아웃</span>
+                                    </Button>
+                                </>
+                            ) : (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => navigate('/login')}
+                                    className="gap-2 text-muted-foreground hover:text-foreground"
+                                    aria-label="로그인/회원가입"
+                                >
+                                    <LogIn className="h-5 w-5" />
+                                    <span className="hidden md:inline">로그인/회원가입</span>
+                                </Button>
+                            )}
                         </div>
                     </header>
 

@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
 import { Button } from '~/components/ui/button';
-import { Card } from '~/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Label } from '~/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useAuth } from '~/features/auth';
@@ -289,9 +289,108 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
     );
 }
 
+function GuestDashboardContent() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    useEffect(() => {
+        analytics.trackGuestDashboardViewed();
+    }, []);
+
+    return (
+        <MainLayout title="주일학교 출석부">
+            <div className="flex flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
+                {/* 필터 (disabled) + 전례 시기 카드 */}
+                <div className="flex flex-col gap-3 md:flex-row md:items-start">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Label className="text-xs text-muted-foreground">연도</Label>
+                        <Select value={currentYear.toString()} disabled>
+                            <SelectTrigger className="h-9 w-20">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={currentYear.toString()}>{currentYear}년</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Label className="text-xs text-muted-foreground">월</Label>
+                        <Select value="" disabled>
+                            <SelectTrigger className="h-9 w-20">
+                                <SelectValue placeholder="전체" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">전체</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Label className="text-xs text-muted-foreground">주차</Label>
+                        <Select value="" disabled>
+                            <SelectTrigger className="h-9 w-20">
+                                <SelectValue placeholder="전체" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">전체</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="md:flex-1">
+                        <LiturgicalSeasonCard />
+                    </div>
+                    <div className="md:flex-1">
+                        <Card className="p-4">
+                            <p className="font-semibold">이달의 축일자</p>
+                            <p className="mt-1 text-sm text-muted-foreground">로그인이 필요합니다</p>
+                        </Card>
+                    </div>
+                </div>
+
+                {/* 학년별 통계 */}
+                <Card className="min-h-0 flex-1">
+                    <CardHeader>
+                        <CardTitle className="text-base">학년별 통계</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">로그인이 필요합니다</p>
+                    </CardContent>
+                </Card>
+
+                {/* 성별 분포 & 우수 출석 학생 */}
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">성별 분포</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground">로그인이 필요합니다</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">전체 우수 출석 학생 TOP 5</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground">로그인이 필요합니다</p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </MainLayout>
+    );
+}
+
 const ONBOARDING_FLAG_KEY = 'onboarding_checklist_shown';
 
 export function DashboardPage() {
+    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+
+    // 게스트 모드: 인증 로딩 완료 후 비인증이면 게스트 대시보드
+    if (!isAuthLoading && !isAuthenticated) {
+        return <GuestDashboardContent />;
+    }
+
+    return <AuthenticatedDashboard />;
+}
+
+function AuthenticatedDashboard() {
     const { account } = useAuth();
     const onboarding = useOnboardingStatus();
 

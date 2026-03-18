@@ -83,14 +83,10 @@ const routes: RouteObject[] = [
                     </ProtectedRoute>
                 ),
             },
-            // Protected routes (lazy) — 조직 필요
+            // 대시보드 — 게스트/인증 모두 접근 (DashboardPage 내부에서 분기)
             {
                 path: '/',
-                element: (
-                    <ProtectedRoute>
-                        <DashboardPage />
-                    </ProtectedRoute>
-                ),
+                element: <DashboardPage />,
             },
             {
                 path: '/groups',

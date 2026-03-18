@@ -1,5 +1,6 @@
 import { Calendar, Home, UserCog, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '~/features/auth';
 import { cn } from '~/lib/utils';
 
 export const navItems = [
@@ -11,6 +12,7 @@ export const navItems = [
 
 export function Sidebar() {
     const location = useLocation();
+    const { isAuthenticated } = useAuth();
 
     const isActive = (path: string) => {
         if (path === '/') return location.pathname === '/';
@@ -38,10 +40,11 @@ export function Sidebar() {
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const active = isActive(item.path);
+                    const linkTo = !isAuthenticated && item.path !== '/' ? '/login' : item.path;
                     return (
                         <Link
                             key={item.path}
-                            to={item.path}
+                            to={linkTo}
                             aria-label={item.label}
                             className={cn(
                                 'flex items-center justify-center gap-0 rounded-xl px-0 py-4 text-base font-medium transition-all lg:justify-start lg:gap-5 lg:px-6 lg:py-5 lg:text-lg',
