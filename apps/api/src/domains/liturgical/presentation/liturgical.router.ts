@@ -6,7 +6,7 @@
 import { GetHolydaysUseCase } from '../application/get-holydays.usecase.ts';
 import { GetSeasonUseCase } from '../application/get-season.usecase.ts';
 import { getHolydaysInputSchema, getSeasonInputSchema } from '@school/shared';
-import { consentedProcedure, router } from '@school/trpc';
+import { consentedProcedure, publicProcedure, router } from '@school/trpc';
 
 export const liturgicalRouter = router({
     /**
@@ -22,7 +22,7 @@ export const liturgicalRouter = router({
      * 전례 시기 조회
      * GET /api/liturgical/season -> trpc.liturgical.season
      */
-    season: consentedProcedure.input(getSeasonInputSchema).query(async ({ input }) => {
+    season: publicProcedure.input(getSeasonInputSchema).query(async ({ input }) => {
         const usecase = new GetSeasonUseCase();
         return usecase.execute(input);
     }),

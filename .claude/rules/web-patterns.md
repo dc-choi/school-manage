@@ -94,7 +94,7 @@ import { useMyHook } from '~/features/{domain}/hooks/useMyHook';
 | `/reset-password` | `ResetPasswordPage` | No | No |
 | `/consent` | `ConsentPage` | Yes (내부 체크) | No |
 | `/settings` | `SettingsPage` | Yes | Yes |
-| `/` | `DashboardPage` | Yes | Yes |
+| `/` | `DashboardPage` | No (내부 분기) | No |
 | `/groups` | `GroupListPage` | Yes | Yes |
 | `/groups/new` | `GroupAddPage` | Yes | Yes |
 | `/groups/:id` | `GroupDetailPage` | Yes | Yes |

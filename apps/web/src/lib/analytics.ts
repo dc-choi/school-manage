@@ -15,6 +15,7 @@
  * - 첫 출석 기록: analytics.trackFirstAttendanceRecorded(daysSinceSignup)
  * - 출석 저장 완료: analytics.trackAttendanceRecorded(params)
  * - 대시보드 진입: analytics.trackDashboardViewed()
+ * - 게스트 대시보드 진입: analytics.trackGuestDashboardViewed()
  * - 랜딩 페이지 진입: analytics.trackLandingView()
  * - 랜딩 섹션 조회: analytics.trackLandingSectionView(section)
  * - 랜딩 CTA 클릭: analytics.trackLandingCtaClick(position)
@@ -214,6 +215,14 @@ export const analytics = {
      */
     trackDashboardViewed: (): void => {
         safeGtag('event', 'dashboard_viewed');
+    },
+
+    /**
+     * 게스트 대시보드 진입 이벤트
+     * 트리거: 비인증 유저가 대시보드에 진입 시
+     */
+    trackGuestDashboardViewed: (): void => {
+        safeGtag('event', 'guest_dashboard_viewed');
     },
 
     /**
