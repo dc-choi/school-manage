@@ -189,7 +189,7 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
         })) ?? [];
 
     return (
-        <MainLayout title={`안녕하세요, ${account?.name}님!`}>
+        <MainLayout title={`안녕하세요, ${account?.displayName}님!`}>
             <div className="flex flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
                 {/* 합류 요청 관리 (admin만) */}
                 {role === ROLE.ADMIN ? <JoinRequestsSection /> : null}
@@ -307,7 +307,7 @@ export function DashboardPage() {
 
     if (onboarding.isLoading) {
         return (
-            <MainLayout title={`안녕하세요, ${account?.name}님!`}>
+            <MainLayout title={`안녕하세요, ${account?.displayName}님!`}>
                 <div className="flex justify-center p-8">
                     <output aria-label="로딩 중">
                         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -327,7 +327,7 @@ export function DashboardPage() {
     }
 
     return (
-        <MainLayout title={`안녕하세요, ${account?.name}님!`}>
+        <MainLayout title={`안녕하세요, ${account?.displayName}님!`}>
             <OnboardingChecklist
                 currentStep={onboarding.currentStep as 1 | 2}
                 hasGroups={onboarding.hasGroups}
