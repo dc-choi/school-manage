@@ -382,11 +382,19 @@ export const analytics = {
     },
 
     /**
+     * 도네이션 페이지 진입 이벤트
+     * 트리거: /donate 페이지 마운트 시 (useEffect, 1회)
+     */
+    trackDonatePageViewed: (): void => {
+        safeGtag('event', 'donate_page_viewed');
+    },
+
+    /**
      * 도네이션 링크 클릭 이벤트
      * 트리거: 카카오페이 후원 링크 클릭 시
-     * @param location 클릭 위치 (sidebar: 사이드바/모바일 메뉴, settings: 설정 페이지)
+     * @param location 클릭 위치
      */
-    trackDonationLinkClick: (location: 'sidebar' | 'settings'): void => {
+    trackDonationLinkClick: (location: 'donate'): void => {
         safeGtag('event', 'donation_link_click', { location });
     },
 };
