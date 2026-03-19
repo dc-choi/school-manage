@@ -37,9 +37,9 @@ export class OrgDailyReportUseCase {
             ])
             .where('o.deleteAt', 'is', null)
             .groupBy(['o.id', 'c.name', 'o.name', 'o.type'])
-            .orderBy(sql`recentAttendanceAt`, 'desc')
-            .orderBy(sql`recentStudentCreateAt`, 'desc')
-            .orderBy(sql`recentGroupCreateAt`, 'desc')
+            .orderBy(sql`recent_attendance_at`, 'desc')
+            .orderBy(sql`recent_student_create_at`, 'desc')
+            .orderBy(sql`recent_group_create_at`, 'desc')
             .$castTo<OrgActivityRow>()
             .execute();
     }
