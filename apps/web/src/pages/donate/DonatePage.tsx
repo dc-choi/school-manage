@@ -1,3 +1,4 @@
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { ArrowLeft, Heart } from 'lucide-react';
 import { useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -21,6 +22,11 @@ export function DonatePage() {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
+            <Helmet>
+                <title>후원하기 | 주일학교 출석부</title>
+                <meta name="description" content="주일학교 출석부를 후원해주세요. 후원금은 서버 운영비로 사용됩니다." />
+                <link rel="canonical" href="https://weekly-school.site/donate" />
+            </Helmet>
             <div className="w-full max-w-md space-y-6">
                 <h1 className="text-center text-xl font-bold tracking-tight">주일학교 출석부</h1>
 

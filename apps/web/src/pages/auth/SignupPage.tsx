@@ -1,3 +1,4 @@
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { PrivacyPolicyDialog } from '~/components/common/PrivacyPolicyDialog';
@@ -130,6 +131,11 @@ export function SignupPage() {
 
     return (
         <AuthLayout>
+            <Helmet>
+                <title>회원가입 | 주일학교 출석부</title>
+                <meta name="description" content="지금 가입하고 주일학교 출석 관리를 시작하세요." />
+                <link rel="canonical" href="https://weekly-school.site/signup" />
+            </Helmet>
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl">회원가입</CardTitle>
