@@ -23,8 +23,11 @@ export function DonatePage() {
     return (
         <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
             <Helmet>
-                <title>후원하기 | 주일학교 출석부</title>
-                <meta name="description" content="주일학교 출석부를 후원해주세요. 후원금은 서버 운영비로 사용됩니다." />
+                <title>주일학교 출석부</title>
+                <meta
+                    name="description"
+                    content="주일학교 출석부 — 가톨릭(천주교) 주일학교 교리교사를 위한 출석 관리 도구."
+                />
                 <link rel="canonical" href="https://weekly-school.site/donate" />
             </Helmet>
             <div className="w-full max-w-md space-y-6">

@@ -132,8 +132,11 @@ export function SignupPage() {
     return (
         <AuthLayout>
             <Helmet>
-                <title>회원가입 | 주일학교 출석부</title>
-                <meta name="description" content="지금 가입하고 주일학교 출석 관리를 시작하세요." />
+                <title>주일학교 출석부</title>
+                <meta
+                    name="description"
+                    content="주일학교 출석부 — 가톨릭(천주교) 주일학교 교리교사를 위한 출석 관리 도구."
+                />
                 <link rel="canonical" href="https://weekly-school.site/signup" />
             </Helmet>
             <Card className="w-full max-w-md">

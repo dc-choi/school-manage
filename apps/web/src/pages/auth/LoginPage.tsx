@@ -95,8 +95,11 @@ export function LoginPage() {
     return (
         <AuthLayout>
             <Helmet>
-                <title>로그인 | 주일학교 출석부</title>
-                <meta name="description" content="주일학교 출석부에 로그인하세요." />
+                <title>주일학교 출석부</title>
+                <meta
+                    name="description"
+                    content="주일학교 출석부 — 가톨릭(천주교) 주일학교 교리교사를 위한 출석 관리 도구."
+                />
                 <link rel="canonical" href="https://weekly-school.site/login" />
             </Helmet>
             <LoginForm onSubmit={handleSubmit} error={error} isLoading={isLoading} />
