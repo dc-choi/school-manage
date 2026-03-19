@@ -380,4 +380,13 @@ export const analytics = {
     trackContextBannerClicked: (): void => {
         safeGtag('event', 'context_banner_clicked');
     },
+
+    /**
+     * 도네이션 링크 클릭 이벤트
+     * 트리거: 카카오페이 후원 링크 클릭 시
+     * @param location 클릭 위치 (sidebar: 사이드바/모바일 메뉴, settings: 설정 페이지)
+     */
+    trackDonationLinkClick: (location: 'sidebar' | 'settings'): void => {
+        safeGtag('event', 'donation_link_click', { location });
+    },
 };
