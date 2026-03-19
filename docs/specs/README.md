@@ -6,8 +6,8 @@
 
 | 분류                        | 완성도  | 상세                                                            |
 |---------------------------|------|---------------------------------------------------------------|
-| **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 완료 |
-| **Target Functional**     | -    | 없음 (게스트 대시보드 구현 완료) |
+| **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 완료 |
+| **Target Functional**     | -    | 없음 (도네이션 링크 구현 완료) |
 | **Target Non-Functional** | -    | PERFORMANCE 3건 미착수, 1건 완료 |
 
 ## 관련 문서
@@ -24,11 +24,11 @@
 
 ### PRD (제품 요구사항 문서)
 
-> 20건 전체 Approved (구현 완료). 경로: `docs/specs/prd/`
+> 21건 전체 Approved (구현 완료). 경로: `docs/specs/prd/`
 
 ### Functional Design (기능 설계)
 
-> 15개 도메인 문서 전체 구현 완료. 경로: `docs/specs/functional-design/`
+> 16개 도메인 문서 전체 구현 완료. 경로: `docs/specs/functional-design/`
 > **병합 규칙**: 도메인별 단일 문서 관리. 상세: `.claude/rules/specs.md`
 
 ---

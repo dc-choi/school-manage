@@ -1,11 +1,12 @@
 import { Sidebar, navItems } from './Sidebar';
-import { LogIn, LogOut, Menu, User } from 'lucide-react';
+import { Heart, LogIn, LogOut, Menu, User } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '~/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet';
 import { useAuth } from '~/features/auth';
 import { useLiturgicalTheme } from '~/hooks/useLiturgicalTheme';
+import { hasDonationLink } from '~/lib/donation';
 import { cn } from '~/lib/utils';
 
 export interface MainLayoutProps {
@@ -77,6 +78,21 @@ export function MainLayout({ children, title }: MainLayoutProps) {
                                             );
                                         })}
                                     </nav>
+                                    {hasDonationLink ? (
+                                        <div className="mt-6 border-t pt-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setMobileMenuOpen(false);
+                                                    navigate('/settings#donation');
+                                                }}
+                                                className="flex items-center gap-4 rounded-xl px-4 py-3 text-base font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                                            >
+                                                <Heart className="h-5 w-5" />
+                                                후원하기
+                                            </button>
+                                        </div>
+                                    ) : null}
                                 </SheetContent>
                             </Sheet>
                             {title && (

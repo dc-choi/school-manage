@@ -1,6 +1,7 @@
-import { Calendar, Home, UserCog, Users } from 'lucide-react';
+import { Calendar, Heart, Home, UserCog, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '~/features/auth';
+import { hasDonationLink } from '~/lib/donation';
 import { cn } from '~/lib/utils';
 
 export const navItems = [
@@ -61,11 +62,17 @@ export function Sidebar() {
             </nav>
 
             {/* Footer */}
-            <div className="hidden border-t border-sidebar-border p-6 lg:block">
-                <p className="text-center text-sm text-sidebar-foreground/50">
-                    © 2022–{new Date().getFullYear()} 주일학교 출석부
-                </p>
-            </div>
+            {hasDonationLink ? (
+                <div className="hidden border-t border-sidebar-border p-6 lg:block">
+                    <Link
+                        to="/settings#donation"
+                        className="flex items-center justify-center gap-1.5 text-sm text-sidebar-foreground/40 transition-colors hover:text-sidebar-foreground/70"
+                    >
+                        <Heart className="h-3.5 w-3.5" />
+                        후원하기
+                    </Link>
+                </div>
+            ) : null}
         </aside>
     );
 }
