@@ -11,7 +11,7 @@ export function DonationSection() {
         <Card id="donation">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Heart className="h-5 w-5" />
+                    <Heart className="h-5 w-5" aria-hidden="true" />
                     후원하기
                 </CardTitle>
             </CardHeader>

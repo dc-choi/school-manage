@@ -6,6 +6,7 @@ import { Button } from '~/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet';
 import { useAuth } from '~/features/auth';
 import { useLiturgicalTheme } from '~/hooks/useLiturgicalTheme';
+import { analytics } from '~/lib/analytics';
 import { hasDonationLink } from '~/lib/donation';
 import { cn } from '~/lib/utils';
 
@@ -83,12 +84,13 @@ export function MainLayout({ children, title }: MainLayoutProps) {
                                             <button
                                                 type="button"
                                                 onClick={() => {
+                                                    analytics.trackDonationLinkClick('sidebar');
                                                     setMobileMenuOpen(false);
                                                     navigate('/settings#donation');
                                                 }}
                                                 className="flex items-center gap-4 rounded-xl px-4 py-3 text-base font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                                             >
-                                                <Heart className="h-5 w-5" />
+                                                <Heart className="h-5 w-5" aria-hidden="true" />
                                                 후원하기
                                             </button>
                                         </div>
