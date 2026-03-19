@@ -5,7 +5,7 @@
  */
 import type { CancelGraduationInput, CancelGraduationOutput, GraduatedStudent } from '@school/shared';
 import { TRPCError } from '@trpc/server';
-import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
+import { createBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type CancelGraduationUseCaseInput = CancelGraduationInput & { organizationId: string };
@@ -31,30 +31,35 @@ export class CancelGraduationUseCase {
                     },
                 });
 
-                // 졸업 취소
-                const cancelledStudents: GraduatedStudent[] = [];
+                // 졸업 취소 (배치)
+                if (students.length > 0) {
+                    const studentIds = students.map((s) => s.id);
 
-                for (const student of students) {
-                    await tx.student.update({
-                        where: { id: student.id },
+                    await tx.student.updateMany({
+                        where: { id: { in: studentIds } },
                         data: { graduatedAt: null },
                     });
-                    await createStudentSnapshot(tx, {
-                        studentId: student.id,
-                        societyName: student.societyName,
-                        catholicName: student.catholicName,
-                        gender: student.gender,
-                        contact: student.contact,
-                        description: student.description,
-                        baptizedAt: student.baptizedAt,
-                        groupId: student.studentGroups.find((sg) => sg.group.type === 'GRADE')?.group.id ?? null,
-                    });
-                    cancelledStudents.push({
-                        id: String(student.id),
-                        societyName: student.societyName,
-                        graduatedAt: null,
-                    });
+
+                    await createBulkStudentSnapshots(
+                        tx,
+                        students.map((student) => ({
+                            studentId: student.id,
+                            societyName: student.societyName,
+                            catholicName: student.catholicName,
+                            gender: student.gender,
+                            contact: student.contact,
+                            description: student.description,
+                            baptizedAt: student.baptizedAt,
+                            groupId: student.studentGroups.find((sg) => sg.group.type === 'GRADE')?.group.id ?? null,
+                        }))
+                    );
                 }
+
+                const cancelledStudents: GraduatedStudent[] = students.map((student) => ({
+                    id: String(student.id),
+                    societyName: student.societyName,
+                    graduatedAt: null,
+                }));
 
                 return {
                     success: true,

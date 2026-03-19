@@ -13,7 +13,7 @@ import type {
 import { getMaxGraduationAge } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
-import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
+import { createBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
 import { ga4 } from '~/infrastructure/analytics/ga4.js';
 import { database } from '~/infrastructure/database/database.js';
 
@@ -74,30 +74,35 @@ export class GraduateStudentsUseCase {
                 const year = now.getUTCFullYear();
                 const normalizedGraduatedAt = new Date(Date.UTC(year - 1, 11, 31, 0, 0, 0));
 
-                // 졸업 처리
-                const graduatedStudents: GraduatedStudent[] = [];
+                // 졸업 처리 (배치)
+                if (eligible.length > 0) {
+                    const eligibleIds = eligible.map((s) => s.id);
 
-                for (const student of eligible) {
-                    await tx.student.update({
-                        where: { id: student.id },
+                    await tx.student.updateMany({
+                        where: { id: { in: eligibleIds } },
                         data: { graduatedAt: normalizedGraduatedAt },
                     });
-                    await createStudentSnapshot(tx, {
-                        studentId: student.id,
-                        societyName: student.societyName,
-                        catholicName: student.catholicName,
-                        gender: student.gender,
-                        contact: student.contact,
-                        description: student.description,
-                        baptizedAt: student.baptizedAt,
-                        groupId: student.studentGroups.find((sg) => sg.group.type === 'GRADE')?.group.id ?? null,
-                    });
-                    graduatedStudents.push({
-                        id: String(student.id),
-                        societyName: student.societyName,
-                        graduatedAt: normalizedGraduatedAt.toISOString(),
-                    });
+
+                    await createBulkStudentSnapshots(
+                        tx,
+                        eligible.map((student) => ({
+                            studentId: student.id,
+                            societyName: student.societyName,
+                            catholicName: student.catholicName,
+                            gender: student.gender,
+                            contact: student.contact,
+                            description: student.description,
+                            baptizedAt: student.baptizedAt,
+                            groupId: student.studentGroups.find((sg) => sg.group.type === 'GRADE')?.group.id ?? null,
+                        }))
+                    );
                 }
+
+                const graduatedStudents: GraduatedStudent[] = eligible.map((student) => ({
+                    id: String(student.id),
+                    societyName: student.societyName,
+                    graduatedAt: normalizedGraduatedAt.toISOString(),
+                }));
 
                 return {
                     success: true,

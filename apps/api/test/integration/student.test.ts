@@ -426,10 +426,10 @@ describe('student 통합 테스트', () => {
                             studentGroups: [{ group: { id: mockGroup.id, type: 'GRADE' } }],
                         }))
                     ),
-                    update: vi.fn().mockResolvedValue({}),
+                    updateMany: vi.fn().mockResolvedValue({ count: students.length }),
                 },
                 studentSnapshot: {
-                    create: vi.fn().mockResolvedValue({}),
+                    createMany: vi.fn().mockResolvedValue({ count: students.length }),
                 },
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
@@ -555,7 +555,7 @@ describe('student 통합 테스트', () => {
 
             await caller.student.graduate({ ids: ['1'] });
 
-            const updateCall = txMock.student.update.mock.calls[0]?.[0];
+            const updateCall = txMock.student.updateMany.mock.calls[0]?.[0];
             const graduatedAt = updateCall?.data?.graduatedAt as Date;
             const currentYear = new Date().getUTCFullYear();
             // 나이는 1/1에 올라가므로 졸업일은 전년도 12/31
@@ -622,10 +622,10 @@ describe('student 통합 테스트', () => {
                             studentGroups: [{ group: { id: mockGroup.id, type: 'GRADE' } }],
                         },
                     ]),
-                    update: vi.fn().mockResolvedValue({}),
+                    updateMany: vi.fn().mockResolvedValue({ count: 1 }),
                 },
                 studentSnapshot: {
-                    create: vi.fn().mockResolvedValue({}),
+                    createMany: vi.fn().mockResolvedValue({ count: 1 }),
                 },
             };
             (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));

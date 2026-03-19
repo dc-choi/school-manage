@@ -40,6 +40,29 @@ export const createStudentSnapshot = async (
     });
 };
 
+export const createBulkStudentSnapshots = async (
+    tx: TransactionClient,
+    inputs: CreateStudentSnapshotInput[]
+): Promise<void> => {
+    if (inputs.length === 0) return;
+
+    const snapshotAt = getNowKST();
+    await tx.studentSnapshot.createMany({
+        data: inputs.map((input) => ({
+            studentId: input.studentId,
+            societyName: input.societyName,
+            catholicName: input.catholicName,
+            gender: input.gender,
+            contact: input.contact,
+            description: input.description,
+            baptizedAt: input.baptizedAt,
+            groupId: input.groupId ?? 0n,
+            organizationId: input.organizationId ?? null,
+            snapshotAt,
+        })),
+    });
+};
+
 interface CreateGroupSnapshotInput {
     groupId: bigint;
     name: string;
