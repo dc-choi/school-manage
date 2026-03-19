@@ -1,7 +1,6 @@
 import { Calendar, Heart, Home, UserCog, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '~/features/auth';
-import { analytics } from '~/lib/analytics';
 import { hasDonationLink } from '~/lib/donation';
 import { cn } from '~/lib/utils';
 
@@ -66,8 +65,7 @@ export function Sidebar() {
             {hasDonationLink ? (
                 <div className="hidden border-t border-sidebar-border p-6 lg:block">
                     <Link
-                        to="/settings#donation"
-                        onClick={() => analytics.trackDonationLinkClick('sidebar')}
+                        to="/donate"
                         className="flex items-center justify-center gap-1.5 text-sm text-sidebar-foreground/40 transition-colors hover:text-sidebar-foreground/70"
                     >
                         <Heart className="h-3.5 w-3.5" aria-hidden="true" />

@@ -92,6 +92,7 @@ import { useMyHook } from '~/features/{domain}/hooks/useMyHook';
 | `/login` | `LoginPage` | No | No |
 | `/signup` | `SignupPage` | No | No |
 | `/reset-password` | `ResetPasswordPage` | No | No |
+| `/donate` | `DonatePage` | No | No |
 | `/consent` | `ConsentPage` | Yes (내부 체크) | No |
 | `/settings` | `SettingsPage` | Yes | Yes |
 | `/` | `DashboardPage` | No (내부 분기) | No |
