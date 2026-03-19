@@ -122,16 +122,16 @@ export function LandingPage() {
     return (
         <div className="min-h-screen bg-background">
             <Helmet>
-                <title>주일학교 출석부 | 매주 일요일, 이거 하나면 됩니다</title>
+                <title>주일학교 출석부</title>
                 <meta
                     name="description"
-                    content="출석, 축일, 멤버 현황까지. 주일학교 교리교사를 위한 주간 도구. 지금 바로 시작하세요."
+                    content="주일학교 출석부 — 가톨릭(천주교) 주일학교 교리교사를 위한 출석 관리 도구. 출석, 축일, 멤버 현황까지 한곳에서."
                 />
                 <link rel="canonical" href="https://weekly-school.site/landing" />
-                <meta property="og:title" content="주일학교 출석부 | 매주 일요일, 이거 하나면 됩니다" />
+                <meta property="og:title" content="주일학교 출석부" />
                 <meta
                     property="og:description"
-                    content="출석, 축일, 멤버 현황까지. 주일학교 교리교사를 위한 주간 도구. 지금 바로 시작하세요."
+                    content="주일학교 출석부 — 가톨릭(천주교) 주일학교 교리교사를 위한 출석 관리 도구. 출석, 축일, 멤버 현황까지 한곳에서."
                 />
                 <meta property="og:url" content="https://weekly-school.site/landing" />
                 <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
