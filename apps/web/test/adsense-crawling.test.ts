@@ -40,12 +40,13 @@ describe('sitemap.xml', () => {
         expect(content).toContain('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
     });
 
-    it('공개 페이지 3개의 URL을 포함한다', () => {
+    it('공개 페이지 4개의 URL을 포함한다', () => {
         const locMatches = content.match(/<loc>/g);
-        expect(locMatches).toHaveLength(3);
+        expect(locMatches).toHaveLength(4);
         expect(content).toContain('/landing</loc>');
         expect(content).toContain('/login</loc>');
         expect(content).toContain('/signup</loc>');
+        expect(content).toContain('/donate</loc>');
     });
 
     it('랜딩 페이지의 priority가 가장 높다', () => {

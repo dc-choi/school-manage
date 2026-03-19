@@ -1,6 +1,7 @@
 import { FadeInSection } from './FadeInSection';
 import { InteractiveDemo } from './InteractiveDemo';
 import { ScrollDownHint } from './ScrollDownHint';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { BarChart3, Calendar, ClipboardCheck, Users } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
@@ -105,8 +106,36 @@ export function LandingPage() {
         analytics.trackLandingLoginClick();
     };
 
+    const faqJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': FAQ_ITEMS.map((item) => ({
+            '@type': 'Question',
+            'name': item.question,
+            'acceptedAnswer': {
+                '@type': 'Answer',
+                'text': item.answer,
+            },
+        })),
+    };
+
     return (
         <div className="min-h-screen bg-background">
+            <Helmet>
+                <title>주일학교 출석부 | 매주 일요일, 이거 하나면 됩니다</title>
+                <meta
+                    name="description"
+                    content="출석, 축일, 멤버 현황까지. 주일학교 교리교사를 위한 주간 도구. 지금 바로 시작하세요."
+                />
+                <link rel="canonical" href="https://weekly-school.site/landing" />
+                <meta property="og:title" content="주일학교 출석부 | 매주 일요일, 이거 하나면 됩니다" />
+                <meta
+                    property="og:description"
+                    content="출석, 축일, 멤버 현황까지. 주일학교 교리교사를 위한 주간 도구. 지금 바로 시작하세요."
+                />
+                <meta property="og:url" content="https://weekly-school.site/landing" />
+                <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+            </Helmet>
             <main className="break-keep">
                 {/* ① Hero — 첫 화면은 즉시 표시 */}
                 <section className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gradient-to-b from-primary/8 to-background px-6 text-center">

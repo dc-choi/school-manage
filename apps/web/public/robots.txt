@@ -2,6 +2,7 @@ User-agent: *
 Allow: /landing
 Allow: /login
 Allow: /signup
+Allow: /donate
 Disallow: /api/
 Disallow: /join
 Disallow: /pending
@@ -13,3 +14,5 @@ Disallow: /attendance
 Disallow: /settings
 
 Sitemap: https://weekly-school.site/sitemap.xml
+
+#DaumWebMasterTool:9ed15fb346c803ab761c894e77ca0bbfae73e0e490c17214008227a679149f97:fQ6kuEgwzsAht48uP0ME1g==

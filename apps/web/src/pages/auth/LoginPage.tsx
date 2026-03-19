@@ -1,4 +1,5 @@
 import { LoginForm } from './LoginForm';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '~/components/layout';
@@ -93,6 +94,11 @@ export function LoginPage() {
 
     return (
         <AuthLayout>
+            <Helmet>
+                <title>로그인 | 주일학교 출석부</title>
+                <meta name="description" content="주일학교 출석부에 로그인하세요." />
+                <link rel="canonical" href="https://weekly-school.site/login" />
+            </Helmet>
             <LoginForm onSubmit={handleSubmit} error={error} isLoading={isLoading} />
         </AuthLayout>
     );

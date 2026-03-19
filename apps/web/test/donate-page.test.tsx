@@ -3,6 +3,7 @@
  *
  * 공개 후원 페이지 렌더링, URL 미설정 시 리다이렉트 검증
  */
+import { HelmetProvider } from '@dr.pogodin/react-helmet';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -28,9 +29,11 @@ describe('DonatePage', () => {
 
         const { DonatePage } = await import('~/pages/donate/DonatePage');
         render(
-            <MemoryRouter>
-                <DonatePage />
-            </MemoryRouter>
+            <HelmetProvider>
+                <MemoryRouter>
+                    <DonatePage />
+                </MemoryRouter>
+            </HelmetProvider>
         );
 
         expect(screen.getByText('주일학교 출석부')).toBeInTheDocument();
