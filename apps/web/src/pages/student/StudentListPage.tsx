@@ -1,7 +1,7 @@
 import { GraduatedStudentsModal } from './GraduatedStudentsModal';
 import { RegistrationModal } from './RegistrationModal';
 import { formatContact } from '@school/utils';
-import { Upload } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -20,7 +20,6 @@ import {
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Input } from '~/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useAuth } from '~/features/auth';
 import { useGroups } from '~/features/group/hooks/useGroups';
 import { useCheckboxSelection, useStudents } from '~/features/student';
@@ -37,9 +36,6 @@ export function StudentListPage() {
     const navigate = useNavigate();
     const { organizationType } = useAuth();
     const [searchInput, setSearchInput] = useState('');
-    const [searchOptionInput, setSearchOptionInput] = useState<'all' | 'societyName' | 'catholicName' | 'baptizedAt'>(
-        'all'
-    );
     const [bulkAction, setBulkAction] = useState<'delete' | 'graduate' | null>(null);
     const [graduatedModalOpen, setGraduatedModalOpen] = useState(false);
     const [registrationModalOpen, setRegistrationModalOpen] = useState(false);
@@ -78,7 +74,7 @@ export function StudentListPage() {
         useCheckboxSelection(students);
 
     const handleSearch = () => {
-        search(searchOptionInput, searchInput);
+        search(searchInput);
         clearSelection();
     };
 
@@ -178,34 +174,34 @@ export function StudentListPage() {
             <div className="flex h-[calc(100vh-6.5rem)] flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
                 {/* 컨트롤 영역 */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                        <Select
-                            value={searchOptionInput}
-                            onValueChange={(value) => setSearchOptionInput(value as typeof searchOptionInput)}
-                        >
-                            <SelectTrigger className="h-9 w-full sm:w-24">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">전체</SelectItem>
-                                <SelectItem value="societyName">이름</SelectItem>
-                                <SelectItem value="catholicName">세례명</SelectItem>
-                                <SelectItem value="baptizedAt">축일</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <div className="flex gap-2">
+                    <div className="flex gap-2">
+                        <div className="relative">
                             <Input
                                 type="text"
                                 value={searchInput}
                                 onChange={(e) => setSearchInput(e.target.value)}
-                                placeholder="검색어 입력…"
-                                className="h-9 flex-1 sm:w-48"
+                                placeholder="이름, 세례명, 축일 검색…"
+                                className="h-9 w-full pr-8 sm:w-64"
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                             />
-                            <Button variant="outline" size="sm" onClick={handleSearch}>
-                                검색
-                            </Button>
+                            {searchInput ? (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSearchInput('');
+                                        search('');
+                                        clearSelection();
+                                    }}
+                                    className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    aria-label="검색어 지우기"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            ) : null}
                         </div>
+                        <Button variant="outline" size="sm" onClick={handleSearch}>
+                            검색
+                        </Button>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {isSomeSelected ? (

@@ -11,7 +11,6 @@ type RegistrationFilter = 'all' | 'registered' | 'unregistered';
 
 interface UseStudentsOptions {
     initialPage?: number;
-    searchOption?: 'all' | 'societyName' | 'catholicName' | 'baptizedAt';
     searchWord?: string;
     initialDeleteFilter?: DeleteFilter;
     initialGraduatedFilter?: GraduatedFilter;
@@ -37,7 +36,6 @@ export function useStudents(options: UseStudentsOptions = {}) {
             setSearchParams(newPage > 1 ? { page: String(newPage) } : {}, { replace: true });
         }
     };
-    const [searchOption, setSearchOption] = useState(options.searchOption ?? 'all');
     const [searchWord, setSearchWord] = useState(options.searchWord ?? '');
     const [deleteFilter, setDeleteFilter] = useState<DeleteFilter>(options.initialDeleteFilter ?? 'active');
     const [graduatedFilter, setGraduatedFilter] = useState<GraduatedFilter>(options.initialGraduatedFilter ?? 'active');
@@ -86,7 +84,6 @@ export function useStudents(options: UseStudentsOptions = {}) {
 
     const listQuery = trpc.student.list.useQuery({
         page,
-        searchOption,
         searchWord,
         registrationYear,
         ...getDeleteFilterParams(),
@@ -182,8 +179,7 @@ export function useStudents(options: UseStudentsOptions = {}) {
         },
     });
 
-    const search = (option: typeof searchOption, word: string) => {
-        setSearchOption(option);
+    const search = (word: string) => {
         setSearchWord(word);
         setPage(1);
     };
@@ -214,7 +210,6 @@ export function useStudents(options: UseStudentsOptions = {}) {
 
         setPage,
         search,
-        searchOption,
         searchWord,
 
         deleteFilter,

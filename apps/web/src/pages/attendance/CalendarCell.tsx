@@ -73,7 +73,7 @@ export function CalendarCell({ day, onClick }: Readonly<CalendarCellProps>) {
                     <div
                         className={cn('text-center text-xs font-medium', getTextColor(isFullAttendance, hasAttendance))}
                     >
-                        {attendance.present}/{attendance.total}
+                        미사 {attendance.massPresent} · 교리 {attendance.catechismPresent}
                     </div>
                 </div>
             )}

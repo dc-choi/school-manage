@@ -18,7 +18,7 @@ export class ListStudentsUseCase {
         const registrationYear = input.registrationYear ?? new Date().getFullYear();
 
         // 검색 조건 구성
-        const searchFilter = this.buildSearchFilter(input.searchOption, input.searchWord);
+        const searchFilter = this.buildSearchFilter(input.searchWord);
 
         // 삭제 필터 조건 구성
         const deletedFilter = this.buildDeletedFilter(input.includeDeleted, input.onlyDeleted);
@@ -111,19 +111,17 @@ export class ListStudentsUseCase {
         };
     }
 
-    private buildSearchFilter(option?: string, word?: string): Prisma.StudentWhereInput {
-        if (!word) return {};
+    private buildSearchFilter(word?: string): Prisma.StudentWhereInput {
+        if (!word || !word.trim()) return {};
 
-        switch (option) {
-            case 'societyName':
-                return { societyName: { contains: word } };
-            case 'catholicName':
-                return { catholicName: { contains: word } };
-            case 'baptizedAt':
-                return { baptizedAt: { contains: word } };
-            default:
-                return {};
-        }
+        const trimmed = word.trim();
+        return {
+            OR: [
+                { societyName: { startsWith: trimmed } },
+                { catholicName: { startsWith: trimmed } },
+                { baptizedAt: { startsWith: trimmed } },
+            ],
+        };
     }
 
     private buildDeletedFilter(includeDeleted?: boolean, onlyDeleted?: boolean): Prisma.StudentWhereInput {

@@ -44,7 +44,6 @@ export const studentRouter = router({
         return usecase.execute({
             organizationId: ctx.organization.id,
             page: input.page,
-            searchOption: input.searchOption,
             searchWord: input.searchWord,
             includeDeleted: input.includeDeleted,
             onlyDeleted: input.onlyDeleted,

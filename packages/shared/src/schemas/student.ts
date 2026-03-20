@@ -3,7 +3,7 @@
  */
 import { GENDER } from '../constants.js';
 import type { Gender } from '../constants.js';
-import { idSchema, pageSchema, searchOptionSchema, searchWordSchema } from './common.js';
+import { idSchema, pageSchema, searchWordSchema } from './common.js';
 import { z } from 'zod';
 
 /**
@@ -11,7 +11,6 @@ import { z } from 'zod';
  */
 export const listStudentsInputSchema = z.object({
     page: pageSchema,
-    searchOption: searchOptionSchema,
     searchWord: searchWordSchema,
     includeDeleted: z.boolean().optional(),
     onlyDeleted: z.boolean().optional(),
