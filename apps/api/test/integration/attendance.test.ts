@@ -273,6 +273,79 @@ describe('attendance 통합 테스트', () => {
             expect(result.days.length).toBe(31); // 1월은 31일
         });
 
+        it('미사/교리 인원 분리 집계 성공', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const groupId = String(mockGroup.id);
+            const student1 = createMockStudent({ societyName: '학생1' });
+            const student2 = createMockStudent({ societyName: '학생2' });
+            const student3 = createMockStudent({ societyName: '학생3' });
+
+            // ◎(미사+교리), ○(미사만), △(교리만)
+            const attendances = [
+                createMockAttendance({ studentId: student1.id, date: '20240107', content: '◎' }),
+                createMockAttendance({ studentId: student2.id, date: '20240107', content: '○' }),
+                createMockAttendance({ studentId: student3.id, date: '20240107', content: '△' }),
+            ];
+
+            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
+            mockPrismaClient.studentGroup.count.mockResolvedValueOnce(3);
+            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
+                { studentId: student1.id },
+                { studentId: student2.id },
+                { studentId: student3.id },
+            ]);
+            mockPrismaClient.attendance.findMany.mockResolvedValueOnce(attendances);
+
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const result = await caller.attendance.calendar({
+                groupId,
+                year: 2024,
+                month: 1,
+            });
+
+            // 1월 7일 데이터 확인
+            const jan7 = result.days.find((d) => d.date === '2024-01-07');
+            expect(jan7).toBeDefined();
+            expect(jan7!.attendance.present).toBe(3); // 전체 출석: 3명
+            expect(jan7!.attendance.massPresent).toBe(2); // 미사: ◎+○ = 2명
+            expect(jan7!.attendance.catechismPresent).toBe(2); // 교리: ◎+△ = 2명
+            expect(jan7!.attendance.total).toBe(3);
+        });
+
+        it('출석 없는 날짜는 모든 카운트가 0', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const groupId = String(mockGroup.id);
+
+            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
+            mockPrismaClient.studentGroup.count.mockResolvedValueOnce(2);
+            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
+                { studentId: BigInt(1) },
+                { studentId: BigInt(2) },
+            ]);
+            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([]);
+
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const result = await caller.attendance.calendar({
+                groupId,
+                year: 2024,
+                month: 1,
+            });
+
+            // 모든 날짜에서 출석이 0이어야 함
+            for (const day of result.days) {
+                expect(day.attendance.present).toBe(0);
+                expect(day.attendance.massPresent).toBe(0);
+                expect(day.attendance.catechismPresent).toBe(0);
+                expect(day.attendance.total).toBe(2);
+            }
+        });
+
         it('권한 없는 그룹 조회 시 FORBIDDEN 에러', async () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
