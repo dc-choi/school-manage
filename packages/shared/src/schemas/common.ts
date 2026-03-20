@@ -16,11 +16,6 @@ export const idSchema = z.string().regex(/^\d+$/, 'ID must be a numeric string')
 export const pageSchema = z.number().int().positive().optional().default(1);
 
 /**
- * 검색 옵션 스키마
- */
-export const searchOptionSchema = z.string().optional();
-
-/**
  * 검색어 스키마
  */
 export const searchWordSchema = z.string().optional();
