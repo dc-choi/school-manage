@@ -33,7 +33,6 @@ export type { AuthState } from './auth.js';
 export {
     idSchema,
     pageSchema,
-    searchOptionSchema,
     searchWordSchema,
     loginInputSchema,
     checkIdInputSchema,

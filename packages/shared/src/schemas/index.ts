@@ -5,7 +5,7 @@
  */
 
 // 공통 스키마
-export { idSchema, pageSchema, searchOptionSchema, searchWordSchema } from './common.js';
+export { idSchema, pageSchema, searchWordSchema } from './common.js';
 
 // ============================================================
 // 입력 스키마 및 타입 (Input)

@@ -69,7 +69,7 @@ export function GroupDetailPage() {
 
     // 학생 검색 (전체 학생 목록)
     const { data: searchResult } = trpc.student.list.useQuery(
-        { searchWord: searchQuery, searchOption: 'societyName' },
+        { searchWord: searchQuery },
         { enabled: showAddDialog && searchQuery.length > 0 }
     );
 
