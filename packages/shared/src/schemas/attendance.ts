@@ -80,6 +80,8 @@ export interface UpdateAttendanceOutput {
  */
 export interface CalendarDayAttendance {
     present: number; // 출석 인원 (미사 OR 교리)
+    massPresent: number; // 미사 참석 인원 (◎+○)
+    catechismPresent: number; // 교리 참석 인원 (◎+△)
     total: number; // 전체 학생 수
 }
 
