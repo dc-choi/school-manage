@@ -1,4 +1,4 @@
-import type { AccountInfo } from '@school/shared';
+import type { AccountInfo, JoinRequestStatus } from '@school/shared';
 import { type ReactNode, createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { analytics } from '~/lib/analytics';
 import { queryClient } from '~/lib/queryClient';
@@ -14,6 +14,7 @@ export interface AuthContextValue {
     organizationName: string | null;
     organizationType: string | null;
     churchName: string | null;
+    joinRequestStatus: JoinRequestStatus | null;
     login: (name: string, password: string) => Promise<void>;
     restoreAccount: (name: string, password: string) => Promise<void>;
     logout: () => void;
@@ -37,6 +38,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const [organizationName, setOrganizationName] = useState<string | null>(null);
     const [organizationType, setOrganizationType] = useState<string | null>(null);
     const [churchName, setChurchName] = useState<string | null>(null);
+    const [joinRequestStatus, setJoinRequestStatus] = useState<JoinRequestStatus | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [authReady, setAuthReady] = useState(false);
     const refreshAttempted = useRef(false);
@@ -98,6 +100,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
                 setOrganizationName(accountData.organizationName ?? null);
                 setOrganizationType(accountData.organizationType ?? null);
                 setChurchName(accountData.churchName ?? null);
+                setJoinRequestStatus((accountData.joinRequestStatus as JoinRequestStatus) ?? null);
 
                 // GA4 사용자 속성 설정
                 analytics.setUserProperties(accountData.displayName, accountData.organizationName ?? null);
@@ -110,6 +113,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
                 setOrganizationName(null);
                 setOrganizationType(null);
                 setChurchName(null);
+                setJoinRequestStatus(null);
             }
             setIsLoading(false);
         }
@@ -155,6 +159,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         setOrganizationName(null);
         setOrganizationType(null);
         setChurchName(null);
+        setJoinRequestStatus(null);
 
         // GA4 사용자 속성 초기화
         analytics.clearUserProperties();
@@ -171,6 +176,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             organizationName,
             organizationType,
             churchName,
+            joinRequestStatus,
             login,
             restoreAccount,
             logout,
@@ -184,6 +190,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             organizationName,
             organizationType,
             churchName,
+            joinRequestStatus,
             login,
             restoreAccount,
             logout,

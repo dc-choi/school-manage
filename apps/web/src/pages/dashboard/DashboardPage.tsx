@@ -5,11 +5,11 @@ import { JoinRequestsSection } from './JoinRequestsSection';
 import { LiturgicalSeasonCard } from './LiturgicalSeasonCard';
 import { PatronFeastCard } from './PatronFeastCard';
 import { TopRankingCard } from './TopRankingCard';
-import { ROLE } from '@school/shared';
+import { JOIN_REQUEST_STATUS, ROLE } from '@school/shared';
 import { getNthSundayOf, getWeeksInMonth } from '@school/utils';
 import { Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
@@ -380,11 +380,19 @@ function GuestDashboardContent() {
 const ONBOARDING_FLAG_KEY = 'onboarding_checklist_shown';
 
 export function DashboardPage() {
-    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const { isAuthenticated, isLoading: isAuthLoading, organizationId, joinRequestStatus } = useAuth();
 
     // 게스트 모드: 인증 로딩 완료 후 비인증이면 게스트 대시보드
     if (!isAuthLoading && !isAuthenticated) {
         return <GuestDashboardContent />;
+    }
+
+    // 미소속 사용자: 로딩 완료 후 organizationId 없으면 /join 또는 /pending 리다이렉트
+    if (!isAuthLoading && isAuthenticated && !organizationId) {
+        if (joinRequestStatus === JOIN_REQUEST_STATUS.PENDING) {
+            return <Navigate to="/pending" replace />;
+        }
+        return <Navigate to="/join" replace />;
     }
 
     return <AuthenticatedDashboard />;

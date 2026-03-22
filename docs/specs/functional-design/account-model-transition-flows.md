@@ -49,6 +49,10 @@
 
 로그인 → organizationId null → /join → 조직 생성 또는 합류
 
+### 계정 복원 후 재합류
+
+복원 → organizationId null (삭제 시 해제, 의도된 동작) → /join → 조직 재합류 또는 새 조직 생성
+
 ### 상태 전이
 
 ```
@@ -90,6 +94,19 @@
 
 - 다이얼로그 상단에 "먼저 검색에서 본당을 찾아보세요" 안내 문구 표시
 - 이름 입력 시 church.search API로 유사 본당 검색 (300ms 디바운스), 동일 이름 시 "추가" 버튼 비활성화
+
+### DashboardPage(`/`) 라우팅 (버그 수정)
+
+`/`는 게스트 대시보드를 지원하므로 `ProtectedRoute`를 사용하지 않는다. 대신 DashboardPage 내부에서 상태 전이를 처리한다.
+
+| 조건 | 동작 |
+|------|------|
+| 비인증 | 게스트 대시보드 표시 |
+| 인증 + orgId 없음 + joinRequestStatus === 'pending' | `/pending` 리다이렉트 |
+| 인증 + orgId 없음 + 그 외 | `/join` 리다이렉트 |
+| 인증 + orgId 있음 | 대시보드 표시 |
+
+`account.get` 응답의 `organizationId`와 `joinRequestStatus`로 판단한다. 로딩 중에는 리다이렉트하지 않는다.
 
 ### 변경 화면
 
@@ -143,7 +160,8 @@ scopedProcedure에서 ctx.organization.id 자동 설정 → UseCase에서 organi
 
 | 상황 | 처리 |
 |------|------|
-| organizationId null + 도메인 API | scopedProcedure FORBIDDEN → /join 리다이렉트 |
+| organizationId null + `/` 접근 | DashboardPage 내부에서 `/join` 또는 `/pending` 리다이렉트 |
+| organizationId null + 도메인 API | scopedProcedure FORBIDDEN (ProtectedRoute가 `/join` 리다이렉트) |
 | 이미 조직 소속 + 합류 요청 | 에러 (이미 소속) |
 | 이미 pending + 재요청 | 에러 (중복 요청) |
 | teacher → 승인/거절 | FORBIDDEN (admin 전용) |
@@ -165,6 +183,9 @@ scopedProcedure에서 ctx.organization.id 자동 설정 → UseCase에서 organi
 3. 기존 계정 로그인 → 마이그레이션 데이터 정상 조회
 4. 학생 복수 Group 지정 → StudentGroup 복수 생성
 5. AccountSnapshot 생성 확인
+6. 신규 가입 → `/` 접근 → `/join` 리다이렉트
+7. 계정 복원 → `/` 접근 → `/join` 리다이렉트
+8. pending 합류 요청 사용자 → `/` 접근 → `/pending` 리다이렉트
 
 ### 예외
 
