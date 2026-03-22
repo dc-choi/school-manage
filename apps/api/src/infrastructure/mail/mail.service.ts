@@ -10,6 +10,7 @@ import {
     temporaryPasswordTemplate,
 } from './templates.ts';
 import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 import type { ChurnAlert } from '~/domains/churn/churn.types.js';
 import type { OrgAccountRow, OrgActivityRow } from '~/domains/report/report.types.js';
 import { env } from '~/global/config/env.js';
@@ -21,28 +22,33 @@ const GOOGLE_SMTP_PORT = 587;
 /**
  * 메일 서비스
  */
-export const mailService = {
+class MailService {
+    private transporter: Transporter | null = null;
+
     /**
      * 메일 발송이 활성화되어 있는지 확인
      */
     isEnabled(): boolean {
         return Boolean(env.smtp.user && env.smtp.pass && env.smtp.adminEmail);
-    },
+    }
 
     /**
-     * Nodemailer transporter 생성
+     * Nodemailer transporter (lazy singleton)
      */
-    createTransporter() {
-        return nodemailer.createTransport({
-            host: GOOGLE_SMTP_HOST,
-            port: GOOGLE_SMTP_PORT,
-            secure: false, // TLS 사용
-            auth: {
-                user: env.smtp.user,
-                pass: env.smtp.pass,
-            },
-        });
-    },
+    private getTransporter(): Transporter {
+        if (!this.transporter) {
+            this.transporter = nodemailer.createTransport({
+                host: GOOGLE_SMTP_HOST,
+                port: GOOGLE_SMTP_PORT,
+                secure: false, // TLS 사용
+                auth: {
+                    user: env.smtp.user,
+                    pass: env.smtp.pass,
+                },
+            });
+        }
+        return this.transporter;
+    }
 
     /**
      * 회원가입 알림 메일 발송
@@ -57,9 +63,7 @@ export const mailService = {
         const { subject, text } = signupNotificationTemplate(account);
 
         try {
-            const transporter = this.createTransporter();
-
-            await transporter.sendMail({
+            await this.getTransporter().sendMail({
                 from: env.smtp.user,
                 to: env.smtp.adminEmail,
                 subject,
@@ -70,7 +74,7 @@ export const mailService = {
         } catch (error) {
             logger.err(`Signup notification failed: ${account.displayName}, error: ${error}`);
         }
-    },
+    }
 
     /**
      * 이탈 감지 알림 메일 발송
@@ -86,9 +90,7 @@ export const mailService = {
         const { subject, text } = churnAlertTemplate(alerts, dateStr);
 
         try {
-            const transporter = this.createTransporter();
-
-            await transporter.sendMail({
+            await this.getTransporter().sendMail({
                 from: env.smtp.user,
                 to: env.smtp.adminEmail,
                 subject,
@@ -99,7 +101,7 @@ export const mailService = {
         } catch (error) {
             logger.err(`Churn alert failed: ${error}`);
         }
-    },
+    }
 
     /**
      * 조직 현황 일일 보고서 메일 발송
@@ -117,9 +119,7 @@ export const mailService = {
         const { subject, text } = orgDailyReportTemplate(activityRows, accountRows, dateStr);
 
         try {
-            const transporter = this.createTransporter();
-
-            await transporter.sendMail({
+            await this.getTransporter().sendMail({
                 from: env.smtp.user,
                 to: env.smtp.adminEmail,
                 subject,
@@ -130,7 +130,7 @@ export const mailService = {
         } catch (error) {
             logger.err(`Org daily report failed: ${error}`);
         }
-    },
+    }
 
     /**
      * 임시 비밀번호 메일 발송 (동기)
@@ -147,9 +147,7 @@ export const mailService = {
         const { subject, text } = temporaryPasswordTemplate(tempPassword);
 
         try {
-            const transporter = this.createTransporter();
-
-            await transporter.sendMail({
+            await this.getTransporter().sendMail({
                 from: env.smtp.user,
                 to,
                 subject,
@@ -162,5 +160,7 @@ export const mailService = {
             logger.err(`Temporary password send failed: ${to}, error: ${error}`);
             return false;
         }
-    },
-};
+    }
+}
+
+export const mailService = new MailService();

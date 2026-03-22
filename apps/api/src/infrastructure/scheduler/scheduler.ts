@@ -1,4 +1,4 @@
-import { formatDateISO, getNowKST } from '@school/utils';
+import { formatKSTDateISO, getNowKST } from '@school/utils';
 import schedule from 'node-schedule';
 import { DetectChurnUseCase } from '~/domains/churn/application/detect-churn.usecase.js';
 import { OrgDailyReportUseCase } from '~/domains/report/application/org-daily-report.usecase.js';
@@ -53,20 +53,18 @@ export class Scheduler {
                 }
 
                 const now = getNowKST();
-                const dateStr = formatDateISO(now);
+                const dateStr = formatKSTDateISO();
 
                 await mailService.sendChurnAlert(result.alerts, dateStr);
 
-                // 발송 이력 저장
-                for (const alert of result.alerts) {
-                    await database.churnAlertLog.create({
-                        data: {
-                            organizationId: alert.organizationId,
-                            inactiveDays: alert.inactiveDays,
-                            sentAt: now,
-                        },
-                    });
-                }
+                // 발송 이력 일괄 저장
+                await database.churnAlertLog.createMany({
+                    data: result.alerts.map((alert) => ({
+                        organizationId: alert.organizationId,
+                        inactiveDays: alert.inactiveDays,
+                        sentAt: now,
+                    })),
+                });
 
                 logger.log(`[Scheduler] churnDetection: ${result.alerts.length} alerts sent`);
             } catch (error) {
@@ -88,8 +86,7 @@ export class Scheduler {
                 const usecase = new OrgDailyReportUseCase();
                 const result = await usecase.execute();
 
-                const now = getNowKST();
-                const dateStr = formatDateISO(now);
+                const dateStr = formatKSTDateISO();
 
                 await mailService.sendOrgDailyReport(result.activityRows, result.accountRows, dateStr);
 

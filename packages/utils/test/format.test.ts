@@ -138,6 +138,24 @@ describe('format 유틸리티', () => {
         });
     });
 
+    describe('formatKSTDateISO', () => {
+        it('YYYY-MM-DD 형식의 KST 날짜를 반환한다', async () => {
+            const { formatKSTDateISO } = await import('../src/format.js');
+            const result = formatKSTDateISO();
+
+            expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        });
+
+        it('getNowKST()와 달리 이중 오프셋이 발생하지 않는다', async () => {
+            const { formatKSTDateISO } = await import('../src/format.js');
+            // 고정 시간 테스트: 2026-03-22 21:00 KST = 2026-03-22 12:00 UTC
+            const date = new Date(Date.UTC(2026, 2, 22, 12, 0, 0));
+            const result = formatKSTDateISO(date);
+
+            expect(result).toBe('2026-03-22');
+        });
+    });
+
     describe('formatDateShortKR', () => {
         it('날짜를 "M/D (요일)" 형식으로 변환한다', () => {
             // 2026-04-05 = 일요일
