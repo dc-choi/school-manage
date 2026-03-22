@@ -25,6 +25,16 @@ export const formatDateCompact = (date: Date): string => {
 };
 
 /**
+ * 현재 KST 날짜를 YYYY-MM-DD 형식으로 반환한다.
+ *
+ * getNowKST() + formatDateISO()는 이중 오프셋 문제가 있으므로
+ * KST 날짜 문자열이 필요할 때는 이 함수를 사용한다.
+ */
+export const formatKSTDateISO = (date: Date = new Date()): string => {
+    return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
+};
+
+/**
  * 날짜를 YYYY-MM-DD 형식으로 변환한다.
  */
 export const formatDateISO = (date: Date): string => {
