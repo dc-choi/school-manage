@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
-| **Target Non-Functional** | -    | PERFORMANCE 1건 미작성 + DX 1건 미착수 |
+| **Target Non-Functional** | -    | PERFORMANCE 1건 미작성 + DX 1건 완료 |
 
 ## 관련 문서
 
@@ -70,7 +70,7 @@
 
 | 우선순위 | 기능명                       | SDD 상태 | 비고                                                       |
 |------|---------------------------|--------|---------------------------------------------------------|
-| P2   | Stitch MCP 서버 연동          | 미착수    | Claude Code에서 Stitch MCP로 와이어프레임 생성 → SDD 디자인 워크플로우 가속 |
+| P2   | Stitch MCP 서버 연동          | ✅ 완료   | `.mcp.json` 설정 추가. Claude Code에서 Stitch MCP 프록시 연동 |
 
 **Stitch MCP 서버 연동:**
 - Google Stitch: AI 기반 UI 디자인 도구 (텍스트→UI+HTML/CSS)
