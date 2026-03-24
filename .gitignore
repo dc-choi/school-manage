@@ -75,6 +75,7 @@ typings/
 /.scannerwork/
 /.sonar/
 .turbo/
+.stitch/
 
 # Compiled test files
 **/vitest.*.js
