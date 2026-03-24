@@ -8,8 +8,8 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
-| **Target Bugfix**         | -    | 5건 미착수 (P1 2건, P2 2건, P3 1건) |
-| **Target Non-Functional** | -    | PERFORMANCE 1건 미작성 + DX 1건 완료 |
+| **Target Bugfix**         | -    | 16건 미착수 (P1 5건, P2 6건, P3 5건) |
+| **Target Non-Functional** | -    | PERFORMANCE 7건 미착수 + DX 1건 완료 |
 
 ## 관련 문서
 
@@ -65,7 +65,13 @@
 
 | 우선순위 | 기능명                       | SDD 상태 | 비고                                                       |
 |------|---------------------------|--------|---------------------------------------------------------|
+| P1   | 통계 쿼리 전체 메모리 로드          | 미착수    | 전체 출석 레코드 앱 메모리 적재 후 집계. DB 레벨 GROUP BY 집계로 전환 필요        |
 | P2   | 웹 테스트 확대                 | 미작성    | 커버리지 ~2% → 주요 페이지/훅 테스트 추가                               |
+| P2   | Organization 목록 페이지네이션 미구현 | 미착수    | findMany 전체 로드. 본당 내 조직 증가 시 성능 저하                        |
+| P2   | DB connectionLimit 환경별 분리 | 미착수    | connectionLimit: 10 하드코딩. 프로덕션 20-50 권장                    |
+| P3   | 프로덕션 쿼리 로깅 비활성화          | 미착수    | 전체 쿼리 이벤트 로깅 상시 활성. PII 노출 위험 + 성능 오버헤드                   |
+| P3   | 트랜잭션/쿼리 타임아웃 미설정         | 미착수    | 장기 실행 트랜잭션 락 점유 가능. 명시적 타임아웃 설정 필요                         |
+| P3   | AuthLayout 이미지 dimensions 누락 | 미착수    | width/height 미설정 → CLS(레이아웃 시프트) 유발. loading="lazy" 추가 권장 |
 
 ### BUGFIX
 
@@ -76,6 +82,16 @@
 | P2 | ApproveJoinUseCase TOCTOU 레이스 컨디션 | 미착수 | PENDING 확인이 트랜잭션 밖. 동시 승인 시 중복 처리 가능 |
 | P2 | Attendance 테이블 인덱스 누락 | 미착수 | studentId, date 인덱스 없음. 데이터 증가 시 성능 저하 |
 | P3 | Attendance 중복 레코드 방지 | 미착수 | (studentId, date) 유니크 제약 부재. 트랜잭션 내이므로 위험도 낮음 |
+| P1 | Account.name DB 유니크 제약 미비 | 미착수 | 앱 레벨 체크만 존재. 동시 가입 시 race condition으로 중복 계정 생성 가능 |
+| P1 | xlsx 라이브러리 보안 취약점 | 미착수 | Prototype Pollution + ReDoS 2건. npm 패치 없음 → exceljs 등 대체 필요 |
+| P1 | 출석 배열 상한 미설정 (DoS) | 미착수 | updateAttendance 배열 `.min(1)` 만 존재, `.max()` 없음. 무제한 bulk 요청 가능 |
+| P2 | 로그인 사용자 열거 공격 | 미착수 | "아이디 없음" vs "비밀번호 불일치" 분리 응답 → 동일 메시지로 통일 필요 |
+| P2 | 입력 검증 강화 | 미착수 | 출석 data 화이트리스트, 로그인 스키마 signup 대비 느슨, 학생 contact·description 길이 무제한 |
+| P2 | 서버측 Excel 파일 재검증 없음 | 미착수 | 클라이언트만 .xlsx 확장자 체크. 서버에서 파일 타입·내용 재검증 필요 |
+| P3 | Rate Limit 문서/코드 불일치 | 미착수 | 코드 200회/분 vs CLAUDE.md 100회/분. 의도 확인 후 통일 필요 |
+| P3 | StudentGroup deletedAt 미비 | 미착수 | soft-delete 컬럼 없음. 학생 삭제 시 관계 레코드 잔존 |
+| P3 | HTTP 응답 상태코드 일률 200 | 미착수 | 에러 시에도 200 반환. 401/403/404 등 의미 있는 상태코드 필요 |
+| P3 | Express 4.x qs DoS 취약점 | 미착수 | express > qs 저심각도 취약점. Express 5.x 업그레이드로 해결 |
 
 ### DX (Non-Functional)
 
