@@ -202,3 +202,4 @@ fix/<short-desc>
 | `docs/business/README.md` | 사업 문서 인덱스 (로드맵, 지표, 가격 등) |
 | `docs/guides/ga4-setup.md`| GA4 설정 가이드               |
 | `docs/specs/README.md`    | SDD 인덱스 (아키텍처/로드맵 포함)     |
+| `.mcp.json`               | MCP 서버 설정 (Stitch UI 프로토타이핑) |
