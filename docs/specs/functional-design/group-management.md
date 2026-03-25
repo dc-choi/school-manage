@@ -23,7 +23,7 @@
 | 학년 상세 | 학년명(인라인 수정), 학생 목록, 출석 현황 링크 |
 | 학년 추가 | 학년명 입력, 저장 |
 
-> 페이지네이션: 현재 전체 로드 (계정당 학년 10개 이내). 도입 시 `/groups?page=N` 패턴 적용.
+> 페이지네이션: 현재 전체 로드 (모임당 학년 10개 이내). 도입 시 `/groups?page=N` 패턴 적용.
 
 ---
 
@@ -33,7 +33,8 @@
 |------|------|------|
 | _id | bigint (PK) | 고유 식별자 |
 | name | varchar(50) | 학년명 |
-| account_id | bigint (FK) | 소속 계정 |
+| type | varchar(20) | 타입 (GRADE/DEPARTMENT) |
+| organization_id | bigint (FK, nullable) | 소속 모임 |
 | create_at / update_at / delete_at | datetime | 생성/수정/삭제일시 |
 
 ## API
@@ -52,9 +53,9 @@
 
 | 기능 | 동작 요약 |
 |------|----------|
-| 목록 | accountId 기준 deletedAt=null 조회 |
+| 목록 | organizationId 기준 deletedAt=null 조회 |
 | 상세 | groupId 조회 + 소속 학생 목록, 미존재 시 404 |
-| 생성 | name + account_id |
+| 생성 | name + organizationId |
 | 일괄 삭제 | 존재하는 학년만 소프트 삭제, deletedCount 반환 |
 | 출석 현황 | groupId + year → 주일/토요일 날짜 + 학생 + 출석 데이터 |
 
@@ -76,6 +77,6 @@
 ---
 
 **작성일**: 2026-01-13
-**수정일**: 2026-02-24 (문서 축약)
+**수정일**: 2026-03-25 (account_id 제거 → organizationId 기반)
 **작성자**: PM 에이전트
 **상태**: Approved (구현 완료)

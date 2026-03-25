@@ -89,7 +89,6 @@ erDiagram
     Organization ||--o{ Group : has
     Organization ||--o{ Student : has
     Organization ||--o{ JoinRequest : receives
-    Account ||--o{ Group : "legacy owner"
     Account ||--o{ JoinRequest : requests
     Account ||--o{ AccountSnapshot : snapshots
     Student ||--o{ Attendance : records
@@ -146,7 +145,6 @@ erDiagram
         bigint id PK
         varchar name "학년명"
         varchar type "GRADE/DEPARTMENT"
-        bigint account_id FK "legacy"
         bigint organization_id FK "nullable"
         datetime created_at
         datetime updated_at
