@@ -11,13 +11,6 @@ import { database } from '~/infrastructure/database/database.js';
 
 export class UpdateAttendanceUseCase {
     async execute(input: UpdateAttendanceInput, organizationId: string): Promise<UpdateAttendanceOutput> {
-        if (!input.attendance || input.attendance.length <= 0) {
-            throw new TRPCError({
-                code: 'BAD_REQUEST',
-                message: '출석 데이터가 필요합니다.',
-            });
-        }
-
         try {
             // 측정 인프라: 조직의 첫 출석인지 확인 (업데이트 전)
             const existingAttendanceCount = await database.attendance.count({

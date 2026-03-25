@@ -20,7 +20,10 @@ const attendanceDataSchema = z.object({
 export const updateAttendanceInputSchema = z.object({
     year: z.number().int().positive(),
     groupId: idSchema,
-    attendance: z.array(attendanceDataSchema).min(1, 'At least one attendance entry is required'),
+    attendance: z
+        .array(attendanceDataSchema)
+        .min(1, 'At least one attendance entry is required')
+        .max(500, 'Maximum 500 attendance entries allowed'),
     isFull: z.boolean(),
 });
 

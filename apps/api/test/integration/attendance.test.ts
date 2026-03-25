@@ -215,6 +215,32 @@ describe('attendance 통합 테스트', () => {
             });
         });
 
+        it('attendance 배열이 500개 초과하면 BAD_REQUEST 에러', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+
+            const oversizedAttendance = Array.from({ length: 501 }, (_, i) => ({
+                id: String(i + 1),
+                month: 1,
+                day: 7,
+                data: '◎',
+            }));
+
+            await expect(
+                caller.attendance.update({
+                    year: 2024,
+                    groupId: '1',
+                    attendance: oversizedAttendance,
+                    isFull: true,
+                })
+            ).rejects.toMatchObject({
+                code: 'BAD_REQUEST',
+            });
+        });
+
         it('attendance 배열이 비어있으면 BAD_REQUEST 에러', async () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
