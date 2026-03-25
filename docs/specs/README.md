@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
-| **Target Bugfix**         | -    | 16건 미착수 (P1 5건, P2 6건, P3 5건) |
+| **Target Bugfix**         | -    | 15건 미착수 (P1 4건, P2 6건, P3 5건) + 1건 완료 |
 | **Target Non-Functional** | -    | PERFORMANCE 7건 미착수 + DX 1건 완료 |
 
 ## 관련 문서
@@ -77,7 +77,7 @@
 
 | 우선순위 | 기능명 | SDD 상태 | 비고 |
 |---------|--------|----------|------|
-| P1 | TRPCError 삼킴 — catch 블록 패턴 누락 | 미착수 | 7개 UseCase catch 블록에서 `if (e instanceof TRPCError) throw e` 누락. FORBIDDEN이 INTERNAL_SERVER_ERROR로 변환됨 |
+| P1 | TRPCError 삼킴 — catch 블록 패턴 누락 | ✅ 완료 | 7개 UseCase catch 블록에 `if (e instanceof TRPCError) throw e` 패턴 추가 완료 |
 | P1 | RefreshToken createdAt UTC/KST 불일치 | 미착수 | 4개 auth UseCase에서 `new Date()` 사용. `getNowKST()` 통일 필요 |
 | P2 | ApproveJoinUseCase TOCTOU 레이스 컨디션 | 미착수 | PENDING 확인이 트랜잭션 밖. 동시 승인 시 중복 처리 가능 |
 | P2 | Attendance 테이블 인덱스 누락 | 미착수 | studentId, date 인덱스 없음. 데이터 증가 시 성능 저하 |

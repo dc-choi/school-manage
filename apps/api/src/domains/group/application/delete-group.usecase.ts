@@ -32,6 +32,7 @@ export class DeleteGroupUseCase {
                 studentCount: 0,
             };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[DeleteGroupUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',

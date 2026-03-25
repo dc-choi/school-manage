@@ -26,6 +26,7 @@ export class PromoteStudentsUseCase {
 
             return { row };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[PromoteStudentsUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',

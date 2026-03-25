@@ -65,6 +65,7 @@ export class CreateGroupUseCase {
                 daysSinceSignup,
             };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[CreateGroupUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',

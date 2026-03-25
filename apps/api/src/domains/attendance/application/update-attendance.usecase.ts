@@ -116,6 +116,7 @@ export class UpdateAttendanceUseCase {
                 attendanceRate,
             };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[UpdateAttendanceUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
