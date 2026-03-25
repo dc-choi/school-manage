@@ -1,5 +1,5 @@
 ---
-name: brainstorm-rules
+name: bs-rules
 description: 브레인스토밍 에이전트들이 공유하는 토론 규칙과 출력 형식. 모든 에이전트가 이 규칙을 따른다.
 user-invocable: false
 ---

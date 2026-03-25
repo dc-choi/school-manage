@@ -6,7 +6,7 @@ paths:
 # Content Marketer Sub-Agent Rules
 
 콘텐츠 마케터 서브 에이전트 가이드입니다.
-사업 에이전트(`/business content`)에서 Task 도구로 호출됩니다.
+사업 에이전트(`/biz content`)에서 Task 도구로 호출됩니다.
 
 ## 역할
 
