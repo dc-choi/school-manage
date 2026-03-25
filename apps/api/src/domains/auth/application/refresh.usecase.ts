@@ -14,6 +14,7 @@ import {
     setRefreshTokenCookie,
 } from '../utils/refresh-token.utils.js';
 import type { RefreshOutput } from '@school/shared';
+import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -47,7 +48,7 @@ export class RefreshUseCase {
         }
 
         // 3-b. 만료됨
-        if (storedToken.expiresAt < new Date()) {
+        if (storedToken.expiresAt < getNowKST()) {
             await database.refreshToken.delete({ where: { id: storedToken.id } });
             clearRefreshTokenCookie(res);
             throw new TRPCError({
@@ -83,12 +84,12 @@ export class RefreshUseCase {
                     tokenHash: newTokenHash,
                     familyId: storedToken.familyId,
                     expiresAt: newExpiresAt,
-                    createdAt: new Date(),
+                    createdAt: getNowKST(),
                 },
             }),
             // 같은 계정의 만료된 RT 정리
             database.refreshToken.deleteMany({
-                where: { accountId: account.id, expiresAt: { lt: new Date() } },
+                where: { accountId: account.id, expiresAt: { lt: getNowKST() } },
             }),
         ]);
 

@@ -103,8 +103,12 @@
 
 ### 성능/제약
 
-- Access Token만 사용 (Refresh Token 미지원), 만료 시 재로그인
+- Access Token + Refresh Token (RTR + Token Family) 이중 토큰 구조
 - 예상 트래픽: 동시 접속 수십 명 이내
+
+### KST 타임스탬프 정책 (BUGFIX)
+
+RefreshToken의 `createdAt`, `expiresAt` 포함 모든 DB 타임스탬프는 `getNowKST()`를 사용한다. `new Date()` (UTC) 사용 금지.
 
 > 로그인/회원가입 UI 개선, 개인정보 제공동의, 계정 자기 관리, 셀프 온보딩 → `auth-account-extended.md` 참조
 

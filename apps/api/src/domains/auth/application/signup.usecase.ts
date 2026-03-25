@@ -80,7 +80,7 @@ export class SignupUseCase {
                 tokenHash,
                 familyId,
                 expiresAt,
-                createdAt: new Date(),
+                createdAt: getNowKST(),
             },
         });
 
