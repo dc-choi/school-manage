@@ -29,7 +29,7 @@ describe('student 통합 테스트', () => {
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
 
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
 
             const mockStudentsWithGroup = [
@@ -71,7 +71,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
 
             const newStudent = createMockStudent({
@@ -115,7 +115,7 @@ describe('student 통합 테스트', () => {
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
             const testAccount = getTestAccount();
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
 
             const caller = createPublicCaller();
@@ -129,7 +129,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
 
             const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
@@ -145,7 +145,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
 
             const mockStudent = createMockStudent({});
@@ -189,7 +189,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
 
             const mockStudent = createMockStudent({});
@@ -260,7 +260,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
 
             const mockStudent = createMockStudent({});
@@ -309,7 +309,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             // 그룹 목록 반환 (계정 소유 확인용)
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
@@ -361,7 +361,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             // 그룹 목록 반환 (계정 소유 확인용)
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
@@ -413,7 +413,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             const txMock = {
                 organization: {
@@ -604,7 +604,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             const mockStudent = createMockStudent({
                 id: BigInt(1),
@@ -669,8 +669,8 @@ describe('student 통합 테스트', () => {
             const accountName = testAccount.name;
 
             // 중고등부 진급에 필요한 그룹들
-            const adultGroup = createMockGroup({ id: BigInt(100), name: '성인', });
-            const high3Group = createMockGroup({ id: BigInt(101), name: '고3', });
+            const adultGroup = createMockGroup({ id: BigInt(100), name: '성인' });
+            const high3Group = createMockGroup({ id: BigInt(101), name: '고3' });
 
             // 성인 그룹 찾기
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(adultGroup);
@@ -711,7 +711,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ id: BigInt(1), });
+            const mockGroup = createMockGroup({ id: BigInt(1) });
 
             // 그룹 소유권 검증 (assertGroupIdsOwnership)
             mockPrismaClient.group.count.mockResolvedValueOnce(1);
@@ -752,7 +752,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ id: BigInt(1), });
+            const mockGroup = createMockGroup({ id: BigInt(1) });
 
             // 그룹 소유권 검증 (assertGroupIdsOwnership)
             mockPrismaClient.group.count.mockResolvedValueOnce(1);
@@ -813,7 +813,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             // 계정 소유 그룹 조회
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
@@ -840,7 +840,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }]);
@@ -863,7 +863,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }]);
@@ -888,7 +888,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }]);
@@ -935,7 +935,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             // 계정 소유 그룹 조회
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
@@ -953,7 +953,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.registration.updateMany.mockResolvedValueOnce({ count: 1 });
@@ -990,7 +990,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             const mockActiveStudent = {
                 ...createMockStudent({ graduatedAt: null }),
@@ -1015,7 +1015,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             const mockGraduatedStudent = {
                 ...createMockStudent({ graduatedAt: new Date() }),
@@ -1040,7 +1040,7 @@ describe('student 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
 
             const mockStudents = [
                 {

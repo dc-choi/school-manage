@@ -27,7 +27,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
             const mockStudent = createMockStudent({});
             const mockAttendance = createMockAttendance({ studentId: mockStudent.id });
@@ -53,7 +53,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
             const mockStudent = createMockStudent({});
             const mockAttendance = createMockAttendance({ studentId: mockStudent.id });
@@ -79,7 +79,7 @@ describe('attendance 통합 테스트', () => {
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
             const testAccount = getTestAccount();
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
 
             const caller = createPublicCaller();
@@ -107,7 +107,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const mockStudent = createMockStudent({});
 
             // 측정 인프라: 조직의 첫 출석인지 확인
@@ -154,7 +154,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const mockStudent = createMockStudent({});
             const existingAttendance = createMockAttendance({ studentId: mockStudent.id });
 
@@ -266,7 +266,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
             const mockStudent = createMockStudent({});
             const mockAttendance = createMockAttendance({
@@ -303,7 +303,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
             const student1 = createMockStudent({ societyName: '학생1' });
             const student2 = createMockStudent({ societyName: '학생2' });
@@ -345,7 +345,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
 
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
@@ -376,7 +376,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const otherAccountGroup = createMockGroup({ });
+            const otherAccountGroup = createMockGroup({});
             const groupId = String(otherAccountGroup.id);
 
             // 다른 계정의 그룹이므로 null 반환
@@ -418,7 +418,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
             const mockStudent1 = createMockStudent({ societyName: '홍길동' });
             const mockStudent2 = createMockStudent({ societyName: '김철수' });
@@ -463,7 +463,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
             const mockStudent = createMockStudent({});
 
@@ -487,7 +487,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const otherAccountGroup = createMockGroup({ });
+            const otherAccountGroup = createMockGroup({});
             const groupId = String(otherAccountGroup.id);
 
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(null);
@@ -524,7 +524,7 @@ describe('attendance 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const groupId = String(mockGroup.id);
 
             const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
