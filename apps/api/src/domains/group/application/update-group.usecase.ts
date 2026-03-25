@@ -10,7 +10,7 @@ import { createGroupSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드
-type UpdateGroupInput = UpdateGroupSchemaInput & { accountId: string; organizationId: string };
+type UpdateGroupInput = UpdateGroupSchemaInput & { organizationId: string };
 
 export class UpdateGroupUseCase {
     async execute(input: UpdateGroupInput): Promise<GroupOutput> {

@@ -67,7 +67,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const mockGroup = createMockGroup({ });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.count.mockResolvedValueOnce(1);
@@ -103,7 +103,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const mockGroup = createMockGroup({ });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.count.mockResolvedValueOnce(1);
@@ -137,7 +137,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const mockGroup = createMockGroup({ });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.count.mockResolvedValueOnce(1);
@@ -164,7 +164,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const mockGroup = createMockGroup({ });
 
             // group.findMany
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
@@ -230,8 +230,8 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup1 = createMockGroup({ accountId: BigInt(accountId), name: '1반' });
-            const mockGroup2 = createMockGroup({ accountId: BigInt(accountId), name: '2반' });
+            const mockGroup1 = createMockGroup({ name: '1반' });
+            const mockGroup2 = createMockGroup({ name: '2반' });
 
             // group.findMany
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup1, mockGroup2]);
@@ -314,7 +314,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId), name: '1반' });
+            const mockGroup = createMockGroup({ name: '1반' });
 
             // group.findMany
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
@@ -381,7 +381,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const mockGroup = createMockGroup({ });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             // 졸업 필터 적용 후 재학생 1명만 반환 (2023년 졸업생은 제외됨)
@@ -406,7 +406,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const mockGroup = createMockGroup({ });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             // 2024년 졸업생 + 재학생 = 2명 (2024년 조회 시 포함)
@@ -436,7 +436,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const mockGroup = createMockGroup({ });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             // 졸업 필터 적용 후 0명
@@ -453,7 +453,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const mockGroup = createMockGroup({ });
 
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
             mockPrismaClient.student.count.mockResolvedValueOnce(1);
@@ -472,7 +472,7 @@ describe('statistics 통합 테스트', () => {
             const testAccount = getTestAccount();
             const accountId = String(testAccount.id);
             const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ accountId: BigInt(accountId) });
+            const mockGroup = createMockGroup({ });
 
             // group.findMany
             mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);

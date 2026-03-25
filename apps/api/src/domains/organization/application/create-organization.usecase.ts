@@ -54,20 +54,6 @@ export class CreateOrganizationUseCase {
                 organizationId: organization.id,
             });
 
-            // 기존 Group/Student 데이터를 새 조직에 연결
-            await tx.group.updateMany({
-                where: { accountId: BigInt(accountId), organizationId: null },
-                data: { organizationId: organization.id },
-            });
-
-            await tx.student.updateMany({
-                where: {
-                    studentGroups: { some: { group: { accountId: BigInt(accountId) } } },
-                    organizationId: null,
-                },
-                data: { organizationId: organization.id },
-            });
-
             return organization;
         });
 
