@@ -29,6 +29,7 @@ export class BulkDeleteGroupsUseCase {
                 deletedCount: result.count,
             };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[BulkDeleteGroupsUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',

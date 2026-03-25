@@ -27,6 +27,7 @@ export class RestoreStudentsUseCase {
                 restoredCount: result.count,
             };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[RestoreStudentsUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',

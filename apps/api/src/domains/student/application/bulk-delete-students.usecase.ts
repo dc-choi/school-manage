@@ -28,6 +28,7 @@ export class BulkDeleteStudentsUseCase {
                 deletedCount: result.count,
             };
         } catch (e) {
+            if (e instanceof TRPCError) throw e;
             console.error('[BulkDeleteStudentsUseCase]', e);
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
