@@ -3,6 +3,7 @@
  *
  * RT 생성, 해싱, 쿠키 설정/삭제
  */
+import { getNowKST } from '@school/utils';
 import type { Response } from 'express';
 import crypto from 'node:crypto';
 import { env } from '~/global/config/env.js';
@@ -37,14 +38,15 @@ export const generateFamilyId = (): string => {
 export const getRefreshTokenExpiry = (): Date => {
     const expireStr = env.jwt.expire.refresh;
     const match = expireStr.match(/^(\d+)([dhms])$/);
+    const now = getNowKST();
     if (!match) {
         // 기본값 14일
-        return new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+        return new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
     }
     const value = parseInt(match[1], 10);
     const unit = match[2];
     const ms = { d: 86400000, h: 3600000, m: 60000, s: 1000 }[unit] ?? 86400000;
-    return new Date(Date.now() + value * ms);
+    return new Date(now.getTime() + value * ms);
 };
 
 /**
@@ -52,7 +54,7 @@ export const getRefreshTokenExpiry = (): Date => {
  */
 export const setRefreshTokenCookie = (res: Response, token: string): void => {
     const expiry = getRefreshTokenExpiry();
-    const maxAgeMs = expiry.getTime() - Date.now();
+    const maxAgeMs = expiry.getTime() - getNowKST().getTime();
 
     res.cookie(COOKIE_NAME, token, {
         httpOnly: true,

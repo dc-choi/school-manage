@@ -88,7 +88,7 @@ export class LoginUseCase {
                 tokenHash,
                 familyId,
                 expiresAt,
-                createdAt: new Date(),
+                createdAt: getNowKST(),
             },
         });
 
