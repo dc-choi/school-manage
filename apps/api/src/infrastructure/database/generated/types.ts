@@ -54,7 +54,6 @@ export type Group = {
     createAt: Timestamp;
     updateAt: Timestamp | null;
     deleteAt: Timestamp | null;
-    accountId: number;
     organizationId: number | null;
 };
 export type GroupSnapshot = {

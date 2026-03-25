@@ -60,7 +60,6 @@ export const groupRouter = router({
         return usecase.execute({
             name: input.name,
             type: input.type,
-            accountId: ctx.account.id,
             organizationId: ctx.organization.id,
         });
     }),
@@ -75,7 +74,6 @@ export const groupRouter = router({
             id: input.id,
             name: input.name,
             type: input.type,
-            accountId: ctx.account.id,
             organizationId: ctx.organization.id,
         });
     }),

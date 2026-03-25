@@ -56,20 +56,6 @@ export class ApproveJoinUseCase {
                 displayName: account.displayName,
                 organizationId: BigInt(organizationId),
             });
-
-            // 기존 Group/Student 데이터를 가입한 조직에 연결
-            await tx.group.updateMany({
-                where: { accountId: joinRequest.accountId, organizationId: null },
-                data: { organizationId: BigInt(organizationId) },
-            });
-
-            await tx.student.updateMany({
-                where: {
-                    studentGroups: { some: { group: { accountId: joinRequest.accountId } } },
-                    organizationId: null,
-                },
-                data: { organizationId: BigInt(organizationId) },
-            });
         });
     }
 }

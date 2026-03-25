@@ -10,7 +10,7 @@ import { createGroupSnapshot } from '~/domains/snapshot/snapshot.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 // 스키마 타입 + context 필드
-type CreateGroupInput = CreateGroupSchemaInput & { accountId: string; organizationId: string };
+type CreateGroupInput = CreateGroupSchemaInput & { organizationId: string };
 
 export class CreateGroupUseCase {
     async execute(input: CreateGroupInput): Promise<CreateGroupOutput> {
@@ -43,7 +43,6 @@ export class CreateGroupUseCase {
                     data: {
                         name: input.name,
                         type: input.type,
-                        accountId: BigInt(input.accountId),
                         organizationId: BigInt(input.organizationId),
                         createdAt: getNowKST(),
                     },
