@@ -22,8 +22,8 @@ describe('group 통합 테스트', () => {
         it('인증된 사용자의 그룹 목록 반환', async () => {
             const testAccount = getTestAccount();
             const mockGroups = [
-                { ...createMockGroup({ }), _count: { studentGroups: 3 } },
-                { ...createMockGroup({ }), _count: { studentGroups: 5 } },
+                { ...createMockGroup({}), _count: { studentGroups: 3 } },
+                { ...createMockGroup({}), _count: { studentGroups: 5 } },
             ];
             mockPrismaClient.group.findMany.mockResolvedValueOnce(mockGroups);
 
@@ -46,7 +46,7 @@ describe('group 통합 테스트', () => {
     describe('group.create', () => {
         it('새 그룹 생성 성공', async () => {
             const testAccount = getTestAccount();
-            const newGroup = createMockGroup({ name: '테스트그룹', });
+            const newGroup = createMockGroup({ name: '테스트그룹' });
 
             // group.count → isFirstGroup 판정 (0이면 첫 그룹)
             mockPrismaClient.group.count.mockResolvedValueOnce(0);
@@ -87,7 +87,7 @@ describe('group 통합 테스트', () => {
     describe('group.get', () => {
         it('그룹 상세 조회 성공 (학생 목록 포함)', async () => {
             const testAccount = getTestAccount();
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const mockStudents = [
                 createMockStudent({ societyName: '홍길동' }),
                 createMockStudent({ societyName: '김철수' }),
@@ -109,7 +109,7 @@ describe('group 통합 테스트', () => {
 
         it('학생이 없는 그룹 조회 성공', async () => {
             const testAccount = getTestAccount();
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             mockPrismaClient.group.findFirst.mockResolvedValueOnce({
                 ...mockGroup,
                 studentGroups: [],
@@ -137,7 +137,7 @@ describe('group 통합 테스트', () => {
     describe('group.update', () => {
         it('그룹 수정 성공', async () => {
             const testAccount = getTestAccount();
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             const updatedGroup = { ...mockGroup, name: '수정된그룹', _count: { studentGroups: 2 } };
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
 
@@ -180,7 +180,7 @@ describe('group 통합 테스트', () => {
     describe('group.delete', () => {
         it('그룹 삭제 성공', async () => {
             const testAccount = getTestAccount();
-            const mockGroup = createMockGroup({ });
+            const mockGroup = createMockGroup({});
             mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
             mockPrismaClient.group.update.mockResolvedValueOnce({ ...mockGroup, deletedAt: new Date() });
 
@@ -209,10 +209,7 @@ describe('group 통합 테스트', () => {
 
         it('여러 그룹 일괄 삭제 성공', async () => {
             const testAccount = getTestAccount();
-            const mockGroups = [
-                createMockGroup({ }),
-                createMockGroup({ }),
-            ];
+            const mockGroups = [createMockGroup({}), createMockGroup({})];
             mockPrismaClient.group.updateMany.mockResolvedValueOnce({ count: 2 });
 
             const caller = createScopedCaller(String(testAccount.id), testAccount.name, '1', '장위동 중고등부');

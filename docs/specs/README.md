@@ -72,6 +72,7 @@
 | P3   | 프로덕션 쿼리 로깅 비활성화          | 미착수    | 전체 쿼리 이벤트 로깅 상시 활성. PII 노출 위험 + 성능 오버헤드                   |
 | P3   | 트랜잭션/쿼리 타임아웃 미설정         | 미착수    | 장기 실행 트랜잭션 락 점유 가능. 명시적 타임아웃 설정 필요                         |
 | P3   | AuthLayout 이미지 dimensions 누락 | 미착수    | width/height 미설정 → CLS(레이아웃 시프트) 유발. loading="lazy" 추가 권장 |
+| P3   | name 컬럼 인덱스 누락 (parish/church/organization) | 미착수 | `WHERE name = ?` 풀 스캔. 데이터 소규모이나 증가 시 성능 저하 |
 
 ### BUGFIX
 
@@ -79,6 +80,7 @@
 |---------|--------|----------|------|
 | P1 | TRPCError 삼킴 — catch 블록 패턴 누락 | ✅ 완료 | 7개 UseCase catch 블록에 `if (e instanceof TRPCError) throw e` 패턴 추가 완료 |
 | P1 | RefreshToken createdAt UTC/KST 불일치 | ✅ 완료 | 5개 파일 8개 지점 `new Date()` → `getNowKST()` 통일 완료 |
+| P2 | 마이그레이션 SQL 비멱등성 | 미착수 | `cleanup_orphan_account_groups.sql` hardcoded ID 기반. 재실행 시 주의 필요. 1회성 정리이므로 수용 가능 |
 | P2 | ApproveJoinUseCase TOCTOU 레이스 컨디션 | 미착수 | PENDING 확인이 트랜잭션 밖. 동시 승인 시 중복 처리 가능 |
 | P2 | Attendance 테이블 인덱스 누락 | 미착수 | studentId, date 인덱스 없음. 데이터 증가 시 성능 저하 |
 | P3 | Attendance 중복 레코드 방지 | 미착수 | (studentId, date) 유니크 제약 부재. 트랜잭션 내이므로 위험도 낮음 |
