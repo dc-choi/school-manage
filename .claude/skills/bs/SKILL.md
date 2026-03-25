@@ -1,9 +1,9 @@
 ---
-name: brainstorm
+name: bs
 description: >
   사업 기획 브레인스토밍 전체 워크플로우를 실행한다.
   기획자-비판자 3라운드 토론 후 사용자에게 최종 결정을 요청한다.
-  /brainstorm [주제] 형식으로 사용한다.
+  /bs [주제] 형식으로 사용한다.
 ---
 
 # 브레인스토밍 실행
@@ -64,7 +64,7 @@ Q4. 수익 모델/성장에 기여하는가?
 1. 전체 과정을 `docs/brainstorm/YYYY-MM-DD/` 디렉토리에 저장해라.
    - 디렉토리: `docs/brainstorm/YYYY-MM-DD/` (날짜별 폴더)
    - 파일명: `<주제-slug>.md` (예: `revenue-model.md`)
-   - 파일 구조는 brainstorm-rules 스킬의 "최종 보고서 형식"을 따라라.
+   - 파일 구조는 bs-rules 스킬의 "최종 보고서 형식"을 따라라.
 
 2. 사용자에게 결과를 요약하고 최종 판단을 요청해라:
    - 승인된 아이디어 중 우선순위

@@ -1,27 +1,27 @@
 ---
-name: business
+name: biz
 description: 사업 에이전트 워크플로우 실행
 ---
 
-# /business
+# /biz
 
 사업 문서 작성 및 관리 워크플로우를 실행합니다.
 
 ## 사용법
 
 ```
-/business              # 현황 확인 및 다음 작업 안내
-/business status       # STATUS.md 확인
-/business market       # 시장/경쟁 분석
-/business bm           # 사업 모델
-/business gtm          # GTM 전략
-/business risk         # 리스크/가정
-/business metrics      # 지표 설계
-/business roadmap      # 로드맵
-/business pricing      # 가격 정책
-/business content      # 콘텐츠 마케터 서브 에이전트 호출
-/business handoff      # SDD 작성자 핸드오프
-/brainstorm [주제]     # 기획자↔비판자 3라운드 토론 (별도 스킬)
+/biz              # 현황 확인 및 다음 작업 안내
+/biz status       # STATUS.md 확인
+/biz market       # 시장/경쟁 분석
+/biz bm           # 사업 모델
+/biz gtm          # GTM 전략
+/biz risk         # 리스크/가정
+/biz metrics      # 지표 설계
+/biz roadmap      # 로드맵
+/biz pricing      # 가격 정책
+/biz content      # 콘텐츠 마케터 서브 에이전트 호출
+/biz handoff      # SDD 작성자 핸드오프
+/bs [주제]        # 기획자↔비판자 3라운드 토론 (별도 스킬)
 ```
 
 ## 역할 정의
@@ -50,7 +50,7 @@ description: 사업 에이전트 워크플로우 실행
 
 ### 1. 현황 파악
 ```
-/business status
+/biz status
 ```
 - `docs/business/STATUS.md` 확인 (현재 상태)
 - `docs/business/HISTORY.md` 확인 (과거 분석/이력, 맥락 파악용)
@@ -59,43 +59,43 @@ description: 사업 에이전트 워크플로우 실행
 
 ### 2. 문서별 작업
 
-#### /business market - 시장/경쟁 분석
+#### /biz market - 시장/경쟁 분석
 - 타겟 시장 정의
 - 경쟁사 분석
 - 시장 기회 식별
 - **가설/근거/검증** 패턴 적용
 
-#### /business bm - 사업 모델
+#### /biz bm - 사업 모델
 - 가치 제안 정의
 - 수익 모델 설계
 - 비용 구조 분석
 - **가설/근거/검증** 패턴 적용
 
-#### /business gtm - GTM 전략
+#### /biz gtm - GTM 전략
 - 출시 전략
 - 마케팅 채널
 - 초기 사용자 확보 방안
 - 실행 계획 중심 (가설 패턴 미적용)
 
-#### /business risk - 리스크/가정
+#### /biz risk - 리스크/가정
 - 핵심 가정 나열
 - 리스크 식별
 - 대응 방안
 - **가설/근거/검증** 패턴 적용
 
-#### /business metrics - 지표 설계
+#### /biz metrics - 지표 설계
 - 핵심 지표 정의
 - 측정 방법
 - 목표값 설정
 - 정의 중심 (가설 패턴 미적용)
 
-#### /business roadmap - 로드맵
+#### /biz roadmap - 로드맵
 - 단계별 목표
 - 마일스톤 정의
 - 일정 계획
 - 일정 중심 (가설 패턴 미적용)
 
-#### /business pricing - 가격 정책
+#### /biz pricing - 가격 정책
 - 가격 모델
 - 티어 구성
 - 경쟁사 비교
@@ -103,7 +103,7 @@ description: 사업 에이전트 워크플로우 실행
 
 ### 3. SDD 작성자 핸드오프
 ```
-/business handoff
+/biz handoff
 ```
 
 #### 체크리스트
@@ -143,10 +143,10 @@ SDD 작성자가 PRD 작성 시작
 
 ## 콘텐츠 마케터 서브 에이전트
 
-### /business content - 콘텐츠 제작
+### /biz content - 콘텐츠 제작
 ```
-/business content                # 콘텐츠 현황 확인 및 다음 작업 안내
-/business content instagram      # 인스타그램 콘텐츠 제작
+/biz content                # 콘텐츠 현황 확인 및 다음 작업 안내
+/biz content instagram      # 인스타그램 콘텐츠 제작
 ```
 
 - **호출 방식**: Task 도구 (`subagent_type: general-purpose`)로 콘텐츠 마케터 서브 에이전트 실행
