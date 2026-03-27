@@ -95,7 +95,7 @@
 | 프로시저 | 타입 | 설명 |
 |----------|------|------|
 | `student.list` | query | 목록 조회 (페이지네이션, 통합 검색, 삭제/졸업/등록 필터) |
-| `student.get` | query | 상세 조회 |
+| `student.get` | query | 상세 조회 (삭제된 그룹 제외) |
 | `student.create` | mutation | 생성 |
 | `student.update` | mutation | 수정 (인라인) |
 | `student.delete` | mutation | 삭제 (소프트) |
@@ -135,6 +135,7 @@
 | baptizedAt 비어있음/형식 불일치 | 축일자 목록에서 제외 |
 | 검색어 공백만 입력 | trim 후 빈 문자열이면 전체 목록 반환 |
 | 검색어 + 필터 조합 시 결과 없음 | 빈 목록 반환 (에러 아님) |
+| 학생의 소속 그룹이 삭제된 경우 | student.get 응답에서 제외. 수정 시 삭제된 그룹 ID 전송 방지 |
 
 ## 마이그레이션 (로드맵 2단계)
 
