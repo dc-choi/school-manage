@@ -3,6 +3,7 @@ import { Loader2, Plus, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { Pagination } from '~/components/common/Pagination';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog';
@@ -29,8 +30,9 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
     const [newOrgType, setNewOrgType] = useState<'' | 'ELEMENTARY' | 'MIDDLE_HIGH' | 'YOUNG_ADULT'>('');
     const [createError, setCreateError] = useState<string | null>(null);
     const [joinError, setJoinError] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
 
-    const { data, isLoading, error } = trpc.organization.list.useQuery({ churchId });
+    const { data, isLoading, error } = trpc.organization.list.useQuery({ churchId, page });
 
     const joinMutation = trpc.organization.requestJoin.useMutation({
         onSuccess: () => {
@@ -129,6 +131,10 @@ export function OrganizationSelect({ churchId }: OrganizationSelectProps) {
                     </ul>
                 )}
             </div>
+
+            {data?.totalPage ? (
+                <Pagination currentPage={page} totalPages={data.totalPage} onPageChange={setPage} />
+            ) : null}
 
             <p className="text-sm text-muted-foreground">
                 단체는 본당 내 초등부, 중고등부, 청년부 등의 조직 단위입니다. 먼저 목록에서 단체를 찾아보세요. 이미

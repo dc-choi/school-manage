@@ -3,7 +3,7 @@
  */
 import { ORGANIZATION_TYPE } from '../constants.js';
 import type { Role } from '../constants.js';
-import { idSchema } from './common.js';
+import { idSchema, pageSchema } from './common.js';
 import { z } from 'zod';
 
 /**
@@ -11,6 +11,7 @@ import { z } from 'zod';
  */
 export const listOrganizationsInputSchema = z.object({
     churchId: idSchema,
+    page: pageSchema,
 });
 
 /**
@@ -75,6 +76,10 @@ export interface OrganizationItem {
  * 조직 목록 조회 응답
  */
 export interface ListOrganizationsOutput {
+    page: number;
+    size: number;
+    total: number;
+    totalPage: number;
     organizations: OrganizationItem[];
 }
 
