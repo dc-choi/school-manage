@@ -182,6 +182,33 @@ describe('student 통합 테스트', () => {
                 code: 'BAD_REQUEST',
             });
         });
+
+        it('삭제된 그룹 제외 — findFirst에 deletedAt 필터 전달', async () => {
+            const testAccount = getTestAccount();
+            const accountId = String(testAccount.id);
+            const accountName = testAccount.name;
+            const mockGroup = createMockGroup({});
+            const groupId = String(mockGroup.id);
+
+            const mockStudent = createMockStudent({});
+            mockPrismaClient.student.findFirst.mockResolvedValueOnce({
+                ...mockStudent,
+                studentGroups: [{ group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE' } }],
+            });
+
+            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            await caller.student.get({ id: String(mockStudent.id) });
+
+            expect(mockPrismaClient.student.findFirst).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    include: expect.objectContaining({
+                        studentGroups: expect.objectContaining({
+                            where: { group: { deletedAt: null } },
+                        }),
+                    }),
+                })
+            );
+        });
     });
 
     describe('student.update', () => {

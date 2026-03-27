@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
-| **Target Bugfix**         | -    | 13건 미착수 (P1 2건, P2 6건, P3 5건) + 3건 완료 |
+| **Target Bugfix**         | -    | 13건 미착수 (P1 2건, P2 6건, P3 5건) + 4건 완료 |
 | **Target Non-Functional** | -    | PERFORMANCE 6건 미착수 + 1건 완료 + DX 1건 완료 |
 
 ## 관련 문서
@@ -78,6 +78,7 @@
 
 | 우선순위 | 기능명 | SDD 상태 | 비고 |
 |---------|--------|----------|------|
+| P1 | 학생 수정 시 삭제된 그룹 ID로 FORBIDDEN 에러 | ✅ 완료 | student.get에 deletedAt 필터 추가. 군종교구 피드백 |
 | P1 | TRPCError 삼킴 — catch 블록 패턴 누락 | ✅ 완료 | 7개 UseCase catch 블록에 `if (e instanceof TRPCError) throw e` 패턴 추가 완료 |
 | P1 | RefreshToken createdAt UTC/KST 불일치 | ✅ 완료 | 5개 파일 8개 지점 `new Date()` → `getNowKST()` 통일 완료 |
 | P2 | 마이그레이션 SQL 비멱등성 | 미착수 | `cleanup_orphan_account_groups.sql` hardcoded ID 기반. 재실행 시 주의 필요. 1회성 정리이므로 수용 가능 |

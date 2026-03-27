@@ -18,6 +18,7 @@ export class GetStudentUseCase {
             },
             include: {
                 studentGroups: {
+                    where: { group: { deletedAt: null } },
                     include: {
                         group: { select: { id: true, name: true, type: true } },
                     },
