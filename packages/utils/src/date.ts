@@ -4,13 +4,37 @@
  * Prisma의 @default(now())는 UTC만 지원하므로,
  * 비즈니스 로직에서 직접 KST 시간을 입력해야 한다.
  *
- * @returns KST 기준 현재 시간
+ * 주의: 반환된 Date의 내부 UTC가 KST 값이므로 getUTC* 메서드로 접근해야 정확하다.
+ * 날짜 비교/추출이 필요하면 getKSTToday()를 사용할 것.
+ *
+ * @returns KST 기준 현재 시간 (DB 타임스탬프 저장용)
  */
 export const getNowKST = (): Date => {
     const now = new Date();
     // UTC + 9시간 = KST
     const kstOffset = 9 * 60 * 60 * 1000;
     return new Date(now.getTime() + kstOffset);
+};
+
+/**
+ * 현재 KST 날짜를 로컬 Date 객체로 반환한다.
+ *
+ * .getFullYear(), .getDate(), .getDay() 등 로컬 메서드가 KST 값을 정확히 반환한다.
+ * getNowKST()와 달리 시스템 타임존에 관계없이 올바른 날짜를 반환한다.
+ *
+ * DB 타임스탬프 저장에는 getNowKST()를 사용할 것.
+ *
+ * @returns KST 기준 오늘 자정 Date (날짜 비교/전례력 계산용)
+ */
+export const getKSTToday = (): Date => {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).formatToParts(new Date());
+    const get = (type: string) => Number(parts.find((p) => p.type === type)!.value);
+    return new Date(get('year'), get('month') - 1, get('day'));
 };
 
 /**
@@ -172,8 +196,7 @@ export const getGraduationCutoff = (year: number, month?: number, week?: number)
  * 현재 연도/월의 통계에서 미래 기간을 제외하기 위해 사용.
  */
 export const clampToToday = (endDate: Date): Date => {
-    const today = getNowKST();
-    today.setHours(0, 0, 0, 0);
+    const today = getKSTToday();
     const end = new Date(endDate);
     end.setHours(0, 0, 0, 0);
     return end > today ? today : endDate;

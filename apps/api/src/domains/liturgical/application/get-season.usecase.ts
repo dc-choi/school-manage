@@ -5,11 +5,11 @@
  */
 import { GetHolydaysUseCase } from './get-holydays.usecase.ts';
 import type { GetSeasonInput, GetSeasonOutput } from '@school/shared';
-import { adjustForSaturday, formatDateISO, getLiturgicalSeason, getNowKST } from '@school/utils';
+import { adjustForSaturday, formatDateISO, getKSTToday, getLiturgicalSeason } from '@school/utils';
 
 export class GetSeasonUseCase {
     async execute(input: GetSeasonInput): Promise<GetSeasonOutput> {
-        const today = getNowKST();
+        const today = getKSTToday();
         const year = input.year ?? today.getFullYear();
 
         // 1. 토요일 보정 (특전미사: 토요일→일요일, 성토요일 제외)

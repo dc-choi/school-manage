@@ -1,6 +1,7 @@
 // Date utilities
 export {
     getNowKST,
+    getKSTToday,
     addDays,
     getThisWeekSunday,
     getThisWeekSaturday,
