@@ -6,6 +6,7 @@ import {
     calculateEaster,
     countSundays,
     countSundaysInYear,
+    getKSTToday,
     getLastSundayOf,
     getNowKST,
     getNthSaturdayOf,
@@ -47,6 +48,49 @@ describe('date 유틸리티', () => {
             // KST는 UTC + 9시간이므로 다음날 00:00
             expect(result.getUTCDate()).toBe(16);
             expect(result.getUTCHours()).toBe(0);
+        });
+    });
+
+    describe('getKSTToday', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('KST 오후 3시에도 당일 날짜를 반환한다', () => {
+            // UTC 2024-01-15 06:00:00 = KST 2024-01-15 15:00:00
+            vi.setSystemTime(new Date('2024-01-15T06:00:00.000Z'));
+
+            const result = getKSTToday();
+
+            expect(result.getFullYear()).toBe(2024);
+            expect(result.getMonth()).toBe(0); // January
+            expect(result.getDate()).toBe(15);
+        });
+
+        it('UTC 자정 직전(KST 오전 8시 59분)에 올바른 날짜를 반환한다', () => {
+            // UTC 2024-01-15 14:59:00 = KST 2024-01-15 23:59:00
+            vi.setSystemTime(new Date('2024-01-15T14:59:00.000Z'));
+
+            const result = getKSTToday();
+
+            expect(result.getFullYear()).toBe(2024);
+            expect(result.getMonth()).toBe(0);
+            expect(result.getDate()).toBe(15);
+        });
+
+        it('UTC 자정 이후(KST 다음날 오전)에는 다음날을 반환한다', () => {
+            // UTC 2024-01-15 15:00:00 = KST 2024-01-16 00:00:00
+            vi.setSystemTime(new Date('2024-01-15T15:00:00.000Z'));
+
+            const result = getKSTToday();
+
+            expect(result.getFullYear()).toBe(2024);
+            expect(result.getMonth()).toBe(0);
+            expect(result.getDate()).toBe(16);
         });
     });
 
