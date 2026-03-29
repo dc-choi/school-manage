@@ -89,20 +89,22 @@ erDiagram
     Organization ||--o{ Group : has
     Organization ||--o{ Student : has
     Organization ||--o{ JoinRequest : receives
+    Organization ||--o{ ChurnAlertLog : logs
     Account ||--o{ JoinRequest : requests
     Account ||--o{ AccountSnapshot : snapshots
+    Account ||--o{ RefreshToken : tokens
     Student ||--o{ Attendance : records
     Student ||--o{ Registration : registers
     Student ||--o{ StudentSnapshot : snapshots
     Student ||--o{ StudentGroup : belongs
     Group ||--o{ StudentGroup : contains
-    Group ||--o{ Student : "legacy FK"
     Group ||--o{ GroupSnapshot : snapshots
 
     Parish {
         bigint id PK
         varchar name "교구명"
         datetime created_at
+        datetime deleted_at
     }
 
     Church {
@@ -110,13 +112,16 @@ erDiagram
         varchar name "본당명"
         bigint parish_id FK
         datetime created_at
+        datetime deleted_at
     }
 
     Organization {
         bigint id PK
         varchar name "모임명"
+        varchar type "MIDDLE_HIGH 등"
         bigint church_id FK
         datetime created_at
+        datetime deleted_at
     }
 
     Account {
@@ -132,6 +137,15 @@ erDiagram
         datetime deleted_at
     }
 
+    RefreshToken {
+        bigint id PK
+        bigint account_id FK
+        varchar token_hash
+        varchar family_id
+        datetime expires_at
+        datetime created_at
+    }
+
     JoinRequest {
         bigint id PK
         bigint account_id FK
@@ -139,6 +153,13 @@ erDiagram
         varchar status "PENDING/APPROVED/REJECTED"
         datetime created_at
         datetime updated_at
+    }
+
+    ChurnAlertLog {
+        bigint id PK
+        bigint organization_id FK
+        int inactive_days
+        datetime sent_at
     }
 
     Group {
@@ -160,7 +181,6 @@ erDiagram
         bigint contact "연락처"
         text description
         varchar baptized_at "축일"
-        bigint group_id FK "legacy"
         bigint organization_id FK "nullable"
         datetime graduated_at
         datetime created_at
@@ -202,6 +222,9 @@ erDiagram
         varchar society_name "스냅샷 시점 이름"
         varchar catholic_name "스냅샷 시점 세례명"
         varchar gender "스냅샷 시점 성별"
+        bigint contact "스냅샷 시점 연락처"
+        text description "스냅샷 시점 비고"
+        varchar baptized_at "스냅샷 시점 축일"
         bigint group_id "스냅샷 시점 그룹"
         bigint organization_id "스냅샷 시점 조직"
         datetime snapshot_at
