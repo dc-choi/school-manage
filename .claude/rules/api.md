@@ -164,23 +164,32 @@ await database.student.create({
 ## Testing
 
 - **프레임워크**: Vitest
-- **설정**: `vitest.config.ts` (projects 구성)
+- **DB**: 실제 MySQL 연결 (mock 없음). `vitest.global-setup.ts`에서 `prisma db push --force-reset`으로 스키마 적용
+- **설정**: `vitest.config.ts` (단일 구성, `test/**/*.test.ts`)
 
-| 프로젝트 | 위치 | 용도 |
-|---------|------|------|
-| unit | `test/*.test.ts` | Prisma 모킹, 로직 검증 |
-| integration | `test/integration/**/*.test.ts` | tRPC caller, Prisma 모킹 |
+| 파일 | 용도 |
+|------|------|
+| `vitest.global-setup.ts` | 테스트 DB 스키마 초기화 (1회) |
+| `vitest.setup.ts` | env 로딩 + mailService mock + 로거 초기화 |
+| `test/helpers/db-lifecycle.ts` | `truncateAll()`, `seedBase()` DB 헬퍼 |
+| `test/helpers/test-stubs.ts` | Express Request/Response 스텁, mailService mock 참조 |
+| `test/helpers/trpc-caller.ts` | tRPC caller 팩토리 |
 
-### tRPC Caller 테스트
+### 테스트 패턴
 
 ```typescript
-import { createPublicCaller, createAuthenticatedCaller } from '../helpers/trpc-caller.js';
+import { type SeedBase, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
+import { createScopedCaller } from '../helpers/trpc-caller.ts';
 
-const caller = createPublicCaller();
-const result = await caller.auth.login({ name: '중고등부', password: '5678' });
+let seed: SeedBase;
+beforeEach(async () => { await truncateAll(); seed = await seedBase(); });
+afterAll(async () => { await truncateAll(); });
 
-const authCaller = createAuthenticatedCaller(accountId, accountName);
-const groups = await authCaller.group.list();
+it('그룹 생성', async () => {
+    const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+    const result = await caller.group.create({ name: '1학년' });
+    expect(result.name).toBe('1학년');
+});
 ```
 
 ## Environment

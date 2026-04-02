@@ -1,73 +1,72 @@
 /**
- * Refresh Token 통합 테스트 (tRPC + Prisma Mocking)
+ * Refresh Token 통합 테스트 (실제 DB)
  *
  * RTR (Refresh Token Rotation), 로그아웃, 탈취 감지 테스트
  */
-import { mockPrismaClient } from '../../vitest.setup.ts';
-import { getTestAccount } from '../helpers/mock-data.ts';
-import { createCallerWithContext } from '../helpers/trpc-caller.ts';
+import { type SeedBase, TEST_PASSWORD, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
+import { createMockReq, createMockRes } from '../helpers/test-stubs.ts';
+import { createCallerWithContext, createPublicCaller } from '../helpers/trpc-caller.ts';
 import type { Context } from '@school/trpc';
-import type { Request, Response } from 'express';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { hashRefreshToken } from '~/domains/auth/utils/refresh-token.utils.js';
+import { getNowKST } from '@school/utils';
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import {
+    generateFamilyId,
+    generateRefreshToken,
+    getRefreshTokenExpiry,
+    hashRefreshToken,
+} from '~/domains/auth/utils/refresh-token.utils.js';
+// database를 먼저 import (env.ts 순환 의존성 해소: env → utils/index → ownership → database → env)
+import { database } from '~/infrastructure/database/database.js';
 
-// 쿠키 동작을 추적하기 위한 Mock Response
-function createMockResWithCookies() {
-    const cookies: Record<string, string> = {};
-    const cleared: string[] = [];
-    return {
-        res: {
-            cookie: vi.fn((name: string, value: string) => {
-                cookies[name] = value;
-            }),
-            clearCookie: vi.fn((name: string) => {
-                cleared.push(name);
-                delete cookies[name];
-            }),
-        } as unknown as Response,
-        cookies,
-        cleared,
-    };
-}
+let seed: SeedBase;
 
-function createMockReqWithCookie(cookieValue?: string): Request {
-    return {
-        cookies: cookieValue ? { refresh_token: cookieValue } : {},
-    } as unknown as Request;
-}
+beforeEach(async () => {
+    await truncateAll();
+    seed = await seedBase();
+});
+
+afterAll(async () => {
+    await truncateAll();
+});
 
 describe('auth.refresh 통합 테스트', () => {
-    const testAccount = getTestAccount();
+    /**
+     * DB에 Refresh Token을 직접 생성하고 raw token을 반환
+     */
+    async function createStoredRefreshToken(
+        accountId: bigint,
+        options?: { expired?: boolean }
+    ): Promise<{ rawToken: string; familyId: string }> {
+        const rawToken = generateRefreshToken();
+        const tokenHash = hashRefreshToken(rawToken);
+        const familyId = generateFamilyId();
+        const now = getNowKST();
 
-    beforeEach(() => {
-        mockPrismaClient.refreshToken.findFirst.mockReset();
-        mockPrismaClient.refreshToken.delete.mockReset();
-        mockPrismaClient.refreshToken.create.mockReset().mockResolvedValue({});
-        mockPrismaClient.refreshToken.deleteMany.mockReset().mockResolvedValue({ count: 0 });
-        mockPrismaClient.account.findFirst.mockReset();
-        mockPrismaClient.$transaction = vi.fn().mockResolvedValue([{}, {}, { count: 0 }]);
-    });
+        const expiresAt = options?.expired
+            ? new Date(now.getTime() - 1000) // 이미 만료
+            : getRefreshTokenExpiry();
+
+        await database.refreshToken.create({
+            data: {
+                accountId,
+                tokenHash,
+                familyId,
+                expiresAt,
+                createdAt: now,
+            },
+        });
+
+        return { rawToken, familyId };
+    }
 
     it('TC-1: 유효한 RT로 refresh → 새 AT + 쿠키에 새 RT', async () => {
-        const rawToken = 'valid-refresh-token-hex';
-        const tokenHash = hashRefreshToken(rawToken);
-        const storedToken = {
-            id: BigInt(1),
-            accountId: testAccount.id,
-            tokenHash,
-            familyId: 'family-uuid-1',
-            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14),
-            createdAt: new Date(),
-        };
+        const { rawToken } = await createStoredRefreshToken(seed.account.id);
 
-        mockPrismaClient.refreshToken.findFirst.mockResolvedValueOnce(storedToken);
-        mockPrismaClient.account.findFirst.mockResolvedValueOnce(testAccount);
-
-        const { res } = createMockResWithCookies();
-        const req = createMockReqWithCookie(rawToken);
-
+        const res = createMockRes();
+        const req = createMockReq({ refresh_token: rawToken });
         const ctx: Context = { req, res };
         const caller = createCallerWithContext(ctx);
+
         const result = await caller.auth.refresh();
 
         expect(result).toHaveProperty('accessToken');
@@ -76,8 +75,8 @@ describe('auth.refresh 통합 테스트', () => {
     });
 
     it('TC-2: 쿠키 없음 → UNAUTHORIZED', async () => {
-        const { res } = createMockResWithCookies();
-        const req = createMockReqWithCookie(); // 쿠키 없음
+        const res = createMockRes();
+        const req = createMockReq(); // 쿠키 없음
 
         const ctx: Context = { req, res };
         const caller = createCallerWithContext(ctx);
@@ -88,12 +87,8 @@ describe('auth.refresh 통합 테스트', () => {
     });
 
     it('TC-3: DB에 없는 RT (탈취/이미 회전) → UNAUTHORIZED + 쿠키 삭제', async () => {
-        const rawToken = 'stolen-or-rotated-token';
-
-        mockPrismaClient.refreshToken.findFirst.mockResolvedValueOnce(null);
-
-        const { res } = createMockResWithCookies();
-        const req = createMockReqWithCookie(rawToken);
+        const res = createMockRes();
+        const req = createMockReq({ refresh_token: 'stolen-or-rotated-token' });
 
         const ctx: Context = { req, res };
         const caller = createCallerWithContext(ctx);
@@ -105,22 +100,12 @@ describe('auth.refresh 통합 테스트', () => {
     });
 
     it('TC-4: 만료된 RT → UNAUTHORIZED + 쿠키 삭제 + DB 삭제', async () => {
-        const rawToken = 'expired-refresh-token';
-        const tokenHash = hashRefreshToken(rawToken);
-        const expiredToken = {
-            id: BigInt(2),
-            accountId: testAccount.id,
-            tokenHash,
-            familyId: 'family-uuid-2',
-            expiresAt: new Date(Date.now() - 1000), // 만료됨
-            createdAt: new Date(),
-        };
+        const { rawToken } = await createStoredRefreshToken(seed.account.id, {
+            expired: true,
+        });
 
-        mockPrismaClient.refreshToken.findFirst.mockResolvedValueOnce(expiredToken);
-        mockPrismaClient.refreshToken.delete.mockResolvedValueOnce({});
-
-        const { res } = createMockResWithCookies();
-        const req = createMockReqWithCookie(rawToken);
+        const res = createMockRes();
+        const req = createMockReq({ refresh_token: rawToken });
 
         const ctx: Context = { req, res };
         const caller = createCallerWithContext(ctx);
@@ -129,28 +114,26 @@ describe('auth.refresh 통합 테스트', () => {
             code: 'UNAUTHORIZED',
         });
         expect(res.clearCookie).toHaveBeenCalled();
-        expect(mockPrismaClient.refreshToken.delete).toHaveBeenCalledWith({
-            where: { id: expiredToken.id },
+
+        // DB에서 삭제되었는지 확인
+        const tokenHash = hashRefreshToken(rawToken);
+        const remaining = await database.refreshToken.findFirst({
+            where: { tokenHash },
         });
+        expect(remaining).toBeNull();
     });
 
     it('TC-5: 삭제된 계정 → UNAUTHORIZED + 해당 계정 모든 RT 삭제', async () => {
-        const rawToken = 'valid-token-deleted-account';
-        const tokenHash = hashRefreshToken(rawToken);
-        const storedToken = {
-            id: BigInt(3),
-            accountId: testAccount.id,
-            tokenHash,
-            familyId: 'family-uuid-3',
-            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14),
-            createdAt: new Date(),
-        };
+        // 계정을 소프트 삭제 처리
+        await database.account.update({
+            where: { id: seed.account.id },
+            data: { deletedAt: getNowKST() },
+        });
 
-        mockPrismaClient.refreshToken.findFirst.mockResolvedValueOnce(storedToken);
-        mockPrismaClient.account.findFirst.mockResolvedValueOnce(null); // 계정 없음
+        const { rawToken } = await createStoredRefreshToken(seed.account.id);
 
-        const { res } = createMockResWithCookies();
-        const req = createMockReqWithCookie(rawToken);
+        const res = createMockRes();
+        const req = createMockReq({ refresh_token: rawToken });
 
         const ctx: Context = { req, res };
         const caller = createCallerWithContext(ctx);
@@ -158,43 +141,53 @@ describe('auth.refresh 통합 테스트', () => {
         await expect(caller.auth.refresh()).rejects.toMatchObject({
             code: 'UNAUTHORIZED',
         });
-        expect(mockPrismaClient.refreshToken.deleteMany).toHaveBeenCalledWith({
-            where: { accountId: storedToken.accountId },
+
+        // 해당 계정의 모든 RT가 삭제되었는지 확인
+        const remainingTokens = await database.refreshToken.findMany({
+            where: { accountId: seed.account.id },
         });
+        expect(remainingTokens).toHaveLength(0);
     });
 });
 
 describe('auth.logout 통합 테스트', () => {
-    beforeEach(() => {
-        mockPrismaClient.refreshToken.findFirst.mockReset();
-        mockPrismaClient.refreshToken.deleteMany.mockReset().mockResolvedValue({ count: 0 });
-    });
-
     it('TC-6: 유효한 RT로 로그아웃 → family 전체 삭제 + 쿠키 삭제', async () => {
-        const rawToken = 'logout-refresh-token';
+        // 로그인으로 RT 생성
+        const rawToken = generateRefreshToken();
         const tokenHash = hashRefreshToken(rawToken);
+        const familyId = generateFamilyId();
+        const now = getNowKST();
 
-        mockPrismaClient.refreshToken.findFirst.mockResolvedValueOnce({
-            familyId: 'logout-family-uuid',
+        await database.refreshToken.create({
+            data: {
+                accountId: seed.account.id,
+                tokenHash,
+                familyId,
+                expiresAt: getRefreshTokenExpiry(),
+                createdAt: now,
+            },
         });
 
-        const { res } = createMockResWithCookies();
-        const req = createMockReqWithCookie(rawToken);
+        const res = createMockRes();
+        const req = createMockReq({ refresh_token: rawToken });
 
         const ctx: Context = { req, res };
         const caller = createCallerWithContext(ctx);
         const result = await caller.auth.logout();
 
         expect(result).toEqual({ success: true });
-        expect(mockPrismaClient.refreshToken.deleteMany).toHaveBeenCalledWith({
-            where: { familyId: 'logout-family-uuid' },
-        });
         expect(res.clearCookie).toHaveBeenCalledWith('refresh_token', expect.any(Object));
+
+        // family의 모든 RT가 삭제되었는지 확인
+        const remaining = await database.refreshToken.findMany({
+            where: { familyId },
+        });
+        expect(remaining).toHaveLength(0);
     });
 
     it('TC-7: 쿠키 없이 로그아웃 → success (graceful)', async () => {
-        const { res } = createMockResWithCookies();
-        const req = createMockReqWithCookie(); // 쿠키 없음
+        const res = createMockRes();
+        const req = createMockReq(); // 쿠키 없음
 
         const ctx: Context = { req, res };
         const caller = createCallerWithContext(ctx);

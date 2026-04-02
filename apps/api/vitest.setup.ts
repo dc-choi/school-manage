@@ -1,206 +1,28 @@
 /**
- * 테스트 공통 setup (단위/통합 테스트 공용)
+ * 통합 테스트 per-file setup (실제 DB 연결)
  *
- * Prisma mocking으로 DB 연결 없이 로직 검증
+ * 각 테스트 파일 실행 전 env 로딩 + 외부 서비스 mock + 로거 초기화.
+ * DB 스키마는 globalSetup에서 1회 적용.
  */
-import type { Mock } from 'vitest';
+import dotenv from 'dotenv';
+import { join } from 'node:path';
 import { beforeAll, vi } from 'vitest';
-import { logger } from '~/infrastructure/logger/logger.js';
 
 process.env.NODE_ENV = 'test';
+dotenv.config({ path: join(process.cwd(), '.env.test') });
 
-// Mock 모델 타입
-interface MockModel {
-    findMany: Mock;
-    findUnique: Mock;
-    findFirst: Mock;
-    create: Mock;
-    update: Mock;
-    delete: Mock;
-    count: Mock;
-    updateMany: Mock;
-    deleteMany: Mock;
-}
-
-// Kysely 체이닝 모킹 — execute()가 호출되면 _executeResult를 반환
-interface MockKyselyBuilder {
-    selectFrom: Mock;
-    innerJoin: Mock;
-    leftJoin: Mock;
-    select: Mock;
-    where: Mock;
-    groupBy: Mock;
-    having: Mock;
-    orderBy: Mock;
-    limit: Mock;
-    $castTo: Mock;
-    execute: Mock;
-    _executeResults: unknown[][];
-}
-
-function createMockKyselyBuilder(): MockKyselyBuilder {
-    const builder: MockKyselyBuilder = {
-        _executeResults: [],
-    } as unknown as MockKyselyBuilder;
-
-    const chainMethods = [
-        'selectFrom',
-        'innerJoin',
-        'leftJoin',
-        'select',
-        'where',
-        'groupBy',
-        'having',
-        'orderBy',
-        'limit',
-        '$castTo',
-    ] as const;
-    for (const method of chainMethods) {
-        builder[method] = vi.fn().mockReturnValue(builder);
-    }
-    builder.execute = vi.fn().mockImplementation(() => {
-        return Promise.resolve(builder._executeResults.shift() ?? []);
-    });
-
-    return builder;
-}
-
-// Mock Prisma Client 타입
-interface MockPrismaClient {
-    account: MockModel;
-    group: MockModel;
-    student: MockModel;
-    attendance: MockModel;
-    studentSnapshot: MockModel;
-    groupSnapshot: MockModel;
-    accountSnapshot: MockModel;
-    registration: MockModel;
-    parish: MockModel;
-    church: MockModel;
-    organization: MockModel;
-    studentGroup: MockModel;
-    joinRequest: MockModel;
-    refreshToken: MockModel;
-    churnAlertLog: MockModel;
-    $connect: Mock;
-    $disconnect: Mock;
-    $on: Mock;
-    $queryRaw: Mock;
-    $kysely: MockKyselyBuilder;
-    $transaction?: Mock;
-}
-
-// 모델 모킹 헬퍼
-function createMockModel(): MockModel {
-    return {
-        findMany: vi.fn().mockResolvedValue([]),
-        findUnique: vi.fn().mockResolvedValue(null),
-        findFirst: vi.fn().mockResolvedValue(null),
-        create: vi.fn().mockResolvedValue({}),
-        update: vi.fn().mockResolvedValue({}),
-        delete: vi.fn().mockResolvedValue({}),
-        count: vi.fn().mockResolvedValue(0),
-        updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-        deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
-    };
-}
-
-// Mock Prisma Client
-export const mockPrismaClient: MockPrismaClient = {
-    account: createMockModel(),
-    group: createMockModel(),
-    student: createMockModel(),
-    attendance: createMockModel(),
-    studentSnapshot: createMockModel(),
-    groupSnapshot: createMockModel(),
-    accountSnapshot: createMockModel(),
-    registration: createMockModel(),
-    parish: createMockModel(),
-    church: createMockModel(),
-    organization: createMockModel(),
-    studentGroup: createMockModel(),
-    joinRequest: createMockModel(),
-    refreshToken: createMockModel(),
-    churnAlertLog: createMockModel(),
-    $connect: vi.fn().mockResolvedValue(undefined),
-    $disconnect: vi.fn().mockResolvedValue(undefined),
-    $on: vi.fn(),
-    $queryRaw: vi.fn().mockResolvedValue([{ '1': 1 }]),
-    $kysely: createMockKyselyBuilder(),
-};
-
-// env 모듈 모킹 (CI에 .env.test 파일 없음)
-vi.mock('~/global/config/env.js', () => ({
-    env: {
-        mode: {
-            prod: false,
-            dev: false,
-            test: true,
-            local: false,
-            value: 'test',
-        },
-        mysql: {
-            host: 'localhost',
-            port: '3306',
-            username: 'test',
-            password: 'test',
-            schema: 'test',
-        },
-        app: {
-            name: 'test',
-            version: '0.0.0',
-            description: 'test',
-            port: 3000,
-        },
-        jwt: {
-            secret: 'test-secret-key-for-ci',
-            expire: {
-                access: '1h',
-                refresh: '7d',
-            },
-        },
-        ga4: {
-            measurementId: '',
-            apiSecret: '',
-        },
-        smtp: {
-            user: '',
-            pass: '',
-            adminEmail: '',
-        },
-        cors: {
-            origin: '',
-        },
+// mailService mock (실제 메일 발송 방지 — 모든 integration 테스트에 적용)
+vi.mock('~/infrastructure/mail/mail.service.js', () => ({
+    mailService: {
+        isEnabled: vi.fn().mockReturnValue(true),
+        sendTemporaryPassword: vi.fn().mockResolvedValue(true),
     },
 }));
 
-// database 모듈 모킹
-vi.mock('~/infrastructure/database/database.js', () => ({
-    database: mockPrismaClient,
-    connectDatabase: vi.fn().mockResolvedValue(undefined),
-}));
-
-// @prisma/adapter-mariadb 모킹
-vi.mock('@prisma/adapter-mariadb', () => ({
-    PrismaMariaDb: vi.fn().mockImplementation(() => ({})),
-}));
-
-// Prisma.sql 템플릿 태그 모킹
-const mockSql = (strings: TemplateStringsArray, ...values: unknown[]) => ({
-    strings,
-    values,
-});
-
-// @prisma/client 모킹
-vi.mock('@prisma/client', () => ({
-    PrismaClient: vi.fn().mockImplementation(() => mockPrismaClient),
-    Prisma: {
-        sql: mockSql,
-    },
-}));
+// logger는 database.ts 이후에 import해야 env가 설정된 상태에서 로드됨
+const { logger } = await import('~/infrastructure/logger/logger.js');
 
 beforeAll(async () => {
-    // Logger 초기화 (최소 출력)
     logger.init({
         console: false,
         debug: false,

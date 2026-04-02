@@ -1,131 +1,143 @@
 /**
- * 관리자 양도 + 계정 삭제 분기 통합 테스트
+ * 관리자 양도 + 계정 삭제 분기 통합 테스트 (실제 DB)
  *
- * - transferAdmin: ADMIN → TEACHER 역할 교환
+ * - transferAdmin: ADMIN -> TEACHER 역할 교환
  * - deleteAccount: ADMIN 유일 멤버 시 조직 소프트 삭제
  */
-import { mockPrismaClient } from '../../vitest.setup.ts';
-import { createMockAccount, getTestAccount, testPassword } from '../helpers/mock-data.ts';
-import { createAuthenticatedCaller, createScopedCaller } from '../helpers/trpc-caller.ts';
+import { type SeedBase, TEST_PASSWORD, TEST_PASSWORD_HASH, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
+import { createScopedCaller } from '../helpers/trpc-caller.ts';
 import { ROLE } from '@school/shared';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getNowKST } from '@school/utils';
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { database } from '~/infrastructure/database/database.js';
+
+let seed: SeedBase;
+
+beforeEach(async () => {
+    await truncateAll();
+    seed = await seedBase();
+});
+
+afterAll(async () => {
+    await truncateAll();
+});
 
 describe('관리자 양도 통합 테스트', () => {
-    const testAccount = getTestAccount();
-    const accountId = String(testAccount.id);
-    const orgId = '1';
-    const orgName = '장위동 중고등부';
-
     // ================================================================
     // organization.transferAdmin
     // ================================================================
     describe('organization.transferAdmin', () => {
-        const mockTx = {
-            account: {
-                findFirst: vi.fn(),
-                update: vi.fn().mockResolvedValue({
-                    id: BigInt(1),
-                    name: '중고등부',
-                    displayName: '중고등부',
-                }),
-            },
-            accountSnapshot: {
-                create: vi.fn().mockResolvedValue({}),
-            },
-        };
-
-        beforeEach(() => {
-            mockTx.account.findFirst.mockReset();
-            mockPrismaClient.$transaction = vi.fn().mockImplementation(async (cb) => cb(mockTx));
-            mockTx.account.update.mockReset().mockResolvedValue({
-                id: BigInt(1),
-                name: '중고등부',
-                displayName: '중고등부',
+        it('ADMIN이 TEACHER에게 양도 -> success', async () => {
+            const now = getNowKST();
+            const teacher = await database.account.create({
+                data: {
+                    name: '선생님',
+                    displayName: '선생님',
+                    password: TEST_PASSWORD_HASH,
+                    organizationId: seed.org.id,
+                    role: ROLE.TEACHER,
+                    createdAt: now,
+                    privacyAgreedAt: now,
+                },
             });
-            mockTx.accountSnapshot.create.mockReset().mockResolvedValue({});
-        });
 
-        it('ADMIN이 TEACHER에게 양도 → success', async () => {
-            const targetAccount = createMockAccount({
-                id: BigInt(2),
-                name: '선생님',
-                displayName: '선생님',
-                role: ROLE.TEACHER,
-            });
-            mockTx.account.findFirst.mockResolvedValueOnce(targetAccount);
-
-            const caller = createScopedCaller(accountId, testAccount.name, orgId, orgName, {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name, {
                 role: ROLE.ADMIN,
             });
 
             const result = await caller.organization.transferAdmin({
-                targetAccountId: '2',
+                targetAccountId: String(teacher.id),
             });
 
             expect(result).toEqual({ success: true });
-            expect(mockPrismaClient.$transaction).toHaveBeenCalledOnce();
+
+            // DB 확인: 기존 ADMIN -> TEACHER, 대상 TEACHER -> ADMIN
+            const updatedAdmin = await database.account.findFirst({
+                where: { id: seed.account.id },
+            });
+            const updatedTeacher = await database.account.findFirst({
+                where: { id: teacher.id },
+            });
+            expect(updatedAdmin?.role).toBe(ROLE.TEACHER);
+            expect(updatedTeacher?.role).toBe(ROLE.ADMIN);
         });
 
-        it('자기 자신에게 양도 → BAD_REQUEST', async () => {
-            const caller = createScopedCaller(accountId, testAccount.name, orgId, orgName, {
+        it('자기 자신에게 양도 -> BAD_REQUEST', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name, {
                 role: ROLE.ADMIN,
             });
 
             await expect(
                 caller.organization.transferAdmin({
-                    targetAccountId: accountId,
+                    targetAccountId: seed.ids.accountId,
                 })
             ).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
             });
         });
 
-        it('대상이 같은 조직에 없음 → NOT_FOUND', async () => {
-            mockTx.account.findFirst.mockResolvedValueOnce(null);
-
-            const caller = createScopedCaller(accountId, testAccount.name, orgId, orgName, {
+        it('대상이 같은 조직에 없음 -> NOT_FOUND', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name, {
                 role: ROLE.ADMIN,
             });
 
             await expect(
                 caller.organization.transferAdmin({
-                    targetAccountId: '999',
+                    targetAccountId: '999999',
                 })
             ).rejects.toMatchObject({
                 code: 'NOT_FOUND',
             });
         });
 
-        it('대상이 ADMIN → BAD_REQUEST', async () => {
-            const targetAccount = createMockAccount({
-                id: BigInt(3),
-                name: '다른관리자',
-                displayName: '다른관리자',
-                role: ROLE.ADMIN,
+        it('대상이 ADMIN -> BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const anotherAdmin = await database.account.create({
+                data: {
+                    name: '다른관리자',
+                    displayName: '다른관리자',
+                    password: TEST_PASSWORD_HASH,
+                    organizationId: seed.org.id,
+                    role: ROLE.ADMIN,
+                    createdAt: now,
+                    privacyAgreedAt: now,
+                },
             });
-            mockTx.account.findFirst.mockResolvedValueOnce(targetAccount);
 
-            const caller = createScopedCaller(accountId, testAccount.name, orgId, orgName, {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name, {
                 role: ROLE.ADMIN,
             });
 
             await expect(
                 caller.organization.transferAdmin({
-                    targetAccountId: '3',
+                    targetAccountId: String(anotherAdmin.id),
                 })
             ).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
             });
         });
 
-        it('TEACHER가 양도 시도 → FORBIDDEN', async () => {
-            const caller = createScopedCaller(accountId, testAccount.name, orgId, orgName, {
+        it('TEACHER가 양도 시도 -> FORBIDDEN', async () => {
+            const now = getNowKST();
+            const teacher = await database.account.create({
+                data: {
+                    name: '선생님',
+                    displayName: '선생님',
+                    password: TEST_PASSWORD_HASH,
+                    organizationId: seed.org.id,
+                    role: ROLE.TEACHER,
+                    createdAt: now,
+                    privacyAgreedAt: now,
+                },
+            });
+
+            const caller = createScopedCaller(String(teacher.id), teacher.name, seed.ids.orgId, seed.org.name, {
                 role: ROLE.TEACHER,
             });
 
             await expect(
                 caller.organization.transferAdmin({
-                    targetAccountId: '2',
+                    targetAccountId: seed.ids.accountId,
                 })
             ).rejects.toMatchObject({
                 code: 'FORBIDDEN',
@@ -137,89 +149,111 @@ describe('관리자 양도 통합 테스트', () => {
     // account.deleteAccount (ADMIN 분기)
     // ================================================================
     describe('account.deleteAccount (ADMIN 분기)', () => {
-        const mockTx = {
-            account: {
-                count: vi.fn().mockResolvedValue(1),
-                update: vi.fn().mockResolvedValue({}),
-            },
-            refreshToken: {
-                deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            joinRequest: {
-                updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            student: {
-                updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            group: {
-                updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            organization: {
-                update: vi.fn().mockResolvedValue({}),
-            },
-        };
-
-        beforeEach(() => {
-            mockPrismaClient.account.findFirst.mockReset();
-            mockPrismaClient.$transaction = vi.fn().mockImplementation(async (cb) => cb(mockTx));
-            mockTx.account.count.mockReset().mockResolvedValue(1);
-            mockTx.account.update.mockReset().mockResolvedValue({});
-            mockTx.refreshToken.deleteMany.mockReset().mockResolvedValue({ count: 0 });
-            mockTx.joinRequest.updateMany.mockReset().mockResolvedValue({ count: 0 });
-            mockTx.student.updateMany.mockReset().mockResolvedValue({ count: 0 });
-            mockTx.group.updateMany.mockReset().mockResolvedValue({ count: 0 });
-            mockTx.organization.update.mockReset().mockResolvedValue({});
-        });
-
-        it('ADMIN + 다른 멤버 존재 → FORBIDDEN', async () => {
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce({
-                id: testAccount.id,
-                password: testAccount.password,
+        it('ADMIN + 다른 멤버 존재 -> FORBIDDEN', async () => {
+            const now = getNowKST();
+            // 다른 멤버 추가
+            await database.account.create({
+                data: {
+                    name: '선생님',
+                    displayName: '선생님',
+                    password: TEST_PASSWORD_HASH,
+                    organizationId: seed.org.id,
+                    role: ROLE.TEACHER,
+                    createdAt: now,
+                    privacyAgreedAt: now,
+                },
             });
-            mockTx.account.count.mockResolvedValueOnce(2);
 
             const { DeleteAccountUseCase } = await import('~/domains/account/application/delete-account.usecase.js');
             const usecase = new DeleteAccountUseCase();
 
             await expect(
-                usecase.execute({ password: testPassword }, accountId, ROLE.ADMIN, orgId)
+                usecase.execute({ password: TEST_PASSWORD }, seed.ids.accountId, ROLE.ADMIN, seed.ids.orgId)
             ).rejects.toMatchObject({
                 code: 'FORBIDDEN',
             });
         });
 
-        it('ADMIN 유일 멤버 → 조직 소프트 삭제 + 계정 삭제', async () => {
-            mockTx.account.count.mockResolvedValueOnce(1);
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce({
-                id: testAccount.id,
-                password: testAccount.password,
+        it('ADMIN 유일 멤버 -> 조직 소프트 삭제 + 계정 삭제', async () => {
+            // seedBase는 계정 1개만 생성 -> 유일 멤버
+            const now = getNowKST();
+            // 학생/그룹 생성하여 cascade 소프트 삭제 검증
+            const group = await database.group.create({
+                data: { name: '삭제대상그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '삭제대상학생', organizationId: seed.org.id, createdAt: now },
             });
 
             const { DeleteAccountUseCase } = await import('~/domains/account/application/delete-account.usecase.js');
             const usecase = new DeleteAccountUseCase();
-            const result = await usecase.execute({ password: testPassword }, accountId, ROLE.ADMIN, orgId);
+            const result = await usecase.execute(
+                { password: TEST_PASSWORD },
+                seed.ids.accountId,
+                ROLE.ADMIN,
+                seed.ids.orgId
+            );
 
             expect(result).toEqual({ success: true });
-            expect(mockPrismaClient.$transaction).toHaveBeenCalledOnce();
-            expect(mockTx.organization.update).toHaveBeenCalledOnce();
-            expect(mockTx.student.updateMany).toHaveBeenCalledOnce();
-            expect(mockTx.group.updateMany).toHaveBeenCalledOnce();
-            expect(mockTx.joinRequest.updateMany).toHaveBeenCalledOnce();
+
+            // 조직이 소프트 삭제되었는지 확인
+            const org = await database.organization.findFirst({
+                where: { id: seed.org.id },
+            });
+            expect(org?.deletedAt).not.toBeNull();
+
+            // 학생이 소프트 삭제되었는지 확인
+            const deletedStudent = await database.student.findFirst({
+                where: { id: student.id },
+            });
+            expect(deletedStudent?.deletedAt).not.toBeNull();
+
+            // 그룹이 소프트 삭제되었는지 확인
+            const deletedGroup = await database.group.findFirst({
+                where: { id: group.id },
+            });
+            expect(deletedGroup?.deletedAt).not.toBeNull();
+
+            // 계정이 소프트 삭제 + 조직 연결 해제되었는지 확인
+            const deletedAccount = await database.account.findFirst({
+                where: { id: seed.account.id },
+            });
+            expect(deletedAccount?.deletedAt).not.toBeNull();
+            expect(deletedAccount?.organizationId).toBeNull();
         });
 
-        it('TEACHER 삭제 → 기존 로직 유지 (조직 삭제 없음)', async () => {
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce({
-                id: testAccount.id,
-                password: testAccount.password,
+        it('TEACHER 삭제 -> 기존 로직 유지 (조직 삭제 없음)', async () => {
+            const now = getNowKST();
+            const teacher = await database.account.create({
+                data: {
+                    name: '선생님계정',
+                    displayName: '선생님계정',
+                    password: TEST_PASSWORD_HASH,
+                    organizationId: seed.org.id,
+                    role: ROLE.TEACHER,
+                    createdAt: now,
+                    privacyAgreedAt: now,
+                },
             });
 
             const { DeleteAccountUseCase } = await import('~/domains/account/application/delete-account.usecase.js');
             const usecase = new DeleteAccountUseCase();
-            const result = await usecase.execute({ password: testPassword }, accountId, ROLE.TEACHER);
+            const result = await usecase.execute({ password: TEST_PASSWORD }, String(teacher.id), ROLE.TEACHER);
 
             expect(result).toEqual({ success: true });
-            expect(mockPrismaClient.$transaction).toHaveBeenCalledOnce();
-            expect(mockTx.organization.update).not.toHaveBeenCalled();
+
+            // 계정이 소프트 삭제되었는지 확인
+            const deletedTeacher = await database.account.findFirst({
+                where: { id: teacher.id },
+            });
+            expect(deletedTeacher?.deletedAt).not.toBeNull();
+            expect(deletedTeacher?.organizationId).toBeNull();
+
+            // 조직은 삭제되지 않았어야 함
+            const org = await database.organization.findFirst({
+                where: { id: seed.org.id },
+            });
+            expect(org?.deletedAt).toBeNull();
         });
     });
 });

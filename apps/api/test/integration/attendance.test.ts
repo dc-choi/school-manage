@@ -1,74 +1,83 @@
 /**
- * Attendance 통합 테스트 (tRPC + Prisma Mocking)
+ * Attendance 통합 테스트 (실제 DB)
  *
- * Mock 데이터를 사용하여 출석 프로시저 테스트
+ * 실제 DB를 사용하여 출석 프로시저 테스트
  */
-import { mockPrismaClient } from '../../vitest.setup.ts';
-import { createMockAttendance, createMockGroup, createMockStudent, getTestAccount } from '../helpers/mock-data.ts';
+import { type SeedBase, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
 import { createPublicCaller, createScopedCaller } from '../helpers/trpc-caller.ts';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getNowKST } from '@school/utils';
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { database } from '~/infrastructure/database/database.js';
+
+let seed: SeedBase;
+
+beforeEach(async () => {
+    await truncateAll();
+    seed = await seedBase();
+});
+
+afterAll(async () => {
+    await truncateAll();
+});
 
 describe('attendance 통합 테스트', () => {
-    beforeEach(() => {
-        // 모든 mock 초기화
-        mockPrismaClient.group.findFirst.mockReset();
-        mockPrismaClient.student.findMany.mockReset();
-        mockPrismaClient.student.count.mockReset();
-        mockPrismaClient.studentGroup.findMany.mockReset();
-        mockPrismaClient.studentGroup.count.mockReset();
-        mockPrismaClient.attendance.findMany.mockReset();
-        mockPrismaClient.attendance.updateMany.mockReset();
-        mockPrismaClient.attendance.create.mockReset();
-        mockPrismaClient.attendance.findFirst.mockReset();
-    });
-
     describe('group.attendance (출석 조회)', () => {
         it('그룹별 출석 현황 조회 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-            const mockStudent = createMockStudent({});
-            const mockAttendance = createMockAttendance({ studentId: mockStudent.id });
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+            await database.attendance.create({
+                data: {
+                    date: '20240107',
+                    content: '◎',
+                    studentId: student.id,
+                    groupId: group.id,
+                    createdAt: now,
+                },
+            });
 
-            // 소유권 검증: 그룹이 해당 조직 소속인지 확인
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            // UseCase가 StudentGroup 기반으로 students와 attendances를 별도로 조회함
-            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
-                { studentId: mockStudent.id, student: mockStudent },
-            ]);
-            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.group.attendance({ groupId });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.group.attendance({ groupId: String(group.id) });
 
             expect(result).toHaveProperty('students');
             expect(result).toHaveProperty('attendances');
             expect(result).toHaveProperty('year');
             expect(Array.isArray(result.students)).toBe(true);
+            expect(result.students.length).toBe(1);
+            expect(result.attendances.length).toBeGreaterThanOrEqual(1);
         });
 
         it('특정 연도 출석 조회 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-            const mockStudent = createMockStudent({});
-            const mockAttendance = createMockAttendance({ studentId: mockStudent.id });
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+            await database.attendance.create({
+                data: {
+                    date: '20240107',
+                    content: '◎',
+                    studentId: student.id,
+                    groupId: group.id,
+                    createdAt: now,
+                },
+            });
 
-            // 소유권 검증
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            // StudentGroup 기반 학생 조회
-            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
-                { studentId: mockStudent.id, student: mockStudent },
-            ]);
-            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.group.attendance({
-                groupId,
+                groupId: String(group.id),
                 year: 2024,
             });
 
@@ -78,23 +87,20 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
-            const testAccount = getTestAccount();
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
 
             const caller = createPublicCaller();
 
-            await expect(caller.group.attendance({ groupId })).rejects.toMatchObject({
+            await expect(caller.group.attendance({ groupId: String(group.id) })).rejects.toMatchObject({
                 code: 'UNAUTHORIZED',
             });
         });
 
         it('잘못된 그룹 ID 형식 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.group.attendance({ groupId: 'invalid-id' })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -104,42 +110,27 @@ describe('attendance 통합 테스트', () => {
 
     describe('attendance.update', () => {
         it('출석 입력 성공 (새 출석 생성)', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const mockStudent = createMockStudent({});
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
 
-            // 측정 인프라: 조직의 첫 출석인지 확인
-            mockPrismaClient.attendance.count.mockResolvedValueOnce(0);
-            mockPrismaClient.organization.findUnique.mockResolvedValueOnce({ createdAt: new Date() });
-            // 소유권 검증: 모든 학생이 해당 조직 소속인지
-            mockPrismaClient.student.count.mockResolvedValueOnce(1);
-
-            // $transaction mock
-            const txMock = {
-                student: {
-                    findMany: vi.fn().mockResolvedValue([{ id: mockStudent.id, groupId: mockGroup.id }]),
-                },
-                attendance: {
-                    findFirst: vi.fn().mockResolvedValue(null),
-                    create: vi
-                        .fn()
-                        .mockResolvedValue(createMockAttendance({ studentId: mockStudent.id, groupId: mockGroup.id })),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((callback) => callback(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.attendance.update({
                 year: 2024,
-                groupId: String(mockGroup.id),
+                groupId: String(group.id),
                 attendance: [
                     {
-                        id: String(mockStudent.id),
+                        id: String(student.id),
                         month: 1,
                         day: 7,
-                        data: 'O',
+                        data: '◎',
                     },
                 ],
                 isFull: true,
@@ -148,42 +139,48 @@ describe('attendance 통합 테스트', () => {
             expect(result).toHaveProperty('row');
             expect(result).toHaveProperty('isFull');
             expect(result.isFull).toBe(true);
+            expect(result.row).toBe(1);
+
+            // DB에 실제 생성되었는지 확인
+            const dbAttendance = await database.attendance.findFirst({
+                where: { studentId: student.id, date: '20240107' },
+            });
+            expect(dbAttendance).not.toBeNull();
+            expect(dbAttendance?.content).toBe('◎');
         });
 
         it('출석 수정 성공 (기존 출석 업데이트)', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const mockStudent = createMockStudent({});
-            const existingAttendance = createMockAttendance({ studentId: mockStudent.id });
-
-            // 측정 인프라 + 소유권 검증
-            mockPrismaClient.attendance.count.mockResolvedValueOnce(1);
-            mockPrismaClient.student.count.mockResolvedValueOnce(1);
-
-            // $transaction mock - existing attendance found
-            const txMock = {
-                student: {
-                    findMany: vi.fn().mockResolvedValue([{ id: mockStudent.id, groupId: mockGroup.id }]),
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+            // 기존 출석 데이터 생성
+            await database.attendance.create({
+                data: {
+                    date: '20240107',
+                    content: '◎',
+                    studentId: student.id,
+                    groupId: group.id,
+                    createdAt: now,
                 },
-                attendance: {
-                    findFirst: vi.fn().mockResolvedValue(existingAttendance),
-                    updateMany: vi.fn().mockResolvedValue({ count: 1 }),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((callback) => callback(txMock));
+            });
 
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.attendance.update({
                 year: 2024,
-                groupId: String(mockGroup.id),
+                groupId: String(group.id),
                 attendance: [
                     {
-                        id: String(mockStudent.id),
+                        id: String(student.id),
                         month: 1,
                         day: 7,
-                        data: 'X',
+                        data: '○',
                     },
                 ],
                 isFull: true,
@@ -191,6 +188,12 @@ describe('attendance 통합 테스트', () => {
 
             expect(result).toHaveProperty('row');
             expect(result).toHaveProperty('isFull');
+
+            // DB에서 수정 확인
+            const dbAttendance = await database.attendance.findFirst({
+                where: { studentId: student.id, date: '20240107' },
+            });
+            expect(dbAttendance?.content).toBe('○');
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -205,7 +208,7 @@ describe('attendance 통합 테스트', () => {
                             id: '1',
                             month: 1,
                             day: 7,
-                            data: 'O',
+                            data: '◎',
                         },
                     ],
                     isFull: true,
@@ -216,11 +219,7 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('attendance 배열이 500개 초과하면 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             const oversizedAttendance = Array.from({ length: 501 }, (_, i) => ({
                 id: String(i + 1),
@@ -242,11 +241,7 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('attendance 배열이 비어있으면 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(
                 caller.attendance.update({
@@ -263,30 +258,29 @@ describe('attendance 통합 테스트', () => {
 
     describe('attendance.calendar (달력 조회)', () => {
         it('월별 달력 데이터 조회 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-            const mockStudent = createMockStudent({});
-            const mockAttendance = createMockAttendance({
-                studentId: mockStudent.id,
-                date: '2024-01-07',
-                content: '◎',
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+            await database.attendance.create({
+                data: {
+                    date: '20240107',
+                    content: '◎',
+                    studentId: student.id,
+                    groupId: group.id,
+                    createdAt: now,
+                },
             });
 
-            // Group 권한 검증
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            // 전체 학생 수 (StudentGroup 기반)
-            mockPrismaClient.studentGroup.count.mockResolvedValueOnce(1);
-            // 학생 ID 조회 (StudentGroup 기반)
-            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([{ studentId: mockStudent.id }]);
-            // 월별 출석 데이터
-            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.attendance.calendar({
-                groupId,
+                groupId: String(group.id),
                 year: 2024,
                 month: 1,
             });
@@ -300,34 +294,39 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('미사/교리 인원 분리 집계 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-            const student1 = createMockStudent({ societyName: '학생1' });
-            const student2 = createMockStudent({ societyName: '학생2' });
-            const student3 = createMockStudent({ societyName: '학생3' });
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student1 = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now },
+            });
+            const student2 = await database.student.create({
+                data: { societyName: '학생2', organizationId: seed.org.id, createdAt: now },
+            });
+            const student3 = await database.student.create({
+                data: { societyName: '학생3', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.createMany({
+                data: [
+                    { studentId: student1.id, groupId: group.id, createdAt: now },
+                    { studentId: student2.id, groupId: group.id, createdAt: now },
+                    { studentId: student3.id, groupId: group.id, createdAt: now },
+                ],
+            });
 
             // ◎(미사+교리), ○(미사만), △(교리만)
-            const attendances = [
-                createMockAttendance({ studentId: student1.id, date: '20240107', content: '◎' }),
-                createMockAttendance({ studentId: student2.id, date: '20240107', content: '○' }),
-                createMockAttendance({ studentId: student3.id, date: '20240107', content: '△' }),
-            ];
+            await database.attendance.createMany({
+                data: [
+                    { date: '20240107', content: '◎', studentId: student1.id, groupId: group.id, createdAt: now },
+                    { date: '20240107', content: '○', studentId: student2.id, groupId: group.id, createdAt: now },
+                    { date: '20240107', content: '△', studentId: student3.id, groupId: group.id, createdAt: now },
+                ],
+            });
 
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            mockPrismaClient.studentGroup.count.mockResolvedValueOnce(3);
-            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
-                { studentId: student1.id },
-                { studentId: student2.id },
-                { studentId: student3.id },
-            ]);
-            mockPrismaClient.attendance.findMany.mockResolvedValueOnce(attendances);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.attendance.calendar({
-                groupId,
+                groupId: String(group.id),
                 year: 2024,
                 month: 1,
             });
@@ -342,23 +341,26 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('출석 없는 날짜는 모든 카운트가 0', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const s1 = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now },
+            });
+            const s2 = await database.student.create({
+                data: { societyName: '학생2', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.createMany({
+                data: [
+                    { studentId: s1.id, groupId: group.id, createdAt: now },
+                    { studentId: s2.id, groupId: group.id, createdAt: now },
+                ],
+            });
 
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            mockPrismaClient.studentGroup.count.mockResolvedValueOnce(2);
-            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
-                { studentId: BigInt(1) },
-                { studentId: BigInt(2) },
-            ]);
-            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([]);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.attendance.calendar({
-                groupId,
+                groupId: String(group.id),
                 year: 2024,
                 month: 1,
             });
@@ -373,20 +375,20 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('권한 없는 그룹 조회 시 FORBIDDEN 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const otherAccountGroup = createMockGroup({});
-            const groupId = String(otherAccountGroup.id);
+            const now = getNowKST();
+            // 다른 조직의 그룹 생성
+            const otherOrg = await database.organization.create({
+                data: { name: '다른조직', type: 'MIDDLE_HIGH', churchId: seed.church.id, createdAt: now },
+            });
+            const otherGroup = await database.group.create({
+                data: { name: '다른그룹', organizationId: otherOrg.id, createdAt: now },
+            });
 
-            // 다른 계정의 그룹이므로 null 반환
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(null);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(
                 caller.attendance.calendar({
-                    groupId,
+                    groupId: String(otherGroup.id),
                     year: 2024,
                     month: 1,
                 })
@@ -396,14 +398,16 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
-            const mockGroup = createMockGroup();
-            const groupId = String(mockGroup.id);
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
 
             const caller = createPublicCaller();
 
             await expect(
                 caller.attendance.calendar({
-                    groupId,
+                    groupId: String(group.id),
                     year: 2024,
                     month: 1,
                 })
@@ -415,32 +419,35 @@ describe('attendance 통합 테스트', () => {
 
     describe('attendance.dayDetail (날짜별 상세 조회)', () => {
         it('특정 날짜 출석 상세 조회 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-            const mockStudent1 = createMockStudent({ societyName: '홍길동' });
-            const mockStudent2 = createMockStudent({ societyName: '김철수' });
-            const mockAttendance = createMockAttendance({
-                studentId: mockStudent1.id,
-                date: '2024-01-07',
-                content: '◎',
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student1 = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            const student2 = await database.student.create({
+                data: { societyName: '김철수', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.createMany({
+                data: [
+                    { studentId: student1.id, groupId: group.id, createdAt: now },
+                    { studentId: student2.id, groupId: group.id, createdAt: now },
+                ],
+            });
+            await database.attendance.create({
+                data: {
+                    date: '20240107',
+                    content: '◎',
+                    studentId: student1.id,
+                    groupId: group.id,
+                    createdAt: now,
+                },
             });
 
-            // Group 권한 검증
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            // 학생 목록 (StudentGroup 기반, include: { student })
-            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
-                { studentId: mockStudent1.id, student: mockStudent1 },
-                { studentId: mockStudent2.id, student: mockStudent2 },
-            ]);
-            // 출석 데이터
-            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([mockAttendance]);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.attendance.dayDetail({
-                groupId,
+                groupId: String(group.id),
                 date: '2024-01-07',
             });
 
@@ -450,33 +457,30 @@ describe('attendance 통합 테스트', () => {
             expect(Array.isArray(result.students)).toBe(true);
             expect(result.students.length).toBe(2);
 
-            // 첫 번째 학생은 출석 O
-            const student1Result = result.students.find((s) => s.id === String(mockStudent1.id));
+            // 첫 번째 학생은 출석 ◎
+            const student1Result = result.students.find((s) => s.id === String(student1.id));
             expect(student1Result?.content).toBe('◎');
 
             // 두 번째 학생은 출석 데이터 없음
-            const student2Result = result.students.find((s) => s.id === String(mockStudent2.id));
+            const student2Result = result.students.find((s) => s.id === String(student2.id));
             expect(student2Result?.content).toBe('');
         });
 
         it('의무축일 정보 포함 확인 (1월 1일 - 천주의 성모 마리아 대축일)', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-            const mockStudent = createMockStudent({});
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
 
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(mockGroup);
-            // StudentGroup 기반 학생 조회
-            mockPrismaClient.studentGroup.findMany.mockResolvedValueOnce([
-                { studentId: mockStudent.id, student: mockStudent },
-            ]);
-            mockPrismaClient.attendance.findMany.mockResolvedValueOnce([]);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.attendance.dayDetail({
-                groupId,
+                groupId: String(group.id),
                 date: '2024-01-01',
             });
 
@@ -484,19 +488,20 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('권한 없는 그룹 조회 시 FORBIDDEN 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const otherAccountGroup = createMockGroup({});
-            const groupId = String(otherAccountGroup.id);
+            const now = getNowKST();
+            // 다른 조직의 그룹 생성
+            const otherOrg = await database.organization.create({
+                data: { name: '다른조직', type: 'MIDDLE_HIGH', churchId: seed.church.id, createdAt: now },
+            });
+            const otherGroup = await database.group.create({
+                data: { name: '다른그룹', organizationId: otherOrg.id, createdAt: now },
+            });
 
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(null);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(
                 caller.attendance.dayDetail({
-                    groupId,
+                    groupId: String(otherGroup.id),
                     date: '2024-01-07',
                 })
             ).rejects.toMatchObject({
@@ -505,14 +510,16 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
-            const mockGroup = createMockGroup();
-            const groupId = String(mockGroup.id);
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
 
             const caller = createPublicCaller();
 
             await expect(
                 caller.attendance.dayDetail({
-                    groupId,
+                    groupId: String(group.id),
                     date: '2024-01-07',
                 })
             ).rejects.toMatchObject({
@@ -521,17 +528,16 @@ describe('attendance 통합 테스트', () => {
         });
 
         it('잘못된 날짜 형식 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
 
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(
                 caller.attendance.dayDetail({
-                    groupId,
+                    groupId: String(group.id),
                     date: '2024-1-7', // 잘못된 형식
                 })
             ).rejects.toMatchObject({
