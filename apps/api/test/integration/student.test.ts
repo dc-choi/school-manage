@@ -1,60 +1,51 @@
 /**
- * Student 통합 테스트 (tRPC + Prisma Mocking)
+ * Student 통합 테스트 (실제 DB)
  *
- * Mock 데이터를 사용하여 학생 CRUD 프로시저 테스트
+ * 실제 DB를 사용하여 학생 CRUD 프로시저 테스트
  */
-import { mockPrismaClient } from '../../vitest.setup.ts';
-import { createMockGroup, createMockStudent, getTestAccount } from '../helpers/mock-data.ts';
+import { type SeedBase, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
 import { createPublicCaller, createScopedCaller } from '../helpers/trpc-caller.ts';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getNowKST } from '@school/utils';
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { database } from '~/infrastructure/database/database.js';
+
+let seed: SeedBase;
+
+beforeEach(async () => {
+    await truncateAll();
+    seed = await seedBase();
+});
+
+afterAll(async () => {
+    await truncateAll();
+});
 
 describe('student 통합 테스트', () => {
-    beforeEach(() => {
-        // 모든 mock 초기화
-        mockPrismaClient.student.findMany.mockReset();
-        mockPrismaClient.student.findFirst.mockReset();
-        mockPrismaClient.student.create.mockReset();
-        mockPrismaClient.student.update.mockReset();
-        mockPrismaClient.student.count.mockReset();
-        mockPrismaClient.group.findFirst.mockReset();
-        mockPrismaClient.group.findMany.mockReset();
-        mockPrismaClient.registration.count.mockReset();
-        mockPrismaClient.registration.updateMany.mockReset();
-        mockPrismaClient.organization.findUnique.mockReset();
-    });
-
     describe('student.list', () => {
         it('학생 목록 조회 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const s1 = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            const s2 = await database.student.create({
+                data: { societyName: '김철수', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.createMany({
+                data: [
+                    { studentId: s1.id, groupId: group.id, createdAt: now },
+                    { studentId: s2.id, groupId: group.id, createdAt: now },
+                ],
+            });
 
-            const mockGroup = createMockGroup({});
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-
-            const mockStudentsWithGroup = [
-                {
-                    ...createMockStudent({}),
-                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
-                    registrations: [],
-                },
-                {
-                    ...createMockStudent({}),
-                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
-                    registrations: [],
-                },
-            ];
-            mockPrismaClient.student.findMany.mockResolvedValueOnce(mockStudentsWithGroup);
-            mockPrismaClient.student.count.mockResolvedValueOnce(2);
-            mockPrismaClient.registration.count.mockResolvedValueOnce(0);
-            mockPrismaClient.student.count.mockResolvedValueOnce(2);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            // listStudentsInputSchema: { page, searchOption, searchWord }
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.student.list({});
 
             expect(result).toHaveProperty('students');
             expect(Array.isArray(result.students)).toBe(true);
+            expect(result.students.length).toBe(2);
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -68,73 +59,58 @@ describe('student 통합 테스트', () => {
 
     describe('student.create', () => {
         it('학생 생성 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-
-            const newStudent = createMockStudent({
-                societyName: '홍길동',
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
             });
 
-            // student.count → isFirstStudent 판정 (0이면 첫 학생)
-            mockPrismaClient.student.count.mockResolvedValueOnce(0);
-            // organization.findUnique → daysSinceCreation 계산
-            mockPrismaClient.organization.findUnique.mockResolvedValueOnce({ createdAt: new Date() });
-            // group.count → groupIds 소유권 검증 (1개 그룹이 조직 소속)
-            mockPrismaClient.group.count.mockResolvedValueOnce(1);
-
-            // $transaction mock (create-student now uses transaction + snapshot + studentGroup)
-            const txMock = {
-                student: {
-                    create: vi.fn().mockResolvedValue(newStudent),
-                },
-                studentGroup: {
-                    create: vi.fn().mockResolvedValue({}),
-                    findMany: vi
-                        .fn()
-                        .mockResolvedValue([{ group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE' } }]),
-                },
-                studentSnapshot: {
-                    create: vi.fn().mockResolvedValue({}),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.student.create({
                 societyName: '홍길동',
-                groupIds: [groupId],
+                groupIds: [String(group.id)],
             });
 
             expect(result).toHaveProperty('id');
             expect(result).toHaveProperty('societyName');
             expect(result.societyName).toBe('홍길동');
+
+            // DB에 실제 생성되었는지 확인
+            const dbStudent = await database.student.findFirst({ where: { societyName: '홍길동' } });
+            expect(dbStudent).not.toBeNull();
+
+            // StudentGroup junction 레코드 생성 확인
+            const dbSg = await database.studentGroup.findFirst({
+                where: { studentId: BigInt(result.id), groupId: group.id },
+            });
+            expect(dbSg).not.toBeNull();
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
-            const testAccount = getTestAccount();
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
 
             const caller = createPublicCaller();
 
-            await expect(caller.student.create({ societyName: '홍길동', groupIds: [groupId] })).rejects.toMatchObject({
+            await expect(
+                caller.student.create({ societyName: '홍길동', groupIds: [String(group.id)] })
+            ).rejects.toMatchObject({
                 code: 'UNAUTHORIZED',
             });
         });
 
         it('필수 필드 누락 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
 
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
-            await expect(caller.student.create({ societyName: '', groupIds: [groupId] })).rejects.toMatchObject({
+            await expect(
+                caller.student.create({ societyName: '', groupIds: [String(group.id)] })
+            ).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
             });
         });
@@ -142,25 +118,25 @@ describe('student 통합 테스트', () => {
 
     describe('student.get', () => {
         it('학생 상세 조회 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-
-            const mockStudent = createMockStudent({});
-            mockPrismaClient.student.findFirst.mockResolvedValueOnce({
-                ...mockStudent,
-                studentGroups: [
-                    { group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE', organizationId: BigInt(1) } },
-                ],
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
             });
 
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.get({ id: String(mockStudent.id) });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.get({ id: String(student.id) });
 
             expect(result).toHaveProperty('id');
             expect(result).toHaveProperty('societyName');
+            expect(result.societyName).toBe('홍길동');
+            expect(result.groups.length).toBe(1);
+            expect(result.groups[0].name).toBe('테스트그룹');
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -172,89 +148,67 @@ describe('student 통합 테스트', () => {
         });
 
         it('잘못된 ID 형식 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.get({ id: 'invalid-id' })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
             });
         });
 
-        it('삭제된 그룹 제외 — findFirst에 deletedAt 필터 전달', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-
-            const mockStudent = createMockStudent({});
-            mockPrismaClient.student.findFirst.mockResolvedValueOnce({
-                ...mockStudent,
-                studentGroups: [{ group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE' } }],
+        it('삭제된 그룹 제외 확인', async () => {
+            const now = getNowKST();
+            const activeGroup = await database.group.create({
+                data: { name: '활성그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const deletedGroup = await database.group.create({
+                data: { name: '삭제그룹', organizationId: seed.org.id, createdAt: now, deletedAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.createMany({
+                data: [
+                    { studentId: student.id, groupId: activeGroup.id, createdAt: now },
+                    { studentId: student.id, groupId: deletedGroup.id, createdAt: now },
+                ],
             });
 
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            await caller.student.get({ id: String(mockStudent.id) });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.get({ id: String(student.id) });
 
-            expect(mockPrismaClient.student.findFirst).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    include: expect.objectContaining({
-                        studentGroups: expect.objectContaining({
-                            where: { group: { deletedAt: null } },
-                        }),
-                    }),
-                })
-            );
+            // 삭제된 그룹은 제외되어야 함
+            expect(result.groups.length).toBe(1);
+            expect(result.groups[0].name).toBe('활성그룹');
         });
     });
 
     describe('student.update', () => {
         it('학생 수정 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
 
-            const mockStudent = createMockStudent({});
-            const updatedStudent = { ...mockStudent, societyName: '수정된이름' };
-
-            // 소유권 검증: student.findFirst (트랜잭션 외부)
-            mockPrismaClient.student.findFirst.mockResolvedValueOnce({ id: mockStudent.id });
-            // 그룹 소유권 검증: assertGroupIdsOwnership
-            mockPrismaClient.group.count.mockResolvedValueOnce(1);
-
-            // $transaction mock
-            const txMock = {
-                student: {
-                    update: vi.fn().mockResolvedValue(updatedStudent),
-                },
-                studentGroup: {
-                    deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
-                    create: vi.fn().mockResolvedValue({}),
-                    findMany: vi
-                        .fn()
-                        .mockResolvedValue([{ group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE' } }]),
-                },
-                studentSnapshot: {
-                    create: vi.fn().mockResolvedValue({}),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.student.update({
-                id: String(mockStudent.id),
+                id: String(student.id),
                 societyName: '수정된이름',
-                groupIds: [groupId],
+                groupIds: [String(group.id)],
             });
 
             expect(result).toHaveProperty('id');
             expect(result).toHaveProperty('societyName');
             expect(result.societyName).toBe('수정된이름');
+
+            // DB에서 실제 수정 확인
+            const dbStudent = await database.student.findFirst({ where: { id: student.id } });
+            expect(dbStudent?.societyName).toBe('수정된이름');
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -268,11 +222,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('잘못된 ID 형식 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(
                 caller.student.update({ id: 'invalid-id', societyName: '수정', groupIds: ['1'] })
@@ -284,30 +234,25 @@ describe('student 통합 테스트', () => {
 
     describe('student.delete', () => {
         it('학생 삭제 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-            const groupId = String(mockGroup.id);
-
-            const mockStudent = createMockStudent({});
-            const studentGroups = [
-                { group: { id: BigInt(groupId), name: '테스트그룹', type: 'GRADE', organizationId: BigInt(1) } },
-            ];
-            mockPrismaClient.student.findFirst.mockResolvedValueOnce({
-                ...mockStudent,
-                studentGroups,
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
             });
-            mockPrismaClient.student.update.mockResolvedValueOnce({
-                ...mockStudent,
-                deletedAt: new Date(),
-                studentGroups,
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
             });
 
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.delete({ id: String(mockStudent.id) });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.delete({ id: String(student.id) });
 
             expect(result).toHaveProperty('id');
+
+            // soft delete 확인
+            const deleted = await database.student.findFirst({ where: { id: student.id } });
+            expect(deleted?.deletedAt).not.toBeNull();
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -319,11 +264,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('잘못된 ID 형식 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.delete({ id: 'invalid-id' })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -333,21 +274,30 @@ describe('student 통합 테스트', () => {
 
     describe('student.bulkDelete', () => {
         it('학생 일괄 삭제 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
+            const now = getNowKST();
+            const s1 = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now },
+            });
+            const s2 = await database.student.create({
+                data: { societyName: '학생2', organizationId: seed.org.id, createdAt: now },
+            });
+            const s3 = await database.student.create({
+                data: { societyName: '학생3', organizationId: seed.org.id, createdAt: now },
+            });
 
-            // 그룹 목록 반환 (계정 소유 확인용)
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            // updateMany 결과 반환
-            mockPrismaClient.student.updateMany.mockResolvedValueOnce({ count: 3 });
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.bulkDelete({ ids: ['1', '2', '3'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.bulkDelete({
+                ids: [String(s1.id), String(s2.id), String(s3.id)],
+            });
 
             expect(result).toHaveProperty('deletedCount');
             expect(result.deletedCount).toBe(3);
+
+            // DB에서 soft delete 확인
+            const deleted = await database.student.findMany({
+                where: { id: { in: [s1.id, s2.id, s3.id] }, deletedAt: { not: null } },
+            });
+            expect(deleted.length).toBe(3);
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -359,11 +309,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.bulkDelete({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -371,11 +317,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('잘못된 ID 형식 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.bulkDelete({ ids: ['invalid-id'] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -385,21 +327,25 @@ describe('student 통합 테스트', () => {
 
     describe('student.restore', () => {
         it('학생 복구 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
+            const now = getNowKST();
+            const s1 = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now, deletedAt: now },
+            });
+            const s2 = await database.student.create({
+                data: { societyName: '학생2', organizationId: seed.org.id, createdAt: now, deletedAt: now },
+            });
 
-            // 그룹 목록 반환 (계정 소유 확인용)
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            // updateMany 결과 반환
-            mockPrismaClient.student.updateMany.mockResolvedValueOnce({ count: 2 });
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.restore({ ids: ['1', '2'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.restore({ ids: [String(s1.id), String(s2.id)] });
 
             expect(result).toHaveProperty('restoredCount');
             expect(result.restoredCount).toBe(2);
+
+            // DB에서 복구 확인
+            const restored = await database.student.findMany({
+                where: { id: { in: [s1.id, s2.id] }, deletedAt: null },
+            });
+            expect(restored.length).toBe(2);
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -411,11 +357,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.restore({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -423,11 +365,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('잘못된 ID 형식 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.restore({ ids: ['invalid-id'] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -436,108 +374,133 @@ describe('student 통합 테스트', () => {
     });
 
     describe('student.graduate', () => {
-        const setupGraduateTest = (orgType: string, students: any[]) => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-
-            const txMock = {
-                organization: {
-                    findUnique: vi.fn().mockResolvedValue({ type: orgType }),
-                },
-                student: {
-                    findMany: vi.fn().mockResolvedValue(
-                        students.map((s) => ({
-                            ...s,
-                            studentGroups: [{ group: { id: mockGroup.id, type: 'GRADE' } }],
-                        }))
-                    ),
-                    updateMany: vi.fn().mockResolvedValue({ count: students.length }),
-                },
-                studentSnapshot: {
-                    createMany: vi.fn().mockResolvedValue({ count: students.length }),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            return { caller, txMock, mockGroup };
-        };
-
         it('중고등부 나이 >= 20 졸업 처리 성공', async () => {
-            const mockStudent = createMockStudent({
-                id: BigInt(1),
-                age: BigInt(20),
-                graduatedAt: null,
-                deletedAt: null,
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '고3', organizationId: seed.org.id, createdAt: now },
             });
-            const { caller } = setupGraduateTest('MIDDLE_HIGH', [mockStudent]);
+            const student = await database.student.create({
+                data: { societyName: '홍길동', age: BigInt(20), organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
 
-            const result = await caller.student.graduate({ ids: ['1'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.graduate({ ids: [String(student.id)] });
 
             expect(result.success).toBe(true);
             expect(result.graduatedCount).toBe(1);
-            // KST 12/31 00:00:00 → UTC 12/30 15:00:00
             expect(result.students[0]?.graduatedAt).toBeDefined();
             expect(result.skipped).toHaveLength(0);
         });
 
         it('초등부 나이 >= 14 졸업 처리 성공', async () => {
-            const mockStudent = createMockStudent({
-                id: BigInt(1),
-                age: BigInt(14),
-                graduatedAt: null,
-                deletedAt: null,
+            const now = getNowKST();
+            // 초등부 조직 생성
+            const elemOrg = await database.organization.create({
+                data: { name: '초등부', type: 'ELEMENTARY', churchId: seed.church.id, createdAt: now },
             });
-            const { caller } = setupGraduateTest('ELEMENTARY', [mockStudent]);
+            const elemAccount = await database.account.create({
+                data: {
+                    name: '초등부계정',
+                    displayName: '초등부계정',
+                    password: 'hash',
+                    organizationId: elemOrg.id,
+                    role: 'ADMIN',
+                    createdAt: now,
+                    privacyAgreedAt: now,
+                },
+            });
+            const group = await database.group.create({
+                data: { name: '6학년', organizationId: elemOrg.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '김초등', age: BigInt(14), organizationId: elemOrg.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
 
-            const result = await caller.student.graduate({ ids: ['1'] });
+            const caller = createScopedCaller(
+                String(elemAccount.id),
+                elemAccount.name,
+                String(elemOrg.id),
+                elemOrg.name
+            );
+            const result = await caller.student.graduate({ ids: [String(student.id)] });
 
             expect(result.success).toBe(true);
             expect(result.graduatedCount).toBe(1);
         });
 
         it('청년부 전원 졸업 가능', async () => {
-            const mockStudent = createMockStudent({
-                id: BigInt(1),
-                age: BigInt(18),
-                graduatedAt: null,
-                deletedAt: null,
+            const now = getNowKST();
+            // 청년부 조직 생성
+            const yaOrg = await database.organization.create({
+                data: { name: '청년부', type: 'YOUNG_ADULT', churchId: seed.church.id, createdAt: now },
             });
-            const { caller } = setupGraduateTest('YOUNG_ADULT', [mockStudent]);
+            const yaAccount = await database.account.create({
+                data: {
+                    name: '청년부계정',
+                    displayName: '청년부계정',
+                    password: 'hash',
+                    organizationId: yaOrg.id,
+                    role: 'ADMIN',
+                    createdAt: now,
+                    privacyAgreedAt: now,
+                },
+            });
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: yaOrg.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '이청년', age: BigInt(18), organizationId: yaOrg.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
 
-            const result = await caller.student.graduate({ ids: ['1'] });
+            const caller = createScopedCaller(String(yaAccount.id), yaAccount.name, String(yaOrg.id), yaOrg.name);
+            const result = await caller.student.graduate({ ids: [String(student.id)] });
 
             expect(result.success).toBe(true);
             expect(result.graduatedCount).toBe(1);
         });
 
         it('나이 null인 학생도 졸업 가능', async () => {
-            const mockStudent = createMockStudent({
-                id: BigInt(1),
-                age: null,
-                graduatedAt: null,
-                deletedAt: null,
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '고3', organizationId: seed.org.id, createdAt: now },
             });
-            const { caller } = setupGraduateTest('MIDDLE_HIGH', [mockStudent]);
+            const student = await database.student.create({
+                data: { societyName: '나이없음', age: null, organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
 
-            const result = await caller.student.graduate({ ids: ['1'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.graduate({ ids: [String(student.id)] });
 
             expect(result.success).toBe(true);
             expect(result.graduatedCount).toBe(1);
         });
 
         it('미달 나이 학생 제외', async () => {
-            const mockStudent = createMockStudent({
-                id: BigInt(1),
-                age: BigInt(15),
-                graduatedAt: null,
-                deletedAt: null,
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '중1', organizationId: seed.org.id, createdAt: now },
             });
-            const { caller } = setupGraduateTest('MIDDLE_HIGH', [mockStudent]);
+            const student = await database.student.create({
+                data: { societyName: '어린학생', age: BigInt(15), organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
 
-            const result = await caller.student.graduate({ ids: ['1'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.graduate({ ids: [String(student.id)] });
 
             expect(result.success).toBe(true);
             expect(result.graduatedCount).toBe(0);
@@ -548,42 +511,53 @@ describe('student 통합 테스트', () => {
         });
 
         it('혼합 나이 학생 중 대상자만 졸업', async () => {
-            const young = createMockStudent({
-                id: BigInt(1),
-                age: BigInt(15),
-                graduatedAt: null,
-                deletedAt: null,
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
             });
-            const eligible = createMockStudent({
-                id: BigInt(2),
-                age: BigInt(20),
-                graduatedAt: null,
-                deletedAt: null,
+            const young = await database.student.create({
+                data: { societyName: '어린학생', age: BigInt(15), organizationId: seed.org.id, createdAt: now },
             });
-            const { caller } = setupGraduateTest('MIDDLE_HIGH', [young, eligible]);
+            const eligible = await database.student.create({
+                data: { societyName: '졸업대상', age: BigInt(20), organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.createMany({
+                data: [
+                    { studentId: young.id, groupId: group.id, createdAt: now },
+                    { studentId: eligible.id, groupId: group.id, createdAt: now },
+                ],
+            });
 
-            const result = await caller.student.graduate({ ids: ['1', '2'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.graduate({
+                ids: [String(young.id), String(eligible.id)],
+            });
 
             expect(result.success).toBe(true);
             expect(result.graduatedCount).toBe(1);
-            expect(result.students[0]?.id).toBe('2');
+            expect(result.students[0]?.id).toBe(String(eligible.id));
             expect(result.skipped).toHaveLength(1);
             expect(result.skipped[0]?.reason).toContain('15살');
         });
 
         it('graduatedAt이 전년도 12/31로 정규화됨', async () => {
-            const mockStudent = createMockStudent({
-                id: BigInt(1),
-                age: BigInt(20),
-                graduatedAt: null,
-                deletedAt: null,
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '고3', organizationId: seed.org.id, createdAt: now },
             });
-            const { caller, txMock } = setupGraduateTest('MIDDLE_HIGH', [mockStudent]);
+            const student = await database.student.create({
+                data: { societyName: '졸업생', age: BigInt(20), organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
 
-            await caller.student.graduate({ ids: ['1'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            await caller.student.graduate({ ids: [String(student.id)] });
 
-            const updateCall = txMock.student.updateMany.mock.calls[0]?.[0];
-            const graduatedAt = updateCall?.data?.graduatedAt as Date;
+            // DB에서 직접 확인
+            const dbStudent = await database.student.findFirst({ where: { id: student.id } });
+            const graduatedAt = dbStudent?.graduatedAt as Date;
             const currentYear = new Date().getUTCFullYear();
             // 나이는 1/1에 올라가므로 졸업일은 전년도 12/31
             expect(graduatedAt.getUTCFullYear()).toBe(currentYear - 1);
@@ -601,11 +575,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.graduate({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -613,11 +583,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('100개 초과 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const manyIds = Array.from({ length: 101 }, (_, i) => String(i + 1));
 
             await expect(caller.student.graduate({ ids: manyIds })).rejects.toMatchObject({
@@ -628,37 +594,24 @@ describe('student 통합 테스트', () => {
 
     describe('student.cancelGraduation', () => {
         it('학생 졸업 취소 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-
-            const mockStudent = createMockStudent({
-                id: BigInt(1),
-                societyName: '홍길동',
-                graduatedAt: new Date(),
-                deletedAt: null,
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '고3', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: {
+                    societyName: '홍길동',
+                    organizationId: seed.org.id,
+                    graduatedAt: now,
+                    createdAt: now,
+                },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
             });
 
-            // $transaction mock
-            const txMock = {
-                student: {
-                    findMany: vi.fn().mockResolvedValue([
-                        {
-                            ...mockStudent,
-                            studentGroups: [{ group: { id: mockGroup.id, type: 'GRADE' } }],
-                        },
-                    ]),
-                    updateMany: vi.fn().mockResolvedValue({ count: 1 }),
-                },
-                studentSnapshot: {
-                    createMany: vi.fn().mockResolvedValue({ count: 1 }),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.cancelGraduation({ ids: ['1'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.cancelGraduation({ ids: [String(student.id)] });
 
             expect(result).toHaveProperty('success');
             expect(result.success).toBe(true);
@@ -666,6 +619,10 @@ describe('student 통합 테스트', () => {
             expect(result.cancelledCount).toBe(1);
             expect(result).toHaveProperty('students');
             expect(result.students[0].graduatedAt).toBe(null);
+
+            // DB에서 졸업 취소 확인
+            const dbStudent = await database.student.findFirst({ where: { id: student.id } });
+            expect(dbStudent?.graduatedAt).toBeNull();
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -677,11 +634,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.cancelGraduation({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -691,33 +644,16 @@ describe('student 통합 테스트', () => {
 
     describe('student.promote', () => {
         it('학생 학년 진급 성공 (중고등부)', async () => {
-            const testAccount = getTestAccount(); // 중고등부 계정
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
+            const now = getNowKST();
+            // 중고등부 진급에 필요한 그룹 생성
+            const adultGroup = await database.group.create({
+                data: { name: '성인', organizationId: seed.org.id, createdAt: now },
+            });
+            const high3Group = await database.group.create({
+                data: { name: '고3', organizationId: seed.org.id, createdAt: now },
+            });
 
-            // 중고등부 진급에 필요한 그룹들
-            const adultGroup = createMockGroup({ id: BigInt(100), name: '성인' });
-            const high3Group = createMockGroup({ id: BigInt(101), name: '고3' });
-
-            // 성인 그룹 찾기
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(adultGroup);
-            // 고3 그룹 찾기
-            mockPrismaClient.group.findFirst.mockResolvedValueOnce(high3Group);
-            // 20세 학생 조회 (성인 그룹으로 이동 대상)
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([]);
-            // 19세 학생 조회 (고3 그룹으로 이동 대상)
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([]);
-
-            // $transaction mock
-            const txMock = {
-                student: {
-                    findMany: vi.fn().mockResolvedValue([]),
-                    update: vi.fn().mockResolvedValue({}),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, '중고등부');
             const result = await caller.student.promote();
 
             expect(result).toHaveProperty('row');
@@ -735,83 +671,56 @@ describe('student 통합 테스트', () => {
 
     describe('student.bulkCreate', () => {
         it('엑셀 업로드 학생 일괄 생성 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ id: BigInt(1) });
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const groupId = String(group.id);
 
-            // 그룹 소유권 검증 (assertGroupIdsOwnership)
-            mockPrismaClient.group.count.mockResolvedValueOnce(1);
-
-            const createdStudent = createMockStudent({ societyName: '김철수' });
-
-            const txMock = {
-                student: {
-                    create: vi.fn().mockResolvedValue(createdStudent),
-                },
-                studentGroup: {
-                    create: vi.fn().mockResolvedValue({}),
-                },
-                studentSnapshot: {
-                    create: vi.fn().mockResolvedValue({}),
-                },
-                registration: {
-                    create: vi.fn().mockResolvedValue({}),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.student.bulkCreate({
                 students: [
-                    { societyName: '김철수', groupIds: ['1'] },
-                    { societyName: '이영희', groupIds: ['1'], gender: 'F' },
+                    { societyName: '김철수', groupIds: [groupId] },
+                    { societyName: '이영희', groupIds: [groupId], gender: 'F' },
                 ],
             });
 
             expect(result.successCount).toBe(2);
             expect(result.totalCount).toBe(2);
-            expect(txMock.student.create).toHaveBeenCalledTimes(2);
-            expect(txMock.studentSnapshot.create).toHaveBeenCalledTimes(2);
+
+            // DB에서 실제 생성 확인
+            const students = await database.student.findMany({
+                where: { organizationId: seed.org.id, societyName: { in: ['김철수', '이영희'] } },
+            });
+            expect(students.length).toBe(2);
+
+            // 스냅샷 생성 확인
+            const snapshots = await database.studentSnapshot.findMany({
+                where: { studentId: { in: students.map((s) => s.id) } },
+            });
+            expect(snapshots.length).toBe(2);
         });
 
         it('등록 여부 포함 시 Registration 레코드 생성', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({ id: BigInt(1) });
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const groupId = String(group.id);
 
-            // 그룹 소유권 검증 (assertGroupIdsOwnership)
-            mockPrismaClient.group.count.mockResolvedValueOnce(1);
-
-            const createdStudent = createMockStudent({ societyName: '김철수' });
-
-            const txMock = {
-                student: {
-                    create: vi.fn().mockResolvedValue(createdStudent),
-                },
-                studentGroup: {
-                    create: vi.fn().mockResolvedValue({}),
-                },
-                studentSnapshot: {
-                    create: vi.fn().mockResolvedValue({}),
-                },
-                registration: {
-                    create: vi.fn().mockResolvedValue({}),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             await caller.student.bulkCreate({
                 students: [
-                    { societyName: '김철수', groupIds: ['1'], registered: true },
-                    { societyName: '이영희', groupIds: ['1'], registered: false },
+                    { societyName: '김철수', groupIds: [groupId], registered: true },
+                    { societyName: '이영희', groupIds: [groupId], registered: false },
                 ],
             });
 
             // registered: true인 학생만 registration 생성
-            expect(txMock.registration.create).toHaveBeenCalledTimes(1);
+            const registrations = await database.registration.findMany({
+                where: { student: { organizationId: seed.org.id } },
+            });
+            expect(registrations.length).toBe(1);
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -825,11 +734,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.bulkCreate({ students: [] })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -837,105 +742,96 @@ describe('student 통합 테스트', () => {
 
     describe('student.bulkRegister', () => {
         it('학생 일괄 등록 성공 (신규 등록)', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
+            const now = getNowKST();
+            const s1 = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now },
+            });
+            const s2 = await database.student.create({
+                data: { societyName: '학생2', organizationId: seed.org.id, createdAt: now },
+            });
 
-            // 계정 소유 그룹 조회
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            // 계정 소속 학생 확인
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }, { id: BigInt(2) }]);
-
-            const txMock = {
-                registration: {
-                    findUnique: vi.fn().mockResolvedValue(null), // 기존 등록 없음
-                    create: vi.fn().mockResolvedValue({}),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.bulkRegister({ ids: ['1', '2'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.bulkRegister({ ids: [String(s1.id), String(s2.id)] });
 
             expect(result).toHaveProperty('registeredCount');
             expect(result.registeredCount).toBe(2);
-            expect(txMock.registration.create).toHaveBeenCalledTimes(2);
+
+            // DB에서 등록 레코드 확인
+            const registrations = await database.registration.findMany({
+                where: { studentId: { in: [s1.id, s2.id] } },
+            });
+            expect(registrations.length).toBe(2);
         });
 
         it('이미 등록된 학생은 건너뜀', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }]);
-
-            const txMock = {
-                registration: {
-                    // 이미 활성 등록 상태
-                    findUnique: vi.fn().mockResolvedValue({ id: BigInt(10), deletedAt: null }),
+            const now = getNowKST();
+            const currentYear = new Date().getFullYear();
+            const student = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now },
+            });
+            // 이미 등록
+            await database.registration.create({
+                data: {
+                    studentId: student.id,
+                    year: currentYear,
+                    registeredAt: now,
+                    createdAt: now,
+                    updatedAt: now,
                 },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
+            });
 
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.bulkRegister({ ids: ['1'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.bulkRegister({ ids: [String(student.id)] });
 
             expect(result.registeredCount).toBe(0);
         });
 
         it('소프트 삭제된 등록 레코드 복구', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
-
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }]);
-
-            const txMock = {
-                registration: {
-                    // 소프트 삭제된 레코드
-                    findUnique: vi.fn().mockResolvedValue({ id: BigInt(10), deletedAt: new Date() }),
-                    update: vi.fn().mockResolvedValue({}),
+            const now = getNowKST();
+            const currentYear = new Date().getFullYear();
+            const student = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now },
+            });
+            // 소프트 삭제된 등록 레코드
+            await database.registration.create({
+                data: {
+                    studentId: student.id,
+                    year: currentYear,
+                    registeredAt: now,
+                    createdAt: now,
+                    updatedAt: now,
+                    deletedAt: now,
                 },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
+            });
 
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.bulkRegister({ ids: ['1'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.bulkRegister({ ids: [String(student.id)] });
 
             expect(result.registeredCount).toBe(1);
-            expect(txMock.registration.update).toHaveBeenCalledTimes(1);
+
+            // 복구 확인
+            const reg = await database.registration.findFirst({
+                where: { studentId: student.id, year: currentYear },
+            });
+            expect(reg?.deletedAt).toBeNull();
         });
 
         it('연도 지정 등록 (year 파라미터)', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
+            const now = getNowKST();
+            const student = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now },
+            });
 
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([{ id: BigInt(1) }]);
-
-            const txMock = {
-                registration: {
-                    findUnique: vi.fn().mockResolvedValue(null),
-                    create: vi.fn().mockResolvedValue({}),
-                },
-            };
-            (mockPrismaClient as any).$transaction = vi.fn().mockImplementation((cb: any) => cb(txMock));
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.bulkRegister({ ids: ['1'], year: 2027 });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.bulkRegister({ ids: [String(student.id)], year: 2027 });
 
             expect(result.registeredCount).toBe(1);
-            // year 파라미터가 전달되었는지 확인
-            expect(txMock.registration.findUnique).toHaveBeenCalledWith({
-                where: { studentId_year: { studentId: BigInt(1), year: 2027 } },
+
+            // DB에서 연도 확인
+            const reg = await database.registration.findFirst({
+                where: { studentId: student.id, year: 2027 },
             });
+            expect(reg).not.toBeNull();
         });
 
         it('미인증 시 UNAUTHORIZED 에러', async () => {
@@ -947,11 +843,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.bulkRegister({ ids: [] })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -959,34 +851,50 @@ describe('student 통합 테스트', () => {
 
     describe('student.bulkCancelRegistration', () => {
         it('학생 일괄 등록 취소 성공', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
+            const now = getNowKST();
+            const currentYear = new Date().getFullYear();
+            const s1 = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now },
+            });
+            const s2 = await database.student.create({
+                data: { societyName: '학생2', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.registration.createMany({
+                data: [
+                    { studentId: s1.id, year: currentYear, registeredAt: now, createdAt: now, updatedAt: now },
+                    { studentId: s2.id, year: currentYear, registeredAt: now, createdAt: now, updatedAt: now },
+                ],
+            });
 
-            // 계정 소유 그룹 조회
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            // updateMany 결과
-            mockPrismaClient.registration.updateMany.mockResolvedValueOnce({ count: 2 });
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.bulkCancelRegistration({ ids: ['1', '2'] });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.bulkCancelRegistration({
+                ids: [String(s1.id), String(s2.id)],
+            });
 
             expect(result).toHaveProperty('cancelledCount');
             expect(result.cancelledCount).toBe(2);
+
+            // DB에서 소프트 삭제 확인
+            const cancelled = await database.registration.findMany({
+                where: { studentId: { in: [s1.id, s2.id] }, deletedAt: { not: null } },
+            });
+            expect(cancelled.length).toBe(2);
         });
 
         it('연도 지정 등록 취소 (year 파라미터)', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
+            const now = getNowKST();
+            const student = await database.student.create({
+                data: { societyName: '학생1', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.registration.create({
+                data: { studentId: student.id, year: 2026, registeredAt: now, createdAt: now, updatedAt: now },
+            });
 
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.registration.updateMany.mockResolvedValueOnce({ count: 1 });
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
-            const result = await caller.student.bulkCancelRegistration({ ids: ['1'], year: 2026 });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.student.bulkCancelRegistration({
+                ids: [String(student.id)],
+                year: 2026,
+            });
 
             expect(result.cancelledCount).toBe(1);
         });
@@ -1000,11 +908,7 @@ describe('student 통합 테스트', () => {
         });
 
         it('빈 배열 전달 시 BAD_REQUEST 에러', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
 
             await expect(caller.student.bulkCancelRegistration({ ids: [] })).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -1014,24 +918,24 @@ describe('student 통합 테스트', () => {
 
     describe('student.list (graduated 필터)', () => {
         it('재학생만 조회 (graduated: false)', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const activeStudent = await database.student.create({
+                data: { societyName: '재학생', organizationId: seed.org.id, createdAt: now },
+            });
+            const graduatedStudent = await database.student.create({
+                data: { societyName: '졸업생', organizationId: seed.org.id, graduatedAt: now, createdAt: now },
+            });
+            await database.studentGroup.createMany({
+                data: [
+                    { studentId: activeStudent.id, groupId: group.id, createdAt: now },
+                    { studentId: graduatedStudent.id, groupId: group.id, createdAt: now },
+                ],
+            });
 
-            const mockActiveStudent = {
-                ...createMockStudent({ graduatedAt: null }),
-                studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
-                registrations: [],
-            };
-
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockActiveStudent]);
-            mockPrismaClient.student.count.mockResolvedValueOnce(1);
-            mockPrismaClient.registration.count.mockResolvedValueOnce(0);
-            mockPrismaClient.student.count.mockResolvedValueOnce(1);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.student.list({ graduated: false });
 
             expect(result.students.length).toBe(1);
@@ -1039,24 +943,24 @@ describe('student 통합 테스트', () => {
         });
 
         it('졸업생만 조회 (graduated: true)', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const activeStudent = await database.student.create({
+                data: { societyName: '재학생', organizationId: seed.org.id, createdAt: now },
+            });
+            const graduatedStudent = await database.student.create({
+                data: { societyName: '졸업생', organizationId: seed.org.id, graduatedAt: now, createdAt: now },
+            });
+            await database.studentGroup.createMany({
+                data: [
+                    { studentId: activeStudent.id, groupId: group.id, createdAt: now },
+                    { studentId: graduatedStudent.id, groupId: group.id, createdAt: now },
+                ],
+            });
 
-            const mockGraduatedStudent = {
-                ...createMockStudent({ graduatedAt: new Date() }),
-                studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
-                registrations: [],
-            };
-
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce([mockGraduatedStudent]);
-            mockPrismaClient.student.count.mockResolvedValueOnce(1);
-            mockPrismaClient.registration.count.mockResolvedValueOnce(0);
-            mockPrismaClient.student.count.mockResolvedValueOnce(1);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.student.list({ graduated: true });
 
             expect(result.students.length).toBe(1);
@@ -1064,31 +968,24 @@ describe('student 통합 테스트', () => {
         });
 
         it('전체 조회 (graduated: null)', async () => {
-            const testAccount = getTestAccount();
-            const accountId = String(testAccount.id);
-            const accountName = testAccount.name;
-            const mockGroup = createMockGroup({});
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const activeStudent = await database.student.create({
+                data: { societyName: '재학생', organizationId: seed.org.id, createdAt: now },
+            });
+            const graduatedStudent = await database.student.create({
+                data: { societyName: '졸업생', organizationId: seed.org.id, graduatedAt: now, createdAt: now },
+            });
+            await database.studentGroup.createMany({
+                data: [
+                    { studentId: activeStudent.id, groupId: group.id, createdAt: now },
+                    { studentId: graduatedStudent.id, groupId: group.id, createdAt: now },
+                ],
+            });
 
-            const mockStudents = [
-                {
-                    ...createMockStudent({ graduatedAt: null }),
-                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
-                    registrations: [],
-                },
-                {
-                    ...createMockStudent({ graduatedAt: new Date() }),
-                    studentGroups: [{ group: { id: mockGroup.id, name: '테스트그룹', type: 'GRADE' } }],
-                    registrations: [],
-                },
-            ];
-
-            mockPrismaClient.group.findMany.mockResolvedValueOnce([mockGroup]);
-            mockPrismaClient.student.findMany.mockResolvedValueOnce(mockStudents);
-            mockPrismaClient.student.count.mockResolvedValueOnce(2);
-            mockPrismaClient.registration.count.mockResolvedValueOnce(0);
-            mockPrismaClient.student.count.mockResolvedValueOnce(2);
-
-            const caller = createScopedCaller(accountId, accountName, '1', '장위동 중고등부');
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
             const result = await caller.student.list({ graduated: null });
 
             expect(result.students.length).toBe(2);

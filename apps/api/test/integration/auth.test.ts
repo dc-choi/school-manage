@@ -1,45 +1,41 @@
 /**
- * Auth 통합 테스트 (tRPC + Prisma Mocking)
- *
- * Mock 데이터를 사용하여 인증 프로시저 테스트
+ * Auth 통합 테스트 (실제 DB)
  */
-import { mockPrismaClient } from '../../vitest.setup.ts';
-import { createMockAccount, getTestAccount, testPassword } from '../helpers/mock-data.ts';
+import { type SeedBase, TEST_PASSWORD, TEST_PASSWORD_HASH, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
 import { createPublicCaller } from '../helpers/trpc-caller.ts';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getNowKST } from '@school/utils';
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { database } from '~/infrastructure/database/database.js';
+
+let seed: SeedBase;
+
+beforeEach(async () => {
+    await truncateAll();
+    seed = await seedBase();
+});
+
+afterAll(async () => {
+    await truncateAll();
+});
 
 describe('auth.login 통합 테스트', () => {
-    beforeEach(() => {
-        // Mock 초기화
-        mockPrismaClient.account.findFirst.mockReset();
-        mockPrismaClient.refreshToken.create.mockReset().mockResolvedValue({});
-    });
-
     describe('정상 케이스', () => {
         it('유효한 자격 증명으로 로그인 성공', async () => {
-            const testAccount = getTestAccount();
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(testAccount);
-
             const caller = createPublicCaller();
             const result = await caller.auth.login({
-                name: testAccount.name,
-                password: testPassword,
+                name: seed.account.name,
+                password: TEST_PASSWORD,
             });
 
             expect(result).toHaveProperty('accessToken');
             expect(result).toHaveProperty('name');
             expect(typeof result.accessToken).toBe('string');
-            expect(result.name).toBe(testAccount.name);
+            expect(result.name).toBe(seed.account.name);
         });
     });
 
     describe('예외 케이스', () => {
         it('존재하지 않는 계정으로 로그인 시 NOT_FOUND', async () => {
-            // 1차: 활성 계정 조회 → null
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(null);
-            // 2차: 삭제된 계정 조회 → null
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(null);
-
             const caller = createPublicCaller();
 
             await expect(
@@ -53,14 +49,11 @@ describe('auth.login 통합 테스트', () => {
         });
 
         it('잘못된 비밀번호로 로그인 시 UNAUTHORIZED', async () => {
-            const testAccount = getTestAccount();
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(testAccount);
-
             const caller = createPublicCaller();
 
             await expect(
                 caller.auth.login({
-                    name: testAccount.name,
+                    name: seed.account.name,
                     password: 'wrongpassword123',
                 })
             ).rejects.toMatchObject({
@@ -69,24 +62,25 @@ describe('auth.login 통합 테스트', () => {
         });
 
         it('삭제된 계정 + 올바른 비밀번호 + 2년 이내 → FORBIDDEN (ACCOUNT_DELETED)', async () => {
-            const recentlyDeleted = new Date();
-            recentlyDeleted.setMonth(recentlyDeleted.getMonth() - 6);
+            const deletedAt = new Date();
+            deletedAt.setMonth(deletedAt.getMonth() - 6);
 
-            const deletedAccount = createMockAccount({
-                deletedAt: recentlyDeleted,
+            await database.account.create({
+                data: {
+                    name: '삭제계정',
+                    displayName: '삭제계정',
+                    password: TEST_PASSWORD_HASH,
+                    createdAt: getNowKST(),
+                    deletedAt,
+                },
             });
-
-            // 1차: 활성 계정 조회 → null
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(null);
-            // 2차: 삭제된 계정 조회 → 삭제된 계정 발견
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(deletedAccount);
 
             const caller = createPublicCaller();
 
             await expect(
                 caller.auth.login({
-                    name: deletedAccount.name,
-                    password: testPassword,
+                    name: '삭제계정',
+                    password: TEST_PASSWORD,
                 })
             ).rejects.toMatchObject({
                 code: 'FORBIDDEN',
@@ -95,23 +89,24 @@ describe('auth.login 통합 테스트', () => {
         });
 
         it('삭제된 계정 + 잘못된 비밀번호 → NOT_FOUND (삭제 여부 미노출)', async () => {
-            const recentlyDeleted = new Date();
-            recentlyDeleted.setMonth(recentlyDeleted.getMonth() - 6);
+            const deletedAt = new Date();
+            deletedAt.setMonth(deletedAt.getMonth() - 6);
 
-            const deletedAccount = createMockAccount({
-                deletedAt: recentlyDeleted,
+            await database.account.create({
+                data: {
+                    name: '삭제계정2',
+                    displayName: '삭제계정2',
+                    password: TEST_PASSWORD_HASH,
+                    createdAt: getNowKST(),
+                    deletedAt,
+                },
             });
-
-            // 1차: 활성 계정 조회 → null
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(null);
-            // 2차: 삭제된 계정 조회 → 삭제된 계정 발견
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(deletedAccount);
 
             const caller = createPublicCaller();
 
             await expect(
                 caller.auth.login({
-                    name: deletedAccount.name,
+                    name: '삭제계정2',
                     password: 'wrongpassword123',
                 })
             ).rejects.toMatchObject({
@@ -122,56 +117,41 @@ describe('auth.login 통합 테스트', () => {
 });
 
 describe('auth.restoreAccount 통합 테스트', () => {
-    const mockTx = {
-        account: { update: vi.fn().mockResolvedValue(null) },
-        group: { findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn().mockResolvedValue(null) },
-        studentGroup: { findMany: vi.fn().mockResolvedValue([]) },
-        student: { findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn().mockResolvedValue(null) },
-        attendance: { updateMany: vi.fn().mockResolvedValue(null) },
-    };
-
-    beforeEach(() => {
-        mockPrismaClient.account.findFirst.mockReset();
-        mockPrismaClient.account.update.mockReset();
-        mockPrismaClient.refreshToken.create.mockReset().mockResolvedValue({});
-        mockPrismaClient.$transaction = vi
-            .fn()
-            .mockImplementation(async (cb: (tx: unknown) => Promise<void>) => cb(mockTx));
-    });
-
     describe('정상 케이스', () => {
         it('삭제된 계정을 정상적으로 복원', async () => {
-            const recentlyDeleted = new Date();
-            recentlyDeleted.setMonth(recentlyDeleted.getMonth() - 6);
+            const deletedAt = new Date();
+            deletedAt.setMonth(deletedAt.getMonth() - 6);
 
-            const deletedAccount = createMockAccount({
-                deletedAt: recentlyDeleted,
+            await database.account.create({
+                data: {
+                    name: '복원대상',
+                    displayName: '복원대상',
+                    password: TEST_PASSWORD_HASH,
+                    createdAt: getNowKST(),
+                    deletedAt,
+                },
             });
-
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(deletedAccount);
 
             const caller = createPublicCaller();
             const result = await caller.auth.restoreAccount({
-                name: deletedAccount.name,
-                password: testPassword,
+                name: '복원대상',
+                password: TEST_PASSWORD,
             });
 
             expect(result).toHaveProperty('accessToken');
-            expect(result.name).toBe(deletedAccount.name);
-            expect(result.displayName).toBe(deletedAccount.displayName);
+            expect(result.name).toBe('복원대상');
+            expect(result.displayName).toBe('복원대상');
         });
     });
 
     describe('예외 케이스', () => {
         it('삭제된 계정이 없으면 NOT_FOUND', async () => {
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(null);
-
             const caller = createPublicCaller();
 
             await expect(
                 caller.auth.restoreAccount({
                     name: 'nonexistent',
-                    password: testPassword,
+                    password: TEST_PASSWORD,
                 })
             ).rejects.toMatchObject({
                 code: 'NOT_FOUND',
@@ -179,20 +159,24 @@ describe('auth.restoreAccount 통합 테스트', () => {
         });
 
         it('비밀번호 불일치 시 UNAUTHORIZED', async () => {
-            const recentlyDeleted = new Date();
-            recentlyDeleted.setMonth(recentlyDeleted.getMonth() - 6);
+            const deletedAt = new Date();
+            deletedAt.setMonth(deletedAt.getMonth() - 6);
 
-            const deletedAccount = createMockAccount({
-                deletedAt: recentlyDeleted,
+            await database.account.create({
+                data: {
+                    name: '비밀번호틀림',
+                    displayName: '비밀번호틀림',
+                    password: TEST_PASSWORD_HASH,
+                    createdAt: getNowKST(),
+                    deletedAt,
+                },
             });
-
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(deletedAccount);
 
             const caller = createPublicCaller();
 
             await expect(
                 caller.auth.restoreAccount({
-                    name: deletedAccount.name,
+                    name: '비밀번호틀림',
                     password: 'wrongpassword123',
                 })
             ).rejects.toMatchObject({
@@ -204,18 +188,22 @@ describe('auth.restoreAccount 통합 테스트', () => {
             const expiredDate = new Date();
             expiredDate.setFullYear(expiredDate.getFullYear() - 3);
 
-            const oldDeletedAccount = createMockAccount({
-                deletedAt: expiredDate,
+            await database.account.create({
+                data: {
+                    name: '오래된계정',
+                    displayName: '오래된계정',
+                    password: TEST_PASSWORD_HASH,
+                    createdAt: getNowKST(),
+                    deletedAt: expiredDate,
+                },
             });
-
-            mockPrismaClient.account.findFirst.mockResolvedValueOnce(oldDeletedAccount);
 
             const caller = createPublicCaller();
 
             await expect(
                 caller.auth.restoreAccount({
-                    name: oldDeletedAccount.name,
-                    password: testPassword,
+                    name: '오래된계정',
+                    password: TEST_PASSWORD,
                 })
             ).rejects.toMatchObject({
                 code: 'FORBIDDEN',

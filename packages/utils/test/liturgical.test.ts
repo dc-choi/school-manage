@@ -16,7 +16,7 @@
  * - 대림 제1주일: 11/29
  * - 성탄 대축일: 12/25
  */
-import { getLiturgicalSeason } from '../src/liturgical.js';
+import { adjustForSaturday, getLiturgicalSeason } from '../src/liturgical.js';
 import { describe, expect, it } from 'vitest';
 
 describe('getLiturgicalSeason', () => {
@@ -248,5 +248,35 @@ describe('getLiturgicalSeason', () => {
 
             expect(result.color).toBe('green');
         });
+    });
+});
+
+describe('adjustForSaturday', () => {
+    const d = (month: number, day: number, year = 2026) => new Date(year, month - 1, day);
+
+    it('일반 토요일(3/14)은 일요일(3/15)로 보정된다', () => {
+        const result = adjustForSaturday(d(3, 14), 2026);
+
+        expect(result.getDate()).toBe(15);
+        expect(result.getMonth()).toBe(2); // 3월
+    });
+
+    it('성토요일(4/4)은 보정되지 않는다', () => {
+        const result = adjustForSaturday(d(4, 4), 2026);
+
+        expect(result.getDate()).toBe(4);
+        expect(result.getMonth()).toBe(3); // 4월
+    });
+
+    it('일요일(3/15)은 보정되지 않는다', () => {
+        const result = adjustForSaturday(d(3, 15), 2026);
+
+        expect(result.getDate()).toBe(15);
+    });
+
+    it('평일(3/11 수요일)은 보정되지 않는다', () => {
+        const result = adjustForSaturday(d(3, 11), 2026);
+
+        expect(result.getDate()).toBe(11);
     });
 });
