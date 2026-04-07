@@ -1,20 +1,28 @@
 import { Helmet } from '@dr.pogodin/react-helmet';
-import { ArrowLeft, Heart } from 'lucide-react';
-import { useEffect } from 'react';
+import { ArrowLeft, Check, Copy, Heart } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { analytics } from '~/lib/analytics';
-import { DONATION_KAKAOPAY_URL, hasDonationLink } from '~/lib/donation';
+import { DONATION_BANK, hasDonationLink } from '~/lib/donation';
 
 export function DonatePage() {
     const navigate = useNavigate();
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         if (hasDonationLink) {
             analytics.trackDonatePageViewed();
         }
     }, []);
+
+    const handleCopy = async () => {
+        await navigator.clipboard.writeText(DONATION_BANK.accountNumber);
+        analytics.trackDonationLinkClick('donate');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     if (!hasDonationLink) {
         return <Navigate to="/" replace />;
@@ -44,15 +52,27 @@ export function DonatePage() {
                         <p className="text-sm text-muted-foreground">
                             이 서비스는 교리교사가 만든 봉사 프로젝트입니다. 후원금은 서버 운영비로 사용됩니다.
                         </p>
-                        <Button variant="outline" asChild>
-                            <a
-                                href={DONATION_KAKAOPAY_URL}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => analytics.trackDonationLinkClick('donate')}
-                            >
-                                카카오페이로 후원하기
-                            </a>
+                        <div className="space-y-2 rounded-lg border p-4">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-muted-foreground">은행</span>
+                                <span className="text-sm font-medium">{DONATION_BANK.bankName}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-muted-foreground">계좌번호</span>
+                                <span className="text-sm font-medium tabular-nums">{DONATION_BANK.accountNumber}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-muted-foreground">예금주</span>
+                                <span className="text-sm font-medium">{DONATION_BANK.accountHolder}</span>
+                            </div>
+                        </div>
+                        <Button variant="outline" className="w-full" onClick={handleCopy}>
+                            {copied ? (
+                                <Check className="h-4 w-4" aria-hidden="true" />
+                            ) : (
+                                <Copy className="h-4 w-4" aria-hidden="true" />
+                            )}
+                            {copied ? '복사됨' : '계좌번호 복사'}
                         </Button>
                     </CardContent>
                 </Card>
