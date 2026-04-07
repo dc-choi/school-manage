@@ -1,7 +1,7 @@
 /**
  * DonatePage 테스트
  *
- * 공개 후원 페이지 렌더링, URL 미설정 시 리다이렉트 검증
+ * 공개 후원 페이지 렌더링, 계좌 정보 표시, 미설정 시 리다이렉트 검증
  */
 import { HelmetProvider } from '@dr.pogodin/react-helmet';
 import { render, screen } from '@testing-library/react';
@@ -21,9 +21,13 @@ describe('DonatePage', () => {
         vi.resetModules();
     });
 
-    it('카카오페이 URL 설정 시 후원 페이지가 렌더링된다', async () => {
+    it('계좌 정보가 포함된 후원 페이지가 렌더링된다', async () => {
         vi.doMock('~/lib/donation', () => ({
-            DONATION_KAKAOPAY_URL: 'https://qr.kakaopay.com/test',
+            DONATION_BANK: {
+                bankName: '국민은행',
+                accountNumber: '073001-04-134300',
+                accountHolder: '최동철',
+            },
             hasDonationLink: true,
         }));
 
@@ -39,21 +43,16 @@ describe('DonatePage', () => {
         expect(screen.getByText('주일학교 출석부')).toBeInTheDocument();
         expect(screen.getByText('후원하기')).toBeInTheDocument();
         expect(screen.getByText(/봉사 프로젝트/)).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: '카카오페이로 후원하기' })).toHaveAttribute(
-            'href',
-            'https://qr.kakaopay.com/test'
-        );
-        expect(screen.getByRole('link', { name: '카카오페이로 후원하기' })).toHaveAttribute('target', '_blank');
-        expect(screen.getByRole('link', { name: '카카오페이로 후원하기' })).toHaveAttribute(
-            'rel',
-            'noopener noreferrer'
-        );
+        expect(screen.getByText('국민은행')).toBeInTheDocument();
+        expect(screen.getByText('073001-04-134300')).toBeInTheDocument();
+        expect(screen.getByText('최동철')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /계좌번호 복사/ })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /돌아가기/ })).toBeInTheDocument();
     });
 
-    it('카카오페이 URL 미설정 시 리다이렉트된다', async () => {
+    it('후원 미설정 시 리다이렉트된다', async () => {
         vi.doMock('~/lib/donation', () => ({
-            DONATION_KAKAOPAY_URL: '',
+            DONATION_BANK: { bankName: '', accountNumber: '', accountHolder: '' },
             hasDonationLink: false,
         }));
 
@@ -64,7 +63,6 @@ describe('DonatePage', () => {
             </MemoryRouter>
         );
 
-        // Navigate 컴포넌트가 렌더링되므로 후원 콘텐츠 없음
         expect(container.querySelector('#donation')).toBeNull();
         expect(screen.queryByText('후원하기')).not.toBeInTheDocument();
     });
