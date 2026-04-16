@@ -41,6 +41,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
     const [fileName, setFileName] = useState<string | null>(null);
     const [validatedRows, setValidatedRows] = useState<ValidatedRow[] | null>(null);
     const [isParsing, setIsParsing] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const [parseError, setParseError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,6 +67,17 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
         setParseError(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
+        }
+    };
+
+    const handleDownloadTemplate = async () => {
+        setIsDownloading(true);
+        try {
+            await downloadExcelTemplate();
+        } catch {
+            toast.error('엑셀 양식을 다운로드할 수 없습니다. 네트워크를 확인해 주세요.');
+        } finally {
+            setIsDownloading(false);
         }
     };
 
@@ -104,7 +116,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
             const validated = validateRows(parsed, groups);
             setValidatedRows(validated);
         } catch {
-            setParseError('파일을 읽을 수 없습니다. 올바른 .xlsx 파일인지 확인해주세요.');
+            setParseError('파일을 읽을 수 없습니다. 올바른 .xlsx 파일인지, 네트워크가 정상인지 확인해 주세요.');
             setValidatedRows(null);
         } finally {
             setIsParsing(false);
@@ -172,8 +184,12 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                     헤더(1행)는 수정하지 마세요. 2행부터 데이터를 입력해 주세요.
                                 </p>
                             </div>
-                            <Button variant="outline" onClick={downloadExcelTemplate}>
-                                <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+                            <Button variant="outline" onClick={handleDownloadTemplate} disabled={isDownloading}>
+                                {isDownloading ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                                ) : (
+                                    <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+                                )}
                                 양식 다운로드
                             </Button>
                         </Card>

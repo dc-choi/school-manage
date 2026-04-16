@@ -2,22 +2,12 @@
  * 엑셀 템플릿 생성 유틸리티 (로드맵 2단계 — 엑셀 Import)
  *
  * 클라이언트에서 컬럼 헤더만 포함된 .xlsx 템플릿을 생성하여 다운로드한다.
+ * ExcelJS는 동적 import로 분리하여 메인 번들에서 제외한다.
  */
-import * as XLSX from 'xlsx';
 
 const HEADERS = ['학년', '이름', '세례명', '성별', '전화번호', '축일', '나이', '비고', '등록 여부'];
 
-const COLUMN_WIDTHS = [
-    { wch: 12 }, // 학년
-    { wch: 10 }, // 이름
-    { wch: 12 }, // 세례명
-    { wch: 6 }, // 성별
-    { wch: 14 }, // 전화번호
-    { wch: 8 }, // 축일
-    { wch: 6 }, // 나이
-    { wch: 20 }, // 비고
-    { wch: 10 }, // 등록 여부
-];
+const COLUMN_WIDTHS = [12, 10, 12, 6, 14, 8, 6, 20, 10];
 
 /** 헤더 셀별 입력 가이드 메모 */
 const HEADER_COMMENTS: string[] = [
@@ -32,30 +22,45 @@ const HEADER_COMMENTS: string[] = [
     '선택 입력\nO: 등록, X 또는 빈 값: 미등록',
 ];
 
+const SHEET_NAME = '학생목록';
+const FILE_NAME = '학생_등록_양식.xlsx';
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
 /**
  * 학생 등록 양식 엑셀 파일을 생성하고 다운로드한다.
  */
-export const downloadExcelTemplate = () => {
-    const worksheet = XLSX.utils.aoa_to_sheet([HEADERS]);
-    worksheet['!cols'] = COLUMN_WIDTHS;
+export const downloadExcelTemplate = async () => {
+    const ExcelJS = (await import('exceljs')).default;
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(SHEET_NAME);
 
-    // 헤더 셀 스타일 + 메모(comment) 추가
-    HEADERS.forEach((_, idx) => {
-        const cellRef = XLSX.utils.encode_cell({ r: 0, c: idx });
-        const cell = worksheet[cellRef];
-        if (cell) {
-            cell.s = {
-                fill: { fgColor: { rgb: '4472C4' } },
-                font: { bold: true, color: { rgb: 'FFFFFF' } },
-                alignment: { horizontal: 'center' },
-            };
-            cell.c = [{ a: '출석부', t: HEADER_COMMENTS[idx] }];
-            cell.c.hidden = true;
-        }
+    worksheet.columns = HEADERS.map((header, idx) => ({
+        header,
+        key: `col${idx}`,
+        width: COLUMN_WIDTHS[idx],
+    }));
+
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    headerRow.alignment = { horizontal: 'center' };
+    headerRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+        cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF4472C4' },
+        };
+        cell.note = HEADER_COMMENTS[colNumber - 1];
     });
+    headerRow.commit();
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, '학생목록');
-
-    XLSX.writeFile(workbook, '학생_등록_양식.xlsx');
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: XLSX_MIME });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = FILE_NAME;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
 };

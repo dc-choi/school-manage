@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
-| **Target Bugfix**         | -    | 13건 미착수 (P1 2건, P2 6건, P3 5건) + 4건 완료 |
+| **Target Bugfix**         | -    | 12건 미착수 (P1 1건, P2 6건, P3 5건) + 5건 완료 |
 | **Target Non-Functional** | -    | PERFORMANCE 6건 미착수 + 1건 완료 + DX 2건 완료 |
 
 ## 관련 문서
@@ -86,7 +86,7 @@
 | P2 | Attendance 테이블 인덱스 누락 | 미착수 | studentId, date 인덱스 없음. 데이터 증가 시 성능 저하 |
 | P3 | Attendance 중복 레코드 방지 | 미착수 | (studentId, date) 유니크 제약 부재. 트랜잭션 내이므로 위험도 낮음 |
 | P1 | Account.name DB 유니크 제약 미비 | 미착수 | 앱 레벨 체크만 존재. 동시 가입 시 race condition으로 중복 계정 생성 가능 |
-| P1 | xlsx 라이브러리 보안 취약점 | 미착수 | Prototype Pollution + ReDoS 2건. npm 패치 없음 → exceljs 등 대체 필요 |
+| P1 | xlsx 라이브러리 보안 취약점 | ✅ 완료 | Prototype Pollution + ReDoS 2건 → ExcelJS 교체 + 동적 import 분리 |
 | P1 | 출석 배열 상한 미설정 (DoS) | ✅ 완료 | `.max(500)` 추가. 중복 빈 배열 체크 제거, 테스트 추가 |
 | P2 | 로그인 사용자 열거 공격 | 미착수 | "아이디 없음" vs "비밀번호 불일치" 분리 응답 → 동일 메시지로 통일 필요 |
 | P2 | 입력 검증 강화 | 미착수 | 출석 data 화이트리스트, 로그인 스키마 signup 대비 느슨, 학생 contact·description 길이 무제한 |

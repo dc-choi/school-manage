@@ -5,7 +5,7 @@
 ## 연결 문서
 
 - 메인: `student-management.md`
-- PRD: `docs/specs/prd/student-excel-import.md`
+- PRD: `docs/specs/prd/student-excel-import.md`, `docs/specs/prd/xlsx-migration.md` (라이브러리 교체)
 - 등록 관리: `student-management-registration.md`
 
 ---
@@ -91,6 +91,8 @@
 | 등록 | 검증 통과 행을 서버 API(`student.bulkCreate`)로 전송 |
 | 그룹 매칭 | 클라이언트에서 그룹 목록 조회 후 이름 매칭 |
 | 최대 건수 | 500명 이하 |
+| 엑셀 라이브러리 | **ExcelJS** (read/write 단일 라이브러리). 모듈은 **동적 import** 로 메인 번들에서 분리 |
+| 청크 로딩 시점 | "양식 다운로드" 또는 파일 선택 시 ExcelJS 청크를 1회 로드 (이후 캐싱) |
 
 ## API: `student.bulkCreate`
 
@@ -122,6 +124,7 @@
 | 축일 형식 불일치 | 해당 행 에러 |
 | 전체 행 에러 | 등록 버튼 비활성화 |
 | 서버 등록 중 일부 실패 | 결과에 성공/실패 건수 표시 |
+| ExcelJS 청크 로딩 실패 (네트워크) | 에러 토스트 안내, 모달 상태 유지하여 재시도 가능 |
 
 ## 의사결정
 
@@ -132,7 +135,38 @@
 | 에러 행 처리 | 제외 후 정상 행만 등록 | 전체 롤백보다 부분 성공이 사용자에게 유리 |
 | 기존 등록 UX | 유지 | Import는 별도 진입점 (목록 페이지 버튼) |
 | 템플릿 생성 방식 | 클라이언트 런타임 생성 | 컬럼 정의와 항상 동기화, 정적 파일 관리 불필요 |
+| 엑셀 라이브러리 (로드맵 2단계 — 라이브러리 교체) | **ExcelJS** | xlsx@0.18.5 의 미패치 보안 취약점(Prototype Pollution + ReDoS) 해소. 단일 라이브러리로 read/write, 셀 메모/스타일 직접 지원 |
+| 모듈 로드 방식 (로드맵 2단계 — 라이브러리 교체) | **동적 import** | ExcelJS 번들 크기(~250KB gzipped)를 메인 번들에서 분리. 모달 사용자만 1회 로드 후 캐싱 |
+
+## 셀 메모 호환 매핑 (xlsx → ExcelJS)
+
+xlsx 시절 헤더 셀에 부착하던 입력 가이드 메모는 ExcelJS 의 동등한 API 로 매핑한다.
+
+| 항목 | xlsx | ExcelJS |
+|------|------|---------|
+| 메모 본문 | `cell.c = [{ a, t }]` | `cell.note = '...'` (또는 rich text 객체) |
+| 헤더 스타일 | `cell.s = { fill, font, alignment }` | `cell.fill`, `cell.font`, `cell.alignment` |
+| 컬럼 너비 | `worksheet['!cols'] = [{ wch }]` | `worksheet.columns = [{ width }]` |
+| 시트 추가 | `XLSX.utils.book_append_sheet` | `workbook.addWorksheet(name)` |
+| 파일 쓰기 | `XLSX.writeFile` | `await workbook.xlsx.writeBuffer()` → `Blob` 다운로드 |
+| 파일 읽기 | `XLSX.read(buffer, { type: 'array' })` | `await workbook.xlsx.load(arrayBuffer)` |
+
+> 시각 차이가 발생할 수 있는 항목(메모 마진/폰트 기본값)은 동작 호환만 보장하고 PR 본문에 결과 비교를 첨부한다.
+
+## 테스트 시나리오
+
+### 정상 케이스
+
+1. **TC-1**: 양식 다운로드 → 엑셀에서 모든 컬럼 입력 → 업로드 → 미리보기 전체 성공 → 등록 N건 성공
+2. **TC-2**: 9컬럼 누락된 8컬럼 엑셀 업로드 → registered 가 모두 false 로 등록
+
+### 예외 케이스
+
+1. **TC-E1**: 필수값(학년/이름) 누락 행 포함 → 해당 행 에러 표시, 정상 행만 등록 가능
+2. **TC-E2**: 학년명 그룹 미매칭 행 포함 → 해당 행 에러 + 사용 가능 학년 안내
+3. **TC-E3**: 500건 초과 → 등록 차단 + 안내
+4. **TC-E4**: ExcelJS 청크 로딩 실패 → 에러 토스트, 모달 유지
 
 ---
 
-**상태**: 구현 완료
+**상태**: 구현 완료 (ExcelJS 라이브러리 교체 포함)
