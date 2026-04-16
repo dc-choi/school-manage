@@ -2,8 +2,8 @@
  * 엑셀 파싱/검증 유틸리티 (로드맵 2단계 — 엑셀 Import)
  *
  * 클라이언트에서 .xlsx 파일을 파싱하고 행별 검증을 수행한다.
+ * ExcelJS는 동적 import로 분리하여 메인 번들에서 제외한다.
  */
-import * as XLSX from 'xlsx';
 
 export interface ParsedRow {
     rowIndex: number;
@@ -37,6 +37,12 @@ const BAPTIZED_AT_REGEX = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/;
 
 const cellToString = (cell: unknown): string => {
     if (cell == null) return '';
+    // formula 셀: { formula, result } — own-property 만 인정해 prototype pollution 우회 차단
+    if (typeof cell === 'object' && Object.prototype.hasOwnProperty.call(cell, 'result')) {
+        const result = (cell as { result: unknown }).result;
+        if (result == null) return '';
+        return String(result).trim();
+    }
     return String(cell).trim();
 };
 
@@ -44,29 +50,51 @@ const cellToString = (cell: unknown): string => {
  * .xlsx 파일을 파싱하여 ParsedRow 배열을 반환한다.
  */
 export const parseExcelFile = async (file: File): Promise<ParsedRow[]> => {
+    const ExcelJS = (await import('exceljs')).default;
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array' });
-    const sheetName = workbook.SheetNames[0];
-    if (!sheetName) throw new Error('시트가 없습니다.');
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
 
-    const sheet = workbook.Sheets[sheetName];
-    const rows: unknown[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+    const sheet = workbook.worksheets[0];
+    if (!sheet) throw new Error('시트가 없습니다.');
 
-    // 첫 행은 헤더 → 건너뜀
-    const dataRows = rows.slice(1).filter((row) => row.some((cell) => cellToString(cell) !== ''));
+    const parsed: ParsedRow[] = [];
+    let dataIndex = 0;
 
-    return dataRows.map((row, index) => ({
-        rowIndex: index + 2, // 엑셀 행 번호 (1-based, 헤더 제외)
-        groupName: cellToString(row[0]),
-        societyName: cellToString(row[1]),
-        catholicName: cellToString(row[2]),
-        gender: cellToString(row[3]),
-        contact: cellToString(row[4]),
-        baptizedAt: cellToString(row[5]),
-        age: cellToString(row[6]),
-        description: cellToString(row[7]),
-        registered: cellToString(row[8]) || null,
-    }));
+    sheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+        if (rowNumber === 1) return; // 첫 행은 헤더 → 건너뜀
+
+        const cellAt = (col: number) => cellToString(row.getCell(col).value);
+        const values = [
+            cellAt(1),
+            cellAt(2),
+            cellAt(3),
+            cellAt(4),
+            cellAt(5),
+            cellAt(6),
+            cellAt(7),
+            cellAt(8),
+            cellAt(9),
+        ];
+
+        if (values.every((v) => v === '')) return;
+
+        dataIndex += 1;
+        parsed.push({
+            rowIndex: dataIndex + 1, // 헤더 포함 1-based
+            groupName: values[0],
+            societyName: values[1],
+            catholicName: values[2],
+            gender: values[3],
+            contact: values[4],
+            baptizedAt: values[5],
+            age: values[6],
+            description: values[7],
+            registered: values[8] || null,
+        });
+    });
+
+    return parsed;
 };
 
 /**
