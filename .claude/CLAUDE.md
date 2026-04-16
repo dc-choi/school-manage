@@ -82,6 +82,33 @@ fix/<short-desc>
 - **"무료" 표현 사용 금지**: 프로덕트 코드, 콘텐츠 모두에서 "무료"를 쓰지 않는다. (예: "무료로 시작하기" → "바로 시작하기")
 - **콘텐츠 작성 시 제품 실제 동작을 먼저 파악**한 후 작성한다. 추측으로 없는 기능을 넣지 않는다.
 - **코드베이스 탐색 시 subagent 활용**: 여러 파일을 읽거나 넓은 범위를 조사할 때는 subagent에 위임하여 메인 컨텍스트를 보호한다. 단순한 파일 1~2개 조회는 직접 수행.
+- **Plan Mode 사용 기준**:
+    - 필수: 새 도메인/엔티티 추가, DB 스키마 변경, 3개 이상 파일 수정, 아키텍처/패키지 구조 변경.
+    - 불필요: 오타/단일 파일 소규모 수정, 기존 패턴을 그대로 따르는 단순 추가, 문서만 수정, 명백한 버그 1줄 수정.
+    - 판단이 애매하면 Plan Mode 먼저 → 승인 후 Implement.
+
+## MCP & 파일 보호
+
+### MySQL MCP (사업 데이터 분석용)
+
+Prisma MySQL DB에 **read-only**로 직접 쿼리. `docs/business/*.md` 작성 시 MAO·출석 집계에 활용.
+
+최초 1회 등록 (로컬 스코프, `.env.local` 의 DB 정보 사용):
+```bash
+claude mcp add mysql -s local \
+    -e MYSQL_HOST="127.0.0.1" -e MYSQL_PORT="3306" \
+    -e MYSQL_USER="<user>" -e MYSQL_PASS="<password>" -e MYSQL_DB="<db>" \
+    -e ALLOW_INSERT_OPERATION="false" -e ALLOW_UPDATE_OPERATION="false" \
+    -e ALLOW_DELETE_OPERATION="false" -e ALLOW_DDL_OPERATION="false" \
+    -- npx -y @benborla29/mcp-server-mysql
+```
+
+### PreToolUse 파일 보호 Hook
+
+`.claude/hooks/protect-files.sh` 가 Edit/Write 시 아래를 차단:
+- `.env`, `.env.local`, `.env.test` 등 (단, `.example` 허용)
+- `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`
+- `apps/api/prisma/migrations/*/migration.sql` (스키마 변경은 `/prisma-migrate` 스킬 사용)
 
 ## CSS/Tailwind 주의사항
 
