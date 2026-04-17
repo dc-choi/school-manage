@@ -9,7 +9,7 @@
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
 | **Target Bugfix**         | -    | 12건 미착수 (P1 1건, P2 6건, P3 5건) + 5건 완료 |
-| **Target Non-Functional** | -    | PERFORMANCE 6건 미착수 + 1건 완료 + DX 2건 완료 |
+| **Target Non-Functional** | -    | PERFORMANCE 5건 미착수 + 2건 완료 + DX 2건 완료 |
 
 ## 관련 문서
 
@@ -65,7 +65,7 @@
 
 | 우선순위 | 기능명                       | SDD 상태 | 비고                                                       |
 |------|---------------------------|--------|---------------------------------------------------------|
-| P1   | 통계 쿼리 전체 메모리 로드          | 미착수    | 전체 출석 레코드 앱 메모리 적재 후 집계. DB 레벨 GROUP BY 집계로 전환 필요        |
+| P1   | 통계 쿼리 전체 메모리 로드          | ✅ 완료    | 4개 UseCase Kysely `GROUP BY` + `SUM(CASE)` 전환. `PRESENT_COUNT_SQL` 헬퍼 추가. 통합 테스트 20/20 통과 |
 | P2   | 웹 테스트 확대                 | 미작성    | 커버리지 ~2% → 주요 페이지/훅 테스트 추가                               |
 | P2   | Organization 목록 페이지네이션 미구현 | ✅ 완료 | skip/take 페이지네이션 + Pagination 컴포넌트 적용                       |
 | P2   | DB connectionLimit 환경별 분리 | 미착수    | connectionLimit: 10 하드코딩. 프로덕션 20-50 권장                    |

@@ -3,7 +3,6 @@
  *
  * 주간/월간/연간 출석률 조회 (스냅샷 기반)
  */
-import { PRESENT_MARKS } from '@school/shared';
 import type { AttendanceRateOutput, StatisticsInput as StatisticsSchemaInput } from '@school/shared';
 import {
     clampToToday,
@@ -15,6 +14,7 @@ import {
     getWeekRangeInMonth,
     roundToDecimal,
 } from '@school/utils';
+import { PRESENT_COUNT_SQL } from '~/domains/statistics/statistics.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type StatisticsInput = StatisticsSchemaInput & { organizationId: string };
@@ -73,20 +73,7 @@ export class GetAttendanceRateUseCase {
             };
         }
 
-        // 4. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
-        const allAttendances = await database.attendance.findMany({
-            where: {
-                deletedAt: null,
-                groupId: { in: groupIds },
-                date: {
-                    gte: startDateStr,
-                    lte: endDateStr,
-                },
-            },
-            select: { content: true },
-        });
-
-        // 5. 출석 일수 계산 (해당 기간 내 일요일 수)
+        // 4. 출석 일수 계산 (해당 기간 내 일요일 수)
         const totalDays = countSundays(startDate, endDate);
 
         if (totalDays === 0) {
@@ -101,14 +88,27 @@ export class GetAttendanceRateUseCase {
             };
         }
 
-        // 6. 실제 출석 수 (◎, ○, △)
-        const actualAttendances = allAttendances.filter((a) => a.content && PRESENT_MARKS.has(a.content)).length;
+        // 5. 기간 내 출석 인정(◎/○/△) 수 — DB 레벨 SUM(CASE) 단일 스칼라
+        const presentRow = await database.$kysely
+            .selectFrom('attendance as a')
+            .select(PRESENT_COUNT_SQL.as('presentCount'))
+            .where('a.deleteAt', 'is', null)
+            .where(
+                'a.groupId',
+                'in',
+                groupIds.map((id) => Number(id))
+            )
+            .where('a.date', '>=', startDateStr)
+            .where('a.date', '<=', endDateStr)
+            .executeTakeFirstOrThrow();
 
-        // 7. 출석률 계산
+        const actualAttendances = Number(presentRow.presentCount ?? 0);
+
+        // 6. 출석률 계산
         const expectedAttendances = totalStudents * totalDays;
         const attendanceRate = (actualAttendances / expectedAttendances) * 100;
 
-        // 8. 평균 출석 인원
+        // 7. 평균 출석 인원
         const avgAttendance = actualAttendances / totalDays;
 
         return {
