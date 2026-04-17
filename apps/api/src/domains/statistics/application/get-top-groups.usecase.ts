@@ -3,7 +3,6 @@
  *
  * 그룹별 출석률 순위 TOP N 조회 (스냅샷 기반)
  */
-import { PRESENT_MARKS } from '@school/shared';
 import type { TopGroupsOutput, TopStatisticsInput as TopStatisticsSchemaInput } from '@school/shared';
 import {
     clampToToday,
@@ -15,6 +14,7 @@ import {
     roundToDecimal,
 } from '@school/utils';
 import { getBulkGroupSnapshots } from '~/domains/snapshot/snapshot.helper.js';
+import { PRESENT_COUNT_SQL } from '~/domains/statistics/statistics.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type TopStatisticsInput = TopStatisticsSchemaInput & { organizationId: string };
@@ -62,23 +62,26 @@ export class GetTopGroupsUseCase {
             studentCountByGroup.set(sg.groupId, (studentCountByGroup.get(sg.groupId) ?? 0) + 1);
         }
 
-        // 4. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
-        const attendances = await database.attendance.findMany({
-            where: {
-                deletedAt: null,
-                groupId: { in: groupIds },
-                date: { gte: startDateStr, lte: endDateStr },
-            },
-            select: { groupId: true, content: true },
-        });
+        // 4. 기간 내 출석 인정(◎/○/△) 수 — DB 레벨 GROUP BY group_id
+        const presentRows = await database.$kysely
+            .selectFrom('attendance as a')
+            .select('a.groupId')
+            .select(PRESENT_COUNT_SQL.as('presentCount'))
+            .where('a.deleteAt', 'is', null)
+            .where(
+                'a.groupId',
+                'in',
+                groupIds.map((id) => Number(id))
+            )
+            .where('a.date', '>=', startDateStr)
+            .where('a.date', '<=', endDateStr)
+            .groupBy('a.groupId')
+            .execute();
 
-        // 5. groupId별 출석 수 집계
         const presentByGroup = new Map<bigint, number>();
-        for (const att of attendances) {
-            if (!att.groupId) continue;
-            if (att.content && PRESENT_MARKS.has(att.content)) {
-                presentByGroup.set(att.groupId, (presentByGroup.get(att.groupId) ?? 0) + 1);
-            }
+        for (const row of presentRows) {
+            if (row.groupId === null) continue;
+            presentByGroup.set(BigInt(row.groupId), Number(row.presentCount ?? 0));
         }
 
         // 6. 그룹 이름 스냅샷 조회

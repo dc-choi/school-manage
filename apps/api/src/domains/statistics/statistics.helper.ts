@@ -7,3 +7,9 @@ export const ATTENDANCE_SCORE_SQL = sql<number>`SUM(CASE
     WHEN a.content = '△' THEN 1
     ELSE 0
 END)`;
+
+/** 출석 인정(◎/○/△) 카운트 SQL */
+export const PRESENT_COUNT_SQL = sql<number>`SUM(CASE
+    WHEN a.content IN ('◎', '○', '△') THEN 1
+    ELSE 0
+END)`;

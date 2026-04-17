@@ -3,7 +3,6 @@
  *
  * 성별 분포 조회 (스냅샷 기반)
  */
-import { PRESENT_MARKS } from '@school/shared';
 import type { GenderDistributionOutput, StatisticsInput as StatisticsSchemaInput } from '@school/shared';
 import {
     clampToToday,
@@ -15,6 +14,7 @@ import {
     roundToDecimal,
 } from '@school/utils';
 import { getBulkStudentSnapshots } from '~/domains/snapshot/snapshot.helper.js';
+import { PRESENT_COUNT_SQL } from '~/domains/statistics/statistics.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type StatisticsInput = StatisticsSchemaInput & { organizationId: string };
@@ -55,17 +55,7 @@ export class GetByGenderUseCase {
             return { year, male: { count: 0, rate: 0 }, female: { count: 0, rate: 0 }, unknown: { count: 0, rate: 0 } };
         }
 
-        // 4. 기간 내 출석 데이터 조회 (attendance.groupId 기반)
-        const allAttendances = await database.attendance.findMany({
-            where: {
-                deletedAt: null,
-                groupId: { in: groupIds },
-                date: { gte: startDateStr, lte: endDateStr },
-            },
-            select: { studentId: true, content: true },
-        });
-
-        // 5. 스냅샷에서 성별 정보 조회 (폴백: Student.gender)
+        // 4. 스냅샷에서 성별 정보 조회 (폴백: Student.gender)
         const referenceDate = new Date(year, 11, 31);
         const studentSnapshots = await getBulkStudentSnapshots(uniqueStudentIds, referenceDate);
 
@@ -80,40 +70,48 @@ export class GetByGenderUseCase {
             fallbackGenders = new Map(fallbackStudents.map((s) => [s.id, s.gender]));
         }
 
-        // 6. studentId → gender 매핑
-        const studentGenderMap = new Map<bigint, string | null>();
-        for (const studentId of uniqueStudentIds) {
-            const snapshot = studentSnapshots.get(studentId);
-            studentGenderMap.set(studentId, snapshot?.gender ?? fallbackGenders.get(studentId) ?? null);
-        }
-
-        // 7. 성별별 출석률 계산
+        // 5. 성별별 학생 ID 분류 (스냅샷 우선, 폴백 적용)
         const genderGroups = { M: new Set<bigint>(), F: new Set<bigint>(), unknown: new Set<bigint>() };
-        for (const [studentId, gender] of studentGenderMap) {
+        for (const studentId of uniqueStudentIds) {
+            const gender = studentSnapshots.get(studentId)?.gender ?? fallbackGenders.get(studentId) ?? null;
             if (gender === 'M') genderGroups.M.add(studentId);
             else if (gender === 'F') genderGroups.F.add(studentId);
             else genderGroups.unknown.add(studentId);
         }
 
-        const calcRate = (studentIds: Set<bigint>): { count: number; rate: number } => {
+        // 6. 성별별 출석률 계산 — 성별별 SUM(CASE) 1회씩, 병렬 실행
+        const groupIdsAsNumber = groupIds.map((id) => Number(id));
+        const calcRate = async (studentIds: Set<bigint>): Promise<{ count: number; rate: number }> => {
             const count = studentIds.size;
             if (count === 0 || totalDays === 0) return { count, rate: 0 };
 
-            const presentCount = allAttendances.filter(
-                (a) => studentIds.has(a.studentId) && a.content && PRESENT_MARKS.has(a.content)
-            ).length;
+            const presentRow = await database.$kysely
+                .selectFrom('attendance as a')
+                .select(PRESENT_COUNT_SQL.as('presentCount'))
+                .where('a.deleteAt', 'is', null)
+                .where('a.groupId', 'in', groupIdsAsNumber)
+                .where(
+                    'a.studentId',
+                    'in',
+                    [...studentIds].map((id) => Number(id))
+                )
+                .where('a.date', '>=', startDateStr)
+                .where('a.date', '<=', endDateStr)
+                .executeTakeFirstOrThrow();
 
+            const presentCount = Number(presentRow.presentCount ?? 0);
             const expected = count * totalDays;
             const rate = expected > 0 ? (presentCount / expected) * 100 : 0;
             return { count, rate: roundToDecimal(rate, 1) };
         };
 
-        return {
-            year,
-            male: calcRate(genderGroups.M),
-            female: calcRate(genderGroups.F),
-            unknown: calcRate(genderGroups.unknown),
-        };
+        const [male, female, unknown] = await Promise.all([
+            calcRate(genderGroups.M),
+            calcRate(genderGroups.F),
+            calcRate(genderGroups.unknown),
+        ]);
+
+        return { year, male, female, unknown };
     }
 
     /**

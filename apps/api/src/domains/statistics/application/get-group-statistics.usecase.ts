@@ -3,7 +3,6 @@
  *
  * 모든 그룹의 주간/월간/연간 출석률 및 평균 출석 인원 조회 (스냅샷 기반)
  */
-import { PRESENT_MARKS } from '@school/shared';
 import type { GroupStatisticsOutput, StatisticsInput as StatisticsSchemaInput } from '@school/shared';
 import {
     clampToToday,
@@ -17,6 +16,7 @@ import {
     roundToDecimal,
 } from '@school/utils';
 import { getBulkGroupSnapshots } from '~/domains/snapshot/snapshot.helper.js';
+import { PRESENT_COUNT_SQL } from '~/domains/statistics/statistics.helper.js';
 import { database } from '~/infrastructure/database/database.js';
 
 type StatisticsInput = StatisticsSchemaInput & { organizationId: string };
@@ -155,33 +155,32 @@ export class GetGroupStatisticsUseCase {
     }
 
     /**
-     * 기간별 attendance 조회 + groupId별 그룹핑
+     * 기간별 출석 인정(◎/○/△) 수 조회 — DB 레벨 GROUP BY group_id
      */
     private async fetchPeriodData(groupIds: bigint[], range: DateRange): Promise<PeriodGroupData> {
         const startDateStr = formatDateCompact(range.startDate);
         const endDateStr = formatDateCompact(range.endDate);
         const totalDays = countSundays(range.startDate, range.endDate);
 
-        const attendances = await database.attendance.findMany({
-            where: {
-                deletedAt: null,
-                groupId: { in: groupIds },
-                date: { gte: startDateStr, lte: endDateStr },
-            },
-            select: { groupId: true, content: true },
-        });
+        const presentRows = await database.$kysely
+            .selectFrom('attendance as a')
+            .select('a.groupId')
+            .select(PRESENT_COUNT_SQL.as('presentCount'))
+            .where('a.deleteAt', 'is', null)
+            .where(
+                'a.groupId',
+                'in',
+                groupIds.map((id) => Number(id))
+            )
+            .where('a.date', '>=', startDateStr)
+            .where('a.date', '<=', endDateStr)
+            .groupBy('a.groupId')
+            .execute();
 
         const grouped = new Map<bigint, { presentCount: number }>();
-        for (const att of attendances) {
-            if (!att.groupId) continue;
-            let data = grouped.get(att.groupId);
-            if (!data) {
-                data = { presentCount: 0 };
-                grouped.set(att.groupId, data);
-            }
-            if (att.content && PRESENT_MARKS.has(att.content)) {
-                data.presentCount++;
-            }
+        for (const row of presentRows) {
+            if (row.groupId === null) continue;
+            grouped.set(BigInt(row.groupId), { presentCount: Number(row.presentCount ?? 0) });
         }
 
         return { grouped, totalDays, startDateStr, endDateStr };
