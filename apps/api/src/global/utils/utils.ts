@@ -13,6 +13,19 @@ export const getOsEnvOptional = (key: string, defaultValue = ''): string => {
     return process.env[key] ?? defaultValue;
 };
 
+export const getOsEnvIntOptional = (key: string, defaultValue: number, min: number, max: number): number => {
+    const raw = process.env[key];
+    if (raw === undefined || raw === '') return defaultValue;
+
+    const parsed = Number.parseInt(raw, 10);
+    if (Number.isNaN(parsed) || parsed < min || parsed > max) {
+        const message = `Environment variable ${key} must be an integer in [${min}, ${max}]. got: ${raw}`;
+        logger.error(message);
+        throw new Error(message);
+    }
+    return parsed;
+};
+
 export const normalizePort = (port: string): number | string | boolean => {
     const parsedPort = Number.parseInt(port, 10);
     if (Number.isNaN(parsedPort)) {

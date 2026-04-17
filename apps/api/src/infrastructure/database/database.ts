@@ -38,7 +38,7 @@ const adapter = new PrismaMariaDb({
     user: env.mysql.username,
     password: env.mysql.password,
     database: env.mysql.schema,
-    connectionLimit: 10,
+    connectionLimit: env.mysql.connectionLimit,
 });
 
 // PrismaClient 생성 (adapter 주입)

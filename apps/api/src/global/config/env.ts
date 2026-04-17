@@ -1,7 +1,7 @@
 import pkg from '../../../package.json' with { type: 'json' };
 import dotenv from 'dotenv';
 import { join } from 'node:path';
-import { getOsEnv, getOsEnvOptional, normalizePort } from '~/global/utils/index.js';
+import { getOsEnv, getOsEnvIntOptional, getOsEnvOptional, normalizePort } from '~/global/utils/index.js';
 
 /**
  * Load .env file or for tests the .env.test file.
@@ -32,6 +32,7 @@ export const env = {
         username: getOsEnv('MYSQL_USERNAME'),
         password: getOsEnv('MYSQL_PASSWORD'),
         schema: getOsEnv('MYSQL_SCHEMA'),
+        connectionLimit: getOsEnvIntOptional('MYSQL_CONNECTION_LIMIT', 10, 1, 100),
     },
     app: {
         name: getOsEnv('APP_NAME'),
