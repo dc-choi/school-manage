@@ -9,7 +9,7 @@
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
 | **Target Bugfix**         | -    | 12건 미착수 (P1 1건, P2 6건, P3 5건) + 5건 완료 |
-| **Target Non-Functional** | -    | PERFORMANCE 5건 미착수 + 2건 완료 + DX 2건 완료 |
+| **Target Non-Functional** | -    | PERFORMANCE 4건 미착수 + 3건 완료 + DX 2건 완료 |
 
 ## 관련 문서
 
@@ -68,7 +68,7 @@
 | P1   | 통계 쿼리 전체 메모리 로드          | ✅ 완료    | 4개 UseCase Kysely `GROUP BY` + `SUM(CASE)` 전환. `PRESENT_COUNT_SQL` 헬퍼 추가. 통합 테스트 20/20 통과 |
 | P2   | 웹 테스트 확대                 | 미작성    | 커버리지 ~2% → 주요 페이지/훅 테스트 추가                               |
 | P2   | Organization 목록 페이지네이션 미구현 | ✅ 완료 | skip/take 페이지네이션 + Pagination 컴포넌트 적용                       |
-| P2   | DB connectionLimit 환경별 분리 | 미착수    | connectionLimit: 10 하드코딩. 프로덕션 20-50 권장                    |
+| P2   | DB connectionLimit 환경변수화 | ✅ 완료    | `MYSQL_CONNECTION_LIMIT` 추가(선택, default 10 — Prisma v7 표준). 검증 1~100. 단위 테스트 8/8 통과 |
 | P3   | 프로덕션 쿼리 로깅 비활성화          | 미착수    | 전체 쿼리 이벤트 로깅 상시 활성. PII 노출 위험 + 성능 오버헤드                   |
 | P3   | 트랜잭션/쿼리 타임아웃 미설정         | 미착수    | 장기 실행 트랜잭션 락 점유 가능. 명시적 타임아웃 설정 필요                         |
 | P3   | AuthLayout 이미지 dimensions 누락 | 미착수    | width/height 미설정 → CLS(레이아웃 시프트) 유발. loading="lazy" 추가 권장 |
