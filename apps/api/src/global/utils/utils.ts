@@ -26,6 +26,18 @@ export const getOsEnvIntOptional = (key: string, defaultValue: number, min: numb
     return parsed;
 };
 
+export const getOsEnvEnumOptional = <T extends string>(key: string, allowed: readonly T[], defaultValue: T): T => {
+    const raw = process.env[key];
+    if (raw === undefined || raw === '') return defaultValue;
+
+    if (!allowed.includes(raw as T)) {
+        const message = `Environment variable ${key} must be one of [${allowed.join(', ')}]. got: ${raw}`;
+        logger.error(message);
+        throw new Error(message);
+    }
+    return raw as T;
+};
+
 export const normalizePort = (port: string): number | string | boolean => {
     const parsedPort = Number.parseInt(port, 10);
     if (Number.isNaN(parsedPort)) {

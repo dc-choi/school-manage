@@ -161,6 +161,10 @@ await database.student.create({
 
 `pnpm prisma generate` (클라이언트+Kysely 타입 생성), `pnpm prisma db push`, `pnpm prisma studio`
 
+### DB 환경변수
+
+`MYSQL_CONNECTION_LIMIT` (1~100, default 10), `DB_QUERY_LOGGING` (off/slow/all, default slow, 슬로우 쿼리 PII 마스킹). 상세: `.env.example`
+
 ## Testing
 
 - **프레임워크**: Vitest

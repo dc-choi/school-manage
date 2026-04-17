@@ -1,7 +1,16 @@
 import pkg from '../../../package.json' with { type: 'json' };
 import dotenv from 'dotenv';
 import { join } from 'node:path';
-import { getOsEnv, getOsEnvIntOptional, getOsEnvOptional, normalizePort } from '~/global/utils/index.js';
+import {
+    getOsEnv,
+    getOsEnvEnumOptional,
+    getOsEnvIntOptional,
+    getOsEnvOptional,
+    normalizePort,
+} from '~/global/utils/index.js';
+
+export const DB_QUERY_LOGGING_MODES = ['off', 'slow', 'all'] as const;
+export type DbQueryLoggingMode = (typeof DB_QUERY_LOGGING_MODES)[number];
 
 /**
  * Load .env file or for tests the .env.test file.
@@ -33,6 +42,9 @@ export const env = {
         password: getOsEnv('MYSQL_PASSWORD'),
         schema: getOsEnv('MYSQL_SCHEMA'),
         connectionLimit: getOsEnvIntOptional('MYSQL_CONNECTION_LIMIT', 10, 1, 100),
+    },
+    db: {
+        queryLogging: getOsEnvEnumOptional<DbQueryLoggingMode>('DB_QUERY_LOGGING', DB_QUERY_LOGGING_MODES, 'slow'),
     },
     app: {
         name: getOsEnv('APP_NAME'),
