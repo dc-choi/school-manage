@@ -1,5 +1,6 @@
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import type { ITXClientDenyList } from '@prisma/client/runtime/library';
 import { Kysely, MysqlAdapter, MysqlIntrospector, MysqlQueryCompiler } from 'kysely';
 import kyselyExtension from 'prisma-extension-kysely';
@@ -11,23 +12,29 @@ import { logger } from '~/infrastructure/logger/logger.js';
 // 슬로우 쿼리 임계값 (ms)
 const SLOW_QUERY_THRESHOLD = 1000;
 
+const MASKED = "'***'";
+
 /**
- * SQL 쿼리의 ? 플레이스홀더를 실제 파라미터 값으로 치환
+ * 파라미터 JSON 배열의 각 값을 SQL 리터럴로 마스킹/직렬화.
+ * 문자열/Date/기타 타입 = 마스킹('***'), 숫자/bigint/null = 원값 유지.
  */
-const interpolateQuery = (query: string, params: string): string => {
+const maskParam = (value: unknown): string => {
+    if (value === null) return 'NULL';
+    if (typeof value === 'number' || typeof value === 'bigint') return String(value);
+    return MASKED;
+};
+
+/**
+ * SQL 쿼리의 ? 플레이스홀더를 마스킹된 파라미터 값으로 치환.
+ * PII(이메일, 이름, 비밀번호 해시 등) 노출을 방지한다.
+ */
+export const interpolateQuery = (query: string, params: string): string => {
     try {
         const parsedParams: unknown[] = JSON.parse(params);
         let index = 0;
-        return query.replaceAll('?', () => {
-            const value = parsedParams[index++];
-            if (value === null) return 'NULL';
-            if (typeof value === 'string') return `'${value}'`;
-            if (typeof value === 'number' || typeof value === 'bigint') return String(value);
-            if (value instanceof Date) return `'${value.toISOString()}'`;
-            return String(value);
-        });
+        return query.replaceAll('?', () => maskParam(parsedParams[index++]));
     } catch {
-        return `${query} -- params: ${params}`;
+        return `${query} -- params: <masked>`;
     }
 };
 
@@ -41,30 +48,38 @@ const adapter = new PrismaMariaDb({
     connectionLimit: env.mysql.connectionLimit,
 });
 
-// PrismaClient 생성 (adapter 주입)
-const baseClient = new PrismaClient({
-    adapter,
-    log: [
-        { emit: 'event', level: 'query' },
+// 쿼리 로깅 모드에 따른 log 배열 구성.
+// 'off': query 이벤트 비발행 → 핸들러 등록 자체 생략 → 오버헤드 제거.
+const buildLogConfig = (): Prisma.LogDefinition[] => {
+    const base: Prisma.LogDefinition[] = [
         { emit: 'stdout', level: 'error' },
         { emit: 'stdout', level: 'warn' },
-    ],
+    ];
+    if (env.db.queryLogging === 'off') return base;
+    return [{ emit: 'event', level: 'query' }, ...base];
+};
+
+const baseClient = new PrismaClient({
+    adapter,
+    log: buildLogConfig(),
 });
 
-// Query 이벤트 핸들러 등록 ($on은 $extends 전에 호출해야 함)
-baseClient.$on('query', (event) => {
-    const duration = event.duration;
-    const query = event.query;
-    const params = event.params;
-    const interpolated = interpolateQuery(query, params);
+// Query 이벤트 핸들러는 'slow'/'all' 모드에서만 등록 ($on은 $extends 전에 호출해야 함)
+if (env.db.queryLogging !== 'off') {
+    baseClient.$on('query', (event) => {
+        const { duration, query, params } = event;
+        const isSlow = duration >= SLOW_QUERY_THRESHOLD;
 
-    // 슬로우 쿼리 감지
-    if (duration >= SLOW_QUERY_THRESHOLD) {
-        logger.err(`[SLOW QUERY] ${duration}ms - ${interpolated}`);
-    } else if (env.mode.local) {
-        logger.sql(`${duration}ms - ${interpolated}`);
-    }
-});
+        if (isSlow) {
+            logger.err(`[SLOW QUERY] ${duration}ms - ${interpolateQuery(query, params)}`);
+            return;
+        }
+
+        if (env.db.queryLogging === 'all') {
+            logger.sql(`${duration}ms - ${interpolateQuery(query, params)}`);
+        }
+    });
+}
 
 // $transaction 콜백의 tx 타입 (확장 포함)
 export type TransactionClient = Omit<typeof database, ITXClientDenyList>;
