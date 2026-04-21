@@ -36,12 +36,12 @@
 | `auth.login` | mutation | public | 로그인 (토큰 발급) |
 | `account.get` | query | protected | 현재 계정 정보 조회 |
 
-- **auth.login**: `name` + `password` → `name`, `displayName`, `accessToken`(JWT). 에러: 404 NOT_FOUND, 401 NOT_MATCHED
+- **auth.login**: `name` + `password` → `name`, `displayName`, `accessToken`(JWT). 실패 응답은 사용자 열거 방지를 위해 단일 `401 UNAUTHORIZED` + 통일 메시지(`'아이디 또는 비밀번호가 올바르지 않습니다.'`)로 통일. 탈퇴 계정 복원 안내는 예외 (`403 FORBIDDEN: ACCOUNT_DELETED`)
 - **account.get**: Bearer 헤더 → `name`, `displayName`, `privacyAgreedAt`
 
 ### 비즈니스 로직
 
-- **로그인**: ID 조회 → bcrypt 검증 → JWT 발급 (name + timeStamp)
+- **로그인**: ID 조회 → bcrypt 검증 → JWT 발급 (name + timeStamp). 계정 없음/비밀번호 불일치/탈퇴+비번 불일치 모두 동일 응답으로 통일 (CWE-204 차단)
 - **토큰 검증**: Bearer 파싱 → JWT 검증 → 만료 확인 → 계정 존재 확인
 
 ---
@@ -110,11 +110,15 @@
 
 RefreshToken의 `createdAt`, `expiresAt` 포함 모든 DB 타임스탬프는 `getNowKST()`를 사용한다. `new Date()` (UTC) 사용 금지.
 
+### 로그인 에러 메시지 통일 정책 (BUGFIX)
+
+로그인 실패 시 외부 응답은 코드/메시지를 단일화하여 사용자 열거 공격(CWE-204)을 차단한다. 대상: 계정 없음, 비밀번호 불일치, 탈퇴 계정+비번 불일치. 예외: 탈퇴 계정+올바른 비번+2년 이내(복원 UX). 서버 내부 로그는 분류 유지 가능.
+
 > 로그인/회원가입 UI 개선, 개인정보 제공동의, 계정 자기 관리, 셀프 온보딩 → `auth-account-extended.md` 참조
 
 ---
 
 **작성일**: 2026-01-13
-**최종 수정**: 2026-03-12 (확장 기능 분리)
+**최종 수정**: 2026-04-21 (로그인 에러 메시지 통일 — 사용자 열거 방지)
 **작성자**: PM 에이전트
 **상태**: Approved (구현 완료)

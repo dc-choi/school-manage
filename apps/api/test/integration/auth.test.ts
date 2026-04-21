@@ -35,7 +35,7 @@ describe('auth.login 통합 테스트', () => {
     });
 
     describe('예외 케이스', () => {
-        it('존재하지 않는 계정으로 로그인 시 NOT_FOUND', async () => {
+        it('존재하지 않는 계정으로 로그인 시 UNAUTHORIZED (통일 메시지)', async () => {
             const caller = createPublicCaller();
 
             await expect(
@@ -44,11 +44,12 @@ describe('auth.login 통합 테스트', () => {
                     password: 'wrongpassword123',
                 })
             ).rejects.toMatchObject({
-                code: 'NOT_FOUND',
+                code: 'UNAUTHORIZED',
+                message: '아이디 또는 비밀번호가 올바르지 않습니다.',
             });
         });
 
-        it('잘못된 비밀번호로 로그인 시 UNAUTHORIZED', async () => {
+        it('잘못된 비밀번호로 로그인 시 UNAUTHORIZED (통일 메시지)', async () => {
             const caller = createPublicCaller();
 
             await expect(
@@ -58,7 +59,23 @@ describe('auth.login 통합 테스트', () => {
                 })
             ).rejects.toMatchObject({
                 code: 'UNAUTHORIZED',
+                message: '아이디 또는 비밀번호가 올바르지 않습니다.',
             });
+        });
+
+        it('존재하지 않는 계정과 잘못된 비밀번호의 응답이 동일해야 함 (사용자 열거 방지)', async () => {
+            const caller = createPublicCaller();
+
+            const nonexistentError = (await caller.auth
+                .login({ name: 'nonexistent-account-test', password: 'wrongpassword123' })
+                .catch((e: unknown) => e)) as { code: string; message: string };
+
+            const wrongPasswordError = (await caller.auth
+                .login({ name: seed.account.name, password: 'wrongpassword123' })
+                .catch((e: unknown) => e)) as { code: string; message: string };
+
+            expect(nonexistentError.code).toBe(wrongPasswordError.code);
+            expect(nonexistentError.message).toBe(wrongPasswordError.message);
         });
 
         it('삭제된 계정 + 올바른 비밀번호 + 2년 이내 → FORBIDDEN (ACCOUNT_DELETED)', async () => {
@@ -88,7 +105,7 @@ describe('auth.login 통합 테스트', () => {
             });
         });
 
-        it('삭제된 계정 + 잘못된 비밀번호 → NOT_FOUND (삭제 여부 미노출)', async () => {
+        it('삭제된 계정 + 잘못된 비밀번호 → UNAUTHORIZED (통일 메시지, 삭제 여부 미노출)', async () => {
             const deletedAt = new Date();
             deletedAt.setMonth(deletedAt.getMonth() - 6);
 
@@ -110,7 +127,8 @@ describe('auth.login 통합 테스트', () => {
                     password: 'wrongpassword123',
                 })
             ).rejects.toMatchObject({
-                code: 'NOT_FOUND',
+                code: 'UNAUTHORIZED',
+                message: '아이디 또는 비밀번호가 올바르지 않습니다.',
             });
         });
     });
