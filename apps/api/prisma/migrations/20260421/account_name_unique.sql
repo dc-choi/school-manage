@@ -3,12 +3,12 @@
 -- Feature: account-name-unique (BUGFIX P1)
 -- Description: Prevent signup race condition and deleted-account name reuse collision with restoreAccount flow.
 
--- Pre-check required before apply (run manually on production DB):
+-- Apply order: cleanup_duplicate_account_names.sql 먼저 적용 → 이 파일.
+-- Pre-check (cleanup 후 0건 확인):
 --   SELECT LOWER(name) AS lname, COUNT(*) AS cnt
 --   FROM account
 --   GROUP BY lname
 --   HAVING cnt > 1;
--- If duplicates exist, clean them up first (see cleanup_duplicate_names.sql template in Development doc).
 
 -- Up Migration
 ALTER TABLE `account` ADD UNIQUE KEY `account_name_key` (`name`);
