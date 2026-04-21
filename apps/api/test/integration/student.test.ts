@@ -740,6 +740,113 @@ describe('student 통합 테스트', () => {
         });
     });
 
+    describe('student.bulkCreate - 서버측 재검증 (로드맵 2단계)', () => {
+        const buildItem = (groupId: string, override: Record<string, unknown> = {}) => ({
+            societyName: '정상이름',
+            groupIds: [groupId],
+            ...override,
+        });
+
+        it('TC-E5: societyName 51자 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.bulkCreate({ students: [buildItem(String(group.id), { societyName: 'A'.repeat(51) })] })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-E6: contact 비숫자 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.bulkCreate({ students: [buildItem(String(group.id), { contact: '010-1234' })] })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-E7a: groupIds 빈 배열 → BAD_REQUEST', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.bulkCreate({ students: [{ societyName: '정상이름', groupIds: [] }] })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-E7b: groupIds 11개 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const elevenGroupIds = Array<string>(11).fill(String(group.id));
+            await expect(
+                caller.student.bulkCreate({
+                    students: [{ societyName: '정상이름', groupIds: elevenGroupIds }],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-E8a: age 0 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.bulkCreate({ students: [buildItem(String(group.id), { age: 0 })] })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-E8b: age 121 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.bulkCreate({ students: [buildItem(String(group.id), { age: 121 })] })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-E9: description 501자 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.bulkCreate({
+                    students: [buildItem(String(group.id), { description: 'x'.repeat(501) })],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-E10: catholicName 51자 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.bulkCreate({
+                    students: [buildItem(String(group.id), { catholicName: 'A'.repeat(51) })],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+    });
+
     describe('student.bulkRegister', () => {
         it('학생 일괄 등록 성공 (신규 등록)', async () => {
             const now = getNowKST();
