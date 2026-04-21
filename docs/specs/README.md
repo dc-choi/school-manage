@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
-| **Target Bugfix**         | -    | 10건 미착수 (P1 1건, P2 4건, P3 5건) + 7건 완료 |
+| **Target Bugfix**         | -    | 8건 미착수 (P2 3건, P3 5건) + 9건 완료 |
 | **Target Non-Functional** | -    | PERFORMANCE 3건 미착수 + 4건 완료 + DX 2건 완료 |
 
 ## 관련 문서
@@ -85,7 +85,7 @@
 | P2 | ApproveJoinUseCase TOCTOU 레이스 컨디션 | ✅ 완료 | `updateMany(status=PENDING)` 조건부 업데이트로 트랜잭션 내 원자성 확보. 동시 승인 시 1건만 성공, 후속 요청 CONFLICT. 통합 테스트 7/7 통과 (TC-E1 5-way race 포함) |
 | P2 | Attendance 테이블 인덱스 누락 | 미착수 | studentId, date 인덱스 없음. 데이터 증가 시 성능 저하 |
 | P3 | Attendance 중복 레코드 방지 | 미착수 | (studentId, date) 유니크 제약 부재. 트랜잭션 내이므로 위험도 낮음 |
-| P1 | Account.name DB 유니크 제약 미비 | 미착수 | 앱 레벨 체크만 존재. 동시 가입 시 race condition으로 중복 계정 생성 가능 |
+| P1 | Account.name DB 유니크 제약 미비 | ✅ 완료 | `@unique` + 마이그레이션 SQL + signup P2002 캐치 추가. 활성·탈퇴 전체 적용(탈퇴 name은 restoreAccount 예약). 통합 테스트 237/237 통과 (auth.signup 신규 4건: 정상·앱감지·탈퇴중복·race) |
 | P1 | xlsx 라이브러리 보안 취약점 | ✅ 완료 | Prototype Pollution + ReDoS 2건 → ExcelJS 교체 + 동적 import 분리 |
 | P1 | 출석 배열 상한 미설정 (DoS) | ✅ 완료 | `.max(500)` 추가. 중복 빈 배열 체크 제거, 테스트 추가 |
 | P2 | 로그인 사용자 열거 공격 | ✅ 완료 | `login.usecase.ts` NOT_FOUND/UNAUTHORIZED 분기를 `UNAUTHORIZED` + 통일 메시지로 단일화. 탈퇴 계정+비번 불일치도 통일. 통합 테스트 10/10 통과 (응답 동일성 검증 TC-E3 추가) |

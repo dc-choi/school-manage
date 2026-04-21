@@ -10,6 +10,7 @@ import {
     hashRefreshToken,
     setRefreshTokenCookie,
 } from '../utils/refresh-token.utils.js';
+import { Prisma } from '@prisma/client';
 import type { SignupInput, SignupOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
@@ -18,7 +19,10 @@ import type { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '~/global/config/env.js';
 import { database } from '~/infrastructure/database/database.js';
+import { logger } from '~/infrastructure/logger/logger.js';
 import { mailService } from '~/infrastructure/mail/mail.service.js';
+
+const DUPLICATE_NAME_MESSAGE = '이미 사용 중인 아이디입니다.';
 
 export class SignupUseCase {
     async execute(input: SignupInput, res: Response): Promise<SignupOutput> {
@@ -36,23 +40,35 @@ export class SignupUseCase {
         if (existingAccount) {
             throw new TRPCError({
                 code: 'CONFLICT',
-                message: '이미 사용 중인 아이디입니다.',
+                message: DUPLICATE_NAME_MESSAGE,
             });
         }
 
         // 3. 비밀번호 해싱
         const hashedPassword = bcrypt.hashSync(input.password, 10);
 
-        // 4. 계정 생성
-        const account = await database.account.create({
-            data: {
-                name: normalizedName,
-                displayName: input.displayName,
-                password: hashedPassword,
-                createdAt: getNowKST(),
-                privacyAgreedAt: getNowKST(),
-            },
-        });
+        // 4. 계정 생성 (DB UNIQUE 제약으로 동시 가입·탈퇴 계정 충돌 차단)
+        let account;
+        try {
+            account = await database.account.create({
+                data: {
+                    name: normalizedName,
+                    displayName: input.displayName,
+                    password: hashedPassword,
+                    createdAt: getNowKST(),
+                    privacyAgreedAt: getNowKST(),
+                },
+            });
+        } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+                logger.log('[signup] name collision on DB unique', { name: normalizedName });
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: DUPLICATE_NAME_MESSAGE,
+                });
+            }
+            throw e;
+        }
 
         // 5. 회원가입 알림 메일 발송 (비동기, fire-and-forget)
         mailService.sendSignupNotification({

@@ -134,6 +134,92 @@ describe('auth.login 통합 테스트', () => {
     });
 });
 
+describe('auth.signup 통합 테스트', () => {
+    const makeSignupInput = (overrides: Partial<{ name: string; displayName: string; password: string }> = {}) => ({
+        name: overrides.name ?? 'newuser01',
+        displayName: overrides.displayName ?? '새유저',
+        password: overrides.password ?? 'password1234',
+        privacyAgreed: true as const,
+    });
+
+    describe('정상 케이스', () => {
+        it('신규 name으로 가입 성공', async () => {
+            const caller = createPublicCaller();
+            const result = await caller.auth.signup(makeSignupInput({ name: 'newuser01' }));
+
+            expect(result).toHaveProperty('accessToken');
+            expect(result.name).toBe('newuser01');
+            expect(result.displayName).toBe('새유저');
+        });
+    });
+
+    describe('예외 케이스', () => {
+        it('활성 계정과 동일 name 가입 시 CONFLICT (앱 레벨 감지)', async () => {
+            await database.account.create({
+                data: {
+                    name: 'existinguser',
+                    displayName: '기존유저',
+                    password: TEST_PASSWORD_HASH,
+                    createdAt: getNowKST(),
+                    privacyAgreedAt: getNowKST(),
+                },
+            });
+
+            const caller = createPublicCaller();
+
+            await expect(caller.auth.signup(makeSignupInput({ name: 'existinguser' }))).rejects.toMatchObject({
+                code: 'CONFLICT',
+                message: '이미 사용 중인 아이디입니다.',
+            });
+        });
+
+        it('탈퇴한 계정과 동일 name 가입 시 CONFLICT (DB UNIQUE 감지)', async () => {
+            const deletedAt = new Date();
+            deletedAt.setMonth(deletedAt.getMonth() - 6);
+
+            await database.account.create({
+                data: {
+                    name: 'deleteduser',
+                    displayName: '탈퇴유저',
+                    password: TEST_PASSWORD_HASH,
+                    createdAt: getNowKST(),
+                    deletedAt,
+                },
+            });
+
+            const caller = createPublicCaller();
+
+            await expect(caller.auth.signup(makeSignupInput({ name: 'deleteduser' }))).rejects.toMatchObject({
+                code: 'CONFLICT',
+                message: '이미 사용 중인 아이디입니다.',
+            });
+        });
+
+        it('동일 name으로 동시 가입 시 정확히 1건 성공, 1건 CONFLICT (race condition 방어)', async () => {
+            const caller = createPublicCaller();
+
+            const results = await Promise.allSettled([
+                caller.auth.signup(makeSignupInput({ name: 'raceuser' })),
+                caller.auth.signup(makeSignupInput({ name: 'raceuser' })),
+            ]);
+
+            const fulfilled = results.filter((r) => r.status === 'fulfilled');
+            const rejected = results.filter((r) => r.status === 'rejected');
+
+            expect(fulfilled).toHaveLength(1);
+            expect(rejected).toHaveLength(1);
+            expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({
+                code: 'CONFLICT',
+                message: '이미 사용 중인 아이디입니다.',
+            });
+
+            // DB에 정확히 1개만 존재 확인
+            const count = await database.account.count({ where: { name: 'raceuser' } });
+            expect(count).toBe(1);
+        });
+    });
+});
+
 describe('auth.restoreAccount 통합 테스트', () => {
     describe('정상 케이스', () => {
         it('삭제된 계정을 정상적으로 복원', async () => {
