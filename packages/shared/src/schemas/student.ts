@@ -102,11 +102,36 @@ export const cancelGraduationInputSchema = z.object({
 });
 
 /**
+ * 학생 일괄 생성 항목 스키마 (로드맵 2단계 — 서버측 재검증)
+ *
+ * 클라이언트 검증 우회 직접 호출 대비 필드별 상한/형식 강제. 단건 경로
+ * `createStudentInputSchema`와 독립 운용하여 회귀 영향을 차단한다.
+ */
+export const bulkCreateStudentItemSchema = z.object({
+    societyName: z.string().min(1, '이름은 필수입니다').max(50, '이름은 50자 이하여야 합니다'),
+    catholicName: z.string().max(50, '세례명은 50자 이하여야 합니다').optional(),
+    gender: z.enum([GENDER.MALE, GENDER.FEMALE]).optional(),
+    age: z.number().int().min(1, '나이는 1 이상이어야 합니다').max(120, '나이는 120 이하여야 합니다').optional(),
+    contact: z
+        .string()
+        .regex(/^\d+$/, '전화번호는 숫자만 입력해주세요')
+        .max(15, '전화번호는 15자 이하여야 합니다')
+        .optional(),
+    description: z.string().max(500, '비고는 500자 이하여야 합니다').optional(),
+    baptizedAt: z
+        .string()
+        .regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/, '축일은 MM/DD 형식으로 입력해주세요.')
+        .optional(),
+    groupIds: z.array(idSchema).min(1, '최소 1개 그룹이 필요합니다').max(10, '한 학생당 그룹은 최대 10개까지입니다'),
+    registered: z.boolean().optional(),
+});
+
+/**
  * 학생 일괄 생성 입력 스키마 (로드맵 2단계 — 엑셀 Import)
  */
 export const bulkCreateStudentsInputSchema = z.object({
     students: z
-        .array(createStudentInputSchema.extend({ registered: z.boolean().optional() }))
+        .array(bulkCreateStudentItemSchema)
         .min(1, '최소 1명의 학생이 필요합니다')
         .max(500, '최대 500명까지 등록 가능합니다'),
 });
@@ -143,6 +168,7 @@ export type DeleteStudentInput = z.infer<typeof deleteStudentInputSchema>;
 export type BulkDeleteStudentsInput = z.infer<typeof bulkDeleteStudentsInputSchema>;
 export type RestoreStudentsInput = z.infer<typeof restoreStudentsInputSchema>;
 export type GraduateStudentsInput = z.infer<typeof graduateStudentsInputSchema>;
+export type BulkCreateStudentItem = z.infer<typeof bulkCreateStudentItemSchema>;
 export type BulkCreateStudentsInput = z.infer<typeof bulkCreateStudentsInputSchema>;
 export type CancelGraduationInput = z.infer<typeof cancelGraduationInputSchema>;
 export type BulkRegisterStudentsInput = z.infer<typeof bulkRegisterStudentsInputSchema>;
