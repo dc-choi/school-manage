@@ -19,6 +19,7 @@ export class BulkCreateStudentsUseCase {
             const currentYear = new Date().getFullYear();
 
             // 권한 검증: 모든 groupIds가 해당 조직 소속인지 확인
+            // (스키마 `groupIds.min(1)` 보장으로 allGroupIds는 항상 ≥1이지만, 향후 스키마 완화 대비 방어 분기 유지)
             const allGroupIds = [...new Set(input.students.flatMap((s) => s.groupIds))];
             if (allGroupIds.length > 0) {
                 await assertGroupIdsOwnership(allGroupIds, organizationId);
@@ -59,6 +60,7 @@ export class BulkCreateStudentsUseCase {
                         contact: created.contact,
                         description: created.description,
                         baptizedAt: created.baptizedAt,
+                        // 스키마 `groupIds.min(1)` 보장으로 항상 첫 그룹 존재. 방어 분기는 스키마 완화 대비.
                         groupId: student.groupIds.length > 0 ? BigInt(student.groupIds[0]) : null,
                     });
 

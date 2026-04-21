@@ -90,7 +90,7 @@
 | P1 | 출석 배열 상한 미설정 (DoS) | ✅ 완료 | `.max(500)` 추가. 중복 빈 배열 체크 제거, 테스트 추가 |
 | P2 | 로그인 사용자 열거 공격 | ✅ 완료 | `login.usecase.ts` NOT_FOUND/UNAUTHORIZED 분기를 `UNAUTHORIZED` + 통일 메시지로 단일화. 탈퇴 계정+비번 불일치도 통일. 통합 테스트 10/10 통과 (응답 동일성 검증 TC-E3 추가) |
 | P2 | 입력 검증 강화 | 미착수 | 출석 data 화이트리스트, 로그인 스키마 signup 대비 느슨, 학생 contact·description 길이 무제한 |
-| P2 | 서버측 Excel 파일 재검증 없음 | 미착수 | 클라이언트만 .xlsx 확장자 체크. 서버에서 파일 타입·내용 재검증 필요 |
+| P2 | 서버측 Excel 파일 재검증 없음 | ✅ 완료 | `bulkCreateStudentItemSchema` 신규(독립). societyName/catholicName max 50, age 1-120, contact `^\d+$` max 15, description max 500, groupIds 1-10. 한글 에러 메시지. 통합 테스트 TC-E5~E10 8건 추가. 단건 경로 무영향 |
 | P3 | Rate Limit 문서/코드 불일치 | 미착수 | 코드 200회/분 vs CLAUDE.md 100회/분. 의도 확인 후 통일 필요 |
 | P3 | StudentGroup deletedAt 미비 | 미착수 | soft-delete 컬럼 없음. 학생 삭제 시 관계 레코드 잔존 |
 | P3 | HTTP 응답 상태코드 일률 200 | 미착수 | 에러 시에도 200 반환. 401/403/404 등 의미 있는 상태코드 필요 |
