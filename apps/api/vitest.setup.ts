@@ -15,6 +15,9 @@ dotenv.config({ path: join(process.cwd(), '.env.test') });
 vi.mock('~/infrastructure/mail/mail.service.js', () => ({
     mailService: {
         isEnabled: vi.fn().mockReturnValue(true),
+        sendSignupNotification: vi.fn().mockResolvedValue(undefined),
+        sendChurnAlert: vi.fn().mockResolvedValue(undefined),
+        sendOrgDailyReport: vi.fn().mockResolvedValue(undefined),
         sendTemporaryPassword: vi.fn().mockResolvedValue(true),
     },
 }));
