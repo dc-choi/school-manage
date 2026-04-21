@@ -18,28 +18,39 @@ export class ApproveJoinUseCase {
             });
         }
 
-        const joinRequest = await database.joinRequest.findFirst({
-            where: {
-                id: BigInt(input.joinRequestId),
-                organizationId: BigInt(organizationId),
-                status: JOIN_REQUEST_STATUS.PENDING,
-            },
-        });
-
-        if (!joinRequest) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'NOT_FOUND: 합류 요청을 찾을 수 없습니다',
-            });
-        }
-
         const now = getNowKST();
 
         await database.$transaction(async (tx) => {
-            await tx.joinRequest.update({
-                where: { id: joinRequest.id },
+            const joinRequest = await tx.joinRequest.findFirst({
+                where: {
+                    id: BigInt(input.joinRequestId),
+                    organizationId: BigInt(organizationId),
+                },
+            });
+
+            if (!joinRequest) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'NOT_FOUND: 합류 요청을 찾을 수 없습니다',
+                });
+            }
+
+            // 조건부 업데이트: PENDING 상태에서만 성공.
+            // 동시 승인 시 먼저 커밋된 트랜잭션만 count=1, 이후 요청은 count=0으로 race 감지
+            const approved = await tx.joinRequest.updateMany({
+                where: {
+                    id: joinRequest.id,
+                    status: JOIN_REQUEST_STATUS.PENDING,
+                },
                 data: { status: JOIN_REQUEST_STATUS.APPROVED, updatedAt: now },
             });
+
+            if (approved.count === 0) {
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: 'CONFLICT: 이미 처리된 합류 요청입니다',
+                });
+            }
 
             const account = await tx.account.update({
                 where: { id: joinRequest.accountId },
