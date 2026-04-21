@@ -19,6 +19,8 @@ import jwt from 'jsonwebtoken';
 import { env } from '~/global/config/env.js';
 import { database } from '~/infrastructure/database/database.js';
 
+const LOGIN_FAILED_MESSAGE = '아이디 또는 비밀번호가 올바르지 않습니다.';
+
 export class LoginUseCase {
     async execute(input: LoginInput, res: Response): Promise<LoginOutput> {
         // 1. 계정 조회
@@ -53,8 +55,8 @@ export class LoginUseCase {
             }
 
             throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: '존재하지 않는 아이디입니다.',
+                code: 'UNAUTHORIZED',
+                message: LOGIN_FAILED_MESSAGE,
             });
         }
 
@@ -63,7 +65,7 @@ export class LoginUseCase {
         if (!isPasswordValid) {
             throw new TRPCError({
                 code: 'UNAUTHORIZED',
-                message: '비밀번호가 일치하지 않습니다.',
+                message: LOGIN_FAILED_MESSAGE,
             });
         }
 
