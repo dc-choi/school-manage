@@ -114,11 +114,15 @@ RefreshToken의 `createdAt`, `expiresAt` 포함 모든 DB 타임스탬프는 `ge
 
 로그인 실패 시 외부 응답은 코드/메시지를 단일화하여 사용자 열거 공격(CWE-204)을 차단한다. 대상: 계정 없음, 비밀번호 불일치, 탈퇴 계정+비번 불일치. 예외: 탈퇴 계정+올바른 비번+2년 이내(복원 UX). 서버 내부 로그는 분류 유지 가능.
 
+### Account.name 유니크 정책 (BUGFIX)
+
+`account.name`은 DB UNIQUE 제약으로 관리한다. 적용 범위는 활성·탈퇴 계정 전체이며, 탈퇴 계정 name은 `restoreAccount`를 위해 예약 상태로 유지된다. 회원가입은 기존 앱 레벨 `findFirst({deletedAt: null})` 체크로 활성 중복을 즉시 감지하고, race·탈퇴 계정 충돌은 Prisma `P2002` 예외를 캐치해 동일한 `CONFLICT: '이미 사용 중인 아이디입니다.'` 응답으로 변환한다 (탈퇴 여부 미노출). `account` 테이블의 collation은 `utf8mb4_unicode_ci`(대소문자·악센트 무시)로 `alice`와 `Alice`도 같은 name으로 간주된다.
+
 > 로그인/회원가입 UI 개선, 개인정보 제공동의, 계정 자기 관리, 셀프 온보딩 → `auth-account-extended.md` 참조
 
 ---
 
 **작성일**: 2026-01-13
-**최종 수정**: 2026-04-21 (로그인 에러 메시지 통일 — 사용자 열거 방지)
+**최종 수정**: 2026-04-21 (Account.name DB 유니크 제약 — race·탈퇴 중복 차단)
 **작성자**: PM 에이전트
 **상태**: Approved (구현 완료)
