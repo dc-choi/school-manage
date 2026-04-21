@@ -8,7 +8,7 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
-| **Target Bugfix**         | -    | 11건 미착수 (P1 1건, P2 5건, P3 5건) + 6건 완료 |
+| **Target Bugfix**         | -    | 10건 미착수 (P1 1건, P2 4건, P3 5건) + 7건 완료 |
 | **Target Non-Functional** | -    | PERFORMANCE 3건 미착수 + 4건 완료 + DX 2건 완료 |
 
 ## 관련 문서
@@ -82,7 +82,7 @@
 | P1 | TRPCError 삼킴 — catch 블록 패턴 누락 | ✅ 완료 | 7개 UseCase catch 블록에 `if (e instanceof TRPCError) throw e` 패턴 추가 완료 |
 | P1 | RefreshToken createdAt UTC/KST 불일치 | ✅ 완료 | 5개 파일 8개 지점 `new Date()` → `getNowKST()` 통일 완료 |
 | P2 | 마이그레이션 SQL 비멱등성 | 미착수 | `cleanup_orphan_account_groups.sql` hardcoded ID 기반. 재실행 시 주의 필요. 1회성 정리이므로 수용 가능 |
-| P2 | ApproveJoinUseCase TOCTOU 레이스 컨디션 | 미착수 | PENDING 확인이 트랜잭션 밖. 동시 승인 시 중복 처리 가능 |
+| P2 | ApproveJoinUseCase TOCTOU 레이스 컨디션 | ✅ 완료 | `updateMany(status=PENDING)` 조건부 업데이트로 트랜잭션 내 원자성 확보. 동시 승인 시 1건만 성공, 후속 요청 CONFLICT. 통합 테스트 7/7 통과 (TC-E1 5-way race 포함) |
 | P2 | Attendance 테이블 인덱스 누락 | 미착수 | studentId, date 인덱스 없음. 데이터 증가 시 성능 저하 |
 | P3 | Attendance 중복 레코드 방지 | 미착수 | (studentId, date) 유니크 제약 부재. 트랜잭션 내이므로 위험도 낮음 |
 | P1 | Account.name DB 유니크 제약 미비 | 미착수 | 앱 레벨 체크만 존재. 동시 가입 시 race condition으로 중복 계정 생성 가능 |
