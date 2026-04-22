@@ -87,21 +87,7 @@ fix/<short-desc>
     - 불필요: 오타/단일 파일 소규모 수정, 기존 패턴을 그대로 따르는 단순 추가, 문서만 수정, 명백한 버그 1줄 수정.
     - 판단이 애매하면 Plan Mode 먼저 → 승인 후 Implement.
 
-## MCP & 파일 보호
-
-### MySQL MCP (사업 데이터 분석용)
-
-Prisma MySQL DB에 **read-only**로 직접 쿼리. `docs/business/*.md` 작성 시 MAO·출석 집계에 활용.
-
-최초 1회 등록 (로컬 스코프, `.env.local` 의 DB 정보 사용):
-```bash
-claude mcp add mysql -s local \
-    -e MYSQL_HOST="127.0.0.1" -e MYSQL_PORT="3306" \
-    -e MYSQL_USER="<user>" -e MYSQL_PASS="<password>" -e MYSQL_DB="<db>" \
-    -e ALLOW_INSERT_OPERATION="false" -e ALLOW_UPDATE_OPERATION="false" \
-    -e ALLOW_DELETE_OPERATION="false" -e ALLOW_DDL_OPERATION="false" \
-    -- npx -y @benborla29/mcp-server-mysql
-```
+## 파일 보호
 
 ### PreToolUse 파일 보호 Hook
 
