@@ -224,7 +224,8 @@ export function LandingPage() {
                             <div className="flex flex-col items-center gap-2 text-lg font-medium text-balance sm:flex-row sm:gap-3 sm:text-2xl">
                                 <Users className="h-7 w-7 shrink-0 text-primary" />
                                 <span>
-                                    {countData.churchCount}개 본당에서 {countData.accountCount}개 계정을 사용중입니다
+                                    {countData.churchCount}개 본당에서 {countData.accountCount}명의 선생님들이{' '}
+                                    {countData.studentCount.toLocaleString('ko-KR')}명의 학생과 함께하고 있어요.
                                 </span>
                             </div>
                         )}
