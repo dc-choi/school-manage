@@ -68,6 +68,7 @@ export interface AgreePrivacyOutput {
 export interface GetAccountCountOutput {
     accountCount: number;
     churchCount: number;
+    studentCount: number;
 }
 
 /**

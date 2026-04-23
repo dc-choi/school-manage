@@ -44,7 +44,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                     <div className="flex items-center gap-3 text-lg text-muted-foreground xl:text-xl">
                         <Users className="h-6 w-6" />
                         <span>
-                            {countData.churchCount}개 본당에서 {countData.accountCount}개 계정을 사용중입니다
+                            {countData.churchCount}개 본당에서 {countData.accountCount}명의 선생님들이{' '}
+                            {countData.studentCount.toLocaleString('ko-KR')}명의 학생과 함께하고 있어요.
                         </span>
                     </div>
                 )}
@@ -59,7 +60,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                         <div className="flex items-center justify-center gap-2 text-base text-muted-foreground">
                             <Users className="h-5 w-5" />
                             <span>
-                                {countData.churchCount}개 본당에서 {countData.accountCount}개 계정을 사용중입니다
+                                {countData.churchCount}개 본당에서 {countData.accountCount}명의 선생님들이{' '}
+                                {countData.studentCount.toLocaleString('ko-KR')}명의 학생과 함께하고 있어요.
                             </span>
                         </div>
                     )}
