@@ -69,11 +69,50 @@ feature/<short-desc>
 fix/<short-desc>
 ```
 
+## 참조 rules
+
+공통 표준은 `.claude/rules/` 아래에 분산되어 있다. 필요한 규칙을 해당 파일에서 직접 참조.
+
+| 파일 | 내용 |
+|------|------|
+| [coding-style.md](rules/coding-style.md) | 불변성·KISS/DRY/YAGNI·함수<50/파일<800/중첩<4 |
+| [code-review.md](rules/code-review.md) | 심각도 4단계·에이전트 위임 매트릭스 |
+| [typescript.md](rules/typescript.md) | TS 타입 안전·Zod·async 정합 (`.ts`/`.tsx` 편집 시 자동 로드) |
+| [shared.md](rules/shared.md) · [trpc.md](rules/trpc.md) · [api.md](rules/api.md) · [web.md](rules/web.md) | 패키지/앱별 가이드 |
+
 ## 문서 크기 제한
 
 - **모든 문서 파일**(.md, rules, specs, business 등)은 **190줄을 초과하지 않는다.**
 - 150줄 이상이면 분리를 검토하고, 190줄을 넘으면 논리적 섹션 기준으로 분리한다.
 - 분리 시 상호 참조를 명시한다.
+
+## 에이전트 카탈로그
+
+Task 도구로 호출하는 subagent. 관련 영역이 여러 개 걸치면 병렬 호출 권장.
+
+| 에이전트 | 담당 |
+|------|------|
+| `biz-planner` · `biz-critic` | 사업 브레인스토밍 (기획/비판) |
+| `design-reviewer` | UI/UX·접근성·디자인 시스템 |
+| `performance-analyzer` | 번들·렌더·쿼리 성능 |
+| `security-reviewer` | OWASP Top 10·인증/권한·시크릿 |
+| `typescript-reviewer` | TS 타입·async·에러 전파·idiom |
+| `database-reviewer` | Prisma 스키마·N+1·트랜잭션·race |
+| `silent-failure-hunter` | 빈 catch·삼킨 에러·위험한 fallback |
+
+## 스킬 카탈로그
+
+슬래시 커맨드로 호출.
+
+| 스킬 | 용도 |
+|------|------|
+| `/sdd` | Spec-Driven Development 5단계 |
+| `/biz` · `/bs` | 사업 워크플로우 / 브레인스토밍 |
+| `/commit` · `/test` | 커밋 / 테스트 |
+| `/prisma-migrate` | Prisma 스키마 → 마이그레이션 |
+| `/refactor-clean` | knip·ts-prune·depcheck로 데드 코드 제거 |
+| `/design-draft` | Claude Design으로 시안 제작 → 2단 컨펌 → 구현 플로우 |
+| `/save-session` · `/resume-session` | 세션 상태 저장/복원 (`docs/sessions/`) |
 
 ## Agent Preferences
 
@@ -95,6 +134,14 @@ fix/<short-desc>
 - `.env`, `.env.local`, `.env.test` 등 (단, `.example` 허용)
 - `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`
 - `apps/api/prisma/migrations/*/migration.sql` (스키마 변경은 `/prisma-migrate` 스킬 사용)
+
+### PreToolUse Bash 가드
+
+`git commit --no-verify` / `git push --no-verify`를 포함한 Bash 명령은 자동 차단된다. 훅 실패 시 우회하지 말고 원인을 해결하라.
+
+### PostToolUse 자동화
+
+Edit/Write 직후에는 편집된 파일 경로만 `/tmp/school-edited.txt`에 누적한다. 실제 `pnpm lint:fix && pnpm typecheck`는 **Stop 훅에서 1회만** 실행되어 비용/지연을 최소화한다. 훅 수정은 Claude Code hot-reload가 안 되므로 `.claude/settings.json` 변경 후 세션 재시작 필요.
 
 ## CSS/Tailwind 주의사항
 
