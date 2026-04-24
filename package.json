@@ -25,7 +25,7 @@
     "lint:fix": "turbo run lint -- --fix",
     "prettier": "prettier --check \"**/*.ts\"",
     "prettier:fix": "prettier --write \"**/*.ts\"",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "author": "dc-choi",
   "license": "",
