@@ -275,16 +275,16 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                     <TableRow>
                                         <TableHead className="w-12">행</TableHead>
                                         <TableHead className="w-12">상태</TableHead>
-                                        <TableHead>학년</TableHead>
-                                        <TableHead>이름</TableHead>
-                                        <TableHead>세례명</TableHead>
-                                        <TableHead>성별</TableHead>
-                                        <TableHead>전화번호</TableHead>
-                                        <TableHead>부모 연락처</TableHead>
-                                        <TableHead>축일</TableHead>
-                                        <TableHead>나이</TableHead>
-                                        <TableHead>비고</TableHead>
-                                        <TableHead>등록</TableHead>
+                                        <TableHead className="whitespace-nowrap">학년</TableHead>
+                                        <TableHead className="whitespace-nowrap">이름</TableHead>
+                                        <TableHead className="whitespace-nowrap">세례명</TableHead>
+                                        <TableHead className="whitespace-nowrap">성별</TableHead>
+                                        <TableHead className="whitespace-nowrap">전화번호</TableHead>
+                                        <TableHead className="whitespace-nowrap">부모 연락처</TableHead>
+                                        <TableHead className="whitespace-nowrap">축일</TableHead>
+                                        <TableHead className="whitespace-nowrap">나이</TableHead>
+                                        <TableHead className="whitespace-nowrap">비고</TableHead>
+                                        <TableHead className="whitespace-nowrap">등록</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
