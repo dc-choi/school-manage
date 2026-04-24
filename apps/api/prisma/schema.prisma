@@ -184,6 +184,7 @@ model Student {
     gender         String?   @db.VarChar(10)
     age            BigInt?
     contact        BigInt?
+    parentContact  String?   @map("parent_contact") @db.VarChar(20)
     description    String?   @db.Text
     baptizedAt     String?   @map("baptized_at") @db.VarChar(10)
     graduatedAt    DateTime? @map("graduated_at")
@@ -243,6 +244,7 @@ model StudentSnapshot {
     catholicName   String?  @map("catholic_name") @db.VarChar(50)
     gender         String?  @db.VarChar(10)
     contact        BigInt?
+    parentContact  String?  @map("parent_contact") @db.VarChar(20)
     description    String?  @db.Text
     baptizedAt     String?  @map("baptized_at") @db.VarChar(10)
     groupId        BigInt   @map("group_id")
