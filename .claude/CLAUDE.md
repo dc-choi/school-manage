@@ -43,6 +43,19 @@ pnpm clean              # dist 및 node_modules 정리
 tsc -b -v tsconfig.build.json   # 전체 의존성 순서대로 빌드
 ```
 
+## 로컬 DB 초기화 (Prisma Seed)
+
+```bash
+pnpm --filter @school/api db:reset   # DB 전체 리셋 + seed (drift 정리 시)
+pnpm --filter @school/api db:seed    # 비어있는 DB에 seed만 주입
+```
+
+- Seed 엔트리: `apps/api/prisma/seed.ts`
+- 데이터: Parish 2 / Church 4 / Organization 5 / Account 7 / Group 8 / Student 20 / Registration 10 / Attendance 20
+- 모든 계정 비밀번호: `5678` (로컬 전용)
+- 프로덕션 가드: `NODE_ENV=production`이면 seed 자체가 abort
+- 테스트 DB는 영향받지 않음 (`vitest.global-setup.ts`가 독립적으로 리셋)
+
 ## Coding Style
 
 - **Indentation**: 4 spaces

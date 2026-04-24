@@ -9,7 +9,7 @@
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
 | **Target Bugfix**         | -    | 5건 미착수 (P2 2건, P3 3건) + 12건 완료 |
-| **Target Non-Functional** | -    | PERFORMANCE 1건 미착수 + 6건 완료 + DX 2건 완료 |
+| **Target Non-Functional** | -    | PERFORMANCE 1건 미착수 + 6건 완료 / DX 3건 완료 |
 
 ## 관련 문서
 
@@ -102,6 +102,7 @@
 |------|---------------------------|--------|---------------------------------------------------------|
 | P2   | Stitch MCP 서버 연동          | ✅ 완료   | `.mcp.json` 설정 추가. Claude Code에서 Stitch MCP 프록시 연동 |
 | P1   | 통합테스트 실제 DB 전환       | ✅ 완료   | mock 전면 제거 → Docker MySQL + 실제 DB 기반 통합테스트. Prisma 공식 가이드 준수 |
+| P1   | Prisma Seed 시스템 도입 | ✅ 완료 | `apps/api/prisma/seed.ts` 작성 + `db:reset`/`db:seed` 스크립트. Parish 2 / Church 4 / Organization 5 / Account 7 / Group 8 / Student 20 / Registration 10 / Attendance 20 초기 데이터. 프로덕션 가드 내장. `CLAUDE.md`·`rules/api.md` 갱신 |
 
 **Stitch MCP 서버 연동:**
 - Google Stitch: AI 기반 UI 디자인 도구 (텍스트→UI+HTML/CSS)
