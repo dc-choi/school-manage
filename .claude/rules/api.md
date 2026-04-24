@@ -45,8 +45,7 @@ apps/api/src/
 │   └── ...
 ├── global/                         # 프로젝트 공통
 │   ├── config/                     # 환경설정 (env.ts)
-│   ├── errors/                     # 에러 코드/클래스
-│   ├── middleware/                 # Express 미들웨어
+│   ├── middleware/                 # Express 미들웨어 (에러 폴백 포함)
 │   └── utils/                      # 공용 유틸리티
 └── infrastructure/                 # 외부 연동
     ├── analytics/                  # GA4 Measurement Protocol
@@ -131,9 +130,22 @@ throw new TRPCError({
 // codes: BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, CONFLICT, INTERNAL_SERVER_ERROR
 ```
 
+HTTP 상태 코드는 `infrastructure/trpc/response-meta.ts`의 `buildResponseMeta`가 첫 에러의 `data.httpStatus`로 매핑한다(단일/배치 공통, 401 등 정확 반환 → 클라이언트 silent refresh 동작). 응답 본문 포맷은 tRPC 표준 그대로다. tRPC 외 라우트의 폴백 에러는 `global/middleware/error.middleware.ts`가 `err.status` 또는 500으로 처리.
+
 ## Path Aliases
 
 - `~/` → `apps/api/src/` (tsconfig.json에 설정됨)
+
+## Rate Limiting
+
+`apps/api/src/app.ts`에 Express `rateLimit` 전역 미들웨어로 적용. 초과 시 HTTP 429.
+
+| 범위 | 제한 |
+|------|------|
+| 전체 API | IP당 **200회/분** |
+| 인증 (`/trpc/auth`) | IP당 **10회/분** |
+
+헤더: `standardHeaders: 'draft-7'` (RFC 9469 draft).
 
 ## Database
 

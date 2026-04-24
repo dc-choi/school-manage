@@ -847,6 +847,212 @@ describe('student 통합 테스트', () => {
         });
     });
 
+    describe('student.create/update - 단건 입력 검증 강화 (BUGFIX)', () => {
+        it('TC-S-N1: contact 10자 숫자 정상', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const result = await caller.student.create({
+                societyName: '홍길동',
+                contact: '1012345678',
+                groupIds: [String(group.id)],
+            });
+
+            expect(result.contact).toBe('1012345678');
+        });
+
+        it('TC-S-N2: contact 15자 경계 정상', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const result = await caller.student.create({
+                societyName: '홍길동',
+                contact: '123456789012345',
+                groupIds: [String(group.id)],
+            });
+
+            expect(result.contact).toBe('123456789012345');
+        });
+
+        it('TC-S-N3: description 500자 경계 정상', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const desc = 'x'.repeat(500);
+            const result = await caller.student.create({
+                societyName: '홍길동',
+                description: desc,
+                groupIds: [String(group.id)],
+            });
+
+            expect(result.description).toBe(desc);
+        });
+
+        it('TC-S-N4: update 시 contact 미전송 → 기존 값 유지', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: {
+                    societyName: '홍길동',
+                    contact: 1099998888n,
+                    organizationId: seed.org.id,
+                    createdAt: now,
+                },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const result = await caller.student.update({
+                id: String(student.id),
+                societyName: '홍길동수정',
+            });
+
+            expect(result.societyName).toBe('홍길동수정');
+            expect(result.contact).toBe('1099998888');
+        });
+
+        it('TC-S-E1: create contact 16자 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.create({
+                    societyName: '홍길동',
+                    contact: '0123456789012345',
+                    groupIds: [String(group.id)],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-S-E2: create contact 하이픈 포함 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.create({
+                    societyName: '홍길동',
+                    contact: '010-1234-5678',
+                    groupIds: [String(group.id)],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-S-E3: create contact 문자 포함 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.create({
+                    societyName: '홍길동',
+                    contact: 'abc',
+                    groupIds: [String(group.id)],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-S-E4: create description 501자 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.create({
+                    societyName: '홍길동',
+                    description: 'x'.repeat(501),
+                    groupIds: [String(group.id)],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-S-E5: update contact 하이픈 포함 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(caller.student.update({ id: String(student.id), contact: '010-1234' })).rejects.toMatchObject({
+                code: 'BAD_REQUEST',
+            });
+        });
+
+        it('TC-S-N5: societyName 50자 경계 정상', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const result = await caller.student.create({
+                societyName: '가'.repeat(50),
+                groupIds: [String(group.id)],
+            });
+
+            expect(result.societyName).toBe('가'.repeat(50));
+        });
+
+        it('TC-S-E6: create societyName 51자 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.create({
+                    societyName: '가'.repeat(51),
+                    groupIds: [String(group.id)],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-S-E7: create catholicName 51자 → BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '테스트그룹', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.create({
+                    societyName: '홍길동',
+                    catholicName: 'A'.repeat(51),
+                    groupIds: [String(group.id)],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+    });
+
     describe('student.bulkRegister', () => {
         it('학생 일괄 등록 성공 (신규 등록)', async () => {
             const now = getNowKST();

@@ -10,6 +10,7 @@
 - PRD: `docs/specs/prd/student-registration.md` (학생 등록 관리)
 - PRD: `docs/specs/prd/graduation-normalization.md` (졸업일 정규화 + 나이 기반 필터링)
 - PRD: `docs/specs/prd/student-search-improvement.md` (학생 검색 개선)
+- PRD: `docs/specs/prd/input-validation-hardening.md` (입력 검증 강화 — BUGFIX)
 
 ## 기능 범위
 
@@ -122,6 +123,25 @@
 | 연례 나이 증가 | 매년 1/1 스케줄러: 전체 학생 age + 1 |
 | 축일자 필터링 | `baptizedAt`의 월(MM)이 요청 월과 일치하는 재학생 조회, DD 오름차순 |
 
+## 단건 입력 검증 강화 (BUGFIX)
+
+`student.create` / `student.update`의 주요 문자열 필드에 단건 경로 재검증을 도입한다. 기존 일괄 경로(`student.bulkCreate`의 `bulkCreateStudentItemSchema`)와 **동일 제약**을 적용하여 경로 간 일관성을 확보한다.
+
+### 제약
+
+| 필드 | 제약 | 위반 응답 |
+|------|------|-----------|
+| `societyName` | min(1) + 최대 50자 | 400 BAD_REQUEST |
+| `catholicName` | 최대 50자 (optional) | 400 BAD_REQUEST |
+| `contact` | `^\d+$` (숫자만) + 최대 15자 | 400 BAD_REQUEST |
+| `description` | 최대 500자 | 400 BAD_REQUEST |
+
+### 호환성
+
+- `update`는 `.nullable().optional()` 유지 → 필드 미전송 시 기존 값 보존
+- 기존 DB의 하이픈 포함 `contact`는 **재전송 시에만** 검증 실패 (업데이트 시 해당 필드만 교정 필요)
+- 일괄 경로(`bulkCreateStudentItemSchema`) 제약과 한글 메시지 일관 유지
+
 ## 예외/엣지 케이스
 
 | 상황 | 처리 |
@@ -161,6 +181,6 @@
 ---
 
 **작성일**: 2026-01-13
-**수정일**: 2026-03-20 (통합 검색 개선 병합)
+**수정일**: 2026-04-24 (단건 입력 검증 강화 BUGFIX 병합)
 **작성자**: PM 에이전트 / SDD 작성자
 **상태**: Approved (구현 완료)

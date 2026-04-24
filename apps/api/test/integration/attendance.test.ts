@@ -254,6 +254,59 @@ describe('attendance 통합 테스트', () => {
                 code: 'BAD_REQUEST',
             });
         });
+
+        it('TC-A-N1: data = "-" (결석 명시) 정상 저장', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.attendance.update({
+                year: 2024,
+                groupId: String(group.id),
+                attendance: [{ id: String(student.id), month: 1, day: 7, data: '-' }],
+                isFull: true,
+            });
+
+            expect(result.row).toBe(1);
+            const dbAttendance = await database.attendance.findFirst({
+                where: { studentId: student.id, date: '20240107' },
+            });
+            expect(dbAttendance?.content).toBe('-');
+        });
+
+        it('TC-A-E1: data 11자 초과 → BAD_REQUEST', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.attendance.update({
+                    year: 2024,
+                    groupId: '1',
+                    attendance: [{ id: '1', month: 1, day: 7, data: '◎'.repeat(11) }],
+                    isFull: true,
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-A-E2: data 허용 외 문자 "X" → BAD_REQUEST', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.attendance.update({
+                    year: 2024,
+                    groupId: '1',
+                    attendance: [{ id: '1', month: 1, day: 7, data: 'X' }],
+                    isFull: true,
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
     });
 
     describe('attendance.calendar (달력 조회)', () => {
