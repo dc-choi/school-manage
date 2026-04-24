@@ -1,43 +1,43 @@
 {
-    "$schema": "https://turbo.build/schema.json",
-    "ui": "tui",
-    "cacheDir": ".turbo/cache",
-    "globalDependencies": ["**/.env"],
-    "tasks": {
-        "build": {
-            "dependsOn": ["^build"],
-            "outputs": ["dist/**"]
-        },
-        "@school/web#build": {
-            "dependsOn": ["@school/api#build", "^build"],
-            "outputs": ["dist/**"]
-        },
-        "start": {
-            "dependsOn": ["^build", "^start"]
-        },
-        "typecheck": {
-            "dependsOn": ["^build"]
-        },
-        "@school/web#typecheck": {
-            "dependsOn": ["@school/api#build", "^build"]
-        },
-        "dev": {
-            "dependsOn": ["@school/shared#build", "@school/trpc#build"],
-            "cache": false,
-            "persistent": true
-        },
-        "dev:trpc": {
-            "cache": false,
-            "persistent": true
-        },
-        "lint": {
-            "dependsOn": ["^lint"]
-        },
-        "test": {
-            "dependsOn": ["^test"]
-        },
-        "clean": {
-            "dependsOn": ["^clean"]
-        }
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "cacheDir": ".turbo/cache",
+  "globalDependencies": ["**/.env"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "@school/web#build": {
+      "dependsOn": ["@school/api#build", "^build"],
+      "outputs": ["dist/**"]
+    },
+    "start": {
+      "dependsOn": ["^build", "^start"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
+    "@school/web#typecheck": {
+      "dependsOn": ["@school/api#build", "^build"]
+    },
+    "dev": {
+      "dependsOn": ["@school/shared#build", "@school/trpc#build"],
+      "cache": false,
+      "persistent": true
+    },
+    "dev:trpc": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "test": {
+      "dependsOn": ["^test"]
+    },
+    "clean": {
+      "dependsOn": ["^clean"]
     }
+  }
 }

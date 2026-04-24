@@ -1,34 +1,39 @@
 {
-    "name": "school-manage",
-    "version": "2.00.00",
-    "description": "school-manage monorepo",
-    "private": true,
-    "packageManager": "pnpm@10.27.0",
-    "engines": {
-        "node": ">=24.0.0",
-        "pnpm": ">=10.0.0"
-    },
-    "workspaces": [
-        "apps/api",
-        "apps/web",
-        "packages/trpc",
-        "packages/utils"
-    ],
-    "scripts": {
-        "build": "turbo run build",
-        "start": "turbo run start",
-        "test": "turbo run test",
-        "dev": "turbo run dev --parallel",
-        "typecheck": "turbo run typecheck",
-        "clean": "turbo run clean && rm -rf node_modules",
-        "lint": "turbo run lint",
-        "lint:fix": "turbo run lint -- --fix",
-        "prettier": "prettier --check \"**/*.ts\"",
-        "prettier:fix": "prettier --write \"**/*.ts\""
-    },
-    "author": "dc-choi",
-    "license": "",
-    "devDependencies": {
-        "turbo": "^2.3.3"
-    }
+  "name": "school-manage",
+  "version": "2.00.00",
+  "description": "school-manage monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.27.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "workspaces": [
+    "apps/api",
+    "apps/web",
+    "packages/trpc",
+    "packages/utils"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "test": "turbo run test",
+    "dev": "turbo run dev --parallel",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "prettier": "prettier --check \"**/*.ts\"",
+    "prettier:fix": "prettier --write \"**/*.ts\"",
+    "prepare": "husky"
+  },
+  "author": "dc-choi",
+  "license": "",
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "turbo": "^2.3.3"
+  }
 }
