@@ -135,6 +135,17 @@ throw new TRPCError({
 
 - `~/` → `apps/api/src/` (tsconfig.json에 설정됨)
 
+## Rate Limiting
+
+`apps/api/src/app.ts`에 Express `rateLimit` 전역 미들웨어로 적용. 초과 시 HTTP 429.
+
+| 범위 | 제한 |
+|------|------|
+| 전체 API | IP당 **200회/분** |
+| 인증 (`/trpc/auth`) | IP당 **10회/분** |
+
+헤더: `standardHeaders: 'draft-7'` (RFC 9469 draft).
+
 ## Database
 
 - **ORM**: Prisma + Driver Adapter (`@prisma/adapter-mariadb`)

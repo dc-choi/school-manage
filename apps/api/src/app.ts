@@ -48,7 +48,7 @@ export const createApp = (): Express => {
         })
     );
 
-    // Rate Limiting — 전체 API: IP당 100회/분
+    // Rate Limiting — 전체 API: IP당 200회/분 (정책: .claude/rules/api.md)
     app.use(
         rateLimit({
             windowMs: 60 * 1000,
