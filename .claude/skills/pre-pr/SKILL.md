@@ -43,26 +43,49 @@ git log --oneline origin/main..HEAD
 
 ### 4. 결과 집계
 
-심각도 4단계 (`rules/code-review.md` 매트릭스):
+심각도 4단계 (`rules/code-review.md` 매트릭스). **모든 등급을 사용자에게 전부 보고**한다. 삼키거나 로그로만 남기지 않는다.
 
-| 등급 | 액션 |
-|------|------|
-| CRITICAL | **BLOCK** — PR 생성 중단. 수정 후 재시도 |
-| HIGH | **WARN** — 사용자 확인 후 진행 (`/pr` 호출 시 본문에 명시) |
-| MEDIUM | **INFO** — PR 본문 "후속 과제"로 기록 |
-| LOW | **NOTE** — 참고 로그 |
+| 등급 | 액션 | 사용자 보고 |
+|------|------|-------------|
+| CRITICAL | **BLOCK** — PR 생성 중단. 수정 후 재시도 | 전체 상세 (파일·줄·근거·제안) |
+| HIGH | **WARN** — 사용자 확인 후 진행 (`/pr` 호출 시 본문에 명시) | 전체 상세 |
+| MEDIUM | **INFO** — 후속 과제 후보 | 전체 상세 (요약 금지) |
+| LOW | **NOTE** — 참고 | 전체 상세 (요약 금지) |
 
 ### 5. 요약 출력
 
-사용자에게:
+사용자에게 **카운트 + 전체 상세 목록** 둘 다 출력한다.
+
+1. 카운트 헤더
 ```
 [pre-pr] 변경 파일 N개, 호출 에이전트 M개
   - security-reviewer: CRITICAL 0, HIGH 1, MEDIUM 0, LOW 2
   - typescript-reviewer: CRITICAL 0, HIGH 0, MEDIUM 3, LOW 1
   ...
+```
+
+2. 심각도별 상세 목록 (등급별로 섹션 분리, 모두 노출)
+```
+## CRITICAL
+- [security-reviewer] apps/api/src/.../auth.ts:42 — <근거> → <제안>
+
+## HIGH
+- [typescript-reviewer] ...
+
+## MEDIUM
+- [database-reviewer] ...
+
+## LOW
+- [design-reviewer] ...
+```
+
+3. 마무리
+```
 차단 요인: 없음 (또는 CRITICAL 목록)
 다음 단계: /pr 호출 가능 (또는 수정 필요)
 ```
+
+> MEDIUM/LOW도 "후속 과제"로 퉁치지 말고 각 항목을 그대로 사용자에게 노출한다. 사용자가 직접 읽고 후속 처리 여부를 판단한다.
 
 ## 사용 예시
 
@@ -71,7 +94,7 @@ git log --oneline origin/main..HEAD
 ```
 
 출력 이후 사용자 판단:
-- CRITICAL 0, HIGH 0 → `/pr` 호출 진행
+- CRITICAL 0, HIGH 0 → `/pr` 호출 진행 (MEDIUM/LOW 확인은 사용자 몫)
 - HIGH 존재 → 개선 또는 HIGH 명시 후 `/pr`
 - CRITICAL 존재 → 수정 필수, `/pr` 차단
 
