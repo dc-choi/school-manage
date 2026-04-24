@@ -93,6 +93,7 @@ export class ListStudentsUseCase {
                 gender: (row.gender ?? undefined) as Gender | undefined,
                 age: row.age != null ? Number(row.age) : undefined,
                 contact: row.contact != null ? String(row.contact) : undefined,
+                parentContact: row.parentContact ?? undefined,
                 description: row.description ?? undefined,
                 groups: row.studentGroups.map((sg) => ({
                     id: String(sg.group.id),

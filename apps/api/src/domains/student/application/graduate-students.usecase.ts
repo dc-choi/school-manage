@@ -91,6 +91,7 @@ export class GraduateStudentsUseCase {
                             catholicName: student.catholicName,
                             gender: student.gender,
                             contact: student.contact,
+                            parentContact: student.parentContact,
                             description: student.description,
                             baptizedAt: student.baptizedAt,
                             groupId: student.studentGroups.find((sg) => sg.group.type === 'GRADE')?.group.id ?? null,

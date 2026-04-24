@@ -34,6 +34,7 @@ export class BulkCreateStudentsUseCase {
                             gender: student.gender,
                             age: student.age ? BigInt(student.age) : null,
                             contact: student.contact ? BigInt(student.contact) : null,
+                            parentContact: student.parentContact?.trim() ? student.parentContact.trim() : null,
                             description: student.description,
                             organizationId: BigInt(organizationId),
                             baptizedAt: student.baptizedAt,
@@ -58,6 +59,7 @@ export class BulkCreateStudentsUseCase {
                         catholicName: created.catholicName,
                         gender: created.gender,
                         contact: created.contact,
+                        parentContact: created.parentContact,
                         description: created.description,
                         baptizedAt: created.baptizedAt,
                         // 스키마 `groupIds.min(1)` 보장으로 항상 첫 그룹 존재. 방어 분기는 스키마 완화 대비.

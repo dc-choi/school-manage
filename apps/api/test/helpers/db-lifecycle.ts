@@ -3,6 +3,7 @@
  *
  * 실제 MySQL에 시드 데이터 삽입 및 테이블 초기화
  */
+import { CURRENT_PRIVACY_VERSION } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import bcrypt from 'bcrypt';
 import { database } from '~/infrastructure/database/database.js';
@@ -64,6 +65,7 @@ export const seedBase = async () => {
             role: 'ADMIN',
             createdAt: now,
             privacyAgreedAt: now,
+            privacyPolicyVersion: CURRENT_PRIVACY_VERSION,
         },
     });
 

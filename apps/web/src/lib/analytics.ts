@@ -301,7 +301,7 @@ export const analytics = {
      * 개인정보 동의 UI 노출 이벤트
      * 트리거: 동의 UI 표시 시 (signup 또는 consent 페이지)
      */
-    trackPrivacyConsentShown: (source: 'signup' | 'consent'): void => {
+    trackPrivacyConsentShown: (source: 'signup' | 'consent' | 'reconsent'): void => {
         safeGtag('event', 'privacy_consent_shown', { source });
     },
 
@@ -309,7 +309,7 @@ export const analytics = {
      * 개인정보 동의 완료 이벤트
      * 트리거: 동의 완료 시 (가입 성공 또는 소급 동의)
      */
-    trackPrivacyConsentAgreed: (source: 'signup' | 'consent'): void => {
+    trackPrivacyConsentAgreed: (source: 'signup' | 'consent' | 'reconsent'): void => {
         safeGtag('event', 'privacy_consent_agreed', { source });
     },
 

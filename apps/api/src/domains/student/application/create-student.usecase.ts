@@ -47,6 +47,7 @@ export class CreateStudentUseCase {
                         gender: input.gender,
                         age: input.age ? BigInt(input.age) : null,
                         contact: input.contact ? BigInt(input.contact) : null,
+                        parentContact: input.parentContact?.trim() ? input.parentContact.trim() : null,
                         description: input.description,
                         organizationId: BigInt(organizationId),
                         baptizedAt: input.baptizedAt,
@@ -79,6 +80,7 @@ export class CreateStudentUseCase {
                     catholicName: created.catholicName,
                     gender: created.gender,
                     contact: created.contact,
+                    parentContact: created.parentContact,
                     description: created.description,
                     baptizedAt: created.baptizedAt,
                     groupId: gradeGroup?.group.id ?? null,
@@ -94,6 +96,7 @@ export class CreateStudentUseCase {
                 gender: (student.gender ?? undefined) as Gender | undefined,
                 age: student.age != null ? Number(student.age) : undefined,
                 contact: student.contact != null ? String(student.contact) : undefined,
+                parentContact: student.parentContact ?? undefined,
                 description: student.description ?? undefined,
                 groups: studentGroups.map((sg) => ({
                     id: String(sg.group.id),

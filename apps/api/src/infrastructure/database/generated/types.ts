@@ -13,6 +13,7 @@ export type Account = {
     updateAt: Timestamp | null;
     deleteAt: Timestamp | null;
     privacyAgreedAt: Timestamp | null;
+    privacyPolicyVersion: Generated<number>;
     organizationId: number | null;
     role: string | null;
 };
@@ -108,6 +109,7 @@ export type Student = {
     gender: string | null;
     age: number | null;
     contact: number | null;
+    parentContact: string | null;
     description: string | null;
     baptizedAt: string | null;
     graduatedAt: Timestamp | null;
@@ -129,6 +131,7 @@ export type StudentSnapshot = {
     catholicName: string | null;
     gender: string | null;
     contact: number | null;
+    parentContact: string | null;
     description: string | null;
     baptizedAt: string | null;
     groupId: number;

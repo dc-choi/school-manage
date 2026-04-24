@@ -47,6 +47,7 @@ export interface GetAccountOutput {
     name: string;
     displayName: string;
     privacyAgreedAt: Date | null;
+    privacyPolicyVersion: number;
     organizationId?: string;
     role?: Role;
     organizationName?: string;
@@ -60,6 +61,7 @@ export interface GetAccountOutput {
  */
 export interface AgreePrivacyOutput {
     privacyAgreedAt: Date;
+    privacyPolicyVersion: number;
 }
 
 /**

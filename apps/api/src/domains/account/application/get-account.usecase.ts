@@ -16,6 +16,7 @@ export class GetAccountUseCase {
                 name: true,
                 displayName: true,
                 privacyAgreedAt: true,
+                privacyPolicyVersion: true,
                 organizationId: true,
                 role: true,
             },
@@ -28,13 +29,14 @@ export class GetAccountUseCase {
             });
         }
 
-        const { id, name, displayName, privacyAgreedAt, organizationId, role } = found;
+        const { id, name, displayName, privacyAgreedAt, privacyPolicyVersion, organizationId, role } = found;
 
         const result: GetAccountOutput = {
             id: String(id),
             name,
             displayName,
             privacyAgreedAt,
+            privacyPolicyVersion,
         };
 
         // 조직 소속 시 조직명, 본당명 포함

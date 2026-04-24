@@ -1304,4 +1304,166 @@ describe('student 통합 테스트', () => {
             expect(result.students.length).toBe(2);
         });
     });
+
+    describe('student-extra-fields — parentContact', () => {
+        it('TC-1: create 시 parentContact 원본(하이픈 포함) 그대로 저장/응답', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const result = await caller.student.create({
+                societyName: '홍길동',
+                groupIds: [String(group.id)],
+                parentContact: '010-1234-5678',
+            });
+
+            expect(result.parentContact).toBe('010-1234-5678');
+            const dbStudent = await database.student.findUnique({ where: { id: BigInt(result.id) } });
+            expect(dbStudent?.parentContact).toBe('010-1234-5678');
+        });
+
+        it('TC-2: update 시 parentContact 부분 수정 후 다른 필드 보존', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: {
+                    societyName: '홍길동',
+                    catholicName: '베드로',
+                    organizationId: seed.org.id,
+                    createdAt: now,
+                },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const result = await caller.student.update({
+                id: String(student.id),
+                parentContact: '(02) 123 4567',
+            });
+
+            expect(result.parentContact).toBe('(02) 123 4567');
+            expect(result.catholicName).toBe('베드로');
+        });
+
+        it('TC-3: update parentContact=null 은 NULL 저장(clear)', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: {
+                    societyName: '홍길동',
+                    parentContact: '010-0000-0000',
+                    organizationId: seed.org.id,
+                    createdAt: now,
+                },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await caller.student.update({ id: String(student.id), parentContact: null });
+
+            const dbStudent = await database.student.findUnique({ where: { id: student.id } });
+            expect(dbStudent?.parentContact).toBeNull();
+        });
+
+        it('TC-4: bulkCreate 시 일부 행만 parentContact 포함', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await caller.student.bulkCreate({
+                students: [
+                    { societyName: '학생A', groupIds: [String(group.id)], parentContact: '010-1111-2222' },
+                    { societyName: '학생B', groupIds: [String(group.id)] },
+                ],
+            });
+
+            const students = await database.student.findMany({
+                where: { organizationId: seed.org.id },
+                orderBy: { societyName: 'asc' },
+            });
+            expect(students[0].parentContact).toBe('010-1111-2222');
+            expect(students[1].parentContact).toBeNull();
+        });
+
+        it('TC-7: Snapshot 생성 시 parentContact 값도 기록', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const result = await caller.student.create({
+                societyName: '홍길동',
+                groupIds: [String(group.id)],
+                parentContact: '010-9999-8888',
+            });
+
+            const snapshot = await database.studentSnapshot.findFirst({
+                where: { studentId: BigInt(result.id) },
+            });
+            expect(snapshot?.parentContact).toBe('010-9999-8888');
+        });
+
+        it('TC-E1: 21자 초과 시 BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.create({
+                    societyName: '홍길동',
+                    groupIds: [String(group.id)],
+                    parentContact: '0'.repeat(21),
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-E2: 한글 포함 시 BAD_REQUEST', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.student.create({
+                    societyName: '홍길동',
+                    groupIds: [String(group.id)],
+                    parentContact: '엄마 010-1234',
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-E4: 빈 문자열은 NULL 로 정규화 저장', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            const result = await caller.student.create({
+                societyName: '홍길동',
+                groupIds: [String(group.id)],
+                parentContact: '',
+            });
+
+            const dbStudent = await database.student.findUnique({ where: { id: BigInt(result.id) } });
+            expect(dbStudent?.parentContact).toBeNull();
+            expect(result.parentContact).toBeUndefined();
+        });
+    });
 });

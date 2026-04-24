@@ -70,6 +70,7 @@ export function StudentDetailPage() {
                             gender: student.gender as 'M' | 'F' | undefined,
                             age: student.age,
                             contact: student.contact,
+                            parentContact: student.parentContact,
                             description: student.description,
                             groupIds: student.groups?.map((g) => g.id) ?? [],
                             baptizedAt: student.baptizedAt,
@@ -85,6 +86,7 @@ export function StudentDetailPage() {
                                 gender: data.gender ?? null,
                                 age: data.age ?? null,
                                 contact: data.contact ?? null,
+                                parentContact: data.parentContact ?? null,
                                 description: data.description ?? null,
                                 groupIds: data.groupIds,
                                 baptizedAt: data.baptizedAt ?? null,
@@ -160,6 +162,7 @@ export function StudentDetailPage() {
                                 <InfoRow label="성별" value={getGenderDisplay(student?.gender)} />
                                 <InfoRow label="나이" value={student?.age?.toString() ?? '-'} />
                                 <InfoRow label="연락처" value={contactDisplay} />
+                                <InfoRow label="부모님 연락처" value={student?.parentContact ?? '-'} />
                                 <div className="flex flex-col border-b py-4 last:border-b-0 sm:flex-row sm:items-center">
                                     <dt className="mb-1 shrink-0 text-base font-medium text-muted-foreground sm:mb-0 sm:w-32 sm:text-xl">
                                         학년&부서

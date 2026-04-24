@@ -25,6 +25,7 @@ const baseRow = (overrides: Partial<ParsedRow> = {}): ParsedRow => ({
     age: '14',
     description: '',
     registered: 'O',
+    parentContact: '',
     ...overrides,
 });
 
@@ -89,6 +90,30 @@ describe('validateRows', () => {
             expect(result[0].normalizedRegistered).toBe(expected);
         }
     });
+
+    it('부모 연락처 원본이 보존된다 (하이픈·괄호·공백 허용)', () => {
+        const result = validateRows([baseRow({ parentContact: '(02) 1234-5678' })], GROUPS);
+        expect(result[0].status).toBe('success');
+        expect(result[0].normalizedParentContact).toBe('(02) 1234-5678');
+    });
+
+    it('부모 연락처에 한글 포함 시 error 로 분류된다', () => {
+        const result = validateRows([baseRow({ parentContact: '엄마 010-1234-5678' })], GROUPS);
+        expect(result[0].status).toBe('error');
+        expect(result[0].errors[0]).toContain('부모 연락처');
+    });
+
+    it('부모 연락처 20자 초과 시 error 로 분류된다', () => {
+        const result = validateRows([baseRow({ parentContact: '0'.repeat(21) })], GROUPS);
+        expect(result[0].status).toBe('error');
+        expect(result[0].errors[0]).toContain('20자');
+    });
+
+    it('부모 연락처 빈 값은 normalizedParentContact=null 로 통과한다', () => {
+        const result = validateRows([baseRow({ parentContact: '' })], GROUPS);
+        expect(result[0].status).toBe('success');
+        expect(result[0].normalizedParentContact).toBeNull();
+    });
 });
 
 describe('parseExcelFile', () => {
@@ -144,5 +169,29 @@ describe('parseExcelFile', () => {
         expect(parsed).toHaveLength(2);
         expect(parsed.map((r) => r.societyName)).toEqual(['홍길동', '김영희']);
         expect(parsed.map((r) => r.rowIndex)).toEqual([2, 3]);
+    });
+
+    it('기존 9컬럼 템플릿은 하위 호환으로 parentContact=빈 문자열로 파싱된다', async () => {
+        const file = await buildXlsx([
+            ['학년', '이름', '세례명', '성별', '전화번호', '축일', '나이', '비고', '등록 여부'],
+            ['1학년', '홍길동', '베드로', '남', '01012345678', '06/29', 14, '메모', 'O'],
+        ]);
+
+        const parsed = await parseExcelFile(file);
+
+        expect(parsed).toHaveLength(1);
+        expect(parsed[0].parentContact).toBe('');
+    });
+
+    it('신규 10컬럼 템플릿의 부모 연락처 원본이 파싱된다', async () => {
+        const file = await buildXlsx([
+            ['학년', '이름', '세례명', '성별', '전화번호', '축일', '나이', '비고', '등록 여부', '부모 연락처'],
+            ['1학년', '홍길동', '베드로', '남', '01012345678', '06/29', 14, '메모', 'O', '010-9999-8888'],
+        ]);
+
+        const parsed = await parseExcelFile(file);
+
+        expect(parsed).toHaveLength(1);
+        expect(parsed[0].parentContact).toBe('010-9999-8888');
     });
 });
