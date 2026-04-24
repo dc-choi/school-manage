@@ -1,1 +1,3 @@
 apps/api/src/infrastructure/database/generated/
+pnpm-lock.yaml
+.husky/_/
