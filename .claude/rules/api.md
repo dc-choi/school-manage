@@ -163,7 +163,7 @@ await database.student.create({
 
 ### DB 환경변수
 
-`MYSQL_CONNECTION_LIMIT` (1~100, default 10), `DB_QUERY_LOGGING` (off/slow/all, default slow, 슬로우 쿼리 PII 마스킹). 상세: `.env.example`
+풀: `MYSQL_CONNECTION_LIMIT` (1~100, default 10). 로깅: `DB_QUERY_LOGGING` (off/slow/all, default slow, 슬로우 쿼리 PII 마스킹). 타임아웃(mariadb 어댑터 기본값 명시 보정): `DB_CONNECT_TIMEOUT_MS` (500~30000, default 5000), `DB_IDLE_TIMEOUT_SEC` (60~3600, default 300), `DB_TRANSACTION_TIMEOUT_MS` (1000~60000, default 15000), `DB_TRANSACTION_MAX_WAIT_MS` (500~30000, default 5000). 상세: `.env.example`
 
 ## Testing
 
