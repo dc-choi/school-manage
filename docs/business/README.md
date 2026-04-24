@@ -9,7 +9,9 @@
 - **현재 검증**: 주일학교 중고등부 PMF 검증 → 검증 후 모임 전체로 확장
 
 ## 문서 목록
-- `docs/business/0_feedback/feedback.md` 사용자 피드백
+- `docs/business/0_feedback/feedback.md` 사용자 피드백 (인덱스)
+- `docs/business/0_feedback/entries/YYYY-MM-DD-<이름>.md` 날짜/사람별 개별 피드백
+- `docs/business/0_feedback/feedback-categories.md` 기능 카테고리별 피드백 항목
 - `docs/business/1_market/market.md` 시장/고객/경쟁
 - `docs/business/1_market/competitive-analysis.md` 경쟁사 상세 분석
 - `docs/business/2_bm/bm.md` BM/수익 구조
