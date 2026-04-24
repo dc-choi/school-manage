@@ -3,6 +3,10 @@
         "stitch": {
             "command": "npx",
             "args": ["@_davideast/stitch-mcp", "proxy"]
+        },
+        "sequential-thinking": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
         }
     }
 }
