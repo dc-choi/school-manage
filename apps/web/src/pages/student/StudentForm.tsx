@@ -17,6 +17,7 @@ interface StudentFormData {
     gender?: 'M' | 'F';
     age?: number;
     contact?: string;
+    parentContact?: string;
     description?: string;
     groupIds: string[];
     baptizedAt?: string;
@@ -49,6 +50,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
         gender: initialData?.gender,
         age: initialData?.age,
         contact: initialData?.contact,
+        parentContact: initialData?.parentContact ?? '',
         description: initialData?.description ?? '',
         groupIds: initialData?.groupIds ?? [],
         baptizedAt: toFeastDayFormat(initialData?.baptizedAt),
@@ -89,6 +91,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                 societyName: formData.societyName.trim(),
                 catholicName: formData.catholicName?.trim() || undefined,
                 contact: digits || undefined,
+                parentContact: formData.parentContact?.trim() || undefined,
                 description: formData.description?.trim() || undefined,
                 baptizedAt: formData.baptizedAt?.trim() || undefined,
             });
@@ -237,6 +240,23 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                                     setErrors((prev) => ({ ...prev, contact: '' }));
                                 }}
                                 placeholder="010-1234-1234"
+                                disabled={isSubmitting}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="parentContact" className="text-lg">
+                                부모님 연락처 (선택)
+                            </Label>
+                            <Input
+                                id="parentContact"
+                                type="text"
+                                inputMode="tel"
+                                maxLength={20}
+                                className="h-12 text-lg"
+                                value={formData.parentContact ?? ''}
+                                onChange={(e) => handleChange('parentContact', e.target.value)}
+                                placeholder="010-1234-5678"
                                 disabled={isSubmitting}
                             />
                         </div>

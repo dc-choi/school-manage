@@ -16,6 +16,7 @@ export interface ParsedRow {
     age: string;
     description: string;
     registered: string | null;
+    parentContact: string;
 }
 
 export interface ValidatedRow extends ParsedRow {
@@ -24,6 +25,7 @@ export interface ValidatedRow extends ParsedRow {
     normalizedContact: string | null;
     normalizedAge: number | null;
     normalizedRegistered: boolean;
+    normalizedParentContact: string | null;
     status: 'success' | 'error';
     errors: string[];
 }
@@ -34,6 +36,8 @@ interface GroupInfo {
 }
 
 const BAPTIZED_AT_REGEX = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/;
+const PARENT_CONTACT_REGEX = /^[\d\-()\s]+$/;
+const PARENT_CONTACT_MAX_LEN = 20;
 
 const cellToString = (cell: unknown): string => {
     if (cell == null) return '';
@@ -75,6 +79,7 @@ export const parseExcelFile = async (file: File): Promise<ParsedRow[]> => {
             cellAt(7),
             cellAt(8),
             cellAt(9),
+            cellAt(10), // 부모 연락처 (신규, 기존 템플릿은 빈 문자열로 하위 호환)
         ];
 
         if (values.every((v) => v === '')) return;
@@ -91,6 +96,7 @@ export const parseExcelFile = async (file: File): Promise<ParsedRow[]> => {
             age: values[6],
             description: values[7],
             registered: values[8] || null,
+            parentContact: values[9],
         });
     });
 
@@ -166,6 +172,21 @@ export const validateRows = (rows: ParsedRow[], groups: GroupInfo[]): ValidatedR
             }
         }
 
+        // 부모 연락처 검증 (선택)
+        let normalizedParentContact: string | null = null;
+        if (row.parentContact) {
+            const trimmed = row.parentContact.trim();
+            if (!PARENT_CONTACT_REGEX.test(trimmed)) {
+                errors.push(
+                    `부모 연락처 "${row.parentContact}"에 허용 외 문자가 포함됐습니다. 숫자·하이픈·괄호·공백만 입력해 주세요.`
+                );
+            } else if (trimmed.length > PARENT_CONTACT_MAX_LEN) {
+                errors.push(`부모 연락처는 ${PARENT_CONTACT_MAX_LEN}자 이하여야 합니다.`);
+            } else {
+                normalizedParentContact = trimmed;
+            }
+        }
+
         return {
             ...row,
             groupId,
@@ -173,6 +194,7 @@ export const validateRows = (rows: ParsedRow[], groups: GroupInfo[]): ValidatedR
             normalizedContact,
             normalizedAge,
             normalizedRegistered,
+            normalizedParentContact,
             status: errors.length > 0 ? 'error' : 'success',
             errors,
         };

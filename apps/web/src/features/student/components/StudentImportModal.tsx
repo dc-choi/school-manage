@@ -148,6 +148,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                 gender: row.normalizedGender ?? undefined,
                 age: row.normalizedAge ?? undefined,
                 contact: row.normalizedContact ?? undefined,
+                parentContact: row.normalizedParentContact ?? undefined,
                 baptizedAt: row.baptizedAt || undefined,
                 description: row.description || undefined,
                 groupIds: [row.groupId!],
@@ -179,7 +180,8 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                             <div className="flex-1">
                                 <p className="font-medium">1. 양식 다운로드</p>
                                 <p className="text-sm text-muted-foreground">
-                                    컬럼 순서: 학년, 이름, 세례명, 성별, 전화번호, 축일, 나이, 비고, 등록 여부
+                                    컬럼 순서: 학년, 이름, 세례명, 성별, 전화번호, 축일, 나이, 비고, 등록 여부, 부모
+                                    연락처
                                     <br />
                                     헤더(1행)는 수정하지 마세요. 2행부터 데이터를 입력해 주세요.
                                 </p>
@@ -278,6 +280,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                         <TableHead>세례명</TableHead>
                                         <TableHead>성별</TableHead>
                                         <TableHead>전화번호</TableHead>
+                                        <TableHead>부모 연락처</TableHead>
                                         <TableHead>축일</TableHead>
                                         <TableHead>나이</TableHead>
                                         <TableHead>비고</TableHead>
@@ -311,6 +314,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                             <TableCell>
                                                 {row.normalizedContact ? formatContact(row.normalizedContact) : '-'}
                                             </TableCell>
+                                            <TableCell>{row.normalizedParentContact ?? '-'}</TableCell>
                                             <TableCell>{row.baptizedAt || '-'}</TableCell>
                                             <TableCell>{row.age || '-'}</TableCell>
                                             <TableCell>{row.description || '-'}</TableCell>

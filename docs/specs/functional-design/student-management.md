@@ -4,44 +4,26 @@
 
 ## 연결 문서
 
-- PRD: `docs/specs/prd/school-attendance.md`
-- PRD: `docs/specs/prd/patron-saint-feast.md` (이달의 축일자 목록)
-- PRD: `docs/specs/prd/student-excel-import.md` (엑셀 Import)
-- PRD: `docs/specs/prd/student-registration.md` (학생 등록 관리)
-- PRD: `docs/specs/prd/graduation-normalization.md` (졸업일 정규화 + 나이 기반 필터링)
-- PRD: `docs/specs/prd/student-search-improvement.md` (학생 검색 개선)
-- PRD: `docs/specs/prd/input-validation-hardening.md` (입력 검증 강화 — BUGFIX)
+- PRD: `docs/specs/prd/` — school-attendance · patron-saint-feast · student-excel-import · student-registration · graduation-normalization · student-search-improvement · input-validation-hardening · student-extra-fields
 
 ## 기능 범위
 
-| 기능 | 설명 | 상태 |
-|------|------|------|
-| 기본 학생 관리 | 학생 CRUD, 목록, 검색 | 구현 완료 |
-| 일괄 삭제/복구 (1단계) | 다중 선택 삭제, 소프트 삭제, 복구 | 구현 완료 |
-| 일괄 졸업 처리 (1단계) | 다중 선택 졸업, 졸업 취소 | 구현 완료 |
-| 페이지네이션 상태 유지 (1단계) | 상세→목록 복귀 시 URL `?page=N` 유지 | 구현 완료 |
-| 이달의 축일자 목록 (2단계) | 대시보드에 이달 축일 학생 카드 표시 | 미구현 |
-| 엑셀 Import (2단계) | 엑셀 파일 업로드로 학생 일괄 등록 | 구현 완료 |
-| 학생 등록 관리 (2단계) | 연도별 등록 이력 관리, 일괄 등록/취소, 엑셀 등록 컬럼 | 구현 완료 |
-| 통합 검색 개선 (2단계) | 단일 입력 필드로 이름/세례명/축일 동시 검색 | 구현 완료 |
+| 기능 | 상태 |
+|------|------|
+| 기본 CRUD·목록·검색·일괄 삭제/복구/졸업·페이지네이션 유지 (1단계) | 구현 완료 |
+| 엑셀 Import / 학생 등록 관리 / 통합 검색 (2단계) | 구현 완료 |
+| 부모님 연락처 필드 (2단계) | 구현 완료 |
+| 이달의 축일자 목록 (2단계) | 미구현 |
 
 ---
 
 ## 흐름/상태
 
-```
-[학생 목록 (?page=N)] → (학생 클릭) → [학생 상세] → (목록 복귀) → [학생 목록 (?page=N)]
-[학생 목록] → (학생 추가) → [학생 생성 완료] → [학생 목록 (?page=1)]
-[학생 목록] → (다중 선택 + 삭제) → [소프트 삭제] → [학생 목록]
-[학생 목록 (삭제 필터)] → (복구) → [학생 목록 (재학생)]
-[학생 목록] → (졸업 처리) → [졸업 완료] → [학생 목록]
-[학생 목록] → (검색어 입력 + 검색 버튼/Enter) → [학생 목록 (?page=1, searchWord=...)]
-[학생 목록] → (엑셀 업로드) → [Import 모달 (양식 다운로드 + 파일 업로드)] → [미리보기] → (등록 확인) → [등록 완료] → [학생 목록]
-[Import 모달] → (취소) → [학생 목록]
-[학생 목록] → (다중 선택 + 등록) → [등록 확인 다이얼로그] → [등록 완료] → [학생 목록]
-[학생 목록] → (다중 선택 + 등록 취소) → [취소 확인 다이얼로그] → [취소 완료] → [학생 목록]
-[학생 목록] → (등록 필터 변경) → [학생 목록 (?page=1)]
-```
+- 기본 진입: [학생 목록 (?page=N)] ↔ [학생 상세] (페이지 유지)
+- 단건 동작: [학생 목록] → 추가/수정/삭제 → [학생 목록 (?page=1)]
+- 일괄 동작: [학생 목록] → 다중 선택 → 삭제/복구/졸업/등록/등록 취소 확인 다이얼로그 → [학생 목록]
+- 엑셀 Import: [학생 목록] → [Import 모달: 양식 다운로드 → 파일 업로드 → 미리보기 → 등록 확인] → [학생 목록]
+- 검색·필터: searchWord/필터 변경 시 [학생 목록 (?page=1)] 리셋
 
 ## UI/UX
 
@@ -84,7 +66,8 @@
 | catholic_name | varchar(50) | 세례명 |
 | gender | varchar(1) | 성별 (M/F) |
 | age | bigint | 나이 (한국 나이) |
-| contact | bigint | 연락처 |
+| contact | bigint | 학생 본인 연락처 |
+| parent_contact | varchar(20) | 부모님 연락처 — 원본 문자열 보존 (2단계) |
 | description | mediumtext | 상세 설명 |
 | baptized_at | varchar(10) | 축일 |
 | group_id | bigint (FK) | 소속 그룹 |
@@ -123,24 +106,39 @@
 | 연례 나이 증가 | 매년 1/1 스케줄러: 전체 학생 age + 1 |
 | 축일자 필터링 | `baptizedAt`의 월(MM)이 요청 월과 일치하는 재학생 조회, DD 오름차순 |
 
-## 단건 입력 검증 강화 (BUGFIX)
+## 단건 입력 검증 (BUGFIX 완료)
 
-`student.create` / `student.update`의 주요 문자열 필드에 단건 경로 재검증을 도입한다. 기존 일괄 경로(`student.bulkCreate`의 `bulkCreateStudentItemSchema`)와 **동일 제약**을 적용하여 경로 간 일관성을 확보한다.
+`student.create` / `student.update` / `bulkCreate` 공통 제약 — `societyName` min(1)·max(50), `catholicName` max(50), `contact` `^\d+$`/max(15), `description` max(500). `update`는 `.nullable().optional()` 유지로 미전송 시 기존 값 보존 · `null` 명시 시 clear. 한글 에러 메시지 일관. 기존 DB의 하이픈 포함 `contact`는 재전송 시에만 검증 실패.
 
-### 제약
+## 부모님 연락처 (로드맵 2단계)
 
-| 필드 | 제약 | 위반 응답 |
-|------|------|-----------|
-| `societyName` | min(1) + 최대 50자 | 400 BAD_REQUEST |
-| `catholicName` | 최대 50자 (optional) | 400 BAD_REQUEST |
-| `contact` | `^\d+$` (숫자만) + 최대 15자 | 400 BAD_REQUEST |
-| `description` | 최대 500자 | 400 BAD_REQUEST |
+흑석동(2026-03-11) + 성남동(2026-02-26) 반복 피드백 대응. 비고란 우회 기입을 정규 필드로 이관.
 
-### 호환성
+### 필드 제약
 
-- `update`는 `.nullable().optional()` 유지 → 필드 미전송 시 기존 값 보존
-- 기존 DB의 하이픈 포함 `contact`는 **재전송 시에만** 검증 실패 (업데이트 시 해당 필드만 교정 필요)
-- 일괄 경로(`bulkCreateStudentItemSchema`) 제약과 한글 메시지 일관 유지
+| 필드 | 제약 |
+|------|------|
+| `Student.parentContact` | `String?` (`varchar(20)`). 사용자 입력 원본 보존 (하이픈·괄호·공백 포함) |
+| `StudentSnapshot.parentContact` | 동일 — 스냅샷 시점 값 |
+| Zod 규칙 | `/^[\d\-()\s]*$/` + max 20, 한글/영문 문자 거부 |
+| 빈 문자열 입력 | 서버에서 NULL 정규화 (`trim() \|\| null`) |
+| `update`의 `null` | 명시적 clear 허용 |
+
+### API·UI 반영
+
+- `student.create` / `student.update` / `student.bulkCreate` 확장 + list/get 응답 포함
+- 학생 추가/수정 폼: 본인 연락처 아래 "부모님 연락처 (선택)"
+- 학생 상세: 인라인 수정 + 읽기 표시
+- 엑셀 템플릿: 10번째 컬럼 "부모 연락처" + 기존 9컬럼 템플릿 하위 호환
+- 출석 페이지 노출은 본 범위 외 — "출석부 UI 개편"(P1)에서 통합
+
+### 의사결정
+
+| 항목 | 결정 |
+|------|------|
+| 타입 | `String` — 기존 `contact BigInt` 설계 미스 교훈, 포매팅 분리 전략 |
+| 부·모 분리 | 단일 필드 — 추후 니즈 확정 시 별도 |
+| 생년월일 | 본 범위 제외 — 세례명 축일 기능과 결합 가능, 별도 과제 |
 
 ## 예외/엣지 케이스
 
@@ -162,6 +160,7 @@
 | 대상 | 변환 규칙 |
 |------|----------|
 | Student.graduatedAt | `YEAR(graduatedAt)-12-31 00:00:00 KST` (기존 졸업 데이터 정규화) |
+| Student/StudentSnapshot.parent_contact | `ALTER TABLE … ADD COLUMN parent_contact VARCHAR(20) NULL` (무중단 추가) |
 
 ## 의사결정
 

@@ -152,14 +152,30 @@ async function main() {
     });
 
     // Group (GRADE 6 + DEPARTMENT 2)
-    const mh1 = await prisma.group.create({ data: { name: '1학년', type: 'GRADE', organizationId: middleHigh.id, createdAt: now } });
-    const mh2 = await prisma.group.create({ data: { name: '2학년', type: 'GRADE', organizationId: middleHigh.id, createdAt: now } });
-    const mh3 = await prisma.group.create({ data: { name: '3학년', type: 'GRADE', organizationId: middleHigh.id, createdAt: now } });
-    const el1 = await prisma.group.create({ data: { name: '1학년', type: 'GRADE', organizationId: elementary.id, createdAt: now } });
-    const el2 = await prisma.group.create({ data: { name: '2학년', type: 'GRADE', organizationId: elementary.id, createdAt: now } });
-    const el3 = await prisma.group.create({ data: { name: '3학년', type: 'GRADE', organizationId: elementary.id, createdAt: now } });
-    const worship = await prisma.group.create({ data: { name: '예절부', type: 'DEPARTMENT', organizationId: middleHigh.id, createdAt: now } });
-    const choir = await prisma.group.create({ data: { name: '성가대', type: 'DEPARTMENT', organizationId: middleHigh.id, createdAt: now } });
+    const mh1 = await prisma.group.create({
+        data: { name: '1학년', type: 'GRADE', organizationId: middleHigh.id, createdAt: now },
+    });
+    const mh2 = await prisma.group.create({
+        data: { name: '2학년', type: 'GRADE', organizationId: middleHigh.id, createdAt: now },
+    });
+    const mh3 = await prisma.group.create({
+        data: { name: '3학년', type: 'GRADE', organizationId: middleHigh.id, createdAt: now },
+    });
+    const el1 = await prisma.group.create({
+        data: { name: '1학년', type: 'GRADE', organizationId: elementary.id, createdAt: now },
+    });
+    const el2 = await prisma.group.create({
+        data: { name: '2학년', type: 'GRADE', organizationId: elementary.id, createdAt: now },
+    });
+    const el3 = await prisma.group.create({
+        data: { name: '3학년', type: 'GRADE', organizationId: elementary.id, createdAt: now },
+    });
+    const worship = await prisma.group.create({
+        data: { name: '예절부', type: 'DEPARTMENT', organizationId: middleHigh.id, createdAt: now },
+    });
+    const choir = await prisma.group.create({
+        data: { name: '성가대', type: 'DEPARTMENT', organizationId: middleHigh.id, createdAt: now },
+    });
 
     // Student (20)
     interface StudentDef {
@@ -173,23 +189,114 @@ async function main() {
 
     const studentDefs: StudentDef[] = [
         // 장위동 중고등부 10
-        { societyName: '김민준', catholicName: '베드로', gender: 'M', age: 14, orgId: middleHigh.id, groupIds: [mh1.id] },
-        { societyName: '이서연', catholicName: '마리아', gender: 'F', age: 14, orgId: middleHigh.id, groupIds: [mh1.id, worship.id] },
+        {
+            societyName: '김민준',
+            catholicName: '베드로',
+            gender: 'M',
+            age: 14,
+            orgId: middleHigh.id,
+            groupIds: [mh1.id],
+        },
+        {
+            societyName: '이서연',
+            catholicName: '마리아',
+            gender: 'F',
+            age: 14,
+            orgId: middleHigh.id,
+            groupIds: [mh1.id, worship.id],
+        },
         { societyName: '박지호', catholicName: '요한', gender: 'M', age: 14, orgId: middleHigh.id, groupIds: [mh1.id] },
-        { societyName: '최수빈', catholicName: '안나', gender: 'F', age: 15, orgId: middleHigh.id, groupIds: [mh2.id, choir.id] },
+        {
+            societyName: '최수빈',
+            catholicName: '안나',
+            gender: 'F',
+            age: 15,
+            orgId: middleHigh.id,
+            groupIds: [mh2.id, choir.id],
+        },
         { societyName: '정윤호', catholicName: null, gender: 'M', age: 15, orgId: middleHigh.id, groupIds: [mh2.id] },
-        { societyName: '강다영', catholicName: '루치아', gender: 'F', age: 15, orgId: middleHigh.id, groupIds: [mh2.id] },
-        { societyName: '조현우', catholicName: '바오로', gender: 'M', age: 16, orgId: middleHigh.id, groupIds: [mh3.id] },
-        { societyName: '윤지우', catholicName: '데레사', gender: 'F', age: 16, orgId: middleHigh.id, groupIds: [mh3.id, worship.id] },
+        {
+            societyName: '강다영',
+            catholicName: '루치아',
+            gender: 'F',
+            age: 15,
+            orgId: middleHigh.id,
+            groupIds: [mh2.id],
+        },
+        {
+            societyName: '조현우',
+            catholicName: '바오로',
+            gender: 'M',
+            age: 16,
+            orgId: middleHigh.id,
+            groupIds: [mh3.id],
+        },
+        {
+            societyName: '윤지우',
+            catholicName: '데레사',
+            gender: 'F',
+            age: 16,
+            orgId: middleHigh.id,
+            groupIds: [mh3.id, worship.id],
+        },
         { societyName: '한예준', catholicName: '요셉', gender: 'M', age: 16, orgId: middleHigh.id, groupIds: [mh3.id] },
-        { societyName: '오시은', catholicName: '마르타', gender: 'F', age: 16, orgId: middleHigh.id, groupIds: [mh3.id, choir.id] },
+        {
+            societyName: '오시은',
+            catholicName: '마르타',
+            gender: 'F',
+            age: 16,
+            orgId: middleHigh.id,
+            groupIds: [mh3.id, choir.id],
+        },
         // 장위동 초등부 7
-        { societyName: '김하늘', catholicName: '토마스', gender: 'M', age: 8, orgId: elementary.id, groupIds: [el1.id] },
-        { societyName: '박서하', catholicName: '아녜스', gender: 'F', age: 8, orgId: elementary.id, groupIds: [el1.id] },
-        { societyName: '이도윤', catholicName: '미카엘', gender: 'M', age: 9, orgId: elementary.id, groupIds: [el2.id] },
-        { societyName: '정아린', catholicName: '클라라', gender: 'F', age: 9, orgId: elementary.id, groupIds: [el2.id] },
-        { societyName: '최건우', catholicName: '프란치스코', gender: 'M', age: 10, orgId: elementary.id, groupIds: [el3.id] },
-        { societyName: '강시온', catholicName: '엘리사벳', gender: 'F', age: 10, orgId: elementary.id, groupIds: [el3.id] },
+        {
+            societyName: '김하늘',
+            catholicName: '토마스',
+            gender: 'M',
+            age: 8,
+            orgId: elementary.id,
+            groupIds: [el1.id],
+        },
+        {
+            societyName: '박서하',
+            catholicName: '아녜스',
+            gender: 'F',
+            age: 8,
+            orgId: elementary.id,
+            groupIds: [el1.id],
+        },
+        {
+            societyName: '이도윤',
+            catholicName: '미카엘',
+            gender: 'M',
+            age: 9,
+            orgId: elementary.id,
+            groupIds: [el2.id],
+        },
+        {
+            societyName: '정아린',
+            catholicName: '클라라',
+            gender: 'F',
+            age: 9,
+            orgId: elementary.id,
+            groupIds: [el2.id],
+        },
+        {
+            societyName: '최건우',
+            catholicName: '프란치스코',
+            gender: 'M',
+            age: 10,
+            orgId: elementary.id,
+            groupIds: [el3.id],
+        },
+        {
+            societyName: '강시온',
+            catholicName: '엘리사벳',
+            gender: 'F',
+            age: 10,
+            orgId: elementary.id,
+            groupIds: [el3.id],
+        },
         { societyName: '윤지안', catholicName: null, gender: 'M', age: 10, orgId: elementary.id, groupIds: [el3.id] },
         // 흑석동 초등부 2 (그룹 없음 — 다양성)
         { societyName: '조하린', catholicName: '세실리아', gender: 'F', age: 8, orgId: heukseokOrg.id, groupIds: [] },
