@@ -30,8 +30,7 @@ export const PrivacyPolicyContent = () => (
         <div>
             <p className="font-medium text-foreground">4. 보유 및 이용 기간</p>
             <p>
-                회원 탈퇴 시까지 (탈퇴 시 계정·학생 정보 및 이력 스냅샷 즉시 비활성화 처리, 비활성화 후 2년 이내
-                파기)
+                회원 탈퇴 시까지 (탈퇴 시 계정·학생 정보 및 이력 스냅샷 즉시 비활성화 처리, 비활성화 후 2년 이내 파기)
             </p>
         </div>
         <div>
