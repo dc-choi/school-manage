@@ -17,7 +17,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
     return (
         <div className="flex min-h-screen">
             {/* 히어로 섹션 (데스크톱만) */}
-            <div className="hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background lg:flex lg:w-1/2 lg:flex-col lg:items-center lg:justify-center lg:gap-12 lg:p-16">
+            <div className="hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background lg:flex lg:w-1/2 lg:flex-col lg:items-center lg:justify-center lg:gap-8 lg:p-16">
                 <div className="max-w-lg space-y-6 text-center">
                     <h1 className="text-5xl font-bold leading-snug tracking-tight xl:text-6xl">
                         매주 일요일,
@@ -31,15 +31,6 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                     </p>
                 </div>
 
-                <img
-                    src={screenshotSrc}
-                    alt="출석부 대시보드 화면"
-                    className="max-w-[540px] rounded-xl border shadow-2xl"
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                />
-
                 {countData && countData.churchCount > 0 && (
                     <div className="flex items-center gap-3 text-lg text-muted-foreground xl:text-xl">
                         <Users className="h-6 w-6" />
@@ -49,6 +40,18 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                         </span>
                     </div>
                 )}
+
+                <img
+                    src={screenshotSrc}
+                    alt="출석부 대시보드 화면"
+                    width={1440}
+                    height={900}
+                    decoding="async"
+                    className="max-w-[480px] rounded-xl border shadow-2xl"
+                    onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                />
             </div>
 
             {/* 카드 섹션 */}
