@@ -1,48 +1,41 @@
-import { ApiCode } from '../errors/api.code.ts';
-import { ApiError } from '../errors/api.error.ts';
-import { ApiMessage } from '../errors/api.message.ts';
 import { NextFunction, Request, Response } from 'express';
-import httpStatus from 'http-status';
 import { logger } from '~/infrastructure/logger/logger.js';
 
+interface ExpressError extends Error {
+    status?: number;
+    statusCode?: number;
+}
+
 /**
- * 중앙 에러 처리 미들웨어
- * 모든 예외를 catch하여 통일된 응답 포맷으로 반환한다.
+ * tRPC 외 라우트의 에러를 처리하는 폴백 미들웨어.
+ * tRPC procedure 에러는 어댑터의 responseMeta가 처리하므로 이 미들웨어에 도달하지 않는다.
+ *
+ * - Express body-parser/라우트 등에서 status를 명시한 에러는 그 status 사용 (예: JSON 파싱 실패 → 400)
+ * - 그 외 예상치 못한 에러는 500 + 일반 메시지 (내부 메시지/스택 노출 금지)
  */
 export const errorHandler = (
-    err: Error,
+    err: ExpressError,
     req: Request,
     res: Response,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     next: NextFunction
 ) => {
-    let code: number;
-    let message: string;
+    const status = err.status ?? err.statusCode ?? 500;
+    const isClientError = status >= 400 && status < 500;
+    const message = isClientError ? err.message || 'BAD_REQUEST' : 'INTERNAL_SERVER_ERROR';
 
-    if (err instanceof ApiError) {
-        // ApiError: 정의된 code/message 사용
-        code = err.code;
-        message = err.message;
-    } else {
-        // 예상치 못한 에러: 500으로 매핑
-        code = ApiCode.INTERNAL_SERVER_ERROR;
-        message = ApiMessage.INTERNAL_SERVER_ERROR;
-    }
-
-    // 로깅 1회 수행
     logger.error(
         JSON.stringify({
-            code,
-            message,
+            code: status,
+            message: err.message,
             stack: err.stack,
             url: req.originalUrl,
             method: req.method,
         })
     );
 
-    const response = { code, message };
-    logger.res(httpStatus.OK, response, req);
+    const response = { code: status, message };
+    logger.res(status, response, req);
 
-    // HTTP 상태 코드는 200 유지 (기존 동작 호환)
-    res.status(httpStatus.OK).json(response);
+    res.status(status).json(response);
 };
