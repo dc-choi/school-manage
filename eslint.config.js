@@ -20,7 +20,13 @@ module.exports = defineConfig([
             sourceType: 'module',
 
             parserOptions: {
-                project: ['apps/api/tsconfig.json', 'apps/web/tsconfig.json', 'packages/shared/tsconfig.json', 'packages/trpc/tsconfig.json'],
+                project: [
+                    'apps/api/tsconfig.json',
+                    'apps/web/tsconfig.json',
+                    'packages/shared/tsconfig.json',
+                    'packages/trpc/tsconfig.json',
+                    'packages/utils/tsconfig.json',
+                ],
                 tsconfigRootDir: __dirname,
             },
 
@@ -43,5 +49,11 @@ module.exports = defineConfig([
             '@typescript-eslint/no-explicit-any': 'off',
         },
     },
-    globalIgnores(['**/.eslintrc.js', '**/eslint.config.js', '**/**.yml', 'prisma/generated/**', '**/database/generated/**']),
+    globalIgnores([
+        '**/.eslintrc.js',
+        '**/eslint.config.js',
+        '**/**.yml',
+        'prisma/generated/**',
+        '**/database/generated/**',
+    ]),
 ]);
