@@ -173,6 +173,10 @@ await database.student.create({
 
 `pnpm prisma generate` (클라이언트+Kysely 타입 생성), `pnpm prisma db push`, `pnpm prisma studio`
 
+### 로컬 DB 리셋 + Seed
+
+`pnpm --filter @school/api db:reset` — `prisma db push --force-reset` + `prisma db seed` 체인. drift 정리 시 사용. `pnpm --filter @school/api db:seed`는 비어있는 DB에 seed만 주입. Seed 엔트리: `apps/api/prisma/seed.ts`, 프로덕션 가드(`NODE_ENV=production` abort) 내장. 테스트 DB와 독립.
+
 ### DB 환경변수
 
 풀: `MYSQL_CONNECTION_LIMIT` (1~100, default 10). 로깅: `DB_QUERY_LOGGING` (off/slow/all, default slow, 슬로우 쿼리 PII 마스킹). 타임아웃(mariadb 어댑터 기본값 명시 보정): `DB_CONNECT_TIMEOUT_MS` (500~30000, default 5000), `DB_IDLE_TIMEOUT_SEC` (60~3600, default 300), `DB_TRANSACTION_TIMEOUT_MS` (1000~60000, default 15000), `DB_TRANSACTION_MAX_WAIT_MS` (500~30000, default 5000). 상세: `.env.example`

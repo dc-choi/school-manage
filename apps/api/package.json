@@ -23,7 +23,12 @@
         "dev": "pnpm clean && pnpm build && cross-env NODE_ENV=local node dist/src/app.js",
         "lint": "eslint src",
         "typecheck": "pnpm prisma:generate && tsc --noEmit",
-        "clean": "rimraf dist"
+        "clean": "rimraf dist",
+        "db:seed": "prisma db seed",
+        "db:reset": "prisma db push --force-reset --skip-generate && prisma db seed"
+    },
+    "prisma": {
+        "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
         "@prisma/adapter-mariadb": "^6.19.2",
@@ -78,6 +83,7 @@
         "globals": "catalog:",
         "prettier": "catalog:",
         "tsc-alias": "^1.8.16",
+        "tsx": "^4.21.0",
         "typescript": "catalog:",
         "vitest": "catalog:"
     },
