@@ -1,37 +1,37 @@
 {
-    "name": "@school/shared",
-    "version": "0.0.1",
-    "description": "Shared domain constants, types, and Zod schemas",
-    "private": true,
-    "type": "module",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "default": "./dist/index.js"
-        }
-    },
-    "scripts": {
-        "dev": "tsc --watch",
-        "build": "tsc -b",
-        "lint": "eslint src",
-        "typecheck": "tsc --noEmit"
-    },
-    "dependencies": {
-        "zod": "^3.23.8"
-    },
-    "devDependencies": {
-        "typescript": "catalog:",
-        "@types/node": "catalog:",
-        "@eslint/eslintrc": "catalog:",
-        "@eslint/js": "catalog:",
-        "@typescript-eslint/eslint-plugin": "catalog:",
-        "@typescript-eslint/parser": "catalog:",
-        "eslint": "catalog:",
-        "eslint-config-prettier": "catalog:",
-        "eslint-plugin-prettier": "catalog:",
-        "globals": "catalog:",
-        "prettier": "catalog:"
+  "name": "@school/shared",
+  "version": "0.0.1",
+  "description": "Shared domain constants, types, and Zod schemas",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc -b",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@eslint/eslintrc": "catalog:",
+    "@eslint/js": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "globals": "catalog:",
+    "prettier": "catalog:"
+  }
 }

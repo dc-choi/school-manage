@@ -1,42 +1,42 @@
 {
-    "name": "@school/trpc",
-    "version": "0.0.1",
-    "description": "tRPC infrastructure (router, procedures, middleware, context)",
-    "private": true,
-    "type": "module",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "default": "./dist/index.js"
-        }
-    },
-    "scripts": {
-        "dev": "tsc --watch",
-        "build": "tsc -b",
-        "lint": "eslint src",
-        "typecheck": "tsc --noEmit"
-    },
-    "dependencies": {
-        "@school/shared": "workspace:*",
-        "@trpc/server": "catalog:",
-        "superjson": "catalog:"
-    },
-    "devDependencies": {
-        "@types/express": "catalog:",
-        "@types/express-serve-static-core": "catalog:",
-        "@types/qs": "catalog:",
-        "typescript": "catalog:",
-        "@types/node": "catalog:",
-        "@eslint/eslintrc": "catalog:",
-        "@eslint/js": "catalog:",
-        "@typescript-eslint/eslint-plugin": "catalog:",
-        "@typescript-eslint/parser": "catalog:",
-        "eslint": "catalog:",
-        "eslint-config-prettier": "catalog:",
-        "eslint-plugin-prettier": "catalog:",
-        "globals": "catalog:",
-        "prettier": "catalog:"
+  "name": "@school/trpc",
+  "version": "0.0.1",
+  "description": "tRPC infrastructure (router, procedures, middleware, context)",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc -b",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@school/shared": "workspace:*",
+    "@trpc/server": "catalog:",
+    "superjson": "catalog:"
+  },
+  "devDependencies": {
+    "@types/express": "catalog:",
+    "@types/express-serve-static-core": "catalog:",
+    "@types/qs": "catalog:",
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@eslint/eslintrc": "catalog:",
+    "@eslint/js": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "globals": "catalog:",
+    "prettier": "catalog:"
+  }
 }

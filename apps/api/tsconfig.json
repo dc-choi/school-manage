@@ -1,51 +1,40 @@
 {
-    "compilerOptions": {
-        "module": "NodeNext",
-        "moduleResolution": "nodenext",
-        "declaration": true,
-        "removeComments": true,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true,
-        "resolveJsonModule": true,
-        "target": "ESNext",
-        "rewriteRelativeImportExtensions": true,
-        "sourceMap": true,
-        "outDir": "./dist",
-        "baseUrl": "./",
-        "paths": {
-            "~/*": [
-                "./src/*"
-            ]
-        },
-        "incremental": true,
-        "skipLibCheck": true,
-        "strictNullChecks": true,
-        "noImplicitAny": true,
-        "strictBindCallApply": false,
-        "forceConsistentCasingInFileNames": false,
-        "noFallthroughCasesInSwitch": false,
-        "composite": true,
-        "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "ESNext",
+    "rewriteRelativeImportExtensions": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["./src/*"]
     },
-    "include": [
-        "src",
-        "test",
-        "vitest.setup.ts",
-        "package.json"
-    ],
-    "exclude": [
-        "node_modules",
-        "dist",
-        "vitest.config.ts"
-    ],
-    "references": [
-        {
-            "path": "../../packages/shared"
-        },
-        {
-            "path": "../../packages/trpc"
-        }
-    ]
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "composite": true,
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "include": ["src", "test", "vitest.setup.ts", "package.json"],
+  "exclude": ["node_modules", "dist", "vitest.config.ts"],
+  "references": [
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/trpc"
+    }
+  ]
 }
