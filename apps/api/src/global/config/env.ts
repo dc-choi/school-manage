@@ -45,6 +45,10 @@ export const env = {
     },
     db: {
         queryLogging: getOsEnvEnumOptional<DbQueryLoggingMode>('DB_QUERY_LOGGING', DB_QUERY_LOGGING_MODES, 'slow'),
+        connectTimeoutMs: getOsEnvIntOptional('DB_CONNECT_TIMEOUT_MS', 5000, 500, 30000),
+        idleTimeoutSec: getOsEnvIntOptional('DB_IDLE_TIMEOUT_SEC', 300, 60, 3600),
+        transactionTimeoutMs: getOsEnvIntOptional('DB_TRANSACTION_TIMEOUT_MS', 15000, 1000, 60000),
+        transactionMaxWaitMs: getOsEnvIntOptional('DB_TRANSACTION_MAX_WAIT_MS', 5000, 500, 30000),
     },
     app: {
         name: getOsEnv('APP_NAME'),
