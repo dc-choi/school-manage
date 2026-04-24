@@ -11,7 +11,7 @@ export const PrivacyPolicyContent = () => (
             <p className="mt-1 font-medium text-foreground/80">가. 계정 정보 (회원가입 시)</p>
             <p>아이디, 이름(닉네임), 비밀번호(암호화 저장)</p>
             <p className="mt-1 font-medium text-foreground/80">나. 학생 정보 (사용자 입력)</p>
-            <p>이름, 세례명, 성별, 나이, 연락처, 세례일, 메모, 출석 기록</p>
+            <p>이름, 세례명, 성별, 나이, 연락처, 보호자 연락처, 세례일, 메모, 출석 기록</p>
         </div>
         <div>
             <p className="font-medium text-foreground">2. 수집 목적</p>

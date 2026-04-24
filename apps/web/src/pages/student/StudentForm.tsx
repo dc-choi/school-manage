@@ -256,7 +256,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                                 className="h-12 text-lg"
                                 value={formData.parentContact ?? ''}
                                 onChange={(e) => handleChange('parentContact', e.target.value)}
-                                placeholder="010-1234-5678"
+                                placeholder="010-1234-1234"
                                 disabled={isSubmitting}
                             />
                         </div>

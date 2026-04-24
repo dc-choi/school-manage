@@ -41,7 +41,7 @@ export const createStudentInputSchema = z.object({
         .optional(),
     parentContact: z
         .string()
-        .regex(/^[\d\-()\s]*$/, '부모님 연락처는 숫자·하이픈·괄호·공백만 입력해주세요')
+        .regex(/^[\d\-() ]*$/, '부모님 연락처는 숫자·하이픈·괄호·공백만 입력해주세요')
         .max(20, '부모님 연락처는 20자 이하여야 합니다')
         .optional(),
     description: z.string().max(500, '비고는 500자 이하여야 합니다').optional(),
@@ -73,7 +73,7 @@ export const updateStudentInputSchema = z.object({
         .optional(),
     parentContact: z
         .string()
-        .regex(/^[\d\-()\s]*$/, '부모님 연락처는 숫자·하이픈·괄호·공백만 입력해주세요')
+        .regex(/^[\d\-() ]*$/, '부모님 연락처는 숫자·하이픈·괄호·공백만 입력해주세요')
         .max(20, '부모님 연락처는 20자 이하여야 합니다')
         .nullable()
         .optional(),
@@ -139,7 +139,7 @@ export const bulkCreateStudentItemSchema = z.object({
         .optional(),
     parentContact: z
         .string()
-        .regex(/^[\d\-()\s]*$/, '부모님 연락처는 숫자·하이픈·괄호·공백만 입력해주세요')
+        .regex(/^[\d\-() ]*$/, '부모님 연락처는 숫자·하이픈·괄호·공백만 입력해주세요')
         .max(20, '부모님 연락처는 20자 이하여야 합니다')
         .optional(),
     description: z.string().max(500, '비고는 500자 이하여야 합니다').optional(),
