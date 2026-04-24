@@ -11,7 +11,10 @@ const attendanceDataSchema = z.object({
     id: idSchema,
     month: z.number().int().min(1).max(12),
     day: z.number().int().min(1).max(31),
-    data: z.string(),
+    data: z
+        .string()
+        .max(10, '출석 내용은 10자 이하여야 합니다')
+        .regex(/^[◎○△\-]*$/, '출석 내용은 ◎, ○, △, - 또는 빈 문자열만 허용됩니다'),
 });
 
 /**

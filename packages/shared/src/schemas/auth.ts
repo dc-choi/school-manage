@@ -7,8 +7,8 @@ import { z } from 'zod';
  * 로그인 입력 스키마
  */
 export const loginInputSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    password: z.string().min(1, 'Password is required'),
+    name: z.string().min(1, 'Name is required').max(50, '아이디는 50자 이하여야 합니다'),
+    password: z.string().min(1, 'Password is required').max(128, '비밀번호는 128자 이하여야 합니다'),
 });
 
 /**
