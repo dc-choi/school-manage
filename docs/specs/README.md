@@ -93,7 +93,7 @@
 | P2 | 서버측 Excel 파일 재검증 없음 | ✅ 완료 | `bulkCreateStudentItemSchema` 신규(독립). societyName/catholicName max 50, age 1-120, contact `^\d+$` max 15, description max 500, groupIds 1-10. 한글 에러 메시지. 통합 테스트 TC-E5~E10 8건 추가. 단건 경로 무영향 |
 | P3 | Rate Limit 문서/코드 불일치 | ✅ 완료 | 코드 주석 200회/분 정합 + `rules/api.md` Rate Limiting 정책 섹션 신설 (전체 200/분, 인증 10/분) |
 | P3 | StudentGroup deletedAt 미비 | 미착수 | soft-delete 컬럼 없음. 학생 삭제 시 관계 레코드 잔존 |
-| P3 | HTTP 응답 상태코드 일률 200 | 미착수 | 에러 시에도 200 반환. 401/403/404 등 의미 있는 상태코드 필요 |
+| P3 | HTTP 응답 상태코드 일률 200 | ✅ 완료 | tRPC `responseMeta`로 첫 에러 `data.httpStatus` 매핑(단일/배치 공통). 에러 미들웨어 단순화 + `ApiError`/`ApiCode`/`ApiMessage` dead code 제거. 통합 테스트 8건 추가(TC-1~5, TC-E1~E2). 클라이언트 silent refresh 정상 동작 |
 | P3 | Express 4.x qs DoS 취약점 | 미착수 | express > qs 저심각도 취약점. Express 5.x 업그레이드로 해결 |
 
 ### DX (Non-Functional)
