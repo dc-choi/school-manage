@@ -235,6 +235,8 @@ model Attendance {
 
     student Student @relation(fields: [studentId], references: [id])
 
+    @@index([studentId, date])
+    @@index([groupId, date])
     @@map("attendance")
 }
 
