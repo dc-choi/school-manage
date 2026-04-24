@@ -46,6 +46,8 @@ const adapter = new PrismaMariaDb({
     password: env.mysql.password,
     database: env.mysql.schema,
     connectionLimit: env.mysql.connectionLimit,
+    connectTimeout: env.db.connectTimeoutMs,
+    idleTimeout: env.db.idleTimeoutSec,
 });
 
 // 쿼리 로깅 모드에 따른 log 배열 구성.
@@ -62,6 +64,10 @@ const buildLogConfig = (): Prisma.LogDefinition[] => {
 const baseClient = new PrismaClient({
     adapter,
     log: buildLogConfig(),
+    transactionOptions: {
+        timeout: env.db.transactionTimeoutMs,
+        maxWait: env.db.transactionMaxWaitMs,
+    },
 });
 
 // Query 이벤트 핸들러는 'slow'/'all' 모드에서만 등록 ($on은 $extends 전에 호출해야 함)

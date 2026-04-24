@@ -17,6 +17,7 @@ import { connectDatabase, database } from '~/infrastructure/database/database.js
 import { logger } from '~/infrastructure/logger/logger.js';
 import { Scheduler } from '~/infrastructure/scheduler/scheduler.js';
 import { createContext } from '~/infrastructure/trpc/context.js';
+import { buildResponseMeta } from '~/infrastructure/trpc/response-meta.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -48,7 +49,7 @@ export const createApp = (): Express => {
         })
     );
 
-    // Rate Limiting — 전체 API: IP당 100회/분
+    // Rate Limiting — 전체 API: IP당 200회/분 (정책: .claude/rules/api.md)
     app.use(
         rateLimit({
             windowMs: 60 * 1000,
@@ -90,6 +91,7 @@ export const createApp = (): Express => {
         createExpressMiddleware({
             router: appRouter,
             createContext,
+            responseMeta: buildResponseMeta,
         })
     );
 

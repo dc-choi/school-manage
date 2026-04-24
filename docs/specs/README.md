@@ -8,8 +8,8 @@
 |---------------------------|------|---------------------------------------------------------------|
 | **Current Functional**    | 100% | 10개 도메인 기능 설계에 통합 + 계정 모델 전환 + 학년/부서 그룹핑 + 게스트 대시보드 + 도네이션 링크 + 도네이션 게스트 접근 완료 |
 | **Target Functional**     | -    | 6건 미착수 |
-| **Target Bugfix**         | -    | 8건 미착수 (P2 3건, P3 5건) + 9건 완료 |
-| **Target Non-Functional** | -    | PERFORMANCE 3건 미착수 + 4건 완료 + DX 2건 완료 |
+| **Target Bugfix**         | -    | 5건 미착수 (P2 2건, P3 3건) + 12건 완료 |
+| **Target Non-Functional** | -    | PERFORMANCE 1건 미착수 + 6건 완료 + DX 2건 완료 |
 
 ## 관련 문서
 
@@ -25,7 +25,7 @@
 
 ### PRD (제품 요구사항 문서)
 
-> 21건 전체 Approved (구현 완료). 경로: `docs/specs/prd/`
+> 22건 전체 Approved (구현 완료). 경로: `docs/specs/prd/`
 
 ### Functional Design (기능 설계)
 
@@ -70,8 +70,8 @@
 | P2   | Organization 목록 페이지네이션 미구현 | ✅ 완료 | skip/take 페이지네이션 + Pagination 컴포넌트 적용                       |
 | P2   | DB connectionLimit 환경변수화 | ✅ 완료    | `MYSQL_CONNECTION_LIMIT` 추가(선택, default 10 — Prisma v7 표준). 검증 1~100. 단위 테스트 8/8 통과 |
 | P3   | 프로덕션 쿼리 로깅 비활성화          | ✅ 완료    | `DB_QUERY_LOGGING` 환경변수(off/slow/all) + 슬로우 쿼리 PII 마스킹. 단위 테스트 13/13 통과 |
-| P3   | 트랜잭션/쿼리 타임아웃 미설정         | 미착수    | 장기 실행 트랜잭션 락 점유 가능. 명시적 타임아웃 설정 필요                         |
-| P3   | AuthLayout 이미지 dimensions 누락 | 미착수    | width/height 미설정 → CLS(레이아웃 시프트) 유발. loading="lazy" 추가 권장 |
+| P3   | 트랜잭션/쿼리 타임아웃 미설정         | ✅ 완료    | 4종 타임아웃 env 명시화 (`DB_CONNECT_TIMEOUT_MS`/`DB_IDLE_TIMEOUT_SEC`/`DB_TRANSACTION_TIMEOUT_MS`/`DB_TRANSACTION_MAX_WAIT_MS`). 어댑터 암묵 기본값(1s/1800s) 보정, Prisma v6 쿼리엔진 기본값과 매칭. 설계: `docs/specs/functional-design/db-timeout.md` |
+| P3   | AuthLayout 이미지 dimensions 누락 | ✅ 완료 | 부재 자산 신규 캡처(1440×900) + width/height/decoding 명시 → CLS 0. 사회적 증거 위치 상향(작은 데스크톱 viewport 노출 보장). 설계: `auth-layout-cls.md` |
 | P3   | name 컬럼 인덱스 누락 (parish/church/organization) | 미착수 | `WHERE name = ?` 풀 스캔. 데이터 소규모이나 증가 시 성능 저하 |
 
 ### BUGFIX
@@ -89,11 +89,11 @@
 | P1 | xlsx 라이브러리 보안 취약점 | ✅ 완료 | Prototype Pollution + ReDoS 2건 → ExcelJS 교체 + 동적 import 분리 |
 | P1 | 출석 배열 상한 미설정 (DoS) | ✅ 완료 | `.max(500)` 추가. 중복 빈 배열 체크 제거, 테스트 추가 |
 | P2 | 로그인 사용자 열거 공격 | ✅ 완료 | `login.usecase.ts` NOT_FOUND/UNAUTHORIZED 분기를 `UNAUTHORIZED` + 통일 메시지로 단일화. 탈퇴 계정+비번 불일치도 통일. 통합 테스트 10/10 통과 (응답 동일성 검증 TC-E3 추가) |
-| P2 | 입력 검증 강화 | 미착수 | 출석 data 화이트리스트, 로그인 스키마 signup 대비 느슨, 학생 contact·description 길이 무제한 |
+| P2 | 입력 검증 강화 | ✅ 완료 | 출석 `data` 화이트리스트(◎/○/△/-/빈/max 10) + 로그인 `name`(max 50)·`password`(max 128) + 학생 단건 `societyName`·`catholicName`(max 50)·`contact`(`^\d+$`/max 15)·`description`(max 500). 단건/일괄 경로 일관성 확보. 통합 테스트 18건 추가 (api 270/270 통과) |
 | P2 | 서버측 Excel 파일 재검증 없음 | ✅ 완료 | `bulkCreateStudentItemSchema` 신규(독립). societyName/catholicName max 50, age 1-120, contact `^\d+$` max 15, description max 500, groupIds 1-10. 한글 에러 메시지. 통합 테스트 TC-E5~E10 8건 추가. 단건 경로 무영향 |
-| P3 | Rate Limit 문서/코드 불일치 | 미착수 | 코드 200회/분 vs CLAUDE.md 100회/분. 의도 확인 후 통일 필요 |
+| P3 | Rate Limit 문서/코드 불일치 | ✅ 완료 | 코드 주석 200회/분 정합 + `rules/api.md` Rate Limiting 정책 섹션 신설 (전체 200/분, 인증 10/분) |
 | P3 | StudentGroup deletedAt 미비 | 미착수 | soft-delete 컬럼 없음. 학생 삭제 시 관계 레코드 잔존 |
-| P3 | HTTP 응답 상태코드 일률 200 | 미착수 | 에러 시에도 200 반환. 401/403/404 등 의미 있는 상태코드 필요 |
+| P3 | HTTP 응답 상태코드 일률 200 | ✅ 완료 | tRPC `responseMeta`로 첫 에러 `data.httpStatus` 매핑(단일/배치 공통). 에러 미들웨어 단순화 + `ApiError`/`ApiCode`/`ApiMessage` dead code 제거. 통합 테스트 8건 추가(TC-1~5, TC-E1~E2). 클라이언트 silent refresh 정상 동작 |
 | P3 | Express 4.x qs DoS 취약점 | 미착수 | express > qs 저심각도 취약점. Express 5.x 업그레이드로 해결 |
 
 ### DX (Non-Functional)
