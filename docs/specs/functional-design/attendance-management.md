@@ -6,6 +6,7 @@
 
 - PRD: `docs/specs/prd/school-attendance.md`
 - PRD: `docs/specs/prd/attendance-split-display.md` (출석 인원 분리 표시)
+- PRD: `docs/specs/prd/input-validation-hardening.md` (입력 검증 강화 — BUGFIX)
 
 ## 기능 범위
 
@@ -128,6 +129,25 @@ Backend `getMonthlyAttendance`에서 마크별 분리 집계:
 
 ---
 
+## 출석 data 입력 검증 강화 (BUGFIX)
+
+`attendance.update`의 `attendance[].data` 필드에 화이트리스트 기반 서버측 재검증을 도입한다. 클라이언트 우회 직접 호출 시 대용량 문자열 삽입(DoS) 및 데이터 무결성 훼손을 차단한다.
+
+### 제약
+
+| 항목 | 값 |
+|------|-----|
+| 허용 문자 | `◎` / `○` / `△` / `-` (결석 명시) / `''` (빈 문자열) |
+| 최대 길이 | 10자 |
+| 위반 응답 | 400 BAD_REQUEST (한글 메시지) |
+
+### 대상
+
+- `attendance.update` (배열 원소별 검증)
+- 배열 상한(`max(500)`) 및 `attendance[].id`/`month`/`day` 제약은 기존 유지
+
+---
+
 ## 예외/엣지 케이스
 
 | 상황 | 처리 |
@@ -141,6 +161,6 @@ Backend `getMonthlyAttendance`에서 마크별 분리 집계:
 ---
 
 **작성일**: 2026-01-13
-**수정일**: 2026-02-24 (문서 축약)
-**작성자**: PM 에이전트
+**수정일**: 2026-04-24 (출석 data 입력 검증 강화 BUGFIX 병합)
+**작성자**: PM 에이전트 / SDD 작성자
 **상태**: Approved (구현 완료)

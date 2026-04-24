@@ -131,6 +131,39 @@ describe('auth.login 통합 테스트', () => {
                 message: '아이디 또는 비밀번호가 올바르지 않습니다.',
             });
         });
+
+        it('TC-L-N1: name 50자 경계 → Zod 통과 (실존 X → UNAUTHORIZED)', async () => {
+            const caller = createPublicCaller();
+
+            await expect(
+                caller.auth.login({
+                    name: 'a'.repeat(50),
+                    password: 'anypassword',
+                })
+            ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+        });
+
+        it('TC-L-E1: name 51자 → BAD_REQUEST', async () => {
+            const caller = createPublicCaller();
+
+            await expect(
+                caller.auth.login({
+                    name: 'a'.repeat(51),
+                    password: 'anypassword',
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-L-E2: password 129자 → BAD_REQUEST', async () => {
+            const caller = createPublicCaller();
+
+            await expect(
+                caller.auth.login({
+                    name: seed.account.name,
+                    password: 'a'.repeat(129),
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
     });
 });
 

@@ -9,6 +9,7 @@
 - PRD: `docs/specs/prd/account-self-management.md` (계정 자기 관리)
 - PRD: `docs/specs/prd/self-onboarding.md` (셀프 온보딩)
 - PRD: `docs/specs/prd/admin-transfer.md` (관리자 양도)
+- PRD: `docs/specs/prd/input-validation-hardening.md` (입력 검증 강화 — BUGFIX)
 - 기능 설계: `docs/specs/functional-design/admin-transfer.md` (관리자 양도 상세)
 
 ## 기능 범위
@@ -118,11 +119,22 @@ RefreshToken의 `createdAt`, `expiresAt` 포함 모든 DB 타임스탬프는 `ge
 
 `account.name`은 DB UNIQUE 제약으로 관리한다. 적용 범위는 활성·탈퇴 계정 전체이며, 탈퇴 계정 name은 `restoreAccount`를 위해 예약 상태로 유지된다. 회원가입은 기존 앱 레벨 `findFirst({deletedAt: null})` 체크로 활성 중복을 즉시 감지하고, race·탈퇴 계정 충돌은 Prisma `P2002` 예외를 캐치해 동일한 `CONFLICT: '이미 사용 중인 아이디입니다.'` 응답으로 변환한다 (탈퇴 여부 미노출). `account` 테이블의 collation은 `utf8mb4_unicode_ci`(대소문자·악센트 무시)로 `alice`와 `Alice`도 같은 name으로 간주된다.
 
+### 로그인 입력 길이 상한 (BUGFIX)
+
+`auth.login`의 `name`과 `password`에 최대 길이 상한을 도입한다. 클라 우회 직접 호출 시 대용량 문자열 삽입(DoS 및 bcrypt 증폭)을 차단한다.
+
+| 필드 | 상한 | 비고 |
+|------|------|------|
+| `name` | `max(50)` | 문자 집합 제약(`^[a-z0-9]+$`)은 과거 가입자 호환성을 위해 로그인 경로에 미적용 |
+| `password` | `max(128)` | 최소 길이/문자 집합 제약은 과거 계정 접속 보호를 위해 미적용 |
+
+회원가입(`auth.signup`)과 ID 중복 확인(`auth.checkId`)은 기존 신규 가입자 대상 엄격 검증 유지. 위반 시 400 BAD_REQUEST + 한글 메시지.
+
 > 로그인/회원가입 UI 개선, 개인정보 제공동의, 계정 자기 관리, 셀프 온보딩 → `auth-account-extended.md` 참조
 
 ---
 
 **작성일**: 2026-01-13
-**최종 수정**: 2026-04-21 (Account.name DB 유니크 제약 — race·탈퇴 중복 차단)
-**작성자**: PM 에이전트
+**최종 수정**: 2026-04-24 (로그인 입력 길이 상한 BUGFIX 병합)
+**작성자**: PM 에이전트 / SDD 작성자
 **상태**: Approved (구현 완료)

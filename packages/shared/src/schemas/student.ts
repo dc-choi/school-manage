@@ -30,12 +30,16 @@ export const getStudentInputSchema = z.object({
  * 학생 생성 입력 스키마
  */
 export const createStudentInputSchema = z.object({
-    societyName: z.string().min(1, 'Society name is required'),
-    catholicName: z.string().optional(),
+    societyName: z.string().min(1, 'Society name is required').max(50, '이름은 50자 이하여야 합니다'),
+    catholicName: z.string().max(50, '세례명은 50자 이하여야 합니다').optional(),
     gender: z.enum([GENDER.MALE, GENDER.FEMALE]).optional(),
     age: z.number().int().positive().optional(),
-    contact: z.string().optional(),
-    description: z.string().optional(),
+    contact: z
+        .string()
+        .regex(/^\d+$/, '전화번호는 숫자만 입력해주세요')
+        .max(15, '전화번호는 15자 이하여야 합니다')
+        .optional(),
+    description: z.string().max(500, '비고는 500자 이하여야 합니다').optional(),
     groupIds: z.array(idSchema),
     baptizedAt: z
         .string()
@@ -52,12 +56,17 @@ export const createStudentInputSchema = z.object({
  */
 export const updateStudentInputSchema = z.object({
     id: idSchema,
-    societyName: z.string().min(1, 'Society name is required').optional(),
-    catholicName: z.string().nullable().optional(),
+    societyName: z.string().min(1, 'Society name is required').max(50, '이름은 50자 이하여야 합니다').optional(),
+    catholicName: z.string().max(50, '세례명은 50자 이하여야 합니다').nullable().optional(),
     gender: z.enum([GENDER.MALE, GENDER.FEMALE]).nullable().optional(),
     age: z.number().int().positive().nullable().optional(),
-    contact: z.string().nullable().optional(),
-    description: z.string().nullable().optional(),
+    contact: z
+        .string()
+        .regex(/^\d+$/, '전화번호는 숫자만 입력해주세요')
+        .max(15, '전화번호는 15자 이하여야 합니다')
+        .nullable()
+        .optional(),
+    description: z.string().max(500, '비고는 500자 이하여야 합니다').nullable().optional(),
     groupIds: z.array(idSchema).optional(),
     baptizedAt: z
         .string()
