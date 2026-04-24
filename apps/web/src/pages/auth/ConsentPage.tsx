@@ -1,3 +1,4 @@
+import { CURRENT_PRIVACY_VERSION, PRIVACY_POLICY_CHANGELOG } from '@school/shared';
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { PrivacyPolicyDialog } from '~/components/common/PrivacyPolicyDialog';
@@ -22,7 +23,7 @@ import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
 export function ConsentPage() {
-    const { isAuthenticated, isLoading, privacyAgreedAt, logout } = useAuth();
+    const { isAuthenticated, isLoading, privacyAgreedAt, privacyPolicyVersion, logout } = useAuth();
     const navigate = useNavigate();
     const [agreed, setAgreed] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -30,20 +31,26 @@ export function ConsentPage() {
     const utils = trpc.useUtils();
     const agreePrivacyMutation = trpc.account.agreePrivacy.useMutation();
 
+    // 재동의 여부: 기존에 동의했으나 버전이 낮은 경우
+    const isReconsent = !!privacyAgreedAt && privacyPolicyVersion < CURRENT_PRIVACY_VERSION;
+
+    // 이 사용자에게 보여줄 변경 사항 — 기존 버전 이후 항목만 필터
+    const pendingChanges = PRIVACY_POLICY_CHANGELOG.filter((c) => c.version > privacyPolicyVersion);
+
     // GA4: 동의 UI 노출
     useEffect(() => {
-        if (isAuthenticated && !privacyAgreedAt) {
-            analytics.trackPrivacyConsentShown('consent');
+        if (isAuthenticated && (!privacyAgreedAt || privacyPolicyVersion < CURRENT_PRIVACY_VERSION)) {
+            analytics.trackPrivacyConsentShown(isReconsent ? 'reconsent' : 'consent');
         }
-    }, [isAuthenticated, privacyAgreedAt]);
+    }, [isAuthenticated, privacyAgreedAt, privacyPolicyVersion, isReconsent]);
 
     // 미인증 → 로그인
     if (!isLoading && !isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
-    // 이미 동의 완료 → 대시보드
-    if (!isLoading && privacyAgreedAt) {
+    // 이미 최신 버전 동의 완료 → 대시보드
+    if (!isLoading && privacyAgreedAt && privacyPolicyVersion >= CURRENT_PRIVACY_VERSION) {
         return <Navigate to="/" replace />;
     }
 
@@ -51,7 +58,7 @@ export function ConsentPage() {
         setError(null);
         try {
             await agreePrivacyMutation.mutateAsync();
-            analytics.trackPrivacyConsentAgreed('consent');
+            analytics.trackPrivacyConsentAgreed(isReconsent ? 'reconsent' : 'consent');
             await utils.account.get.invalidate();
             navigate('/');
         } catch {
@@ -69,12 +76,30 @@ export function ConsentPage() {
         <AuthLayout>
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-2xl">개인정보 수집·이용 동의</CardTitle>
+                    <CardTitle className="text-2xl">
+                        {isReconsent ? '개인정보 처리방침 변경 안내' : '개인정보 수집·이용 동의'}
+                    </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {error && (
                         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                             {error}
+                        </div>
+                    )}
+
+                    {isReconsent && pendingChanges.length > 0 && (
+                        <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm">
+                            <p className="mb-2 font-medium">변경 사항</p>
+                            <ul className="space-y-1 text-muted-foreground">
+                                {pendingChanges.map((c) => (
+                                    <li key={c.version}>
+                                        <span className="font-medium">v{c.version}</span> ({c.date}) — {c.summary}
+                                    </li>
+                                ))}
+                            </ul>
+                            <p className="mt-2 text-xs text-muted-foreground">
+                                서비스 이용을 위해 변경된 내용에 재동의해 주세요.
+                            </p>
                         </div>
                     )}
 

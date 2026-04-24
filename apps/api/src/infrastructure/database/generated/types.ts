@@ -13,6 +13,7 @@ export type Account = {
     updateAt: Timestamp | null;
     deleteAt: Timestamp | null;
     privacyAgreedAt: Timestamp | null;
+    privacyPolicyVersion: Generated<number>;
     organizationId: number | null;
     role: string | null;
 };

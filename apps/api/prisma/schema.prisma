@@ -131,9 +131,10 @@ model Account {
     createdAt       DateTime  @map("create_at")
     updatedAt       DateTime? @map("update_at")
     deletedAt       DateTime? @map("delete_at")
-    privacyAgreedAt DateTime? @map("privacy_agreed_at")
-    organizationId  BigInt?   @map("organization_id")
-    role            String?   @db.VarChar(20)
+    privacyAgreedAt      DateTime? @map("privacy_agreed_at")
+    privacyPolicyVersion Int       @default(1) @map("privacy_policy_version")
+    organizationId       BigInt?   @map("organization_id")
+    role                 String?   @db.VarChar(20)
 
     organization  Organization?    @relation(fields: [organizationId], references: [id])
     joinRequests  JoinRequest[]

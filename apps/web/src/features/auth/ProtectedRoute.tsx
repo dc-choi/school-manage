@@ -1,4 +1,5 @@
 import { useAuth } from './hooks/useAuth';
+import { CURRENT_PRIVACY_VERSION } from '@school/shared';
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { LoadingSpinner } from '~/components/common/LoadingSpinner';
@@ -9,7 +10,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requireOrganization = true }: ProtectedRouteProps) {
-    const { isAuthenticated, isLoading, privacyAgreedAt, organizationId } = useAuth();
+    const { isAuthenticated, isLoading, privacyAgreedAt, privacyPolicyVersion, organizationId } = useAuth();
     const location = useLocation();
 
     if (isLoading) {
@@ -20,7 +21,8 @@ export function ProtectedRoute({ children, requireOrganization = true }: Protect
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    if (!privacyAgreedAt) {
+    // 미동의 또는 구버전 동의 → 재동의 페이지로
+    if (!privacyAgreedAt || privacyPolicyVersion < CURRENT_PRIVACY_VERSION) {
         return <Navigate to="/consent" replace />;
     }
 

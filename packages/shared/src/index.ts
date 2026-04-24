@@ -14,6 +14,8 @@ export {
     MAX_GRADUATION_AGE,
     getMaxGraduationAge,
     GROUP_TYPE,
+    CURRENT_PRIVACY_VERSION,
+    PRIVACY_POLICY_CHANGELOG,
 } from './constants.js';
 export type {
     AccountInfo,

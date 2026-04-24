@@ -9,6 +9,7 @@ export interface AuthContextValue {
     isLoading: boolean;
     isAuthenticated: boolean;
     privacyAgreedAt: Date | null;
+    privacyPolicyVersion: number;
     organizationId: string | null;
     role: string | null;
     organizationName: string | null;
@@ -33,6 +34,7 @@ const clearAuthState = () => {
 export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const [account, setAccount] = useState<AccountInfo | null>(null);
     const [privacyAgreedAt, setPrivacyAgreedAt] = useState<Date | null>(null);
+    const [privacyPolicyVersion, setPrivacyPolicyVersion] = useState<number>(0);
     const [organizationId, setOrganizationId] = useState<string | null>(null);
     const [role, setRole] = useState<string | null>(null);
     const [organizationName, setOrganizationName] = useState<string | null>(null);
@@ -95,6 +97,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             if (accountData) {
                 setAccount({ id: accountData.id, name: accountData.name, displayName: accountData.displayName });
                 setPrivacyAgreedAt(accountData.privacyAgreedAt ?? null);
+                setPrivacyPolicyVersion(accountData.privacyPolicyVersion ?? 0);
                 setOrganizationId(accountData.organizationId ?? null);
                 setRole(accountData.role ?? null);
                 setOrganizationName(accountData.organizationName ?? null);
@@ -108,6 +111,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
                 clearAuthState();
                 setAccount(null);
                 setPrivacyAgreedAt(null);
+                setPrivacyPolicyVersion(0);
                 setOrganizationId(null);
                 setRole(null);
                 setOrganizationName(null);
@@ -154,6 +158,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
         queryClient.clear();
         setAccount(null);
         setPrivacyAgreedAt(null);
+        setPrivacyPolicyVersion(0);
         setOrganizationId(null);
         setRole(null);
         setOrganizationName(null);
@@ -171,6 +176,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             isLoading,
             isAuthenticated: !!account,
             privacyAgreedAt,
+            privacyPolicyVersion,
             organizationId,
             role,
             organizationName,
@@ -185,6 +191,7 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
             account,
             isLoading,
             privacyAgreedAt,
+            privacyPolicyVersion,
             organizationId,
             role,
             organizationName,

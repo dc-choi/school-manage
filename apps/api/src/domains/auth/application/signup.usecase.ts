@@ -11,6 +11,7 @@ import {
     setRefreshTokenCookie,
 } from '../utils/refresh-token.utils.js';
 import { Prisma } from '@prisma/client';
+import { CURRENT_PRIVACY_VERSION } from '@school/shared';
 import type { SignupInput, SignupOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
@@ -57,6 +58,7 @@ export class SignupUseCase {
                     password: hashedPassword,
                     createdAt: getNowKST(),
                     privacyAgreedAt: getNowKST(),
+                    privacyPolicyVersion: CURRENT_PRIVACY_VERSION,
                 },
             });
         } catch (e) {

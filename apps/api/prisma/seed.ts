@@ -12,6 +12,7 @@
  * / Student 20 / Registration 10 / Attendance 20
  */
 import { PrismaClient } from '@prisma/client';
+import { CURRENT_PRIVACY_VERSION } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import bcrypt from 'bcrypt';
 
@@ -66,6 +67,7 @@ async function main() {
             role: 'ADMIN',
             createdAt: now,
             privacyAgreedAt: now,
+            privacyPolicyVersion: CURRENT_PRIVACY_VERSION,
         },
     });
     const teacher1 = await prisma.account.create({
@@ -77,6 +79,7 @@ async function main() {
             role: 'TEACHER',
             createdAt: now,
             privacyAgreedAt: now,
+            privacyPolicyVersion: CURRENT_PRIVACY_VERSION,
         },
     });
     const elementaryAdmin = await prisma.account.create({
@@ -88,6 +91,7 @@ async function main() {
             role: 'ADMIN',
             createdAt: now,
             privacyAgreedAt: now,
+            privacyPolicyVersion: CURRENT_PRIVACY_VERSION,
         },
     });
     const heukseokTeacher = await prisma.account.create({
@@ -99,6 +103,7 @@ async function main() {
             role: 'ADMIN',
             createdAt: now,
             privacyAgreedAt: now,
+            privacyPolicyVersion: CURRENT_PRIVACY_VERSION,
         },
     });
     const bundangTeacher = await prisma.account.create({
@@ -110,6 +115,7 @@ async function main() {
             role: 'ADMIN',
             createdAt: now,
             privacyAgreedAt: now,
+            privacyPolicyVersion: CURRENT_PRIVACY_VERSION,
         },
     });
     const orphan = await prisma.account.create({
@@ -119,6 +125,7 @@ async function main() {
             password: passwordHash,
             createdAt: now,
             privacyAgreedAt: now,
+            privacyPolicyVersion: CURRENT_PRIVACY_VERSION,
         },
     });
     const pending = await prisma.account.create({
@@ -128,6 +135,7 @@ async function main() {
             password: passwordHash,
             createdAt: now,
             privacyAgreedAt: now,
+            privacyPolicyVersion: CURRENT_PRIVACY_VERSION,
         },
     });
 

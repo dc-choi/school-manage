@@ -76,6 +76,28 @@ export type GroupType = (typeof GROUP_TYPE)[keyof typeof GROUP_TYPE];
 export const PRESENT_MARKS = new Set(['◎', '○', '△']) as ReadonlySet<string>;
 
 /**
+ * 개인정보 처리방침 현재 버전
+ *
+ * 수집 항목/보유기간 등 실질적 변경이 있을 때 증가시킨다.
+ * Account.privacyPolicyVersion이 이 값보다 낮으면 소급 재동의가 필요하다.
+ *
+ * - v1: 2026-02-15 최초 (이름/세례명/성별/나이/연락처/세례일/메모/출석 기록)
+ * - v2: 2026-04-24 보호자 연락처 수집 추가 (`student-extra-fields`)
+ */
+export const CURRENT_PRIVACY_VERSION = 2;
+
+/**
+ * 개인정보 처리방침 변경 이력 — `/consent` 재동의 화면에서 노출
+ */
+export const PRIVACY_POLICY_CHANGELOG: ReadonlyArray<{ version: number; date: string; summary: string }> = [
+    {
+        version: 2,
+        date: '2026-04-24',
+        summary: '학생 보호자 연락처 수집 항목 추가',
+    },
+];
+
+/**
  * 인증된 계정 정보
  */
 export interface AccountInfo {
