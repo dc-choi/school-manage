@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-FILE=$(jq -r '.tool_input.file_path // empty')
+input=$(cat)
+FILE=$(echo "$input" | jq -r '.tool_input.file_path // empty')
 
 if [[ -z "$FILE" ]]; then
     exit 0
