@@ -283,7 +283,7 @@ const logger = {
     req(req: HttpRequest) {
         if (!filter.net) return;
 
-        const maskedBody = maskSensitiveFields(req.body);
+        const maskedBody = maskSensitiveFields(req.body ?? {});
         const message = {
             type: 'REQ',
             method: req.method,
@@ -300,7 +300,7 @@ const logger = {
         if (!filter.net) return;
 
         const timestamp = req.locals?.log?.timestamp;
-        const maskedBody = maskSensitiveFields(req.body);
+        const maskedBody = maskSensitiveFields(req.body ?? {});
         const account = context.get('account_name');
         const message = {
             // 구조화 로그 필드 (UC-4)
