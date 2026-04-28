@@ -308,6 +308,32 @@ describe('attendance 통합 테스트', () => {
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
 
+        it('TC-A-E3: data trailing 공백 → BAD_REQUEST', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.attendance.update({
+                    year: 2024,
+                    groupId: '1',
+                    attendance: [{ id: '1', month: 1, day: 7, data: '○ ' }],
+                    isFull: true,
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-A-E4: data 자유 텍스트 (마크 + 메모) → BAD_REQUEST', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.attendance.update({
+                    year: 2024,
+                    groupId: '1',
+                    attendance: [{ id: '1', month: 1, day: 7, data: '△ 결석=미 표기' }],
+                    isFull: true,
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
         it('TC-5: 학생 그룹 이동 후 과거 출석 수정 시 groupId historical 유지', async () => {
             const now = getNowKST();
             const group1 = await database.group.create({
