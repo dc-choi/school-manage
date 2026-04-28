@@ -151,6 +151,10 @@ Backend `getMonthlyAttendance`에서 마크별 분리 집계:
 - `attendance.update` (배열 원소별 검증)
 - 배열 상한(`max(500)`) 및 `attendance[].id`/`month`/`day` 제약은 기존 유지
 
+### 데이터 정리
+
+운영 DB의 기존 비정상 마크 44건(trailing 공백 37, 중복 마크 3, 공백 1자 2, 자유 텍스트 2)은 2026-04-28 1회성 마이그레이션(`apps/api/prisma/migrations/20260428_2/attendance_content_cleanup.sql`)으로 정리. 회귀 방지 통합 테스트(`TC-A-E3`/`E4`)로 trailing 공백·자유 텍스트 입력의 거부를 보장. **현행 입력 검증의 한계**: `'○○'`/`'◎◎'` 같은 동일 마크 반복은 regex/길이 제약을 통과하므로 차단되지 않음 — 후속 과제로 분리.
+
 ---
 
 ## 예외/엣지 케이스
