@@ -1,6 +1,6 @@
 ---
 paths:
-  - "docs/specs/**"
+    - 'docs/specs/**'
 ---
 
 # SDD Lifecycle Rules
@@ -15,25 +15,25 @@ paths:
 
 ### 자동 검증 (에이전트 실행)
 
-| 검증 항목   | 도구                                      | 시점            |
-|---------|-----------------------------------------|---------------|
-| 코드 스타일  | `pnpm lint:fix && pnpm prettier:fix`    | 파일 수정 시 (hook) |
-| 타입 안전성  | `pnpm typecheck`                        | 파일 수정 시 (hook) |
-| 빌드 성공   | `pnpm build`                            | 구현 완료 후       |
-| 테스트 통과  | `pnpm test`                             | 구현 완료 후       |
-| 보안 검수   | security-reviewer 서브에이전트                 | PR 생성 전       |
-| 디자인 일관성 | design-reviewer 서브에이전트                   | PR 생성 전       |
-| 성능 분석   | performance-analyzer 서브에이전트              | PR 생성 전       |
+| 검증 항목     | 도구                                 | 시점                |
+| ------------- | ------------------------------------ | ------------------- |
+| 코드 스타일   | `pnpm lint:fix && pnpm prettier:fix` | 파일 수정 시 (hook) |
+| 타입 안전성   | `pnpm typecheck`                     | 파일 수정 시 (hook) |
+| 빌드 성공     | `pnpm build`                         | 구현 완료 후        |
+| 테스트 통과   | `pnpm test`                          | 구현 완료 후        |
+| 보안 검수     | security-reviewer 서브에이전트       | PR 생성 전          |
+| 디자인 일관성 | design-reviewer 서브에이전트         | PR 생성 전          |
+| 성능 분석     | performance-analyzer 서브에이전트    | PR 생성 전          |
 
 ### CI 검증 (GitHub Actions — PR 시 자동)
 
-| 검증 항목   | 도구                                 |
-|---------|------------------------------------|
-| 코드 스타일  | `pnpm lint && pnpm prettier`       |
-| 타입 안전성  | `pnpm typecheck`                   |
-| 빌드 성공   | `pnpm build`                       |
-| 테스트 통과  | `pnpm test`                        |
-| 코드 품질   | SonarCloud Scan                    |
+| 검증 항목   | 도구                         |
+| ----------- | ---------------------------- |
+| 코드 스타일 | `pnpm lint && pnpm prettier` |
+| 타입 안전성 | `pnpm typecheck`             |
+| 빌드 성공   | `pnpm build`                 |
+| 테스트 통과 | `pnpm test`                  |
+| 코드 품질   | SonarCloud Scan              |
 
 ### 사용자 리뷰
 
@@ -45,6 +45,14 @@ paths:
 
 구현 완료 후 `target/` 내 Task/Development 문서를 **삭제**한다. 비기능적 요구사항도 동일.
 
+### TARGET 표 완료 항목 처리 (CRITICAL)
+
+`docs/specs/README.md`의 TARGET 섹션 표(FUNCTIONAL/PERFORMANCE/BUGFIX/DX)에서 **완료된 행은 표에서 완전히 제거**한다. ✅ 마크 + 비고를 표에 남기지 않는다.
+
+- 이유: 완료 항목의 SSoT는 코드베이스 + 도메인 메인 FD. 표에 누적하면 미착수 항목이 묻혀 우선순위 파악이 어려움
+- 카운트 헤더(`문서 현황 요약`)는 "+N건 완료"로만 유지
+- 카테고리별 메모(예: "모두 완료 — 코드베이스 + `rules/api.md`가 SSoT") 한 줄로 대체
+
 ### 축약 규칙
 
 개선 사항을 기존 기능 설계에 병합할 때, **구현 상세를 삭제하고 동작 명세 수준으로 축약**합니다.
@@ -55,30 +63,30 @@ paths:
 
 ### 프로젝트 현황 동기화 대상
 
-| 문서                     | 동기화 항목             |
-|------------------------|--------------------|
-| `README.md`            | 기술 스택, 구현 현황       |
-| `docs/specs/README.md` | TARGET 인덱스         |
-| `.claude/CLAUDE.md`    | 구조, 명령어            |
-| `.claude/rules/*.md`   | 패턴/정책 변경 시         |
+| 문서                   | 동기화 항목          |
+| ---------------------- | -------------------- |
+| `README.md`            | 기술 스택, 구현 현황 |
+| `docs/specs/README.md` | TARGET 인덱스        |
+| `.claude/CLAUDE.md`    | 구조, 명령어         |
+| `.claude/rules/*.md`   | 패턴/정책 변경 시    |
 
 ### 도메인별 메인 문서
 
-| 도메인   | 문서명                        |
-|-------|----------------------------|
-| 출석    | `attendance-management.md` |
-| 학생    | `student-management.md`    |
-| 그룹    | `group-management.md`      |
-| 통계    | `statistics.md`            |
+| 도메인    | 문서명                     |
+| --------- | -------------------------- |
+| 출석      | `attendance-management.md` |
+| 학생      | `student-management.md`    |
+| 그룹      | `group-management.md`      |
+| 통계      | `statistics.md`            |
 | 인증/계정 | `auth-account.md`          |
 
 ## 예외 처리
 
-| 상황      | 처리                        |
-|---------|---------------------------|
-| 소규모 변경  | Task/Development 없이 바로 구현 |
-| UI만 변경  | Frontend Development만 작성  |
-| API만 변경 | Backend Development만 작성   |
+| 상황        | 처리                            |
+| ----------- | ------------------------------- |
+| 소규모 변경 | Task/Development 없이 바로 구현 |
+| UI만 변경   | Frontend Development만 작성     |
+| API만 변경  | Backend Development만 작성      |
 
 ## 비기능적 요구사항 (Non-Functional)
 
@@ -96,19 +104,19 @@ paths:
 기능 설계 → 바로 구현 → 자동 검증 + 문서 갱신 → PR 생성
 ```
 
-| 단계 | 담당       | 설명                              |
-|----|----------|---------------------------------|
-| 1  | SDD 에이전트 | 기능 설계 작성                        |
-| 2  | SDD 에이전트 | **바로 구현** (Task/Development 생략) |
-| 3  | SDD 에이전트 | 자동 검증 + CLAUDE.md, README.md 갱신 |
-| 4  | SDD 에이전트 | PR 생성                           |
+| 단계 | 담당         | 설명                                  |
+| ---- | ------------ | ------------------------------------- |
+| 1    | SDD 에이전트 | 기능 설계 작성                        |
+| 2    | SDD 에이전트 | **바로 구현** (Task/Development 생략) |
+| 3    | SDD 에이전트 | 자동 검증 + CLAUDE.md, README.md 갱신 |
+| 4    | SDD 에이전트 | PR 생성                               |
 
 ### 문서 갱신 대상
 
-| 변경 내용    | 갱신 대상          |
-|----------|----------------|
-| API 아키텍처 | `rules/api.md` |
-| 웹 앱 구조   | `rules/web.md` |
+| 변경 내용       | 갱신 대상      |
+| --------------- | -------------- |
+| API 아키텍처    | `rules/api.md` |
+| 웹 앱 구조      | `rules/web.md` |
 | 환경변수/명령어 | `CLAUDE.md`    |
 
 ## 브레인스토밍 결과 반영 규칙

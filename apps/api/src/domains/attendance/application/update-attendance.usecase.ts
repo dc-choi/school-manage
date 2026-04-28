@@ -119,7 +119,11 @@ export class UpdateAttendanceUseCase {
     }
 
     /**
-     * 출석 데이터 업데이트 (insert or update)
+     * 출석 데이터 업데이트 (atomic upsert via Kysely + ON DUPLICATE KEY UPDATE)
+     *
+     * (student_id, date) UNIQUE 제약(20260428)에 conflict 시 단일 atomic SQL로 update.
+     * groupId는 onDuplicateKeyUpdate 절에 미포함 → 학생 그룹 이동 후에도 historical groupId 보존.
+     * Prisma upsert가 race-safe하지 않은 한계(P2002→P2025)를 Kysely 빌더로 회피.
      */
     private async updateAttendance(year: number, groupId: string, attendance: AttendanceData[]): Promise<number> {
         return await database.$transaction(async (tx) => {
@@ -127,40 +131,22 @@ export class UpdateAttendanceUseCase {
 
             for (const item of attendance) {
                 const fullTime = await getFullTime(year, item.month, item.day);
-                const existing = await tx.attendance.findFirst({
-                    where: {
-                        studentId: BigInt(item.id),
+                const now = getNowKST();
+                await tx.$kysely
+                    .insertInto('attendance')
+                    .values({
                         date: fullTime,
-                        deletedAt: null,
-                    },
-                });
-
-                if (existing === null) {
-                    await tx.attendance.create({
-                        data: {
-                            date: fullTime,
-                            content: item.data,
-                            studentId: BigInt(item.id),
-                            groupId: BigInt(groupId),
-                            createdAt: getNowKST(),
-                        },
-                    });
-                    count++;
-                } else {
-                    // 기존 데이터 수정 (groupId는 최초 기록 시점 유지)
-                    const result = await tx.attendance.updateMany({
-                        where: {
-                            date: fullTime,
-                            studentId: BigInt(item.id),
-                            deletedAt: null,
-                        },
-                        data: {
-                            content: item.data,
-                            updatedAt: getNowKST(),
-                        },
-                    });
-                    count += result.count;
-                }
+                        content: item.data,
+                        studentId: Number(item.id),
+                        groupId: Number(groupId),
+                        createAt: now,
+                    })
+                    .onDuplicateKeyUpdate({
+                        content: item.data,
+                        updateAt: now,
+                    })
+                    .execute();
+                count++;
             }
             return count;
         });

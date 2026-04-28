@@ -307,6 +307,169 @@ describe('attendance 통합 테스트', () => {
                 })
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
+
+        it('TC-5: 학생 그룹 이동 후 과거 출석 수정 시 groupId historical 유지', async () => {
+            const now = getNowKST();
+            const group1 = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const group2 = await database.group.create({
+                data: { name: '2학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group1.id, createdAt: now },
+            });
+
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            // 1학년 시점에 출석 입력
+            await caller.attendance.update({
+                year: 2024,
+                groupId: String(group1.id),
+                attendance: [{ id: String(student.id), month: 1, day: 7, data: '◎' }],
+                isFull: true,
+            });
+
+            // 학생이 2학년으로 이동
+            await database.studentGroup.deleteMany({
+                where: { studentId: student.id, groupId: group1.id },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group2.id, createdAt: now },
+            });
+
+            // 2학년 그룹 컨텍스트로 동일 셀(1/7) 수정
+            await caller.attendance.update({
+                year: 2024,
+                groupId: String(group2.id),
+                attendance: [{ id: String(student.id), month: 1, day: 7, data: '○' }],
+                isFull: true,
+            });
+
+            const dbAttendance = await database.attendance.findFirst({
+                where: { studentId: student.id, date: '20240107' },
+            });
+            expect(dbAttendance?.content).toBe('○');
+            expect(dbAttendance?.groupId).toBe(group1.id); // historical groupId 유지
+        });
+
+        it('TC-E1: 동일 (student_id, date) 동시 입력 시 row 1건으로 수렴 (race retry)', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            // 두 caller가 같은 셀에 다른 마크 동시 입력
+            const results = await Promise.allSettled([
+                caller.attendance.update({
+                    year: 2024,
+                    groupId: String(group.id),
+                    attendance: [{ id: String(student.id), month: 1, day: 7, data: '◎' }],
+                    isFull: true,
+                }),
+                caller.attendance.update({
+                    year: 2024,
+                    groupId: String(group.id),
+                    attendance: [{ id: String(student.id), month: 1, day: 7, data: '○' }],
+                    isFull: true,
+                }),
+            ]);
+
+            // 두 호출 모두 성공 (race retry로 수렴)
+            expect(results[0].status).toBe('fulfilled');
+            expect(results[1].status).toBe('fulfilled');
+
+            // 결과 row 1건 (UNIQUE 보장)
+            const rows = await database.attendance.findMany({
+                where: { studentId: student.id, date: '20240107' },
+            });
+            expect(rows.length).toBe(1);
+            expect(['◎', '○']).toContain(rows[0]?.content); // 둘 중 하나로 수렴
+        });
+
+        it('TC-E3: tx.$kysely INSERT 후 throw 시 트랜잭션 롤백 (atomic 보장)', async () => {
+            const now = getNowKST();
+            const student = await database.student.create({
+                data: { societyName: '롤백', organizationId: seed.org.id, createdAt: now },
+            });
+
+            await expect(
+                database.$transaction(async (tx) => {
+                    await tx.$kysely
+                        .insertInto('attendance')
+                        .values({
+                            date: '99991231',
+                            content: '◎',
+                            studentId: Number(student.id),
+                            groupId: 1,
+                            createAt: now,
+                        })
+                        .execute();
+                    throw new Error('intentional rollback');
+                })
+            ).rejects.toThrow('intentional rollback');
+
+            const rows = await database.attendance.findMany({
+                where: { studentId: student.id, date: '99991231' },
+            });
+            expect(rows.length).toBe(0); // 롤백 시 row 0건 — tx.$kysely가 트랜잭션 공유 증명
+        });
+
+        it('TC-E2: 출석 삭제 후 동일 셀 재입력 시 새 INSERT 성공', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            // 1) 입력
+            await caller.attendance.update({
+                year: 2024,
+                groupId: String(group.id),
+                attendance: [{ id: String(student.id), month: 1, day: 7, data: '◎' }],
+                isFull: true,
+            });
+
+            // 2) 삭제 (isFull=false → hard delete 분기)
+            await caller.attendance.update({
+                year: 2024,
+                groupId: String(group.id),
+                attendance: [{ id: String(student.id), month: 1, day: 7, data: '' }],
+                isFull: false,
+            });
+
+            // 3) 재입력 (UNIQUE 위반 없이 새 INSERT)
+            await caller.attendance.update({
+                year: 2024,
+                groupId: String(group.id),
+                attendance: [{ id: String(student.id), month: 1, day: 7, data: '△' }],
+                isFull: true,
+            });
+
+            const rows = await database.attendance.findMany({
+                where: { studentId: student.id, date: '20240107' },
+            });
+            expect(rows.length).toBe(1);
+            expect(rows[0]?.content).toBe('△');
+        });
     });
 
     describe('attendance.calendar (달력 조회)', () => {
