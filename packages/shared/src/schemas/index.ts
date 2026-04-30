@@ -64,6 +64,7 @@ export {
     bulkRegisterStudentsInputSchema,
     bulkCancelRegistrationInputSchema,
     feastDayListInputSchema,
+    checkDuplicateInputSchema,
 } from './student.js';
 export type {
     ListStudentsInput,
@@ -79,6 +80,7 @@ export type {
     BulkRegisterStudentsInput,
     BulkCancelRegistrationInput,
     FeastDayListInput,
+    CheckDuplicateInput,
 } from './student.js';
 
 // Attendance 스키마
@@ -167,6 +169,7 @@ export type {
     DeleteStudentOutput,
     PromoteStudentsOutput,
     BulkCreateStudentsOutput,
+    BulkCreateSkipped,
     BulkDeleteStudentsOutput,
     RestoreStudentsOutput,
     GraduatedStudent,
@@ -178,6 +181,9 @@ export type {
     RegistrationSummary,
     BulkRegisterStudentsOutput,
     BulkCancelRegistrationOutput,
+    ExistingStudentBrief,
+    DuplicateConflict,
+    DuplicateCheckOutput,
 } from './student.js';
 
 // Attendance 출력 타입

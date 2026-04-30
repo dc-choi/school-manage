@@ -2,11 +2,13 @@
  * Bulk Create Students UseCase
  *
  * 엑셀 Import를 통한 학생 일괄 등록 (로드맵 2단계)
+ * + 학생 등록 중복 확인 (로드맵 2단계 — 입력 내부/DB 중복 검증)
  */
-import type { BulkCreateStudentsInput, BulkCreateStudentsOutput } from '@school/shared';
-import { getNowKST } from '@school/utils';
+import type { BulkCreateSkipped, BulkCreateStudentsInput, BulkCreateStudentsOutput } from '@school/shared';
+import { getNowKST, normalizeStudentKey, studentKeyToString } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
+import { fetchCandidates, matchExistingByKey } from '~/domains/student/application/duplicate-detection.js';
 import { assertGroupIdsOwnership } from '~/global/utils/ownership.js';
 import { database } from '~/infrastructure/database/database.js';
 
@@ -15,18 +17,59 @@ export class BulkCreateStudentsUseCase {
         try {
             const totalCount = input.students.length;
 
+            // 1) 입력 정규화 키 계산
+            const inputKeys = input.students.map((s) => normalizeStudentKey(s.societyName, s.catholicName));
+
+            // 2) 입력 내부 중복 그룹 (정규화 문자열 → 인덱스 배열)
+            const groups = new Map<string, number[]>();
+            inputKeys.forEach((k, i) => {
+                const ks = studentKeyToString(k);
+                const arr = groups.get(ks) ?? [];
+                arr.push(i);
+                groups.set(ks, arr);
+            });
+
+            // 3) DB 후보 fetch (force=false 행이 한 건이라도 있을 때만)
+            const hasNonForce = input.students.some((s) => s.force !== true);
+            const candidates = hasNonForce ? await fetchCandidates(organizationId) : [];
+
+            // 4) 행 분류 — 등록 / skipped(INTERNAL_DUP) / skipped(DB_DUP)
+            const skipped: BulkCreateSkipped[] = [];
+            const registerIndices: number[] = [];
+
+            input.students.forEach((s, i) => {
+                if (s.force === true) {
+                    registerIndices.push(i);
+                    return;
+                }
+                const ks = studentKeyToString(inputKeys[i]);
+                const groupIndices = groups.get(ks) ?? [i];
+                const otherIndex = groupIndices.find((idx) => idx !== i);
+                if (otherIndex !== undefined) {
+                    skipped.push({ index: i, reason: 'INTERNAL_DUP', matchWith: { index: otherIndex } });
+                    return;
+                }
+                const existing = matchExistingByKey(candidates, inputKeys[i]);
+                if (existing) {
+                    skipped.push({ index: i, reason: 'DB_DUP', matchWith: { id: String(existing.id) } });
+                    return;
+                }
+                registerIndices.push(i);
+            });
+
             const now = getNowKST();
             const currentYear = new Date().getFullYear();
 
-            // 권한 검증: 모든 groupIds가 해당 조직 소속인지 확인
-            // (스키마 `groupIds.min(1)` 보장으로 allGroupIds는 항상 ≥1이지만, 향후 스키마 완화 대비 방어 분기 유지)
-            const allGroupIds = [...new Set(input.students.flatMap((s) => s.groupIds))];
+            // 5) 권한 검증 — 등록할 행의 그룹만
+            const allGroupIds = [...new Set(registerIndices.flatMap((i) => input.students[i].groupIds))];
             if (allGroupIds.length > 0) {
                 await assertGroupIdsOwnership(allGroupIds, organizationId);
             }
 
+            // 6) 등록 트랜잭션 (등록 대상만)
             await database.$transaction(async (tx) => {
-                for (const student of input.students) {
+                for (const i of registerIndices) {
+                    const student = input.students[i];
                     const created = await tx.student.create({
                         data: {
                             societyName: student.societyName,
@@ -81,15 +124,21 @@ export class BulkCreateStudentsUseCase {
             });
 
             return {
-                successCount: totalCount,
+                successCount: registerIndices.length,
                 totalCount,
+                skipped,
             };
         } catch (e) {
             if (e instanceof TRPCError) throw e;
-            console.error('[BulkCreateStudentsUseCase]', e);
+            console.error('[BulkCreateStudentsUseCase] failed', {
+                organizationId,
+                inputCount: input.students.length,
+                error: e,
+            });
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: '학생 일괄 등록에 실패했습니다.',
+                cause: e,
             });
         }
     }

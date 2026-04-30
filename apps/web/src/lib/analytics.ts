@@ -397,4 +397,48 @@ export const analytics = {
     trackDonationLinkClick: (location: 'donate'): void => {
         safeGtag('event', 'donation_link_click', { location });
     },
+
+    /**
+     * 학생 중복 경고 노출 이벤트 (로드맵 2단계 — 학생 등록 중복 확인)
+     * 트리거:
+     * - 단건: createMutation onError 시 CONFLICT 응답으로 다이얼로그 노출
+     * - 일괄: 미리보기 단계에서 checkDuplicate 응답에 conflicts ≥ 1 (1회)
+     */
+    trackStudentDuplicateWarningShown: (params: {
+        mode: 'single' | 'bulk';
+        internalCount: number;
+        dbCount: number;
+    }): void => {
+        safeGtag('event', 'student_duplicate_warning_shown', {
+            mode: params.mode,
+            internal_count: params.internalCount,
+            db_count: params.dbCount,
+        });
+    },
+
+    /**
+     * 학생 중복 강제 등록 이벤트 (로드맵 2단계 — 학생 등록 중복 확인)
+     * 트리거:
+     * - 단건: 다이얼로그 "그래도 등록" 클릭 시 (count=1)
+     * - 일괄: 등록 응답 후 force=true로 등록한 행 수
+     */
+    trackStudentDuplicateForced: (params: { mode: 'single' | 'bulk'; count: number }): void => {
+        safeGtag('event', 'student_duplicate_forced', {
+            mode: params.mode,
+            count: params.count,
+        });
+    },
+
+    /**
+     * 학생 중복 취소·제외 이벤트 (로드맵 2단계 — 학생 등록 중복 확인)
+     * 트리거:
+     * - 단건: 다이얼로그 "취소" 클릭 시 (count=1)
+     * - 일괄: 등록 후 충돌 행 중 force=false로 제외된 행 수
+     */
+    trackStudentDuplicateCancelled: (params: { mode: 'single' | 'bulk'; count: number }): void => {
+        safeGtag('event', 'student_duplicate_cancelled', {
+            mode: params.mode,
+            count: params.count,
+        });
+    },
 };
