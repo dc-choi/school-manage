@@ -53,6 +53,8 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
     const [duplicates, setDuplicates] = useState<Map<number, DuplicateConflict>>(() => new Map());
     /** rowIndex → 강제 등록 여부 (default false) */
     const [forceMap, setForceMap] = useState<Map<number, boolean>>(() => new Map());
+    /** 사전 중복 검증 실패 시 사용자에게 안내 (서버 bulkCreate가 최종 검증으로 대체됨을 알림) */
+    const [duplicateCheckFailed, setDuplicateCheckFailed] = useState(false);
     /** GA4 warning_shown 이벤트는 미리보기당 1회만 발화 (state로 두면 재렌더 트리거되어 fetch 2회 발생) */
     const warningTrackedRef = useRef(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -100,6 +102,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
         setParseError(null);
         setDuplicates(new Map());
         setForceMap(new Map());
+        setDuplicateCheckFailed(false);
         warningTrackedRef.current = false;
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -153,6 +156,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
 
             // 2) 서버 중복 검증 (success 행 한정). 실패해도 등록은 가능 (서버 bulkCreate가 최종 검증)
             const dupMap = new Map<number, DuplicateConflict>();
+            let checkFailed = false;
             if (successOnly.length > 0) {
                 try {
                     const { conflicts } = await utils.student.checkDuplicate.fetch({
@@ -173,13 +177,16 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                         });
                         warningTrackedRef.current = true;
                     }
-                } catch {
-                    // 중복 사전 검증 실패는 무시 — bulkCreate가 최종 검증으로 skipped 처리
+                } catch (e) {
+                    // 사전 검증 실패: 미리보기는 노출하되 사용자에게 안내 (bulkCreate가 최종 검증)
+                    console.warn('[StudentImportModal] 중복 사전 검증 실패', e);
+                    checkFailed = true;
                 }
             }
 
             // 3) 두 검증 결과를 한 번에 반영 (UX: 깜빡임 없이 미리보기 노출)
             setDuplicates(dupMap);
+            setDuplicateCheckFailed(checkFailed);
             setValidatedRows(validated);
         } catch {
             setParseError('파일을 읽을 수 없습니다. 올바른 .xlsx 파일인지, 네트워크가 정상인지 확인해 주세요.');
@@ -374,6 +381,17 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                 ) : null}
                             </p>
                         </div>
+
+                        {duplicateCheckFailed && (
+                            <div
+                                className="rounded-md border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800"
+                                role="status"
+                                aria-live="polite"
+                            >
+                                서버 중복 확인을 완료하지 못했습니다. 등록 시 자동으로 재검증되며, 이미 등록된 학생은
+                                결과 알림에 제외 명단으로 표시됩니다.
+                            </div>
+                        )}
 
                         {duplicateCount > 0 && (
                             <div

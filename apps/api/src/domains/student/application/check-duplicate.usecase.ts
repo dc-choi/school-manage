@@ -9,7 +9,11 @@
 import type { CheckDuplicateInput, DuplicateCheckOutput, DuplicateConflict } from '@school/shared';
 import { normalizeStudentKey, studentKeyToString } from '@school/utils';
 import { TRPCError } from '@trpc/server';
-import { fetchCandidates, matchExistingByKey, toBrief } from '~/domains/student/application/duplicate-detection.js';
+import {
+    fetchCandidates,
+    loadBriefsByIds,
+    matchExistingByKey,
+} from '~/domains/student/application/duplicate-detection.js';
 
 export class CheckDuplicateUseCase {
     async execute(input: CheckDuplicateInput, organizationId: string): Promise<DuplicateCheckOutput> {
@@ -25,9 +29,27 @@ export class CheckDuplicateUseCase {
                 groups.set(ks, arr);
             });
 
-            // DB 후보 fetch (organizationId + 재학생)
+            // DB 후보 fetch (가벼운 select — id/society/catholic만)
             const candidates = await fetchCandidates(organizationId);
 
+            // 1) 매칭된 후보 id 수집 (INTERNAL_DUP 우선)
+            const matchedIds: bigint[] = [];
+            const rowMatch = new Map<number, bigint>(); // rowIndex → matched candidate id
+            input.students.forEach((_, i) => {
+                const ks = studentKeyToString(inputKeys[i]);
+                const groupIndices = groups.get(ks) ?? [i];
+                if (groupIndices.some((idx) => idx !== i)) return; // INTERNAL_DUP는 brief 불필요
+                const existing = matchExistingByKey(candidates, inputKeys[i]);
+                if (existing) {
+                    rowMatch.set(i, existing.id);
+                    matchedIds.push(existing.id);
+                }
+            });
+
+            // 2) 매칭된 id들의 brief 일괄 조회 (매칭 없으면 호출 안 함)
+            const briefMap = await loadBriefsByIds(matchedIds);
+
+            // 3) conflicts 구성
             const conflicts: DuplicateConflict[] = [];
             input.students.forEach((_, i) => {
                 const ks = studentKeyToString(inputKeys[i]);
@@ -37,19 +59,25 @@ export class CheckDuplicateUseCase {
                     conflicts.push({ index: i, reason: 'INTERNAL_DUP', otherIndex });
                     return;
                 }
-                const existing = matchExistingByKey(candidates, inputKeys[i]);
-                if (existing) {
-                    conflicts.push({ index: i, reason: 'DB_DUP', existing: toBrief(existing) });
+                const matchedId = rowMatch.get(i);
+                if (matchedId !== undefined) {
+                    const brief = briefMap.get(String(matchedId));
+                    if (brief) conflicts.push({ index: i, reason: 'DB_DUP', existing: brief });
                 }
             });
 
             return { conflicts };
         } catch (e) {
             if (e instanceof TRPCError) throw e;
-            console.error('[CheckDuplicateUseCase]', e);
+            console.error('[CheckDuplicateUseCase] failed', {
+                organizationId,
+                inputCount: input.students.length,
+                error: e,
+            });
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: '중복 검사에 실패했습니다.',
+                cause: e,
             });
         }
     }

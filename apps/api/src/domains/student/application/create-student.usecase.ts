@@ -124,10 +124,16 @@ export class CreateStudentUseCase {
             };
         } catch (e) {
             if (e instanceof TRPCError) throw e;
-            console.error('[CreateStudentUseCase]', e);
+            console.error('[CreateStudentUseCase] failed', {
+                organizationId,
+                societyName: input.societyName,
+                catholicName: input.catholicName,
+                error: e,
+            });
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: '학생 등록에 실패했습니다.',
+                cause: e,
             });
         }
     }

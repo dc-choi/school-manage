@@ -201,6 +201,7 @@ model Student {
     registrations  Registration[]
 
     @@index([organizationId])
+    @@index([organizationId, deletedAt])
     @@map("student")
 }
 

@@ -130,10 +130,15 @@ export class BulkCreateStudentsUseCase {
             };
         } catch (e) {
             if (e instanceof TRPCError) throw e;
-            console.error('[BulkCreateStudentsUseCase]', e);
+            console.error('[BulkCreateStudentsUseCase] failed', {
+                organizationId,
+                inputCount: input.students.length,
+                error: e,
+            });
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: '학생 일괄 등록에 실패했습니다.',
+                cause: e,
             });
         }
     }
