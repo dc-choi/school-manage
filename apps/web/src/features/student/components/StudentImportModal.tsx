@@ -2,16 +2,21 @@
  * 학생 엑셀 Import 모달 (로드맵 2단계)
  *
  * 2단계 상태: 초기 (템플릿 다운로드 + 파일 업로드) → 미리보기 (테이블 + 등록)
+ * 검증 단계: 엑셀 파싱 + 데이터 검증 + 서버 중복 검증을 한 번에 수행 후 미리보기 노출
+ * (로드맵 2단계 — 학생 등록 중복 확인)
  */
 import type { ValidatedRow } from '../utils/excel-import';
 import { parseExcelFile, validateRows } from '../utils/excel-import';
 import { downloadExcelTemplate } from '../utils/excel-template';
+import type { DuplicateConflict } from '@school/shared';
 import { formatContact } from '@school/utils';
 import { Download, FileSpreadsheet, Loader2, Upload } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
+import { Checkbox } from '~/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -44,14 +49,40 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
     const [isDownloading, setIsDownloading] = useState(false);
     const [parseError, setParseError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    /** rowIndex → 충돌 메타 */
+    const [duplicates, setDuplicates] = useState<Map<number, DuplicateConflict>>(() => new Map());
+    /** rowIndex → 강제 등록 여부 (default false) */
+    const [forceMap, setForceMap] = useState<Map<number, boolean>>(() => new Map());
+    /** GA4 warning_shown 이벤트는 미리보기당 1회만 발화 (state로 두면 재렌더 트리거되어 fetch 2회 발생) */
+    const warningTrackedRef = useRef(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const utils = trpc.useUtils();
+    /** bulkCreate 호출 직전 보낸 학생 페이로드(이름 매핑용). onSuccess의 skipped[] 안내에 사용한다. */
+    const lastPayloadRef = useRef<{ societyName: string; catholicName?: string }[]>([]);
     const bulkCreateMutation = trpc.student.bulkCreate.useMutation({
         onSuccess: (data) => {
             utils.student.list.invalidate();
             analytics.trackStudentBulkCreated(data.successCount);
-            toast.success(`${data.successCount}명의 학생이 등록되었습니다.`);
+            const skipped = data.skipped ?? [];
+            if (skipped.length > 0) {
+                const names = skipped
+                    .map((s) => {
+                        const row = lastPayloadRef.current[s.index];
+                        if (!row) return null;
+                        return row.catholicName ? `${row.societyName}(${row.catholicName})` : row.societyName;
+                    })
+                    .filter((n): n is string => !!n);
+                const head = names.slice(0, 3).join(', ');
+                const tail = names.length > 3 ? ` 외 ${names.length - 3}명` : '';
+                toast.success(
+                    `${data.successCount}명의 학생이 등록되었습니다. (중복 제외 ${skipped.length}건${
+                        names.length > 0 ? `: ${head}${tail}` : ''
+                    })`
+                );
+            } else {
+                toast.success(`${data.successCount}명의 학생이 등록되었습니다.`);
+            }
             onImportSuccess();
             handleClose();
         },
@@ -60,11 +91,16 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
         },
     });
 
+    const successRows = useMemo(() => validatedRows?.filter((r) => r.status === 'success') ?? [], [validatedRows]);
+
     const resetState = () => {
         setFileName(null);
         setValidatedRows(null);
         setIsParsing(false);
         setParseError(null);
+        setDuplicates(new Map());
+        setForceMap(new Map());
+        warningTrackedRef.current = false;
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -102,18 +138,48 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
             if (parsed.length === 0) {
                 setParseError('데이터가 없습니다. 엑셀 파일에 학생 정보를 입력해주세요.');
                 setValidatedRows(null);
-                setIsParsing(false);
                 return;
             }
 
             if (parsed.length > 500) {
                 setParseError(`데이터가 ${parsed.length}건입니다. 500건 이하로 업로드해주세요.`);
                 setValidatedRows(null);
-                setIsParsing(false);
                 return;
             }
 
+            // 1) 엑셀 데이터 자체 검증
             const validated = validateRows(parsed, groups);
+            const successOnly = validated.filter((r) => r.status === 'success');
+
+            // 2) 서버 중복 검증 (success 행 한정). 실패해도 등록은 가능 (서버 bulkCreate가 최종 검증)
+            const dupMap = new Map<number, DuplicateConflict>();
+            if (successOnly.length > 0) {
+                try {
+                    const { conflicts } = await utils.student.checkDuplicate.fetch({
+                        students: successOnly.map((r) => ({
+                            societyName: r.societyName,
+                            catholicName: r.catholicName || undefined,
+                        })),
+                    });
+                    conflicts.forEach((c) => {
+                        const row = successOnly[c.index];
+                        if (row) dupMap.set(row.rowIndex, c);
+                    });
+                    if (conflicts.length > 0 && !warningTrackedRef.current) {
+                        analytics.trackStudentDuplicateWarningShown({
+                            mode: 'bulk',
+                            internalCount: conflicts.filter((c) => c.reason === 'INTERNAL_DUP').length,
+                            dbCount: conflicts.filter((c) => c.reason === 'DB_DUP').length,
+                        });
+                        warningTrackedRef.current = true;
+                    }
+                } catch {
+                    // 중복 사전 검증 실패는 무시 — bulkCreate가 최종 검증으로 skipped 처리
+                }
+            }
+
+            // 3) 두 검증 결과를 한 번에 반영 (UX: 깜빡임 없이 미리보기 노출)
+            setDuplicates(dupMap);
             setValidatedRows(validated);
         } catch {
             setParseError('파일을 읽을 수 없습니다. 올바른 .xlsx 파일인지, 네트워크가 정상인지 확인해 주세요.');
@@ -135,14 +201,37 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
         if (file) await processFile(file);
     };
 
+    const setForceForRow = (rowIndex: number, force: boolean) => {
+        setForceMap((prev) => {
+            const next = new Map(prev);
+            next.set(rowIndex, force);
+            return next;
+        });
+    };
+
+    const setForceForAllConflicts = (force: boolean) => {
+        setForceMap((prev) => {
+            const next = new Map(prev);
+            duplicates.forEach((_, rowIndex) => next.set(rowIndex, force));
+            return next;
+        });
+    };
+
     const handleRegister = async () => {
         if (!validatedRows) return;
-
-        const successRows = validatedRows.filter((r) => r.status === 'success');
         if (successRows.length === 0) return;
 
-        await bulkCreateMutation.mutateAsync({
-            students: successRows.map((row) => ({
+        let forcedCount = 0;
+        let cancelledCount = 0;
+
+        const studentsPayload = successRows.map((row) => {
+            const dup = duplicates.get(row.rowIndex);
+            const force = dup ? forceMap.get(row.rowIndex) === true : false;
+            if (dup) {
+                if (force) forcedCount++;
+                else cancelledCount++;
+            }
+            return {
                 societyName: row.societyName,
                 catholicName: row.catholicName || undefined,
                 gender: row.normalizedGender ?? undefined,
@@ -153,13 +242,38 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                 description: row.description || undefined,
                 groupIds: [row.groupId!],
                 registered: row.normalizedRegistered || undefined,
-            })),
+                force: force || undefined,
+            };
         });
+
+        if (forcedCount > 0) {
+            analytics.trackStudentDuplicateForced({ mode: 'bulk', count: forcedCount });
+        }
+        if (cancelledCount > 0) {
+            analytics.trackStudentDuplicateCancelled({ mode: 'bulk', count: cancelledCount });
+        }
+
+        // 응답 skipped[] 안내(toast)에서 학생 이름 매핑용 — 보낸 순서 그대로 보존
+        lastPayloadRef.current = studentsPayload.map((s) => ({
+            societyName: s.societyName,
+            catholicName: s.catholicName,
+        }));
+
+        await bulkCreateMutation.mutateAsync({ students: studentsPayload });
     };
 
-    const successCount = validatedRows?.filter((r) => r.status === 'success').length ?? 0;
+    const successCount = successRows.length;
     const errorCount = validatedRows?.filter((r) => r.status === 'error').length ?? 0;
     const totalCount = validatedRows?.length ?? 0;
+    const duplicateCount = duplicates.size;
+    const internalDupCount = Array.from(duplicates.values()).filter((c) => c.reason === 'INTERNAL_DUP').length;
+    const dbDupCount = duplicateCount - internalDupCount;
+    const cleanCount = successCount - duplicateCount;
+    const forcedConflictCount = successRows.reduce(
+        (acc, r) => acc + (duplicates.has(r.rowIndex) && forceMap.get(r.rowIndex) === true ? 1 : 0),
+        0
+    );
+    const willRegisterCount = cleanCount + forcedConflictCount;
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
@@ -169,6 +283,8 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                     <DialogDescription>
                         양식을 다운로드한 후 학생 정보를 입력하고 업로드하세요.
                         <br />첫 번째 행(헤더)을 수정하면 오류가 발생할 수 있습니다. 헤더 아래부터 입력해 주세요.
+                        <br />
+                        이름·세례명이 같은 학생이 이미 등록되어 있으면 미리보기 단계에서 경고가 표시됩니다.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -218,7 +334,12 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                 <br />
                                 헤더를 변경한 파일은 정상적으로 인식되지 않을 수 있습니다.
                             </p>
-                            {isParsing ? <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /> : null}
+                            {isParsing ? (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                                    <span>검증 중…</span>
+                                </div>
+                            ) : null}
                             <input
                                 ref={fileInputRef}
                                 type="file"
@@ -240,14 +361,50 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                 ) : (
                     /* 미리보기 상태: 테이블 + 검증 결과 + 등록 */
                     <div className="space-y-4 py-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                             <p className="text-sm text-muted-foreground">파일: {fileName}</p>
                             <p className="text-sm" aria-live="polite">
                                 전체 <span className="font-medium">{totalCount}</span>건 중{' '}
-                                <span className="font-medium text-green-600">{successCount}</span>건 성공,{' '}
-                                <span className="font-medium text-red-600">{errorCount}</span>건 실패
+                                <span className="font-medium text-green-600">{cleanCount}</span>건 정상,{' '}
+                                <span className="font-medium text-red-600">{errorCount}</span>건 오류
+                                {duplicateCount > 0 ? (
+                                    <>
+                                        , <span className="font-medium text-yellow-700">{duplicateCount}</span>건 중복
+                                    </>
+                                ) : null}
                             </p>
                         </div>
+
+                        {duplicateCount > 0 && (
+                            <div
+                                className="flex flex-col gap-2 rounded-md border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800 sm:flex-row sm:items-center sm:justify-between"
+                                role="status"
+                                aria-live="polite"
+                            >
+                                <p>
+                                    중복 {duplicateCount}건 발견 (내부 {internalDupCount}건 / 기존 {dbDupCount}건).
+                                    행마다 강제 등록 여부를 선택하거나 아래 버튼으로 일괄 처리할 수 있습니다.
+                                </p>
+                                <div className="flex gap-2">
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setForceForAllConflicts(true)}
+                                    >
+                                        모두 강제 등록
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setForceForAllConflicts(false)}
+                                    >
+                                        모두 제외
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
 
                         {errorCount > 0 && (
                             <div className="max-h-40 overflow-y-auto rounded-md border border-red-200 bg-red-50 p-3">
@@ -274,7 +431,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-12">행</TableHead>
-                                        <TableHead className="w-12">상태</TableHead>
+                                        <TableHead className="w-20">상태</TableHead>
                                         <TableHead className="whitespace-nowrap">학년</TableHead>
                                         <TableHead className="whitespace-nowrap">이름</TableHead>
                                         <TableHead className="whitespace-nowrap">세례명</TableHead>
@@ -288,39 +445,74 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {validatedRows.map((row) => (
-                                        <TableRow
-                                            key={row.rowIndex}
-                                            className={row.status === 'error' ? 'bg-red-50' : ''}
-                                        >
-                                            <TableCell className="tabular-nums">{row.rowIndex}</TableCell>
-                                            <TableCell>
-                                                {row.status === 'success' ? (
-                                                    <span className="text-green-600">성공</span>
-                                                ) : (
-                                                    <span className="text-red-600">실패</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>{row.groupName || '-'}</TableCell>
-                                            <TableCell>{row.societyName || '-'}</TableCell>
-                                            <TableCell>{row.catholicName || '-'}</TableCell>
-                                            <TableCell>
-                                                {row.normalizedGender === 'M'
-                                                    ? '남'
-                                                    : row.normalizedGender === 'F'
-                                                      ? '여'
-                                                      : row.gender || '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                {row.normalizedContact ? formatContact(row.normalizedContact) : '-'}
-                                            </TableCell>
-                                            <TableCell>{row.normalizedParentContact ?? '-'}</TableCell>
-                                            <TableCell>{row.baptizedAt || '-'}</TableCell>
-                                            <TableCell>{row.age || '-'}</TableCell>
-                                            <TableCell>{row.description || '-'}</TableCell>
-                                            <TableCell>{row.normalizedRegistered ? 'O' : 'X'}</TableCell>
-                                        </TableRow>
-                                    ))}
+                                    {validatedRows.map((row) => {
+                                        const dup = duplicates.get(row.rowIndex);
+                                        const isError = row.status === 'error';
+                                        const rowClass = isError ? 'bg-red-50' : dup ? 'bg-yellow-50' : '';
+                                        return (
+                                            <TableRow key={row.rowIndex} className={rowClass}>
+                                                <TableCell className="tabular-nums">{row.rowIndex}</TableCell>
+                                                <TableCell>
+                                                    {isError ? (
+                                                        <span className="text-red-600">실패</span>
+                                                    ) : dup ? (
+                                                        <div className="flex flex-col gap-1">
+                                                            <Badge
+                                                                variant="outline"
+                                                                className="whitespace-normal border-yellow-300 text-yellow-800"
+                                                            >
+                                                                {dup.reason === 'INTERNAL_DUP'
+                                                                    ? `내부 중복: ${
+                                                                          dup.otherIndex !== undefined
+                                                                              ? `${
+                                                                                    successRows[dup.otherIndex]
+                                                                                        ?.rowIndex ?? '?'
+                                                                                }행과 동일`
+                                                                              : '동일 학생'
+                                                                      }`
+                                                                    : dup.existing
+                                                                      ? `이미 등록됨: ${dup.existing.societyName}${
+                                                                            dup.existing.catholicName
+                                                                                ? `(${dup.existing.catholicName})`
+                                                                                : ''
+                                                                        }`
+                                                                      : '이미 등록됨'}
+                                                            </Badge>
+                                                            <label className="flex items-center gap-1 text-xs text-yellow-800">
+                                                                <Checkbox
+                                                                    checked={forceMap.get(row.rowIndex) === true}
+                                                                    onCheckedChange={(checked) =>
+                                                                        setForceForRow(row.rowIndex, checked === true)
+                                                                    }
+                                                                />
+                                                                강제 등록
+                                                            </label>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-green-600">성공</span>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>{row.groupName || '-'}</TableCell>
+                                                <TableCell>{row.societyName || '-'}</TableCell>
+                                                <TableCell>{row.catholicName || '-'}</TableCell>
+                                                <TableCell>
+                                                    {row.normalizedGender === 'M'
+                                                        ? '남'
+                                                        : row.normalizedGender === 'F'
+                                                          ? '여'
+                                                          : row.gender || '-'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {row.normalizedContact ? formatContact(row.normalizedContact) : '-'}
+                                                </TableCell>
+                                                <TableCell>{row.normalizedParentContact ?? '-'}</TableCell>
+                                                <TableCell>{row.baptizedAt || '-'}</TableCell>
+                                                <TableCell>{row.age || '-'}</TableCell>
+                                                <TableCell>{row.description || '-'}</TableCell>
+                                                <TableCell>{row.normalizedRegistered ? 'O' : 'X'}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
                                 </TableBody>
                             </UITable>
                         </div>
@@ -334,7 +526,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                             </Button>
                             <Button
                                 onClick={handleRegister}
-                                disabled={successCount === 0 || bulkCreateMutation.isPending}
+                                disabled={willRegisterCount === 0 || bulkCreateMutation.isPending}
                             >
                                 {bulkCreateMutation.isPending ? (
                                     <>
@@ -342,7 +534,7 @@ export function StudentImportModal({ open, onOpenChange, groups, onImportSuccess
                                         등록 중…
                                     </>
                                 ) : (
-                                    `${successCount}명 등록`
+                                    `${willRegisterCount}명 등록`
                                 )}
                             </Button>
                         </DialogFooter>
