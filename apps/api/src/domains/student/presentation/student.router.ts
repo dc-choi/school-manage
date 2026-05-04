@@ -8,6 +8,7 @@ import { BulkCreateStudentsUseCase } from '../application/bulk-create-students.u
 import { BulkDeleteStudentsUseCase } from '../application/bulk-delete-students.usecase.ts';
 import { BulkRegisterStudentsUseCase } from '../application/bulk-register-students.usecase.ts';
 import { CancelGraduationUseCase } from '../application/cancel-graduation.usecase.ts';
+import { CheckDuplicateUseCase } from '../application/check-duplicate.usecase.ts';
 import { CreateStudentUseCase } from '../application/create-student.usecase.ts';
 import { DeleteStudentUseCase } from '../application/delete-student.usecase.ts';
 import { GetFeastDayListUseCase } from '../application/get-feast-day-list.usecase.ts';
@@ -23,6 +24,7 @@ import {
     bulkDeleteStudentsInputSchema,
     bulkRegisterStudentsInputSchema,
     cancelGraduationInputSchema,
+    checkDuplicateInputSchema,
     createStudentInputSchema,
     deleteStudentInputSchema,
     feastDayListInputSchema,
@@ -168,6 +170,17 @@ export const studentRouter = router({
             const usecase = new BulkCancelRegistrationUseCase();
             return usecase.execute(input, ctx.organization.id);
         }),
+
+    /**
+     * 학생 등록 중복 사전 검사 (로드맵 2단계 — 학생 등록 중복 확인)
+     * GET /api/student/check-duplicate -> trpc.student.checkDuplicate
+     *
+     * 엑셀 Import 미리보기에서 입력 행들의 내부 중복 + DB 중복을 사전 검출.
+     */
+    checkDuplicate: scopedProcedure.input(checkDuplicateInputSchema).query(async ({ input, ctx }) => {
+        const usecase = new CheckDuplicateUseCase();
+        return usecase.execute(input, ctx.organization.id);
+    }),
 
     /**
      * TODO: 학생 데이터 이관 (추후 구현 예정)

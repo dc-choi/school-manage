@@ -52,6 +52,8 @@ export const createStudentInputSchema = z.object({
         .string()
         .regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/, '축일은 MM/DD 형식으로 입력해주세요.')
         .optional(),
+    /** true면 동일 이름·세례명 중복 검증을 생략하고 강제 등록한다 (로드맵 2단계 — 학생 등록 중복 확인) */
+    force: z.boolean().optional(),
 });
 
 /**
@@ -151,6 +153,8 @@ export const bulkCreateStudentItemSchema = z.object({
         .optional(),
     groupIds: z.array(idSchema).min(1, '최소 1개 그룹이 필요합니다').max(10, '한 학생당 그룹은 최대 10개까지입니다'),
     registered: z.boolean().optional(),
+    /** true면 해당 행의 중복 검증을 생략한다 (로드맵 2단계 — 학생 등록 중복 확인) */
+    force: z.boolean().optional(),
 });
 
 /**
@@ -180,6 +184,23 @@ export const bulkCancelRegistrationInputSchema = z.object({
 });
 
 /**
+ * 학생 중복 사전 검증 입력 스키마 (로드맵 2단계 — 학생 등록 중복 확인)
+ *
+ * 엑셀 Import 미리보기 단계에서 입력 행들의 내부 중복 + DB 중복을 사전 점검한다.
+ */
+export const checkDuplicateInputSchema = z.object({
+    students: z
+        .array(
+            z.object({
+                societyName: z.string().min(1, '이름은 필수입니다').max(50, '이름은 50자 이하여야 합니다'),
+                catholicName: z.string().max(50, '세례명은 50자 이하여야 합니다').optional(),
+            })
+        )
+        .min(1, '최소 1명의 학생이 필요합니다')
+        .max(500, '최대 500명까지 검사 가능합니다'),
+});
+
+/**
  * 축일자 목록 조회 입력 스키마
  */
 export const feastDayListInputSchema = z.object({
@@ -201,6 +222,7 @@ export type CancelGraduationInput = z.infer<typeof cancelGraduationInputSchema>;
 export type BulkRegisterStudentsInput = z.infer<typeof bulkRegisterStudentsInputSchema>;
 export type BulkCancelRegistrationInput = z.infer<typeof bulkCancelRegistrationInputSchema>;
 export type FeastDayListInput = z.infer<typeof feastDayListInputSchema>;
+export type CheckDuplicateInput = z.infer<typeof checkDuplicateInputSchema>;
 
 // ============================================================
 // 출력 타입 (Output Types)
@@ -279,11 +301,25 @@ export interface CreateStudentOutput extends StudentBase {
 }
 
 /**
+ * 일괄 등록에서 중복으로 건너뛴 행 정보 (로드맵 2단계 — 학생 등록 중복 확인)
+ */
+export interface BulkCreateSkipped {
+    /** 입력 배열 내 행 인덱스 */
+    index: number;
+    /** 충돌 사유 — 입력 내부 중복(INTERNAL_DUP) 또는 DB 기존 학생 충돌(DB_DUP) */
+    reason: 'INTERNAL_DUP' | 'DB_DUP';
+    /** 충돌 상대 메타: 입력 내부면 otherIndex, DB면 existingId */
+    matchWith?: { id?: string; index?: number };
+}
+
+/**
  * 학생 일괄 등록 응답 (로드맵 2단계 — 엑셀 Import)
  */
 export interface BulkCreateStudentsOutput {
     successCount: number;
     totalCount: number;
+    /** force=false 행 중 중복으로 건너뛴 행 (로드맵 2단계 — 학생 등록 중복 확인) */
+    skipped: BulkCreateSkipped[];
 }
 
 /**
@@ -373,4 +409,38 @@ export interface BulkRegisterStudentsOutput {
  */
 export interface BulkCancelRegistrationOutput {
     cancelledCount: number;
+}
+
+/**
+ * 중복 검사로 발견된 충돌 학생 메타 (로드맵 2단계 — 학생 등록 중복 확인)
+ */
+export interface ExistingStudentBrief {
+    id: string;
+    societyName: string;
+    catholicName?: string;
+    /** 학생이 속한 그룹 이름들 (학년 + 부서 모두) */
+    groupNames: string[];
+    /** 학생 등록일 ISO 문자열 */
+    createdAt: string;
+}
+
+/**
+ * 중복 검사 충돌 항목 (로드맵 2단계 — 학생 등록 중복 확인)
+ */
+export interface DuplicateConflict {
+    /** 입력 배열 내 행 인덱스 */
+    index: number;
+    /** INTERNAL_DUP: 입력 배열 내부 중복 / DB_DUP: DB 기존 학생과 중복 */
+    reason: 'INTERNAL_DUP' | 'DB_DUP';
+    /** DB_DUP일 때 채워진다 */
+    existing?: ExistingStudentBrief;
+    /** INTERNAL_DUP일 때 매칭된 다른 입력 행 인덱스 */
+    otherIndex?: number;
+}
+
+/**
+ * 중복 사전 검사 응답 (로드맵 2단계 — 학생 등록 중복 확인)
+ */
+export interface DuplicateCheckOutput {
+    conflicts: DuplicateConflict[];
 }

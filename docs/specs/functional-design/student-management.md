@@ -176,10 +176,11 @@
 
 > 엑셀 Import 상세 → `student-management-import.md` 참조
 > 학생 등록 관리 상세 → `student-management-registration.md` 참조
+> 등록 중복 확인(로드맵 2단계) → `student-management-duplicate.md` 참조
 
 ---
 
 **작성일**: 2026-01-13
-**수정일**: 2026-04-24 (단건 입력 검증 강화 BUGFIX 병합)
+**수정일**: 2026-04-30 (학생 등록 중복 확인 병합)
 **작성자**: PM 에이전트 / SDD 작성자
 **상태**: Approved (구현 완료)

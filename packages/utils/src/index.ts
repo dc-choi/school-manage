@@ -36,3 +36,7 @@ export { roundToDecimal, calculateRate } from './math.js';
 // Liturgical utilities
 export { adjustForSaturday, getLiturgicalSeason } from './liturgical.js';
 export type { LiturgicalSeasonInfo } from './liturgical.js';
+
+// Student key utilities
+export { normalizeStudentKey, studentKeyEquals, studentKeyToString } from './student-key.js';
+export type { StudentKey } from './student-key.js';

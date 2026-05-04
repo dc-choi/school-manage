@@ -4,15 +4,29 @@
  * 새 학생 생성
  */
 import type { CreateStudentInput, CreateStudentOutput, Gender } from '@school/shared';
-import { getNowKST } from '@school/utils';
+import { getNowKST, normalizeStudentKey } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createStudentSnapshot } from '~/domains/snapshot/snapshot.helper.js';
+import { findDuplicateInOrganization } from '~/domains/student/application/duplicate-detection.js';
 import { assertGroupIdsOwnership } from '~/global/utils/ownership.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class CreateStudentUseCase {
     async execute(input: CreateStudentInput, organizationId: string): Promise<CreateStudentOutput> {
         try {
+            // 중복 검증 (force=true이면 생략) — 로드맵 2단계 학생 등록 중복 확인
+            if (input.force !== true) {
+                const inputKey = normalizeStudentKey(input.societyName, input.catholicName);
+                const existing = await findDuplicateInOrganization(organizationId, inputKey);
+                if (existing) {
+                    throw new TRPCError({
+                        code: 'CONFLICT',
+                        message: '이미 등록된 학생입니다.',
+                        cause: { duplicate: { existing } },
+                    });
+                }
+            }
+
             // 측정 인프라: 조직의 첫 학생인지 확인
             const existingStudentCount = await database.student.count({
                 where: {
@@ -110,10 +124,16 @@ export class CreateStudentUseCase {
             };
         } catch (e) {
             if (e instanceof TRPCError) throw e;
-            console.error('[CreateStudentUseCase]', e);
+            console.error('[CreateStudentUseCase] failed', {
+                organizationId,
+                societyName: input.societyName,
+                catholicName: input.catholicName,
+                error: e,
+            });
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: '학생 등록에 실패했습니다.',
+                cause: e,
             });
         }
     }
