@@ -25,7 +25,7 @@ module.exports = defineConfig([
                     'apps/web/tsconfig.json',
                     'packages/shared/tsconfig.json',
                     'packages/trpc/tsconfig.json',
-                    'packages/utils/tsconfig.json',
+                    'packages/utils/tsconfig.eslint.json',
                 ],
                 tsconfigRootDir: __dirname,
             },

@@ -37,7 +37,7 @@ export class UpdateStudentUseCase {
                 if (input.catholicName !== undefined) data.catholicName = input.catholicName;
                 if (input.gender !== undefined) data.gender = input.gender;
                 if (input.age !== undefined) data.age = input.age ? BigInt(input.age) : null;
-                if (input.contact !== undefined) data.contact = input.contact ? BigInt(input.contact) : null;
+                if (input.contact !== undefined) data.contact = input.contact?.trim() ? input.contact.trim() : null;
                 if (input.parentContact !== undefined)
                     data.parentContact = input.parentContact?.trim() ? input.parentContact.trim() : null;
                 if (input.description !== undefined) data.description = input.description;
@@ -93,7 +93,7 @@ export class UpdateStudentUseCase {
                 catholicName: student.catholicName ?? undefined,
                 gender: (student.gender ?? undefined) as Gender | undefined,
                 age: student.age != null ? Number(student.age) : undefined,
-                contact: student.contact != null ? String(student.contact) : undefined,
+                contact: student.contact ?? undefined,
                 parentContact: student.parentContact ?? undefined,
                 description: student.description ?? undefined,
                 groups: studentGroups.map((sg) => ({

@@ -34,11 +34,13 @@ export const createStudentInputSchema = z.object({
     catholicName: z.string().max(50, '세례명은 50자 이하여야 합니다').optional(),
     gender: z.enum([GENDER.MALE, GENDER.FEMALE]).optional(),
     age: z.number().int().positive().optional(),
+    // contact: 디지트만 허용 (E.164 최대 15자). DB는 VarChar(20) — 미래 포맷 여유 마진.
     contact: z
         .string()
         .regex(/^\d+$/, '전화번호는 숫자만 입력해주세요')
         .max(15, '전화번호는 15자 이하여야 합니다')
         .optional(),
+    // parentContact: 사용자 입력 원본 보존(하이픈/괄호/공백 포함). DB VarChar(20)이 곧 입력 상한.
     parentContact: z
         .string()
         .regex(/^[\d\-() ]*$/, '부모님 연락처는 숫자·하이픈·괄호·공백만 입력해주세요')

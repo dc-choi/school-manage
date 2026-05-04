@@ -33,7 +33,7 @@ export class BulkCreateStudentsUseCase {
                             catholicName: student.catholicName,
                             gender: student.gender,
                             age: student.age ? BigInt(student.age) : null,
-                            contact: student.contact ? BigInt(student.contact) : null,
+                            contact: student.contact?.trim() ? student.contact.trim() : null,
                             parentContact: student.parentContact?.trim() ? student.parentContact.trim() : null,
                             description: student.description,
                             organizationId: BigInt(organizationId),

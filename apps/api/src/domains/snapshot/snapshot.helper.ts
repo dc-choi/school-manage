@@ -13,7 +13,7 @@ interface CreateStudentSnapshotInput {
     societyName: string;
     catholicName: string | null;
     gender: string | null;
-    contact: bigint | null;
+    contact: string | null;
     parentContact: string | null;
     description: string | null;
     baptizedAt: string | null;
@@ -109,7 +109,7 @@ interface StudentSnapshotData {
     societyName: string;
     catholicName: string | null;
     gender: string | null;
-    contact: bigint | null;
+    contact: string | null;
     parentContact: string | null;
     description: string | null;
     baptizedAt: string | null;
