@@ -1,4 +1,5 @@
 import { GROUP_TYPE, type GroupType } from '@school/shared';
+import { formatContact } from '@school/utils';
 import { Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -26,12 +27,6 @@ import { useGroups } from '~/features/group';
 import { useCheckboxSelection } from '~/features/student';
 import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
-
-function formatPhoneNumber(contact: string | undefined): string {
-    if (!contact) return '-';
-    const str = String(contact).padStart(11, '0');
-    return `${str.slice(0, 3)}-${str.slice(3, 7)}-${str.slice(7)}`;
-}
 
 const TYPE_LABEL: Record<string, string> = {
     [GROUP_TYPE.GRADE]: '학년',
@@ -188,7 +183,7 @@ export function GroupDetailPage() {
         {
             key: 'contact',
             header: '연락처',
-            render: (row: StudentRow) => formatPhoneNumber(row.contact),
+            render: (row: StudentRow) => formatContact(row.contact),
         },
     ];
 

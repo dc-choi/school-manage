@@ -184,7 +184,9 @@ model Student {
     catholicName   String?   @map("catholic_name") @db.VarChar(50)
     gender         String?   @db.VarChar(10)
     age            BigInt?
-    contact        BigInt?
+    // contact: 학생 본인 연락처. 디지트만(Zod regex `^\d+$`, max 15). VarChar(20)은 E.164 15자 + 미래 포맷 여유.
+    contact        String?   @db.VarChar(20)
+    // parentContact: 부모 연락처. 하이픈/괄호/공백 허용 원본 보존(Zod max 20). VarChar(20)이 곧 입력 상한.
     parentContact  String?   @map("parent_contact") @db.VarChar(20)
     description    String?   @db.Text
     baptizedAt     String?   @map("baptized_at") @db.VarChar(10)
@@ -247,7 +249,8 @@ model StudentSnapshot {
     societyName    String   @map("society_name") @db.VarChar(50)
     catholicName   String?  @map("catholic_name") @db.VarChar(50)
     gender         String?  @db.VarChar(10)
-    contact        BigInt?
+    // Student.contact / parentContact 동일 정책 (이력 일관성)
+    contact        String?  @db.VarChar(20)
     parentContact  String?  @map("parent_contact") @db.VarChar(20)
     description    String?  @db.Text
     baptizedAt     String?  @map("baptized_at") @db.VarChar(10)

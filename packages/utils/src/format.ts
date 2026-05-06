@@ -1,17 +1,29 @@
 /**
- * 연락처를 포맷팅하여 반환 (010-XXXX-XXXX 형식)
- * 숫자로 저장되면서 앞의 0이 사라진 경우를 처리 (1012341234 → 010-1234-1234)
+ * 연락처를 포맷팅하여 반환.
  *
- * @param contact 연락처 문자열 (e.g., "1012345678" 또는 undefined)
- * @returns 포맷팅된 연락처 문자열
+ * - 11자리: 3-4-4 분리 (휴대폰)
+ * - 10자리: 3-3-4 분리 (지역번호 — 서울 02 8자리 본번 등)
+ * - 8~9자리, 12~15자리: **디지트 그대로 출력** (해외번호·구 번호·비정상 데이터 — 분리 정책 미정의)
+ * - null/undefined/빈 디지트: `-`
+ *
+ * 정책 의도:
+ * - DB(`Student.contact: VARCHAR(20)`)가 사용자 원본 디지트를 보존하므로 padStart 보정 불필요 (2026-04 BigInt → String 이관).
+ * - 비표준 길이는 임의 분리하지 않고 raw 디지트로 노출하여 운영자가 이상 데이터를 인지할 수 있게 한다 (silent format 방지).
+ * - 비숫자 입력은 `replace(/\D/g, '')`로 제거되므로 XSS 표면 0.
+ *
+ * @param contact 연락처 디지트 문자열 (예: "01012345678") 또는 null/undefined
  */
 export const formatContact = (contact?: string | null): string => {
     if (!contact) return '-';
     const digits = contact.replace(/\D/g, '');
     if (!digits) return '-';
-    // 숫자로 저장되면서 앞의 0이 사라진 경우 (1012341234 → 01012341234)
-    const str = digits.padStart(11, '0');
-    return `${str.slice(0, 3)}-${str.slice(3, 7)}-${str.slice(7)}`;
+    if (digits.length === 11) {
+        return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+    }
+    if (digits.length === 10) {
+        return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    return digits;
 };
 
 /**
