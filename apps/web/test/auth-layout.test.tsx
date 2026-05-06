@@ -5,7 +5,9 @@
  * (배경: docs/specs/functional-design/auth-layout-cls.md)
  */
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
+import { AuthLayout } from '~/components/layout/AuthLayout';
 
 vi.mock('~/lib/trpc', () => ({
     trpc: {
@@ -21,15 +23,18 @@ vi.mock('~/lib/trpc', () => ({
     },
 }));
 
-import { AuthLayout } from '~/components/layout/AuthLayout';
-
-describe('AuthLayout 히어로 이미지', () => {
-    it('width/height 속성이 명시되어 있다 (CLS 방지)', () => {
-        render(
+const renderAuthLayout = () =>
+    render(
+        <MemoryRouter>
             <AuthLayout>
                 <div>child</div>
             </AuthLayout>
-        );
+        </MemoryRouter>
+    );
+
+describe('AuthLayout 히어로 이미지', () => {
+    it('width/height 속성이 명시되어 있다 (CLS 방지)', () => {
+        renderAuthLayout();
 
         const img = screen.getByAltText('출석부 대시보드 화면') as HTMLImageElement;
         expect(img.getAttribute('width')).toBe('1440');
@@ -37,33 +42,21 @@ describe('AuthLayout 히어로 이미지', () => {
     });
 
     it('decoding="async" 속성이 명시되어 있다 (메인 스레드 차단 최소화)', () => {
-        render(
-            <AuthLayout>
-                <div>child</div>
-            </AuthLayout>
-        );
+        renderAuthLayout();
 
         const img = screen.getByAltText('출석부 대시보드 화면') as HTMLImageElement;
         expect(img.getAttribute('decoding')).toBe('async');
     });
 
     it('대시보드 스크린샷 경로를 src로 사용한다', () => {
-        render(
-            <AuthLayout>
-                <div>child</div>
-            </AuthLayout>
-        );
+        renderAuthLayout();
 
         const img = screen.getByAltText('출석부 대시보드 화면') as HTMLImageElement;
         expect(img.getAttribute('src')).toBe('/images/screenshot-dashboard.png');
     });
 
     it('loading 속성을 설정하지 않는다 (above-the-fold 히어로)', () => {
-        render(
-            <AuthLayout>
-                <div>child</div>
-            </AuthLayout>
-        );
+        renderAuthLayout();
 
         const img = screen.getByAltText('출석부 대시보드 화면') as HTMLImageElement;
         expect(img.getAttribute('loading')).toBeNull();
