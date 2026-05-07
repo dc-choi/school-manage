@@ -24,8 +24,16 @@ export interface OrgAccountRow {
     accountNames: string | null;
 }
 
+/** 사회적 증거 카운트 (랜딩 `trpc.account.count`와 동일 정의) */
+export interface OrgSocialProof {
+    churchCount: number;
+    accountCount: number;
+    studentCount: number;
+}
+
 /** 보고서 결과 */
 export interface OrgDailyReportResult {
     activityRows: OrgActivityRow[];
     accountRows: OrgAccountRow[];
+    socialProof: OrgSocialProof;
 }

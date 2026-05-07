@@ -24,7 +24,6 @@ export const truncateAll = async () => {
     await database.accountSnapshot.deleteMany();
     await database.registration.deleteMany();
     await database.studentGroup.deleteMany();
-    await database.churnAlertLog.deleteMany();
     await database.joinRequest.deleteMany();
     await database.refreshToken.deleteMany();
     await database.student.deleteMany();
