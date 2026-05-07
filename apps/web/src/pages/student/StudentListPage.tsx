@@ -142,22 +142,30 @@ export function StudentListPage() {
         {
             key: 'groups',
             header: '학년&부서',
+            className: 'hidden md:table-cell',
             render: (row: (typeof students)[0]) =>
                 row.groups?.length ? row.groups.map((g) => g.name).join(', ') : '-',
         },
         {
             key: 'gender',
             header: '성별',
+            className: 'hidden md:table-cell',
             render: (row: (typeof students)[0]) => {
                 if (row.gender === 'M') return '남';
                 if (row.gender === 'F') return '여';
                 return '-';
             },
         },
-        { key: 'age', header: '나이', render: (row: (typeof students)[0]) => row.age ?? '-' },
+        {
+            key: 'age',
+            header: '나이',
+            className: 'hidden md:table-cell',
+            render: (row: (typeof students)[0]) => row.age ?? '-',
+        },
         {
             key: 'isRegistered',
             header: '등록',
+            className: 'hidden md:table-cell',
             render: (row: (typeof students)[0]) =>
                 row.isRegistered ? (
                     <span className="font-medium text-green-600">등록</span>
@@ -165,8 +173,18 @@ export function StudentListPage() {
                     <span className="text-muted-foreground">미등록</span>
                 ),
         },
-        { key: 'contact', header: '연락처', render: (row: (typeof students)[0]) => formatContact(row.contact) },
-        { key: 'baptizedAt', header: '축일', render: (row: (typeof students)[0]) => row.baptizedAt ?? '-' },
+        {
+            key: 'contact',
+            header: '연락처',
+            className: 'hidden md:table-cell',
+            render: (row: (typeof students)[0]) => formatContact(row.contact),
+        },
+        {
+            key: 'baptizedAt',
+            header: '축일',
+            className: 'hidden md:table-cell',
+            render: (row: (typeof students)[0]) => row.baptizedAt ?? '-',
+        },
     ];
 
     return (

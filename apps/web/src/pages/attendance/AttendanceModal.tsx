@@ -164,7 +164,7 @@ export function AttendanceModal({
                 {!isLoading && students.length > 0 && (
                     <div className="space-y-4">
                         {/* 테이블 헤더 */}
-                        <div className="grid grid-cols-[1fr_60px_60px_50px] gap-2 border-b pb-2 text-sm font-medium">
+                        <div className="grid grid-cols-[1fr_44px_44px_40px] sm:grid-cols-[1fr_60px_60px_50px] gap-2 border-b pb-2 text-sm font-medium">
                             <div>이름</div>
                             <div className="text-center">미사</div>
                             <div className="text-center">교리</div>
@@ -175,12 +175,12 @@ export function AttendanceModal({
                         {studentAttendance.map((student, index) => (
                             <div key={student.id}>
                                 {index > 0 && <div className="border-t border-border" />}
-                                <div className="grid grid-cols-[1fr_60px_60px_50px] items-center gap-2 py-2">
-                                    <div>
-                                        <Label className="font-normal">{student.societyName}</Label>
+                                <div className="grid grid-cols-[1fr_44px_44px_40px] sm:grid-cols-[1fr_60px_60px_50px] items-center gap-2 py-2">
+                                    <div className="min-w-0">
+                                        <Label className="block truncate font-normal">{student.societyName}</Label>
                                         {student.catholicName && (
-                                            <span className="ml-2 text-xs text-muted-foreground">
-                                                ({student.catholicName})
+                                            <span className="block truncate text-xs text-muted-foreground">
+                                                {student.catholicName}
                                             </span>
                                         )}
                                     </div>

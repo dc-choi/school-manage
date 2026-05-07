@@ -178,11 +178,13 @@ export function GroupDetailPage() {
         {
             key: 'age',
             header: '나이',
+            className: 'hidden md:table-cell',
             render: (row: StudentRow) => (row.age ? `${row.age}세` : '-'),
         },
         {
             key: 'contact',
             header: '연락처',
+            className: 'hidden md:table-cell',
             render: (row: StudentRow) => formatContact(row.contact),
         },
     ];

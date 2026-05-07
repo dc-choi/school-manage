@@ -197,9 +197,9 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
                 {/* 컨텍스트 배너: 학생 있음 + 출석 미시작 */}
                 {showContextBanner ? <ContextBanner /> : null}
 
-                {/* 필터 + 전례 시기 카드 */}
+                {/* 필터 + 전례 시기 카드 — 필터는 모바일 숨김(통계 페이지에 노출), 전례/축일자는 모바일에도 표시 */}
                 <div className="flex flex-col gap-3 md:flex-row md:items-start">
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="hidden flex-wrap items-center gap-2 md:flex">
                         <Label className="text-xs text-muted-foreground">연도</Label>
                         <Select
                             value={selectedYear.toString()}
@@ -266,16 +266,16 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
                     </div>
                 </div>
 
-                {/* 학년별 상세 통계 테이블 — 남은 공간 채움 */}
+                {/* 학년별 상세 통계 테이블 — 모바일에서는 /statistics로 이동, 데스크탑에서만 표시 */}
                 <GroupStatisticsTable
                     data={stats.groupStatistics}
                     isLoading={stats.isLoading}
                     error={hasError}
-                    className="min-h-0 flex-1"
+                    className="hidden min-h-0 flex-1 md:flex"
                 />
 
-                {/* 성별 분포 & 우수 출석 학생 */}
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {/* 성별 분포 & 우수 출석 학생 — 모바일 숨김 */}
+                <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-2">
                     <GenderDistributionChart data={stats.byGender} isLoading={stats.isLoading} error={hasError} />
                     <TopRankingCard
                         title="전체 우수 출석 학생 TOP 5"
@@ -300,9 +300,9 @@ function GuestDashboardContent() {
     return (
         <MainLayout title="주일학교 출석부">
             <div className="flex flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
-                {/* 필터 (disabled) + 전례 시기 카드 */}
+                {/* 필터 (disabled) + 전례 시기 카드 — 필터/통계 카드는 모바일 숨김 */}
                 <div className="flex flex-col gap-3 md:flex-row md:items-start">
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="hidden flex-wrap items-center gap-2 md:flex">
                         <Label className="text-xs text-muted-foreground">연도</Label>
                         <Select value={currentYear.toString()} disabled>
                             <SelectTrigger className="h-9 w-20">
@@ -343,8 +343,8 @@ function GuestDashboardContent() {
                     </div>
                 </div>
 
-                {/* 학년별 통계 */}
-                <Card className="min-h-0 flex-1">
+                {/* 학년별 통계 — 모바일 숨김 */}
+                <Card className="hidden min-h-0 flex-1 md:block">
                     <CardHeader>
                         <CardTitle className="text-base">학년별 통계</CardTitle>
                     </CardHeader>
@@ -353,8 +353,8 @@ function GuestDashboardContent() {
                     </CardContent>
                 </Card>
 
-                {/* 성별 분포 & 우수 출석 학생 */}
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {/* 성별 분포 & 우수 출석 학생 — 모바일 숨김 */}
+                <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-2">
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">성별 분포</CardTitle>

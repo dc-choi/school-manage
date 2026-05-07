@@ -130,7 +130,7 @@ export function GroupListPage() {
                                 </TableHead>
                                 <TableHead>이름</TableHead>
                                 <TableHead className="w-20 text-center">유형</TableHead>
-                                <TableHead className="w-24 text-center">인원</TableHead>
+                                <TableHead className="hidden w-24 text-center md:table-cell">인원</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -163,7 +163,9 @@ export function GroupListPage() {
                                                 {TYPE_LABEL[row.type] ?? row.type}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-center">{row.studentCount}명</TableCell>
+                                        <TableCell className="hidden text-center md:table-cell">
+                                            {row.studentCount}명
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             )}
