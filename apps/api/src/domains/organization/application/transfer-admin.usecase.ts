@@ -3,7 +3,7 @@
  *
  * 관리자 양도: ADMIN → TEACHER 역할 교환 (atomic)
  */
-import { ROLE, type TransferAdminInput, type TransferAdminOutput } from '@school/shared';
+import { ROLE, type Role, type TransferAdminInput, type TransferAdminOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { createAccountSnapshot } from '~/domains/snapshot/snapshot.helper.js';
@@ -14,9 +14,8 @@ export class TransferAdminUseCase {
         input: TransferAdminInput,
         accountId: string,
         organizationId: string,
-        role?: string
+        role?: Role
     ): Promise<TransferAdminOutput> {
-        // 1. ADMIN 권한 확인
         if (role !== ROLE.ADMIN) {
             throw new TRPCError({
                 code: 'FORBIDDEN',
@@ -24,7 +23,6 @@ export class TransferAdminUseCase {
             });
         }
 
-        // 2. 자기 자신에게 양도 불가
         if (input.targetAccountId === accountId) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
@@ -32,17 +30,14 @@ export class TransferAdminUseCase {
             });
         }
 
-        // 3. 트랜잭션: 대상 검증 + 역할 교환 (TOCTOU 방지)
         const now = getNowKST();
+        const callerId = BigInt(accountId);
+        const targetId = BigInt(input.targetAccountId);
+        const orgId = BigInt(organizationId);
 
-        await database.$transaction(async (tx) => {
-            // 3a. 대상 계정 검증 (같은 조직 + TEACHER)
+        await database.$transaction(async (tx): Promise<void> => {
             const target = await tx.account.findFirst({
-                where: {
-                    id: BigInt(input.targetAccountId),
-                    organizationId: BigInt(organizationId),
-                    deletedAt: null,
-                },
+                where: { id: targetId, organizationId: orgId, deletedAt: null },
                 select: { id: true, name: true, displayName: true, role: true },
             });
 
@@ -60,30 +55,54 @@ export class TransferAdminUseCase {
                 });
             }
 
-            // 3b. 현재 ADMIN → TEACHER
-            const currentAdmin = await tx.account.update({
-                where: { id: BigInt(accountId) },
+            const currentAdmin = await tx.account.findFirst({
+                where: { id: callerId, organizationId: orgId, deletedAt: null },
+                select: { id: true, name: true, displayName: true },
+            });
+
+            if (!currentAdmin) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: '현재 관리자 계정을 찾을 수 없습니다.',
+                });
+            }
+
+            const demoteResult = await tx.account.updateMany({
+                where: { id: callerId, organizationId: orgId, role: ROLE.ADMIN, deletedAt: null },
                 data: { role: ROLE.TEACHER, updatedAt: now },
             });
+
+            if (demoteResult.count === 0) {
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: '관리자 상태가 변경되어 양도할 수 없습니다. 다시 시도해 주세요.',
+                });
+            }
 
             await createAccountSnapshot(tx, {
                 accountId: currentAdmin.id,
                 name: currentAdmin.name,
                 displayName: currentAdmin.displayName,
-                organizationId: BigInt(organizationId),
+                organizationId: orgId,
             });
 
-            // 3c. 대상 TEACHER → ADMIN
-            const newAdmin = await tx.account.update({
-                where: { id: target.id },
+            const promoteResult = await tx.account.updateMany({
+                where: { id: targetId, organizationId: orgId, role: ROLE.TEACHER, deletedAt: null },
                 data: { role: ROLE.ADMIN, updatedAt: now },
             });
 
+            if (promoteResult.count === 0) {
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: '대상 계정 상태가 변경되어 양도할 수 없습니다. 다시 시도해 주세요.',
+                });
+            }
+
             await createAccountSnapshot(tx, {
-                accountId: newAdmin.id,
-                name: newAdmin.name,
-                displayName: newAdmin.displayName,
-                organizationId: BigInt(organizationId),
+                accountId: target.id,
+                name: target.name,
+                displayName: target.displayName,
+                organizationId: orgId,
             });
         });
 

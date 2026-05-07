@@ -51,6 +51,13 @@ export const transferAdminInputSchema = z.object({
     targetAccountId: idSchema,
 });
 
+/**
+ * 멤버 강퇴 입력 스키마
+ */
+export const removeMemberInputSchema = z.object({
+    targetAccountId: idSchema,
+});
+
 // 입력 타입 export
 export type ListOrganizationsInput = z.infer<typeof listOrganizationsInputSchema>;
 export type CreateOrganizationInput = z.infer<typeof createOrganizationInputSchema>;
@@ -58,6 +65,7 @@ export type RequestJoinInput = z.infer<typeof requestJoinInputSchema>;
 export type ApproveJoinInput = z.infer<typeof approveJoinInputSchema>;
 export type RejectJoinInput = z.infer<typeof rejectJoinInputSchema>;
 export type TransferAdminInput = z.infer<typeof transferAdminInputSchema>;
+export type RemoveMemberInput = z.infer<typeof removeMemberInputSchema>;
 
 // ============================================================
 // 출력 타입 (Output Types)
@@ -137,5 +145,12 @@ export interface MembersOutput {
  * 관리자 양도 응답
  */
 export interface TransferAdminOutput {
+    success: boolean;
+}
+
+/**
+ * 멤버 강퇴 응답
+ */
+export interface RemoveMemberOutput {
     success: boolean;
 }

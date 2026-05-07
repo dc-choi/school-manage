@@ -1,38 +1,22 @@
+import { RemoveMemberDialog } from './RemoveMemberDialog';
+import { TransferAdminDialog } from './TransferAdminDialog';
 import { ROLE } from '@school/shared';
 import { formatDateKR } from '@school/utils';
-import { Loader2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
-import {
-    AlertDialog,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '~/components/ui/alert-dialog';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { useAuth } from '~/features/auth';
-import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
+
+type MemberTarget = { id: string; name: string } | null;
 
 export function MembersSection() {
     const { role } = useAuth();
-    const utils = trpc.useUtils();
     const { data, isLoading } = trpc.organization.members.useQuery();
-    const transferMutation = trpc.organization.transferAdmin.useMutation({
-        onSuccess: () => {
-            toast.success('관리자가 양도되었습니다');
-            utils.account.get.invalidate();
-            utils.organization.members.invalidate();
-        },
-    });
-
-    const [transferTarget, setTransferTarget] = useState<{ id: string; name: string } | null>(null);
-    const [transferError, setTransferError] = useState<string | null>(null);
+    const [transferTarget, setTransferTarget] = useState<MemberTarget>(null);
+    const [removeTarget, setRemoveTarget] = useState<MemberTarget>(null);
 
     if (isLoading) return null;
 
@@ -40,18 +24,6 @@ export function MembersSection() {
     if (members.length <= 1) return null;
 
     const isAdmin = role === ROLE.ADMIN;
-
-    const handleTransfer = async () => {
-        if (!transferTarget) return;
-        setTransferError(null);
-
-        try {
-            await transferMutation.mutateAsync({ targetAccountId: transferTarget.id });
-            setTransferTarget(null);
-        } catch (err) {
-            setTransferError(extractErrorMessage(err));
-        }
-    };
 
     return (
         <>
@@ -65,10 +37,13 @@ export function MembersSection() {
                 <CardContent>
                     <ul className="space-y-3">
                         {members.map((member) => (
-                            <li key={member.id} className="flex items-center justify-between rounded-md border p-3">
-                                <div>
+                            <li
+                                key={member.id}
+                                className="flex items-center justify-between gap-3 rounded-md border p-3"
+                            >
+                                <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2">
-                                        <p className="font-medium">{member.displayName}</p>
+                                        <p className="truncate font-medium">{member.displayName}</p>
                                         <Badge variant={member.role === ROLE.ADMIN ? 'default' : 'secondary'}>
                                             {member.role === ROLE.ADMIN ? '관리자' : '선생님'}
                                         </Badge>
@@ -78,15 +53,28 @@ export function MembersSection() {
                                     </p>
                                 </div>
                                 {isAdmin && member.role === ROLE.TEACHER ? (
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => setTransferTarget({ id: member.id, name: member.displayName })}
-                                        disabled={transferMutation.isPending}
-                                        aria-label={`${member.displayName}에게 관리자 양도`}
-                                    >
-                                        양도
-                                    </Button>
+                                    <div className="flex shrink-0 items-center gap-2">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() =>
+                                                setTransferTarget({ id: member.id, name: member.displayName })
+                                            }
+                                            aria-label={`${member.displayName}에게 관리자 양도`}
+                                        >
+                                            양도
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                            onClick={() => setRemoveTarget({ id: member.id, name: member.displayName })}
+                                            aria-label={`${member.displayName} 제거`}
+                                        >
+                                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                            제거
+                                        </Button>
+                                    </div>
                                 ) : null}
                             </li>
                         ))}
@@ -94,40 +82,8 @@ export function MembersSection() {
                 </CardContent>
             </Card>
 
-            <AlertDialog open={!!transferTarget} onOpenChange={() => setTransferTarget(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>관리자를 양도하시겠습니까?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {transferTarget?.name}님에게 관리자 권한을 양도합니다. 양도 후 선생님 역할로 전환됩니다.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    {transferError ? (
-                        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-                            {transferError}
-                        </div>
-                    ) : null}
-                    <AlertDialogFooter>
-                        <AlertDialogCancel
-                            onClick={() => {
-                                setTransferError(null);
-                            }}
-                        >
-                            취소
-                        </AlertDialogCancel>
-                        <Button variant="destructive" onClick={handleTransfer} disabled={transferMutation.isPending}>
-                            {transferMutation.isPending ? (
-                                <>
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                    양도 중...
-                                </>
-                            ) : (
-                                '양도'
-                            )}
-                        </Button>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <TransferAdminDialog target={transferTarget} onClose={() => setTransferTarget(null)} />
+            <RemoveMemberDialog target={removeTarget} onClose={() => setRemoveTarget(null)} />
         </>
     );
 }
