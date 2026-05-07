@@ -114,7 +114,7 @@ export const statisticsRouter = router({
     }),
 
     /**
-     * 그룹별 상세 통계 (주간/월간/연간 출석률 + 평균 출석 인원)
+     * 그룹별 상세 통계 (일간/주간/월간/연간 출석률 + 평균 출석 인원)
      */
     groupStatistics: scopedProcedure.input(statisticsInputSchema).query(async ({ input, ctx }) => {
         const usecase = new GetGroupStatisticsUseCase();
@@ -123,6 +123,7 @@ export const statisticsRouter = router({
             year: input.year,
             month: input.month,
             week: input.week,
+            day: input.day,
         });
     }),
 });

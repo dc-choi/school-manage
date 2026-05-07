@@ -213,6 +213,7 @@ export type {
     TopOverallOutput,
     GroupStatisticsItem,
     GroupStatisticsOutput,
+    StatisticsPeriod,
     // Liturgical
     Holyday,
     GetHolydaysOutput,
