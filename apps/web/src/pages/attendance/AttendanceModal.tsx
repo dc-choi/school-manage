@@ -1,10 +1,14 @@
 import type { AttendanceData, StudentAttendanceDetail } from '@school/shared';
 import { Check, Loader2, X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { Label } from '~/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { type SortKey, sortStudents } from '~/features/attendance/utils/sortStudents';
+import { analytics } from '~/lib/analytics';
 import { extractErrorMessage } from '~/lib/error';
 import { cn } from '~/lib/utils';
 
@@ -29,6 +33,15 @@ interface AttendanceModalProps {
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+    { value: 'registration', label: '등록 순' },
+    { value: 'name', label: '가나다 순' },
+];
+
+const SORT_STORAGE_KEY = 'attendance_modal_sort';
+
+const isValidSortKey = (value: string): value is SortKey => value === 'registration' || value === 'name';
+
 /**
  * 출석 상태 기호
  * ◎ = 출석 (미사+교리)
@@ -45,10 +58,6 @@ function getStatusSymbol(mass: boolean, catechism: boolean): string {
 
 /**
  * content 값을 미사/교리 체크로 변환
- * ◎ = 출석 (미사+교리)
- * ○ = 미사만
- * △ = 교리만
- * - = 결석
  */
 function parseContent(content: string): { mass: boolean; catechism: boolean } {
     switch (content) {
@@ -76,17 +85,18 @@ export function AttendanceModal({
 }: AttendanceModalProps) {
     const [studentAttendance, setStudentAttendance] = useState<StudentAttendance[]>([]);
     const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+    const [sortKey, setSortKey] = useState<SortKey>('registration');
 
-    // 날짜 파싱
+    const sortSelectId = useId();
+
     const [, monthStr, dayStr] = date.split('-');
     const month = Number.parseInt(monthStr, 10);
     const day = Number.parseInt(dayStr, 10);
 
-    // 요일 계산
     const dateObj = new Date(date);
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
 
-    // 모달 오픈 시 학생 목록 초기화
+    // 모달 오픈 시 학생 목록 초기화 + sortKey 복원
     useEffect(() => {
         if (isOpen && students.length > 0) {
             const initialData = students.map((student) => {
@@ -101,16 +111,34 @@ export function AttendanceModal({
             });
             setStudentAttendance(initialData);
             setSaveStatus('idle');
+
+            if (typeof window !== 'undefined') {
+                const stored = window.sessionStorage.getItem(SORT_STORAGE_KEY);
+                if (stored && isValidSortKey(stored)) {
+                    setSortKey(stored);
+                }
+            }
         }
     }, [isOpen, students]);
 
-    // 체크박스 변경 핸들러 (자동 저장)
+    const sortedStudentAttendance = useMemo(
+        () => sortStudents(studentAttendance, sortKey),
+        [studentAttendance, sortKey]
+    );
+
+    const handleSortChange = (value: string) => {
+        if (!isValidSortKey(value)) return;
+        setSortKey(value);
+        if (typeof window !== 'undefined') {
+            window.sessionStorage.setItem(SORT_STORAGE_KEY, value);
+        }
+        analytics.trackAttendanceSortClicked(value);
+    };
+
     const handleCheckChange = useCallback(
         async (studentId: string, field: 'mass' | 'catechism', checked: boolean) => {
-            // 로컬 상태 업데이트
             setStudentAttendance((prev) => prev.map((s) => (s.id === studentId ? { ...s, [field]: checked } : s)));
 
-            // 즉시 저장
             const student = studentAttendance.find((s) => s.id === studentId);
             if (!student) return;
 
@@ -162,6 +190,27 @@ export function AttendanceModal({
                 )}
                 {!isLoading && students.length > 0 && (
                     <div className="space-y-4">
+                        {/* 정렬 토글 */}
+                        <div className="flex items-end gap-2">
+                            <div className="space-y-1">
+                                <Label htmlFor={sortSelectId} className="text-xs">
+                                    정렬
+                                </Label>
+                                <Select value={sortKey} onValueChange={handleSortChange}>
+                                    <SelectTrigger id={sortSelectId} className="h-8 w-32">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {SORT_OPTIONS.map((o) => (
+                                            <SelectItem key={o.value} value={o.value}>
+                                                {o.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
                         {/* 테이블 헤더 */}
                         <div className="grid grid-cols-[1fr_44px_44px_40px] sm:grid-cols-[1fr_60px_60px_50px] gap-2 border-b pb-2 text-sm font-medium">
                             <div>이름</div>
@@ -171,7 +220,7 @@ export function AttendanceModal({
                         </div>
 
                         {/* 학생 목록 */}
-                        {studentAttendance.map((student, index) => {
+                        {sortedStudentAttendance.map((student, index) => {
                             const massId = `attendance-mass-${student.id}`;
                             const catechismId = `attendance-catechism-${student.id}`;
                             return (

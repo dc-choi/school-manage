@@ -1,5 +1,5 @@
 import { GROUP_TYPE } from '@school/shared';
-import { AlertCircle, Check, Loader2, RefreshCw, Trophy, X } from 'lucide-react';
+import { AlertCircle, Check, Loader2, RefreshCw, X } from 'lucide-react';
 import { useEffect, useId, useMemo, useState } from 'react';
 import { LoadingSpinner } from '~/components/common';
 import { MainLayout } from '~/components/layout';
@@ -18,9 +18,7 @@ import {
     SelectValue,
 } from '~/components/ui/select';
 import { useAttendance } from '~/features/attendance';
-import { type SortKey, sortStudents } from '~/features/attendance/utils/sortStudents';
 import { useGroups } from '~/features/group';
-import { analytics } from '~/lib/analytics';
 import { cn } from '~/lib/utils';
 
 const ATTENDANCE_OPTIONS = [
@@ -30,33 +28,13 @@ const ATTENDANCE_OPTIONS = [
     { value: '△', label: '△' },
 ];
 
-interface SortOption {
-    value: SortKey;
-    label: string;
-}
-
-const SORT_OPTIONS: SortOption[] = [
-    { value: 'registration', label: '등록 순' },
-    { value: 'name', label: '가나다 순' },
-    { value: 'top_attendance', label: '우수 출석 순' },
-];
-
-const TOP_RANK_HIGHLIGHT_LIMIT = 3;
-
-const getSortStorageKey = (groupId: string, year: number): string => `attendance_sort_${groupId}_${year}`;
-
-const isValidSortKey = (value: string): value is SortKey =>
-    value === 'registration' || value === 'name' || value === 'top_attendance';
-
 export function AttendancePage() {
     const currentYear = new Date().getFullYear();
     const [selectedGroupId, setSelectedGroupId] = useState('');
     const [selectedYear, setSelectedYear] = useState(currentYear);
-    const [sortKey, setSortKey] = useState<SortKey>('registration');
 
     const groupSelectId = useId();
     const yearSelectId = useId();
-    const sortSelectId = useId();
 
     const { groups, isLoading: groupsLoading } = useGroups();
 
@@ -76,26 +54,6 @@ export function AttendancePage() {
         saveStatus,
     } = useAttendance(selectedGroupId, selectedYear);
 
-    useEffect(() => {
-        if (!selectedGroupId) return;
-        if (typeof window === 'undefined') return;
-        const stored = window.sessionStorage.getItem(getSortStorageKey(selectedGroupId, selectedYear));
-        if (stored && isValidSortKey(stored)) {
-            setSortKey(stored);
-        } else {
-            setSortKey('registration');
-        }
-    }, [selectedGroupId, selectedYear]);
-
-    const handleSortChange = (value: string) => {
-        if (!isValidSortKey(value)) return;
-        setSortKey(value);
-        if (selectedGroupId && typeof window !== 'undefined') {
-            window.sessionStorage.setItem(getSortStorageKey(selectedGroupId, selectedYear), value);
-        }
-        analytics.trackAttendanceSortClicked(value);
-    };
-
     const yearOptions = useMemo(() => {
         const years = [];
         for (let y = currentYear; y >= currentYear - 5; y--) {
@@ -111,11 +69,6 @@ export function AttendancePage() {
         });
         return map;
     }, [attendanceData]);
-
-    const sortedStudents = useMemo(() => {
-        if (!attendanceData?.students) return [];
-        return sortStudents(attendanceData.students, attendanceData.attendances ?? [], sortKey);
-    }, [attendanceData, sortKey]);
 
     const dates = useMemo(() => {
         const result: { date: string; month: number; day: number; dayOfWeek: string }[] = [];
@@ -160,6 +113,8 @@ export function AttendancePage() {
             </MainLayout>
         );
     }
+
+    const students = attendanceData?.students ?? [];
 
     return (
         <MainLayout title="출석부">
@@ -224,23 +179,6 @@ export function AttendancePage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-1">
-                            <Label htmlFor={sortSelectId} className="text-xs">
-                                정렬
-                            </Label>
-                            <Select value={sortKey} onValueChange={handleSortChange}>
-                                <SelectTrigger id={sortSelectId} className="h-9 w-32">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {SORT_OPTIONS.map((o) => (
-                                        <SelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
                     </div>
 
                     {/* 저장 상태 인디케이터 (헤더 우상단 통합) */}
@@ -287,12 +225,12 @@ export function AttendancePage() {
                         <LoadingSpinner />
                     </Card>
                 ) : null}
-                {selectedGroupId && !attendanceLoading && !sortedStudents.length ? (
+                {selectedGroupId && !attendanceLoading && !students.length ? (
                     <Card className="flex flex-1 items-center justify-center">
                         <CardContent className="text-center text-muted-foreground">학생이 없습니다.</CardContent>
                     </Card>
                 ) : null}
-                {selectedGroupId && !attendanceLoading && sortedStudents.length ? (
+                {selectedGroupId && !attendanceLoading && students.length ? (
                     <Card className="min-h-0 flex-1">
                         <CardContent className="h-full overflow-auto p-0">
                             <table className="min-w-full border-collapse">
@@ -309,94 +247,70 @@ export function AttendancePage() {
                                                 <div>
                                                     {d.month}/{d.day}
                                                 </div>
-                                                <span
-                                                    className={cn(
-                                                        'mt-0.5 inline-flex items-center rounded border px-1 text-[10px]',
-                                                        d.dayOfWeek === '일'
-                                                            ? 'border-red-200 bg-red-50 text-red-700'
-                                                            : 'border-border bg-background text-muted-foreground'
-                                                    )}
+                                                <Badge
+                                                    variant={d.dayOfWeek === '일' ? 'destructive' : 'default'}
+                                                    className="mt-0.5 text-[10px]"
                                                 >
                                                     {d.dayOfWeek}
-                                                </span>
+                                                </Badge>
                                             </th>
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {sortedStudents.map((student, index) => {
-                                        const showRankBadge =
-                                            sortKey === 'top_attendance' && index < TOP_RANK_HIGHLIGHT_LIMIT;
-                                        return (
-                                            <tr
-                                                key={student.id}
-                                                className="border-b hover:bg-muted/30 focus-within:bg-muted/40 last:border-b-0"
-                                            >
-                                                <td className="sticky left-0 z-10 border-r bg-background px-3 py-1.5 text-sm font-medium">
-                                                    <span className="flex items-center gap-1.5">
-                                                        {showRankBadge ? (
-                                                            <Badge
-                                                                variant="secondary"
-                                                                className="gap-1 px-1.5 text-[10px]"
-                                                            >
-                                                                <Trophy
-                                                                    className="h-3 w-3 text-amber-600"
-                                                                    aria-hidden="true"
-                                                                />
-                                                                {index + 1}
-                                                            </Badge>
-                                                        ) : null}
-                                                        {student.societyName}
-                                                    </span>
-                                                </td>
-                                                {dates.map((d) => {
-                                                    const key = cellKey(student.id, d.month, d.day);
-                                                    const failed = failedCells.has(key);
-                                                    return (
-                                                        <td
-                                                            key={d.date}
-                                                            className={cn(
-                                                                'border-r p-0',
-                                                                failed &&
-                                                                    'bg-destructive/10 ring-1 ring-destructive/40 ring-inset'
-                                                            )}
+                                    {students.map((student) => (
+                                        <tr
+                                            key={student.id}
+                                            className="border-b hover:bg-muted/30 focus-within:bg-muted/40 last:border-b-0"
+                                        >
+                                            <td className="sticky left-0 z-10 border-r bg-background px-3 py-1.5 text-sm font-medium">
+                                                {student.societyName}
+                                            </td>
+                                            {dates.map((d) => {
+                                                const key = cellKey(student.id, d.month, d.day);
+                                                const failed = failedCells.has(key);
+                                                return (
+                                                    <td
+                                                        key={d.date}
+                                                        className={cn(
+                                                            'border-r p-0',
+                                                            failed &&
+                                                                'bg-destructive/10 ring-1 ring-destructive/40 ring-inset'
+                                                        )}
+                                                    >
+                                                        <select
+                                                            aria-label={`${student.societyName} ${d.month}월 ${d.day}일 ${d.dayOfWeek}요일 출석`}
+                                                            value={getAttendanceValue(student.id, d.date)}
+                                                            onChange={(e) =>
+                                                                enqueueChange(
+                                                                    student.id,
+                                                                    d.month,
+                                                                    d.day,
+                                                                    e.target.value
+                                                                )
+                                                            }
+                                                            onDoubleClick={failed ? () => retryCell(key) : undefined}
+                                                            className="w-full border-0 bg-transparent px-1 py-1.5 text-center text-sm tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                                         >
-                                                            <select
-                                                                aria-label={`${student.societyName} ${d.month}월 ${d.day}일 ${d.dayOfWeek}요일 출석`}
-                                                                value={getAttendanceValue(student.id, d.date)}
-                                                                onChange={(e) =>
-                                                                    enqueueChange(
-                                                                        student.id,
-                                                                        d.month,
-                                                                        d.day,
-                                                                        e.target.value
-                                                                    )
-                                                                }
-                                                                onDoubleClick={
-                                                                    failed ? () => retryCell(key) : undefined
-                                                                }
-                                                                className="w-full border-0 bg-transparent px-1 py-1.5 text-center text-sm tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                                            {ATTENDANCE_OPTIONS.map((opt) => (
+                                                                <option key={opt.value} value={opt.value}>
+                                                                    {opt.label}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        {failed ? (
+                                                            <span
+                                                                className="pointer-events-none absolute right-0.5 top-0.5 inline-flex h-4 w-4 items-center justify-center text-destructive"
+                                                                aria-hidden="true"
                                                             >
-                                                                {ATTENDANCE_OPTIONS.map((opt) => (
-                                                                    <option key={opt.value} value={opt.value}>
-                                                                        {opt.label}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                            {failed ? (
-                                                                <span
-                                                                    className="pointer-events-none absolute right-0.5 top-0.5 inline-flex h-4 w-4 items-center justify-center text-destructive"
-                                                                    aria-hidden="true"
-                                                                >
-                                                                    <AlertCircle className="h-3 w-3" />
-                                                                </span>
-                                                            ) : null}
-                                                        </td>
-                                                    );
-                                                })}
-                                            </tr>
-                                        );
-                                    })}
+                                                                <AlertCircle className="h-3 w-3" />
+                                                            </span>
+                                                        ) : null}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </CardContent>
