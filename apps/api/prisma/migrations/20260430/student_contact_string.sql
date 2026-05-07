@@ -72,6 +72,10 @@ UPDATE `student` SET `contact_str` = CASE
     WHEN LENGTH(CAST(`contact` AS CHAR)) = 10
          AND CAST(`contact` AS CHAR) REGEXP '^[3-6][0-9]'
         THEN CONCAT('0', CAST(`contact` AS CHAR))
+    -- 9자리 휴대폰 (구식 010-XXX-XXXX 7자리 본번): 0 prefix → 10자리 복원
+    WHEN LENGTH(CAST(`contact` AS CHAR)) = 9
+         AND CAST(`contact` AS CHAR) REGEXP '^1[0-9]'
+        THEN CONCAT('0', CAST(`contact` AS CHAR))
     -- 9자리 지역번호: 02/03x/04x/05x/06x (8자리 본번)
     WHEN LENGTH(CAST(`contact` AS CHAR)) = 9
          AND CAST(`contact` AS CHAR) REGEXP '^[2-6]'
@@ -99,6 +103,10 @@ UPDATE `student_snapshot` SET `contact_str` = CASE
         THEN CONCAT('0', CAST(`contact` AS CHAR))
     WHEN LENGTH(CAST(`contact` AS CHAR)) = 10
          AND CAST(`contact` AS CHAR) REGEXP '^[3-6][0-9]'
+        THEN CONCAT('0', CAST(`contact` AS CHAR))
+    -- 9자리 휴대폰 (구식 010-XXX-XXXX 7자리 본번): 0 prefix → 10자리 복원
+    WHEN LENGTH(CAST(`contact` AS CHAR)) = 9
+         AND CAST(`contact` AS CHAR) REGEXP '^1[0-9]'
         THEN CONCAT('0', CAST(`contact` AS CHAR))
     WHEN LENGTH(CAST(`contact` AS CHAR)) = 9
          AND CAST(`contact` AS CHAR) REGEXP '^[2-6]'
