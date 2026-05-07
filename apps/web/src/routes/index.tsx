@@ -35,6 +35,9 @@ const CalendarPage = lazy(() => import('~/pages/attendance/CalendarPage').then((
 const JoinPage = lazy(() => import('~/pages/join/JoinPage').then((m) => ({ default: m.JoinPage })));
 const PendingPage = lazy(() => import('~/pages/pending/PendingPage').then((m) => ({ default: m.PendingPage })));
 const DonatePage = lazy(() => import('~/pages/donate/DonatePage').then((m) => ({ default: m.DonatePage })));
+const TermsPage = lazy(() => import('~/pages/legal/TermsPage').then((m) => ({ default: m.TermsPage })));
+const PrivacyPage = lazy(() => import('~/pages/legal/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
+const RefundPage = lazy(() => import('~/pages/legal/RefundPage').then((m) => ({ default: m.RefundPage })));
 
 const routes: RouteObject[] = [
     {
@@ -70,6 +73,18 @@ const routes: RouteObject[] = [
             {
                 path: '/donate',
                 element: <DonatePage />,
+            },
+            {
+                path: '/terms',
+                element: <TermsPage />,
+            },
+            {
+                path: '/privacy',
+                element: <PrivacyPage />,
+            },
+            {
+                path: '/refund',
+                element: <RefundPage />,
             },
             // 조직 미가입 상태 라우트 (인증 필요, 조직 불요)
             {

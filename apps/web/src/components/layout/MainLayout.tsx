@@ -2,6 +2,7 @@ import { Sidebar, navItems } from './Sidebar';
 import { Heart, LogIn, LogOut, Menu, User } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Footer } from '~/components/layout/Footer';
 import { Button } from '~/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet';
 import { useAuth } from '~/features/auth';
@@ -145,8 +146,11 @@ export function MainLayout({ children, title }: MainLayoutProps) {
                     </header>
 
                     {/* Content */}
-                    <main className="flex-1 overflow-auto p-4 md:p-6">
-                        <div className="w-full">{children}</div>
+                    <main className="flex flex-1 flex-col overflow-auto">
+                        <div className="flex-1 p-4 md:p-6">
+                            <div className="w-full">{children}</div>
+                        </div>
+                        <Footer />
                     </main>
                 </div>
             </div>
