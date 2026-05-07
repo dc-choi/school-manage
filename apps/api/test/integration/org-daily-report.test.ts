@@ -73,9 +73,16 @@ describe('OrgDailyReportUseCase', () => {
         expect(result.accountRows).toHaveLength(1);
         expect(Number(result.accountRows[0].totalAccounts)).toBe(1);
         expect(result.accountRows[0].accountNames).toContain(seed.account.displayName);
+
+        // 사회적 증거 카운트 (랜딩과 동일 정의)
+        expect(result.socialProof).toEqual({
+            churchCount: 1,
+            accountCount: 1,
+            studentCount: 1,
+        });
     });
 
-    it('데이터가 없으면 빈 배열을 반환한다', async () => {
+    it('데이터가 없으면 빈 배열과 0 카운트를 반환한다', async () => {
         vi.setSystemTime(new Date(2026, 2, 17, 6, 0, 0));
 
         // seed에서 생성된 계정이 있으므로 accountRows는 비어있지 않을 수 있음
@@ -86,6 +93,7 @@ describe('OrgDailyReportUseCase', () => {
 
         expect(result.activityRows).toHaveLength(0);
         expect(result.accountRows).toHaveLength(0);
+        expect(result.socialProof).toEqual({ churchCount: 0, accountCount: 0, studentCount: 0 });
     });
 
     it('여러 조직의 데이터를 반환한다', async () => {
@@ -111,7 +119,7 @@ describe('OrgDailyReportUseCase', () => {
             },
         });
 
-        const account2 = await database.account.create({
+        await database.account.create({
             data: {
                 name: '초등부',
                 displayName: '박지훈',
@@ -192,5 +200,12 @@ describe('OrgDailyReportUseCase', () => {
         const accountChurchNames = result.accountRows.map((r) => r.churchName);
         expect(accountChurchNames).toContain('장위동성당');
         expect(accountChurchNames).toContain('가재울성당');
+
+        // 사회적 증거 카운트 — 본당 2 / 계정 2 / 학생 2
+        expect(result.socialProof).toEqual({
+            churchCount: 2,
+            accountCount: 2,
+            studentCount: 2,
+        });
     });
 });

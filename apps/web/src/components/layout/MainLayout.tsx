@@ -3,6 +3,7 @@ import { Sidebar } from './Sidebar';
 import { Heart, LogIn, LogOut, Settings, User, UserPlus, Users } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Footer } from '~/components/layout/Footer';
 import { Button } from '~/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '~/components/ui/sheet';
 import { useAuth } from '~/features/auth';
@@ -98,8 +99,11 @@ export function MainLayout({ children, title }: MainLayoutProps) {
                     </header>
 
                     {/* Content — 모바일은 하단 탭바 가림 방지 pb-20 + safe-area, 데스크탑은 기존 padding */}
-                    <main className="flex-1 overflow-auto p-4 pb-20 md:p-6 md:pb-6 [@supports(padding:env(safe-area-inset-bottom))]:pb-[calc(5rem+env(safe-area-inset-bottom))] md:[@supports(padding:env(safe-area-inset-bottom))]:pb-6">
-                        <div className="w-full">{children}</div>
+                    <main className="flex flex-1 flex-col overflow-auto">
+                        <div className="flex-1 p-4 pb-20 md:p-6 md:pb-6 [@supports(padding:env(safe-area-inset-bottom))]:pb-[calc(5rem+env(safe-area-inset-bottom))] md:[@supports(padding:env(safe-area-inset-bottom))]:pb-6">
+                            <div className="w-full">{children}</div>
+                        </div>
+                        <Footer />
                     </main>
                 </div>
             </div>

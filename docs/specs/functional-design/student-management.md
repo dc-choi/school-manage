@@ -59,20 +59,20 @@
 
 ## 데이터: Student 테이블
 
-| 필드                              | 타입        | 설명                                        |
-| --------------------------------- | ----------- | ------------------------------------------- |
-| \_id                              | bigint (PK) | 고유 식별자                                 |
-| society_name                      | varchar(50) | 이름 (필수)                                 |
-| catholic_name                     | varchar(50) | 세례명                                      |
-| gender                            | varchar(1)  | 성별 (M/F)                                  |
-| age                               | bigint      | 나이 (한국 나이)                            |
-| contact                           | bigint      | 학생 본인 연락처                            |
-| parent_contact                    | varchar(20) | 부모님 연락처 — 원본 문자열 보존 (2단계)    |
-| description                       | mediumtext  | 상세 설명                                   |
-| baptized_at                       | varchar(10) | 축일                                        |
-| group_id                          | bigint (FK) | 소속 그룹                                   |
-| graduated_at                      | datetime    | 졸업일시 (정규화: YYYY-12-31, 로드맵 2단계) |
-| create_at / update_at / delete_at | datetime    | 생성/수정/삭제일시                          |
+| 필드                              | 타입        | 설명                                                                                               |
+| --------------------------------- | ----------- | -------------------------------------------------------------------------------------------------- |
+| \_id                              | bigint (PK) | 고유 식별자                                                                                        |
+| society_name                      | varchar(50) | 이름 (필수)                                                                                        |
+| catholic_name                     | varchar(50) | 세례명                                                                                             |
+| gender                            | varchar(1)  | 성별 (M/F)                                                                                         |
+| age                               | bigint      | 나이 (한국 나이)                                                                                   |
+| contact                           | varchar(20) | 학생 본인 연락처 — 사용자 입력 원본 보존 (2026-04 BigInt → String 이관, parentContact와 타입 일관) |
+| parent_contact                    | varchar(20) | 부모님 연락처 — 원본 문자열 보존 (2단계)                                                           |
+| description                       | mediumtext  | 상세 설명                                                                                          |
+| baptized_at                       | varchar(10) | 축일                                                                                               |
+| group_id                          | bigint (FK) | 소속 그룹                                                                                          |
+| graduated_at                      | datetime    | 졸업일시 (정규화: YYYY-12-31, 로드맵 2단계)                                                        |
+| create_at / update_at / delete_at | datetime    | 생성/수정/삭제일시                                                                                 |
 
 ## API
 

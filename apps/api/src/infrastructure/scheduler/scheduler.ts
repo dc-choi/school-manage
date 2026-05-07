@@ -1,6 +1,5 @@
-import { formatKSTDateISO, getNowKST } from '@school/utils';
+import { formatKSTDateISO } from '@school/utils';
 import schedule from 'node-schedule';
-import { DetectChurnUseCase } from '~/domains/churn/application/detect-churn.usecase.js';
 import { OrgDailyReportUseCase } from '~/domains/report/application/org-daily-report.usecase.js';
 import { database } from '~/infrastructure/database/database.js';
 import { logger } from '~/infrastructure/logger/logger.js';
@@ -29,50 +28,6 @@ export class Scheduler {
         });
     }
 
-    static async churnDetection() {
-        // 매일 09:00 KST
-        const time = '0 9 * * *';
-        schedule.scheduleJob(time, async () => {
-            try {
-                if (!mailService.isEnabled()) {
-                    logger.log('[Scheduler] churnDetection: mail disabled, skipping');
-                    return;
-                }
-
-                const usecase = new DetectChurnUseCase();
-                const result = await usecase.execute();
-
-                if (result.skipped) {
-                    logger.log(`[Scheduler] churnDetection: skipped (${result.skipReason})`);
-                    return;
-                }
-
-                if (result.alerts.length === 0) {
-                    logger.log('[Scheduler] churnDetection: no at-risk organizations');
-                    return;
-                }
-
-                const now = getNowKST();
-                const dateStr = formatKSTDateISO();
-
-                await mailService.sendChurnAlert(result.alerts, dateStr);
-
-                // 발송 이력 일괄 저장
-                await database.churnAlertLog.createMany({
-                    data: result.alerts.map((alert) => ({
-                        organizationId: alert.organizationId,
-                        inactiveDays: alert.inactiveDays,
-                        sentAt: now,
-                    })),
-                });
-
-                logger.log(`[Scheduler] churnDetection: ${result.alerts.length} alerts sent`);
-            } catch (error) {
-                logger.error('[Scheduler] churnDetection failed:', error);
-            }
-        });
-    }
-
     static async orgDailyReport() {
         // 매일 21:00 KST
         const time = '0 21 * * *';
@@ -88,10 +43,17 @@ export class Scheduler {
 
                 const dateStr = formatKSTDateISO();
 
-                await mailService.sendOrgDailyReport(result.activityRows, result.accountRows, dateStr);
+                await mailService.sendOrgDailyReport(
+                    result.activityRows,
+                    result.accountRows,
+                    result.socialProof,
+                    dateStr
+                );
 
                 logger.log(
-                    `[Scheduler] orgDailyReport: sent (${result.activityRows.length} orgs, ${result.accountRows.length} accounts)`
+                    `[Scheduler] orgDailyReport: sent (${result.activityRows.length} orgs, ` +
+                        `${result.accountRows.length} accounts, social ${result.socialProof.churchCount}/` +
+                        `${result.socialProof.accountCount}/${result.socialProof.studentCount})`
                 );
             } catch (error) {
                 logger.error('[Scheduler] orgDailyReport failed:', error);

@@ -6,17 +6,22 @@ import { describe, expect, it } from 'vitest';
 
 describe('format 유틸리티', () => {
     describe('formatContact', () => {
-        it('10자리 문자열을 010-XXXX-XXXX 형식으로 포맷한다', () => {
-            const result = formatContact('1012345678');
+        it('11자리 휴대폰 문자열을 010-XXXX-XXXX 형식으로 포맷한다', () => {
+            const result = formatContact('01012345678');
 
-            // 앞에 0이 붙어서 01012345678이 됨
             expect(result).toBe('010-1234-5678');
         });
 
-        it('이미 11자리인 문자열을 올바르게 포맷한다', () => {
-            const result = formatContact('1098765432');
+        it('11자리 다른 prefix(011/016/017/018/019)도 정상 포맷한다', () => {
+            expect(formatContact('01112345678')).toBe('011-1234-5678');
+            expect(formatContact('01612345678')).toBe('016-1234-5678');
+        });
 
-            expect(result).toBe('010-9876-5432');
+        it('10자리 일반전화는 3-3-4 형식으로 포맷한다 (서울 외 지역번호)', () => {
+            // 0212345678 (서울 02 + 8자리)
+            expect(formatContact('0212345678')).toBe('021-234-5678');
+            // 0311234567 (경기 031 + 7자리)
+            expect(formatContact('0311234567')).toBe('031-123-4567');
         });
 
         it('null을 입력하면 "-"를 반환한다', () => {
@@ -37,23 +42,23 @@ describe('format 유틸리티', () => {
             expect(result).toBe('-');
         });
 
-        it('10자리 문자열을 11자리로 패딩하여 포맷한다', () => {
-            // 10자리: 1012341234 → 01012341234
-            const result = formatContact('1012341234');
+        it('11자리 하이픈 포함 문자열은 디지트 추출 후 포맷한다', () => {
+            const result = formatContact('010-1234-5678');
 
-            expect(result).toBe('010-1234-1234');
+            expect(result).toBe('010-1234-5678');
         });
 
-        it('하이픈이 포함된 문자열을 올바르게 포맷한다', () => {
-            const result = formatContact('010-1234-1234');
+        it('11자리 공백 포함 문자열은 디지트 추출 후 포맷한다', () => {
+            const result = formatContact('010 1234 5678');
 
-            expect(result).toBe('010-1234-1234');
+            expect(result).toBe('010-1234-5678');
         });
 
-        it('공백이 포함된 문자열을 올바르게 포맷한다', () => {
-            const result = formatContact('010 1234 1234');
-
-            expect(result).toBe('010-1234-1234');
+        it('비표준 길이는 디지트 그대로 반환한다 (해외번호 등)', () => {
+            // 12~15자리는 디지트 그대로 (분리 분기 없음)
+            expect(formatContact('821012345678')).toBe('821012345678');
+            // 8~9자리도 그대로
+            expect(formatContact('12345678')).toBe('12345678');
         });
     });
 

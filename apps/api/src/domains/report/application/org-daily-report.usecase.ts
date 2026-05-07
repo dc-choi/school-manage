@@ -4,14 +4,42 @@
  * 조직 활성화 현황 + 계정 현황을 DB에서 조회합니다.
  */
 import { sql } from 'kysely';
-import type { OrgAccountRow, OrgActivityRow, OrgDailyReportResult } from '~/domains/report/report.types.js';
+import type {
+    OrgAccountRow,
+    OrgActivityRow,
+    OrgDailyReportResult,
+    OrgSocialProof,
+} from '~/domains/report/report.types.js';
 import { database } from '~/infrastructure/database/database.js';
 
 export class OrgDailyReportUseCase {
     async execute(): Promise<OrgDailyReportResult> {
-        const [activityRows, accountRows] = await Promise.all([this.fetchOrgActivity(), this.fetchOrgAccounts()]);
+        const [activityRows, accountRows, socialProof] = await Promise.all([
+            this.fetchOrgActivity(),
+            this.fetchOrgAccounts(),
+            this.fetchSocialProof(),
+        ]);
 
-        return { activityRows, accountRows };
+        return { activityRows, accountRows, socialProof };
+    }
+
+    /**
+     * 사회적 증거 카운트 조회
+     *
+     * `CountAccountsUseCase`(랜딩 `trpc.account.count`)와 동일 정의 — 한쪽 변경 시 양쪽 동기화 필요.
+     */
+    private async fetchSocialProof(): Promise<OrgSocialProof> {
+        const [accountCount, churchCount, studentCount] = await Promise.all([
+            database.account.count(),
+            database.church.count({
+                where: {
+                    organizations: { some: {} },
+                },
+            }),
+            database.student.count(),
+        ]);
+
+        return { accountCount, churchCount, studentCount };
     }
 
     /** 조직 활성화 현황 */

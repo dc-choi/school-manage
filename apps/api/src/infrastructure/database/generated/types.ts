@@ -42,12 +42,6 @@ export type Church = {
     createAt: Timestamp;
     deleteAt: Timestamp | null;
 };
-export type ChurnAlertLog = {
-    id: Generated<number>;
-    organizationId: number;
-    inactiveDays: number;
-    sentAt: Timestamp;
-};
 export type Group = {
     id: Generated<number>;
     name: string;
@@ -108,7 +102,7 @@ export type Student = {
     catholicName: string | null;
     gender: string | null;
     age: number | null;
-    contact: number | null;
+    contact: string | null;
     parentContact: string | null;
     description: string | null;
     baptizedAt: string | null;
@@ -130,7 +124,7 @@ export type StudentSnapshot = {
     societyName: string;
     catholicName: string | null;
     gender: string | null;
-    contact: number | null;
+    contact: string | null;
     parentContact: string | null;
     description: string | null;
     baptizedAt: string | null;
@@ -143,7 +137,6 @@ export type DB = {
     accountSnapshot: AccountSnapshot;
     attendance: Attendance;
     church: Church;
-    churnAlertLog: ChurnAlertLog;
     group: Group;
     groupSnapshot: GroupSnapshot;
     joinRequest: JoinRequest;

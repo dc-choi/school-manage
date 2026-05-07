@@ -3,16 +3,10 @@
  *
  * Nodemailer + Google SMTP를 사용한 메일 발송 서비스
  */
-import {
-    churnAlertTemplate,
-    orgDailyReportTemplate,
-    signupNotificationTemplate,
-    temporaryPasswordTemplate,
-} from './templates.ts';
+import { orgDailyReportTemplate, signupNotificationTemplate, temporaryPasswordTemplate } from './templates.ts';
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
-import type { ChurnAlert } from '~/domains/churn/churn.types.js';
-import type { OrgAccountRow, OrgActivityRow } from '~/domains/report/report.types.js';
+import type { OrgAccountRow, OrgActivityRow, OrgSocialProof } from '~/domains/report/report.types.js';
 import { env } from '~/global/config/env.js';
 import { logger } from '~/infrastructure/logger/logger.js';
 
@@ -77,38 +71,12 @@ class MailService {
     }
 
     /**
-     * 이탈 감지 알림 메일 발송
-     * @param alerts 이탈 위험 단체 목록
-     * @param dateStr 감지 날짜 (YYYY-MM-DD)
-     */
-    async sendChurnAlert(alerts: ChurnAlert[], dateStr: string): Promise<void> {
-        if (!this.isEnabled()) {
-            logger.log('Mail disabled, skipping churn alert');
-            return;
-        }
-
-        const { subject, text } = churnAlertTemplate(alerts, dateStr);
-
-        try {
-            await this.getTransporter().sendMail({
-                from: env.smtp.user,
-                to: env.smtp.adminEmail,
-                subject,
-                text,
-            });
-
-            logger.log(`Churn alert sent: ${alerts.length} organizations`);
-        } catch (error) {
-            logger.err(`Churn alert failed: ${error}`);
-        }
-    }
-
-    /**
      * 조직 현황 일일 보고서 메일 발송
      */
     async sendOrgDailyReport(
         activityRows: OrgActivityRow[],
         accountRows: OrgAccountRow[],
+        socialProof: OrgSocialProof,
         dateStr: string
     ): Promise<void> {
         if (!this.isEnabled()) {
@@ -116,7 +84,7 @@ class MailService {
             return;
         }
 
-        const { subject, text } = orgDailyReportTemplate(activityRows, accountRows, dateStr);
+        const { subject, text } = orgDailyReportTemplate(activityRows, accountRows, socialProof, dateStr);
 
         try {
             await this.getTransporter().sendMail({
@@ -126,7 +94,10 @@ class MailService {
                 text,
             });
 
-            logger.log(`Org daily report sent: ${activityRows.length} orgs, ${accountRows.length} accounts`);
+            logger.log(
+                `Org daily report sent: ${activityRows.length} orgs, ${accountRows.length} accounts, ` +
+                    `social ${socialProof.churchCount} churches/${socialProof.accountCount} accounts/${socialProof.studentCount} students`
+            );
         } catch (error) {
             logger.err(`Org daily report failed: ${error}`);
         }

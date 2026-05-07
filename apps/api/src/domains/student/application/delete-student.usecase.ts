@@ -48,7 +48,7 @@ export class DeleteStudentUseCase {
                 societyName: student.societyName,
                 catholicName: student.catholicName ?? undefined,
                 age: student.age != null ? Number(student.age) : undefined,
-                contact: student.contact != null ? String(student.contact) : undefined,
+                contact: student.contact ?? undefined,
                 parentContact: student.parentContact ?? undefined,
                 description: student.description ?? undefined,
                 groups: student.studentGroups.map((sg) => ({
