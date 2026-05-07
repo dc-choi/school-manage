@@ -86,7 +86,8 @@ UPDATE `student` SET `contact_str` = CASE
         THEN CONCAT('0', CAST(`contact` AS CHAR))
     -- 그 외(12자리 이상, 7자리 이하 등): NULL — 운영자 수동 보정 대상
     ELSE NULL
-END;
+END
+WHERE `_id` > 0;
 
 ALTER TABLE `student` DROP COLUMN `contact`;
 ALTER TABLE `student` CHANGE COLUMN `contact_str` `contact` VARCHAR(20) NULL;
@@ -115,7 +116,8 @@ UPDATE `student_snapshot` SET `contact_str` = CASE
          AND CAST(`contact` AS CHAR) REGEXP '^2'
         THEN CONCAT('0', CAST(`contact` AS CHAR))
     ELSE NULL
-END;
+END
+WHERE `_id` > 0;
 
 ALTER TABLE `student_snapshot` DROP COLUMN `contact`;
 ALTER TABLE `student_snapshot` CHANGE COLUMN `contact_str` `contact` VARCHAR(20) NULL;
