@@ -29,9 +29,12 @@ describe('GroupStatisticsTable', () => {
     it('일간/주간/월간/연간 평균 출석 헤더가 모두 노출된다', () => {
         render(<GroupStatisticsTable data={makeData([makeGroup({})])} isLoading={false} />);
 
-        expect(screen.getByText('일간 출석')).toBeInTheDocument();
-        expect(screen.getByText('주간 평균 출석')).toBeInTheDocument();
-        expect(screen.getByText('월간 평균 출석')).toBeInTheDocument();
+        // jsdom 환경(데스크톱 가정): 모바일 hidden 텍스트도 DOM에 존재
+        const headers = screen.getAllByRole('columnheader');
+        const headerTexts = headers.map((h) => h.textContent);
+        expect(headerTexts).toContain('일간 출석');
+        expect(headerTexts).toContain('주간 평균 출석');
+        expect(headerTexts).toContain('월간 평균 출석');
     });
 
     it('학년 행에 일간 출석 수가 표시된다', () => {

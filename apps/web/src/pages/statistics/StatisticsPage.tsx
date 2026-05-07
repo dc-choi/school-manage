@@ -1,10 +1,17 @@
 import { getNthSundayOf, getWeeksInMonth } from '@school/utils';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { CalendarIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
+import { Button } from '~/components/ui/button';
+import { Calendar } from '~/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useDashboardStatistics } from '~/features/statistics';
 import { analytics } from '~/lib/analytics';
+import { cn } from '~/lib/utils';
 import { GenderDistributionChart } from '~/pages/dashboard/GenderDistributionChart';
 import { GroupStatisticsTable } from '~/pages/dashboard/GroupStatisticsTable';
 import { TopRankingCard } from '~/pages/dashboard/TopRankingCard';
@@ -177,23 +184,43 @@ export function StatisticsPage() {
                     </div>
                     <div className="flex items-center gap-1">
                         <span className="text-xs text-muted-foreground" id="filter-day-label">
-                            일간 기준
+                            날짜
                         </span>
-                        <input
-                            type="date"
-                            aria-labelledby="filter-day-label"
-                            className="h-9 rounded-md border border-input bg-background px-2 text-sm tabular-nums focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                            value={day ?? effectiveDay ?? ''}
-                            placeholder="출석 데이터 없음"
-                            onChange={(e) =>
-                                updateParams({
-                                    year,
-                                    month,
-                                    week,
-                                    day: e.target.value || undefined,
-                                })
-                            }
-                        />
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    aria-labelledby="filter-day-label"
+                                    className={cn(
+                                        'h-9 w-[9.5rem] justify-start gap-2 px-2 text-left text-sm font-normal tabular-nums',
+                                        !(day ?? effectiveDay) && 'text-muted-foreground'
+                                    )}
+                                >
+                                    <CalendarIcon className="size-4 shrink-0" aria-hidden="true" />
+                                    <span className="truncate">
+                                        {(day ?? effectiveDay)
+                                            ? format(new Date(day ?? effectiveDay ?? ''), 'yyyy-MM-dd', { locale: ko })
+                                            : '날짜 선택'}
+                                    </span>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={(day ?? effectiveDay) ? new Date(day ?? effectiveDay ?? '') : undefined}
+                                    onSelect={(selected) =>
+                                        updateParams({
+                                            year,
+                                            month,
+                                            week,
+                                            day: selected ? format(selected, 'yyyy-MM-dd') : undefined,
+                                        })
+                                    }
+                                    captionLayout="dropdown"
+                                />
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 </div>
 

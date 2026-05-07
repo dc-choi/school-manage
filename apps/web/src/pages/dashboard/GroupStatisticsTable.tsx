@@ -88,13 +88,13 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">총 인원</TableHead>
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">등록 인원</TableHead>
                         <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
-                            일간 출석
+                            일간<span className="hidden md:inline"> 출석</span>
                         </TableHead>
                         <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
-                            주간 평균 출석
+                            주간 평균<span className="hidden md:inline"> 출석</span>
                         </TableHead>
                         <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
-                            월간 평균 출석
+                            월간 평균<span className="hidden md:inline"> 출석</span>
                         </TableHead>
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
                             연간 평균 출석
