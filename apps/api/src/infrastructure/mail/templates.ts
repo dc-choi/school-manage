@@ -3,8 +3,7 @@
  *
  * 메일 템플릿 정의
  */
-import type { ChurnAlert } from '~/domains/churn/churn.types.js';
-import type { OrgAccountRow, OrgActivityRow } from '~/domains/report/report.types.js';
+import type { OrgAccountRow, OrgActivityRow, OrgSocialProof } from '~/domains/report/report.types.js';
 
 interface SignupNotificationData {
     displayName: string;
@@ -45,39 +44,20 @@ export const signupNotificationTemplate = (data: SignupNotificationData) => {
 };
 
 /**
- * 이탈 감지 알림 메일 템플릿
- */
-export const churnAlertTemplate = (alerts: ChurnAlert[], dateStr: string) => {
-    const subject = `[출석부] 이탈 위험 단체 ${alerts.length}곳 감지 (${dateStr})`;
-
-    const lines = alerts.map(
-        (a, i) =>
-            `${i + 1}. ${a.churchName} - ${a.organizationName} | 미활동 ${a.inactiveDays}일 | 학생 ${a.studentCount}명 | 마지막 활동: ${a.lastActivityDate}`
-    );
-
-    const text = `이탈 위험 단체 목록 (${dateStr} 기준)
-
-${lines.join('\n')}
-
-총 ${alerts.length}곳 감지됨.
-
----
-출석부 프로그램`;
-
-    return { subject, text };
-};
-
-/**
  * 조직 현황 일일 보고서 메일 템플릿
  */
 export const orgDailyReportTemplate = (
     activityRows: OrgActivityRow[],
     accountRows: OrgAccountRow[],
+    socialProof: OrgSocialProof,
     dateStr: string
 ) => {
     const subject = `[출석부] 조직 현황 일일 보고서 (${dateStr})`;
 
     const formatDate = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : '-');
+
+    // 섹션 0: 사회적 증거
+    const socialProofLine = `${socialProof.churchCount}개 본당에서 ${socialProof.accountCount}명의 계정이 ${socialProof.studentCount}명의 학생과 함께하고 있어요.`;
 
     // 섹션 1: 조직 활성화 현황
     const activityLines = activityRows.map(
@@ -91,7 +71,11 @@ export const orgDailyReportTemplate = (
             `${i + 1}. ${r.churchName ?? '(미소속)'} - ${r.organizationName ?? '(미소속)'} (${r.organizationType ?? '-'}) | 계정 ${r.totalAccounts}명 | ${r.accountNames ?? '-'}`
     );
 
-    const text = `[조직 활성화 현황] (${dateStr} 기준, ${activityRows.length}곳)
+    const text = `${socialProofLine}
+
+---
+
+[조직 활성화 현황] (${dateStr} 기준, ${activityRows.length}곳)
 
 ${activityLines.join('\n')}
 

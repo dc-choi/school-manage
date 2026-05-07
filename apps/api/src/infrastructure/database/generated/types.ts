@@ -42,12 +42,6 @@ export type Church = {
     createAt: Timestamp;
     deleteAt: Timestamp | null;
 };
-export type ChurnAlertLog = {
-    id: Generated<number>;
-    organizationId: number;
-    inactiveDays: number;
-    sentAt: Timestamp;
-};
 export type Group = {
     id: Generated<number>;
     name: string;
@@ -143,7 +137,6 @@ export type DB = {
     accountSnapshot: AccountSnapshot;
     attendance: Attendance;
     church: Church;
-    churnAlertLog: ChurnAlertLog;
     group: Group;
     groupSnapshot: GroupSnapshot;
     joinRequest: JoinRequest;
