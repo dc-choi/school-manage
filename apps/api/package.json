@@ -15,7 +15,7 @@
     }
   },
   "scripts": {
-    "prisma:generate": "prisma generate && node -e \"const f='src/infrastructure/database/generated/types.ts';require('fs').writeFileSync(f,require('fs').readFileSync(f,'utf8').replaceAll('_Id','id'))\"",
+    "prisma:generate": "node scripts/prisma-generate.cjs",
     "build": "pnpm prisma:generate && tsc -b && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/src/app.js",
     "test": "vitest run",

@@ -56,5 +56,6 @@ module.exports = defineConfig([
         'prisma/generated/**',
         '**/database/generated/**',
         'packages/utils/test/**',
+        'apps/api/scripts/**',
     ]),
 ]);
