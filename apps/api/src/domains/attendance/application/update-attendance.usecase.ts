@@ -1,13 +1,19 @@
 /**
  * Update Attendance UseCase
  *
- * 출석 데이터 업데이트/삭제
+ * 출석 데이터 업데이트/삭제 — content 기반 분기:
+ *   ◎/○/△ → atomic upsert (Kysely insertInto.onDuplicateKeyUpdate)
+ *   - / '' → hard delete (deleteMany)
  */
 import type { AttendanceData, UpdateAttendanceInput, UpdateAttendanceOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { getFullTime } from '~/global/utils/utils.js';
 import { database } from '~/infrastructure/database/database.js';
+
+const MARK_VALUES = new Set(['◎', '○', '△']);
+
+const isMark = (data: string): boolean => MARK_VALUES.has(data);
 
 export class UpdateAttendanceUseCase {
     async execute(input: UpdateAttendanceInput, organizationId: string): Promise<UpdateAttendanceOutput> {
@@ -53,15 +59,11 @@ export class UpdateAttendanceUseCase {
                 });
             }
 
-            let row: number;
+            // content 기반 분기: 마크는 upsert, 결석/미입력은 delete
+            const marks = input.attendance.filter((a) => isMark(a.data));
+            const erases = input.attendance.filter((a) => !isMark(a.data));
 
-            if (input.isFull) {
-                // 출석 입력 (insert or update)
-                row = await this.updateAttendance(input.year, input.groupId, input.attendance);
-            } else {
-                // 출석 삭제 (hard delete)
-                row = await this.deleteAttendance(input.year, input.attendance);
-            }
+            const row = await this.applyChanges(input.year, input.groupId, marks, erases);
 
             // 측정 인프라: 저장된 학생 수 (고유 학생 ID 수)
             const studentIdSet = new Set(input.attendance.map((a) => a.id));
@@ -97,8 +99,6 @@ export class UpdateAttendanceUseCase {
 
             return {
                 row,
-                isFull: input.isFull,
-                // 측정 인프라용 필드
                 isFirstAttendance,
                 daysSinceSignup,
                 studentCount,
@@ -110,26 +110,45 @@ export class UpdateAttendanceUseCase {
             };
         } catch (e) {
             if (e instanceof TRPCError) throw e;
-            console.error('[UpdateAttendanceUseCase]', e);
+            console.error('[UpdateAttendanceUseCase]', {
+                organizationId,
+                year: input.year,
+                groupId: input.groupId,
+                cellCount: input.attendance.length,
+                error: e instanceof Error ? { name: e.name, message: e.message } : String(e),
+            });
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: '출석 저장에 실패했습니다.',
+                cause: e instanceof Error ? e : undefined,
             });
         }
     }
 
     /**
-     * 출석 데이터 업데이트 (atomic upsert via Kysely + ON DUPLICATE KEY UPDATE)
+     * 마크/삭제 항목을 단일 트랜잭션에서 처리.
      *
-     * (student_id, date) UNIQUE 제약(20260428)에 conflict 시 단일 atomic SQL로 update.
-     * groupId는 onDuplicateKeyUpdate 절에 미포함 → 학생 그룹 이동 후에도 historical groupId 보존.
-     * Prisma upsert가 race-safe하지 않은 한계(P2002→P2025)를 Kysely 빌더로 회피.
+     * - 마크(◎/○/△): Kysely `insertInto.onDuplicateKeyUpdate` (atomic upsert).
+     *   `(student_id, date)` UNIQUE 제약(20260428)에 conflict 시 update.
+     *   `groupId`는 onDuplicateKeyUpdate 절에 미포함 → historical groupId 보존.
+     * - 삭제(`-` / `''`): `deleteMany WHERE (studentId, date)`. 0행 영향이어도 throw 없음 (Prisma 기본).
+     *
+     * 반환값 `row`는 처리된 항목 수의 합 (마크 수 + 실제 삭제된 row 수).
      */
-    private async updateAttendance(year: number, groupId: string, attendance: AttendanceData[]): Promise<number> {
+    private async applyChanges(
+        year: number,
+        groupId: string,
+        marks: AttendanceData[],
+        erases: AttendanceData[]
+    ): Promise<number> {
+        // studentId 오름차순으로 처리 — 동시 트랜잭션 간 잠금 순서 통일로 데드락 회피
+        const sortedMarks = sortByStudentId(marks);
+        const sortedErases = sortByStudentId(erases);
+
         return await database.$transaction(async (tx) => {
             let count = 0;
 
-            for (const item of attendance) {
+            for (const item of sortedMarks) {
                 const fullTime = await getFullTime(year, item.month, item.day);
                 const now = getNowKST();
                 await tx.$kysely
@@ -148,28 +167,29 @@ export class UpdateAttendanceUseCase {
                     .execute();
                 count++;
             }
-            return count;
-        });
-    }
 
-    /**
-     * 출석 데이터 삭제 (hard delete)
-     */
-    private async deleteAttendance(year: number, attendance: AttendanceData[]): Promise<number> {
-        return await database.$transaction(async (tx) => {
-            let count = 0;
-
-            for (const item of attendance) {
-                const fullTime = await getFullTime(year, item.month, item.day);
-                const result = await tx.attendance.deleteMany({
-                    where: {
+            // 삭제는 (studentId, date) 페어 OR 조건으로 단일 SQL 처리
+            if (sortedErases.length > 0) {
+                const eraseConditions = await Promise.all(
+                    sortedErases.map(async (item) => ({
                         studentId: BigInt(item.id),
-                        date: fullTime,
-                    },
+                        date: await getFullTime(year, item.month, item.day),
+                    }))
+                );
+                const result = await tx.attendance.deleteMany({
+                    where: { OR: eraseConditions },
                 });
                 count += result.count;
             }
+
             return count;
         });
     }
 }
+
+const sortByStudentId = (items: AttendanceData[]): AttendanceData[] =>
+    [...items].sort((a, b) => {
+        const ai = BigInt(a.id);
+        const bi = BigInt(b.id);
+        return ai < bi ? -1 : ai > bi ? 1 : 0;
+    });

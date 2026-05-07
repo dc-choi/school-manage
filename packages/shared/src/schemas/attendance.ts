@@ -27,7 +27,6 @@ export const updateAttendanceInputSchema = z.object({
         .array(attendanceDataSchema)
         .min(1, 'At least one attendance entry is required')
         .max(500, 'Maximum 500 attendance entries allowed'),
-    isFull: z.boolean(),
 });
 
 /**
@@ -62,7 +61,6 @@ export type GetDayDetailInput = z.infer<typeof getDayDetailInputSchema>;
  */
 export interface UpdateAttendanceOutput {
     row: number;
-    isFull: boolean;
     /** 이 계정의 첫 번째 출석 기록인지 (측정 인프라용) */
     isFirstAttendance?: boolean;
     /** 가입 후 경과일 (측정 인프라용) */

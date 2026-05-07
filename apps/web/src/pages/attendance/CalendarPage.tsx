@@ -87,10 +87,10 @@ export function CalendarPage() {
         await refreshCalendar();
     }, [refreshCalendar]);
 
-    // 출석 저장 핸들러
+    // 출석 저장 핸들러 — 서버는 content로 자동 분기 (◎/○/△ upsert, -/'' delete)
     const handleSave = useCallback(
-        async (data: AttendanceData[], isFull: boolean) => {
-            await updateAttendance(data, isFull);
+        async (data: AttendanceData[]) => {
+            await updateAttendance(data);
             // 날짜별 상세 데이터도 갱신
             await refreshDayDetail();
         },

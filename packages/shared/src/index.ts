@@ -85,6 +85,7 @@ export {
     approveJoinInputSchema,
     rejectJoinInputSchema,
     transferAdminInputSchema,
+    removeMemberInputSchema,
 } from './schemas/index.js';
 
 // 입력 타입 (Input)
@@ -139,6 +140,7 @@ export type {
     ApproveJoinInput,
     RejectJoinInput,
     TransferAdminInput,
+    RemoveMemberInput,
 } from './schemas/index.js';
 
 // 출력 타입 (Output)
@@ -211,6 +213,7 @@ export type {
     TopOverallOutput,
     GroupStatisticsItem,
     GroupStatisticsOutput,
+    StatisticsPeriod,
     // Liturgical
     Holyday,
     GetHolydaysOutput,
@@ -232,4 +235,5 @@ export type {
     MemberItem,
     MembersOutput,
     TransferAdminOutput,
+    RemoveMemberOutput,
 } from './schemas/index.js';

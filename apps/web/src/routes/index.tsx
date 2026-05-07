@@ -28,9 +28,6 @@ const StudentDetailPage = lazy(() =>
 const StudentAddPage = lazy(() =>
     import('~/pages/student/StudentAddPage').then((m) => ({ default: m.StudentAddPage }))
 );
-const AttendancePage = lazy(() =>
-    import('~/pages/attendance/AttendancePage').then((m) => ({ default: m.AttendancePage }))
-);
 const CalendarPage = lazy(() => import('~/pages/attendance/CalendarPage').then((m) => ({ default: m.CalendarPage })));
 const StatisticsPage = lazy(() =>
     import('~/pages/statistics/StatisticsPage').then((m) => ({ default: m.StatisticsPage }))
@@ -174,14 +171,6 @@ const routes: RouteObject[] = [
                 element: (
                     <ProtectedRoute>
                         <CalendarPage />
-                    </ProtectedRoute>
-                ),
-            },
-            {
-                path: '/attendance/table',
-                element: (
-                    <ProtectedRoute>
-                        <AttendancePage />
                     </ProtectedRoute>
                 ),
             },

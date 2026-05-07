@@ -133,12 +133,9 @@ describe('attendance 통합 테스트', () => {
                         data: '◎',
                     },
                 ],
-                isFull: true,
             });
 
             expect(result).toHaveProperty('row');
-            expect(result).toHaveProperty('isFull');
-            expect(result.isFull).toBe(true);
             expect(result.row).toBe(1);
 
             // DB에 실제 생성되었는지 확인
@@ -183,11 +180,9 @@ describe('attendance 통합 테스트', () => {
                         data: '○',
                     },
                 ],
-                isFull: true,
             });
 
             expect(result).toHaveProperty('row');
-            expect(result).toHaveProperty('isFull');
 
             // DB에서 수정 확인
             const dbAttendance = await database.attendance.findFirst({
@@ -211,7 +206,6 @@ describe('attendance 통합 테스트', () => {
                             data: '◎',
                         },
                     ],
-                    isFull: true,
                 })
             ).rejects.toMatchObject({
                 code: 'UNAUTHORIZED',
@@ -233,7 +227,6 @@ describe('attendance 통합 테스트', () => {
                     year: 2024,
                     groupId: '1',
                     attendance: oversizedAttendance,
-                    isFull: true,
                 })
             ).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
@@ -248,14 +241,49 @@ describe('attendance 통합 테스트', () => {
                     year: 2024,
                     groupId: '1',
                     attendance: [],
-                    isFull: true,
                 })
             ).rejects.toMatchObject({
                 code: 'BAD_REQUEST',
             });
         });
 
-        it('TC-A-N1: data = "-" (결석 명시) 정상 저장', async () => {
+        it('TC-A-N1: data = "-" (결석 명시) → 기존 row 삭제', async () => {
+            const now = getNowKST();
+            const group = await database.group.create({
+                data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
+            });
+            const student = await database.student.create({
+                data: { societyName: '홍길동', organizationId: seed.org.id, createdAt: now },
+            });
+            await database.studentGroup.create({
+                data: { studentId: student.id, groupId: group.id, createdAt: now },
+            });
+            // 기존 출석 ◎이 있는 상태에서 '-' 입력 → DELETE 검증
+            await database.attendance.create({
+                data: {
+                    date: '20240107',
+                    content: '◎',
+                    studentId: student.id,
+                    groupId: group.id,
+                    createdAt: now,
+                },
+            });
+
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.attendance.update({
+                year: 2024,
+                groupId: String(group.id),
+                attendance: [{ id: String(student.id), month: 1, day: 7, data: '-' }],
+            });
+
+            expect(result.row).toBe(1); // 1행 삭제
+            const dbAttendance = await database.attendance.findFirst({
+                where: { studentId: student.id, date: '20240107' },
+            });
+            expect(dbAttendance).toBeNull();
+        });
+
+        it('TC-A-N2: data = "-" 입력 시 기존 row 없으면 noop (멱등)', async () => {
             const now = getNowKST();
             const group = await database.group.create({
                 data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
@@ -272,14 +300,9 @@ describe('attendance 통합 테스트', () => {
                 year: 2024,
                 groupId: String(group.id),
                 attendance: [{ id: String(student.id), month: 1, day: 7, data: '-' }],
-                isFull: true,
             });
 
-            expect(result.row).toBe(1);
-            const dbAttendance = await database.attendance.findFirst({
-                where: { studentId: student.id, date: '20240107' },
-            });
-            expect(dbAttendance?.content).toBe('-');
+            expect(result.row).toBe(0); // 0행 영향, throw 없음
         });
 
         it('TC-A-E1: data 11자 초과 → BAD_REQUEST', async () => {
@@ -290,7 +313,6 @@ describe('attendance 통합 테스트', () => {
                     year: 2024,
                     groupId: '1',
                     attendance: [{ id: '1', month: 1, day: 7, data: '◎'.repeat(11) }],
-                    isFull: true,
                 })
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -303,7 +325,6 @@ describe('attendance 통합 테스트', () => {
                     year: 2024,
                     groupId: '1',
                     attendance: [{ id: '1', month: 1, day: 7, data: 'X' }],
-                    isFull: true,
                 })
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -316,7 +337,6 @@ describe('attendance 통합 테스트', () => {
                     year: 2024,
                     groupId: '1',
                     attendance: [{ id: '1', month: 1, day: 7, data: '○ ' }],
-                    isFull: true,
                 })
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -329,7 +349,6 @@ describe('attendance 통합 테스트', () => {
                     year: 2024,
                     groupId: '1',
                     attendance: [{ id: '1', month: 1, day: 7, data: '△ 결석=미 표기' }],
-                    isFull: true,
                 })
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -356,7 +375,6 @@ describe('attendance 통합 테스트', () => {
                 year: 2024,
                 groupId: String(group1.id),
                 attendance: [{ id: String(student.id), month: 1, day: 7, data: '◎' }],
-                isFull: true,
             });
 
             // 학생이 2학년으로 이동
@@ -372,7 +390,6 @@ describe('attendance 통합 테스트', () => {
                 year: 2024,
                 groupId: String(group2.id),
                 attendance: [{ id: String(student.id), month: 1, day: 7, data: '○' }],
-                isFull: true,
             });
 
             const dbAttendance = await database.attendance.findFirst({
@@ -402,13 +419,11 @@ describe('attendance 통합 테스트', () => {
                     year: 2024,
                     groupId: String(group.id),
                     attendance: [{ id: String(student.id), month: 1, day: 7, data: '◎' }],
-                    isFull: true,
                 }),
                 caller.attendance.update({
                     year: 2024,
                     groupId: String(group.id),
                     attendance: [{ id: String(student.id), month: 1, day: 7, data: '○' }],
-                    isFull: true,
                 }),
             ]);
 
@@ -471,15 +486,13 @@ describe('attendance 통합 테스트', () => {
                 year: 2024,
                 groupId: String(group.id),
                 attendance: [{ id: String(student.id), month: 1, day: 7, data: '◎' }],
-                isFull: true,
             });
 
-            // 2) 삭제 (isFull=false → hard delete 분기)
+            // 2) 삭제 (data='' → hard delete 분기)
             await caller.attendance.update({
                 year: 2024,
                 groupId: String(group.id),
                 attendance: [{ id: String(student.id), month: 1, day: 7, data: '' }],
-                isFull: false,
             });
 
             // 3) 재입력 (UNIQUE 위반 없이 새 INSERT)
@@ -487,7 +500,6 @@ describe('attendance 통합 테스트', () => {
                 year: 2024,
                 groupId: String(group.id),
                 attendance: [{ id: String(student.id), month: 1, day: 7, data: '△' }],
-                isFull: true,
             });
 
             const rows = await database.attendance.findMany({

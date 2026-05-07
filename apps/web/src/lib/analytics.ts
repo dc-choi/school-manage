@@ -469,4 +469,12 @@ export const analytics = {
     trackStatisticsViewed: (): void => {
         safeGtag('event', 'statistics_viewed');
     },
+
+    /**
+     * 출석 모달 정렬 토글 클릭 이벤트 (attendance-ui-revamp)
+     * 트리거: 출석 모달의 정렬 select 옵션 변경 시
+     */
+    trackAttendanceSortClicked: (sortType: 'registration' | 'name'): void => {
+        safeGtag('event', 'attendance_sort_clicked', { sort_type: sortType });
+    },
 };
