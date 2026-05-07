@@ -41,9 +41,12 @@ export function PatronFeastCard() {
                         return (
                             <li
                                 key={`${student.societyName}-${student.catholicName}-${student.baptizedAt}`}
-                                className="text-sm"
+                                className="flex items-baseline justify-between gap-2 text-sm"
                             >
-                                {student.societyName} · {student.catholicName} · {mmdd}
+                                <span className="truncate">
+                                    {student.societyName} {student.catholicName}
+                                </span>
+                                <span className="tabular-nums text-muted-foreground">{mmdd}</span>
                             </li>
                         );
                     })}

@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/web/**"
+    - 'apps/web/**'
 ---
 
 # Web App Patterns
@@ -13,21 +13,21 @@ paths:
 
 라우트 기반 코드 스플리팅으로 초기 번들 크기를 최소화합니다.
 
-| 그룹 | 페이지 | 방식 |
-|------|--------|------|
-| eager (초기 번들) | LandingPage, LoginPage, SignupPage | `pages/index.ts` barrel export |
-| lazy | 나머지 12개 페이지 | `React.lazy` + `Suspense` (routes/index.tsx) |
+| 그룹              | 페이지                             | 방식                                         |
+| ----------------- | ---------------------------------- | -------------------------------------------- |
+| eager (초기 번들) | LandingPage, LoginPage, SignupPage | `pages/index.ts` barrel export               |
+| lazy              | 나머지 12개 페이지                 | `React.lazy` + `Suspense` (routes/index.tsx) |
 
 ```tsx
 // lazy 패턴 (named export → default export 변환)
-const DashboardPage = lazy(() => import('~/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const DashboardPage = lazy(() => import('~/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 ```
 
-| vendor 청크 | 포함 패키지 |
-|-------------|-----------|
-| `vendor-react` | react, react-dom, react-router-dom, scheduler |
-| `vendor-ui` | @radix-ui, lucide-react, tailwind-merge, cva, clsx |
-| `vendor-query` | @tanstack/react-query, @trpc, superjson |
+| vendor 청크    | 포함 패키지                                        |
+| -------------- | -------------------------------------------------- |
+| `vendor-react` | react, react-dom, react-router-dom, scheduler      |
+| `vendor-ui`    | @radix-ui, lucide-react, tailwind-merge, cva, clsx |
+| `vendor-query` | @tanstack/react-query, @trpc, superjson            |
 
 - `LoadingFallback` (`components/common/LoadingFallback.tsx`): Suspense fallback 전용
 - 프로덕션 sourcemap: **비활성** (`vite.config.ts` → `sourcemap: false`)
@@ -48,10 +48,10 @@ main.tsx
                 각 페이지
 ```
 
-| 컴포넌트 | 위치 | 역할 |
-|---------|------|------|
-| `GlobalErrorBoundary` | `components/common/GlobalErrorBoundary.tsx` | 최외곽 class component (`componentDidCatch`) |
-| `RouteErrorFallback` | `components/common/RouteErrorFallback.tsx` | 라우트 에러 UI (`useRouteError()`, MainLayout 유지) |
+| 컴포넌트              | 위치                                        | 역할                                                |
+| --------------------- | ------------------------------------------- | --------------------------------------------------- |
+| `GlobalErrorBoundary` | `components/common/GlobalErrorBoundary.tsx` | 최외곽 class component (`componentDidCatch`)        |
+| `RouteErrorFallback`  | `components/common/RouteErrorFallback.tsx`  | 라우트 에러 UI (`useRouteError()`, MainLayout 유지) |
 
 - **비동기 에러** (API 호출 실패): 기존 tRPC error 처리 유지 (ErrorBoundary 대상 아님)
 - **이벤트 핸들러 에러**: React 제약으로 ErrorBoundary 대상 아님
@@ -66,6 +66,9 @@ main.tsx
 ### tRPC 모킹 패턴
 
 ```typescript
+// 모킹 후에 훅 import (순서 중요!)
+import { useMyHook } from '~/features/{domain}/hooks/useMyHook';
+
 vi.mock('~/lib/trpc', () => ({
     trpc: {
         statistics: {
@@ -79,31 +82,29 @@ vi.mock('~/lib/trpc', () => ({
         },
     },
 }));
-
-// 모킹 후에 훅 import (순서 중요!)
-import { useMyHook } from '~/features/{domain}/hooks/useMyHook';
 ```
 
 ## 라우트 구조
 
-| 경로 | 페이지 | 인증 필요 | 동의 필요 |
-|------|--------|----------|----------|
-| `/landing` | `LandingPage` | No | No |
-| `/login` | `LoginPage` | No | No |
-| `/signup` | `SignupPage` | No | No |
-| `/reset-password` | `ResetPasswordPage` | No | No |
-| `/donate` | `DonatePage` | No | No |
-| `/consent` | `ConsentPage` | Yes (내부 체크) | No |
-| `/settings` | `SettingsPage` | Yes | Yes |
-| `/` | `DashboardPage` | No (내부 분기) | No |
-| `/groups` | `GroupListPage` | Yes | Yes |
-| `/groups/new` | `GroupAddPage` | Yes | Yes |
-| `/groups/:id` | `GroupDetailPage` | Yes | Yes |
-| `/students` | `StudentListPage` | Yes | Yes |
-| `/students/new` | `StudentAddPage` | Yes | Yes |
-| `/students/:id` | `StudentDetailPage` | Yes | Yes |
-| `/attendance` | `CalendarPage` | Yes | Yes |
-| `/attendance/table` | `AttendancePage` | Yes | Yes |
+| 경로                | 페이지              | 인증 필요       | 동의 필요 |
+| ------------------- | ------------------- | --------------- | --------- |
+| `/landing`          | `LandingPage`       | No              | No        |
+| `/login`            | `LoginPage`         | No              | No        |
+| `/signup`           | `SignupPage`        | No              | No        |
+| `/reset-password`   | `ResetPasswordPage` | No              | No        |
+| `/donate`           | `DonatePage`        | No              | No        |
+| `/consent`          | `ConsentPage`       | Yes (내부 체크) | No        |
+| `/settings`         | `SettingsPage`      | Yes             | Yes       |
+| `/`                 | `DashboardPage`     | No (내부 분기)  | No        |
+| `/groups`           | `GroupListPage`     | Yes             | Yes       |
+| `/groups/new`       | `GroupAddPage`      | Yes             | Yes       |
+| `/groups/:id`       | `GroupDetailPage`   | Yes             | Yes       |
+| `/students`         | `StudentListPage`   | Yes             | Yes       |
+| `/students/new`     | `StudentAddPage`    | Yes             | Yes       |
+| `/students/:id`     | `StudentDetailPage` | Yes             | Yes       |
+| `/attendance`       | `CalendarPage`      | Yes             | Yes       |
+| `/attendance/table` | `AttendancePage`    | Yes             | Yes       |
+| `/statistics`       | `StatisticsPage`    | Yes             | Yes       |
 
 ## React 성능 규칙
 

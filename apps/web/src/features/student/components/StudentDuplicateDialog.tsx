@@ -61,7 +61,7 @@ export function StudentDuplicateDialog({
                         {existing.groupNames.length > 0 ? (
                             <div className="flex justify-between gap-3">
                                 <dt className="text-muted-foreground">소속</dt>
-                                <dd className="text-right">{existing.groupNames.join(' · ')}</dd>
+                                <dd className="text-right">{existing.groupNames.join(', ')}</dd>
                             </div>
                         ) : null}
                         <div className="flex justify-between gap-3">

@@ -32,6 +32,9 @@ const AttendancePage = lazy(() =>
     import('~/pages/attendance/AttendancePage').then((m) => ({ default: m.AttendancePage }))
 );
 const CalendarPage = lazy(() => import('~/pages/attendance/CalendarPage').then((m) => ({ default: m.CalendarPage })));
+const StatisticsPage = lazy(() =>
+    import('~/pages/statistics/StatisticsPage').then((m) => ({ default: m.StatisticsPage }))
+);
 const JoinPage = lazy(() => import('~/pages/join/JoinPage').then((m) => ({ default: m.JoinPage })));
 const PendingPage = lazy(() => import('~/pages/pending/PendingPage').then((m) => ({ default: m.PendingPage })));
 const DonatePage = lazy(() => import('~/pages/donate/DonatePage').then((m) => ({ default: m.DonatePage })));
@@ -172,6 +175,14 @@ const routes: RouteObject[] = [
                 element: (
                     <ProtectedRoute>
                         <SettingsPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: '/statistics',
+                element: (
+                    <ProtectedRoute>
+                        <StatisticsPage />
                     </ProtectedRoute>
                 ),
             },
