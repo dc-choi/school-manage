@@ -24,15 +24,15 @@ export function useCalendar(groupId: string, year: number, month: number) {
 
     /**
      * 출석 업데이트
+     *
+     * 서버는 항목별 content로 자동 분기: ◎/○/△는 upsert, `-`/`''`는 hard delete.
      * @param attendanceData - 출석 데이터 배열
-     * @param isFull - true: insert/update, false: delete
      */
-    const updateAttendance = async (attendanceData: AttendanceData[], isFull: boolean) => {
+    const updateAttendance = async (attendanceData: AttendanceData[]) => {
         return updateMutation.mutateAsync({
             year,
             groupId,
             attendance: attendanceData,
-            isFull,
         });
     };
 

@@ -469,4 +469,35 @@ export const analytics = {
     trackStatisticsViewed: (): void => {
         safeGtag('event', 'statistics_viewed');
     },
+
+    /**
+     * 출석부 정렬 토글 클릭 이벤트 (attendance-ui-revamp)
+     * 트리거: 정렬 select 옵션 변경 시
+     */
+    trackAttendanceSortClicked: (sortType: 'registration' | 'name' | 'top_attendance'): void => {
+        safeGtag('event', 'attendance_sort_clicked', { sort_type: sortType });
+    },
+
+    /**
+     * 출석 자동 저장 latency 이벤트 (attendance-ui-revamp)
+     * 트리거: 큐 flush 응답 수신 시 (성공/실패 모두)
+     */
+    trackAttendanceSaveLatency: (params: { cellCount: number; latencyMs: number; ok: boolean }): void => {
+        safeGtag('event', 'attendance_save_latency_ms', {
+            cell_count: params.cellCount,
+            latency_ms: params.latencyMs,
+            ok: params.ok,
+        });
+    },
+
+    /**
+     * 출석 자동 저장 실패 이벤트 (attendance-ui-revamp)
+     * 트리거: 큐 flush 실패 시
+     */
+    trackAttendanceSaveFailed: (params: { errorCode: string; cellCount: number }): void => {
+        safeGtag('event', 'attendance_save_failed', {
+            error_code: params.errorCode,
+            cell_count: params.cellCount,
+        });
+    },
 };

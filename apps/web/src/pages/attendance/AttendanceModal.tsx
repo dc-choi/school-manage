@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog';
-import { Label } from '~/components/ui/label';
 import { extractErrorMessage } from '~/lib/error';
 import { cn } from '~/lib/utils';
 
@@ -24,7 +23,7 @@ interface AttendanceModalProps {
     holyday: string | null;
     students: StudentAttendanceDetail[];
     isLoading?: boolean;
-    onSave: (data: AttendanceData[], isFull: boolean) => Promise<void>;
+    onSave: (data: AttendanceData[]) => Promise<void>;
     year: number;
 }
 
@@ -129,8 +128,8 @@ export function AttendanceModal({
                     data: content,
                 };
 
-                // 결석('-')이면 삭제, 그 외(◎, ○, △)는 저장
-                await onSave([data], content !== '-');
+                // 서버가 content로 자동 분기: ◎/○/△ → upsert, '-' → DELETE
+                await onSave([data]);
 
                 setSaveStatus('saved');
                 setTimeout(() => setSaveStatus('idle'), 2000);
@@ -172,52 +171,62 @@ export function AttendanceModal({
                         </div>
 
                         {/* 학생 목록 */}
-                        {studentAttendance.map((student, index) => (
-                            <div key={student.id}>
-                                {index > 0 && <div className="border-t border-border" />}
-                                <div className="grid grid-cols-[1fr_44px_44px_40px] sm:grid-cols-[1fr_60px_60px_50px] items-center gap-2 py-2">
-                                    <div className="min-w-0">
-                                        <Label className="block truncate font-normal">{student.societyName}</Label>
-                                        {student.catholicName && (
-                                            <span className="block truncate text-xs text-muted-foreground">
-                                                {student.catholicName}
+                        {studentAttendance.map((student, index) => {
+                            const massId = `attendance-mass-${student.id}`;
+                            const catechismId = `attendance-catechism-${student.id}`;
+                            return (
+                                <div key={student.id}>
+                                    {index > 0 && <div className="border-t border-border" />}
+                                    <div className="grid grid-cols-[1fr_44px_44px_40px] sm:grid-cols-[1fr_60px_60px_50px] items-center gap-2 py-2">
+                                        <div className="min-w-0">
+                                            <span className="block truncate text-sm font-normal">
+                                                {student.societyName}
                                             </span>
-                                        )}
-                                    </div>
-                                    <div className="flex justify-center">
-                                        <Checkbox
-                                            checked={student.mass}
-                                            onCheckedChange={(checked) =>
-                                                handleCheckChange(student.id, 'mass', checked as boolean)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="flex justify-center">
-                                        <Checkbox
-                                            checked={student.catechism}
-                                            onCheckedChange={(checked) =>
-                                                handleCheckChange(student.id, 'catechism', checked as boolean)
-                                            }
-                                        />
-                                    </div>
-                                    <div
-                                        className={cn(
-                                            'text-center text-lg',
-                                            student.mass && student.catechism && 'text-green-600',
-                                            (student.mass || student.catechism) &&
-                                                !(student.mass && student.catechism) &&
-                                                'text-yellow-600',
-                                            !student.mass && !student.catechism && 'text-muted-foreground'
-                                        )}
-                                    >
-                                        {getStatusSymbol(student.mass, student.catechism)}
+                                            {student.catholicName && (
+                                                <span className="block truncate text-xs text-muted-foreground">
+                                                    {student.catholicName}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex justify-center">
+                                            <Checkbox
+                                                id={massId}
+                                                aria-label={`${student.societyName} 미사 출석`}
+                                                checked={student.mass}
+                                                onCheckedChange={(checked) =>
+                                                    handleCheckChange(student.id, 'mass', checked as boolean)
+                                                }
+                                            />
+                                        </div>
+                                        <div className="flex justify-center">
+                                            <Checkbox
+                                                id={catechismId}
+                                                aria-label={`${student.societyName} 교리 출석`}
+                                                checked={student.catechism}
+                                                onCheckedChange={(checked) =>
+                                                    handleCheckChange(student.id, 'catechism', checked as boolean)
+                                                }
+                                            />
+                                        </div>
+                                        <div
+                                            className={cn(
+                                                'text-center text-lg tabular-nums',
+                                                student.mass && student.catechism && 'text-green-700',
+                                                (student.mass || student.catechism) &&
+                                                    !(student.mass && student.catechism) &&
+                                                    'text-yellow-700',
+                                                !student.mass && !student.catechism && 'text-muted-foreground'
+                                            )}
+                                        >
+                                            {getStatusSymbol(student.mass, student.catechism)}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
 
                         {/* 저장 상태 인디케이터 */}
-                        <div className="flex items-center justify-end gap-2 border-t pt-4 text-sm">
+                        <div aria-live="polite" className="flex items-center justify-end gap-2 border-t pt-4 text-sm">
                             {saveStatus === 'saving' && (
                                 <>
                                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -226,14 +235,14 @@ export function AttendanceModal({
                             )}
                             {saveStatus === 'saved' && (
                                 <>
-                                    <Check className="h-4 w-4 text-green-600" />
-                                    <span className="text-green-600">저장 완료</span>
+                                    <Check className="h-4 w-4 text-green-700" aria-hidden="true" />
+                                    <span className="text-green-700">저장 완료</span>
                                 </>
                             )}
                             {saveStatus === 'error' && (
                                 <>
-                                    <X className="h-4 w-4 text-red-600" />
-                                    <span className="text-red-600">저장 실패</span>
+                                    <X className="h-4 w-4 text-red-700" aria-hidden="true" />
+                                    <span className="text-red-700">저장 실패</span>
                                     <Button variant="outline" size="sm" onClick={() => setSaveStatus('idle')}>
                                         재시도
                                     </Button>
