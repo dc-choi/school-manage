@@ -71,9 +71,12 @@ export function CalendarCell({ day, onClick }: Readonly<CalendarCellProps>) {
                         />
                     </div>
                     <div
-                        className={cn('text-center text-xs font-medium', getTextColor(isFullAttendance, hasAttendance))}
+                        className={cn(
+                            'hidden whitespace-nowrap text-center text-xs font-medium sm:block',
+                            getTextColor(isFullAttendance, hasAttendance)
+                        )}
                     >
-                        미사 {attendance.massPresent} · 교리 {attendance.catechismPresent}
+                        미사 {attendance.massPresent} 교리 {attendance.catechismPresent}
                     </div>
                 </div>
             )}

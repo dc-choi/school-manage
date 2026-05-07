@@ -28,6 +28,9 @@
  * - 축일자 카드 노출: analytics.trackPatronFeastCardViewed()
  * - 컨텍스트 배너 노출: analytics.trackContextBannerShown(nextSunday)
  * - 컨텍스트 배너 클릭: analytics.trackContextBannerClicked()
+ * - 모바일 탭 클릭: analytics.trackNavTabClicked(tab)
+ * - 모바일 더보기 시트 노출: analytics.trackMoreSheetOpened()
+ * - 통계 페이지 진입: analytics.trackStatisticsViewed()
  *
  * 사용자 속성 (커스텀 디멘션):
  * - 사용자 속성 설정: analytics.setUserProperties(accountName, organizationName)
@@ -440,5 +443,30 @@ export const analytics = {
             mode: params.mode,
             count: params.count,
         });
+    },
+
+    /**
+     * 모바일 하단 탭바 클릭 이벤트 (mobile-ux-revamp)
+     * 트리거: BottomTabBar 5탭 중 하나 클릭 시
+     * @param tab 클릭한 탭 식별자
+     */
+    trackNavTabClicked: (tab: 'home' | 'attendance' | 'students' | 'statistics' | 'more'): void => {
+        safeGtag('event', 'nav_tab_clicked', { tab });
+    },
+
+    /**
+     * 모바일 더보기 시트 노출 이벤트 (mobile-ux-revamp)
+     * 트리거: 더보기 탭 클릭으로 시트가 열린 시점 (매 노출마다)
+     */
+    trackMoreSheetOpened: (): void => {
+        safeGtag('event', 'nav_more_sheet_opened');
+    },
+
+    /**
+     * 통계 페이지 진입 이벤트 (mobile-ux-revamp)
+     * 트리거: /statistics 마운트 시 (useEffect, 1회)
+     */
+    trackStatisticsViewed: (): void => {
+        safeGtag('event', 'statistics_viewed');
     },
 };
