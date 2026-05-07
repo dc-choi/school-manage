@@ -107,6 +107,7 @@ export {
     approveJoinInputSchema,
     rejectJoinInputSchema,
     transferAdminInputSchema,
+    removeMemberInputSchema,
 } from './organization.js';
 export type {
     ListOrganizationsInput,
@@ -115,6 +116,7 @@ export type {
     ApproveJoinInput,
     RejectJoinInput,
     TransferAdminInput,
+    RemoveMemberInput,
 } from './organization.js';
 
 // ============================================================
@@ -232,4 +234,5 @@ export type {
     MemberItem,
     MembersOutput,
     TransferAdminOutput,
+    RemoveMemberOutput,
 } from './organization.js';
