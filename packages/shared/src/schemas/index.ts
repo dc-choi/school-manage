@@ -209,6 +209,7 @@ export type {
     TopOverallOutput,
     GroupStatisticsItem,
     GroupStatisticsOutput,
+    StatisticsPeriod,
 } from './statistics.js';
 
 // Liturgical 출력 타입

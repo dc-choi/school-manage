@@ -12,11 +12,18 @@ import { TopRankingCard } from '~/pages/dashboard/TopRankingCard';
 const PARAM_YEAR = 'year';
 const PARAM_MONTH = 'month';
 const PARAM_WEEK = 'week';
+const PARAM_DAY = 'day';
+const DAY_PARAM_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export const parseIntParam = (value: string | null): number | undefined => {
     if (!value) return undefined;
     const n = Number.parseInt(value, 10);
     return Number.isFinite(n) ? n : undefined;
+};
+
+export const parseDayParam = (value: string | null): string | undefined => {
+    if (!value || !DAY_PARAM_REGEX.test(value)) return undefined;
+    return value;
 };
 
 export function StatisticsPage() {
@@ -28,19 +35,33 @@ export function StatisticsPage() {
     const year = parseIntParam(searchParams.get(PARAM_YEAR)) ?? currentYear;
     const month = parseIntParam(searchParams.get(PARAM_MONTH));
     const week = parseIntParam(searchParams.get(PARAM_WEEK));
+    const day = parseDayParam(searchParams.get(PARAM_DAY));
 
-    const stats = useDashboardStatistics({ year, month, week });
+    const stats = useDashboardStatistics({ year, month, week, day });
+    const effectiveDay = stats.groupStatistics?.effectiveDay ?? null;
     const hasError = !!stats.error;
 
     useEffect(() => {
         analytics.trackStatisticsViewed();
     }, []);
 
-    const updateParams = (next: { year: number; month?: number; week?: number }) => {
+    // ?day=invalid처럼 형식이 맞지 않는 day 파라미터는 URL에서 제거 (서버 기본값으로 폴백)
+    useEffect(() => {
+        if (!searchParams.has(PARAM_DAY)) return;
+        const rawDay = searchParams.get(PARAM_DAY);
+        if (rawDay !== null && parseDayParam(rawDay) === undefined) {
+            const params = new URLSearchParams(searchParams);
+            params.delete(PARAM_DAY);
+            setSearchParams(params, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
+
+    const updateParams = (next: { year: number; month?: number; week?: number; day?: string }) => {
         const params = new URLSearchParams();
         params.set(PARAM_YEAR, String(next.year));
         if (next.month !== undefined) params.set(PARAM_MONTH, String(next.month));
         if (next.week !== undefined) params.set(PARAM_WEEK, String(next.week));
+        if (next.day !== undefined) params.set(PARAM_DAY, next.day);
         setSearchParams(params, { replace: true });
     };
 
@@ -137,6 +158,7 @@ export function StatisticsPage() {
                                     year,
                                     month,
                                     week: v && v !== 'all' ? Number(v) : undefined,
+                                    day,
                                 })
                             }
                             disabled={!month}
@@ -152,6 +174,26 @@ export function StatisticsPage() {
                                 ))}
                             </SelectContent>
                         </Select>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground" id="filter-day-label">
+                            일간 기준
+                        </span>
+                        <input
+                            type="date"
+                            aria-labelledby="filter-day-label"
+                            className="h-9 rounded-md border border-input bg-background px-2 text-sm tabular-nums focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                            value={day ?? effectiveDay ?? ''}
+                            placeholder="출석 데이터 없음"
+                            onChange={(e) =>
+                                updateParams({
+                                    year,
+                                    month,
+                                    week,
+                                    day: e.target.value || undefined,
+                                })
+                            }
+                        />
                     </div>
                 </div>
 

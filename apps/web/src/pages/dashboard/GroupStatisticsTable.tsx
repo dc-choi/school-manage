@@ -1,4 +1,9 @@
-import { GROUP_TYPE, type GroupStatisticsItem, type GroupStatisticsOutput } from '@school/shared';
+import {
+    GROUP_TYPE,
+    type GroupStatisticsItem,
+    type GroupStatisticsOutput,
+    type StatisticsPeriod,
+} from '@school/shared';
 import { roundToDecimal } from '@school/utils';
 import { LoadingSpinner } from '~/components/common/LoadingSpinner';
 import { Badge } from '~/components/ui/badge';
@@ -8,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~
 const computeWeightedRate = (
     groups: GroupStatisticsItem[],
     totalStudents: number,
-    period: 'weekly' | 'monthly' | 'yearly'
+    period: StatisticsPeriod
 ): number => {
     if (totalStudents === 0) return 0;
     const weightedSum = groups.reduce((sum, g) => sum + g[period].attendanceRate * g.totalStudents, 0);
@@ -19,10 +24,15 @@ function TotalRow({ groups }: { groups: GroupStatisticsItem[] }) {
     const totalStudents = groups.reduce((sum, g) => sum + g.totalStudents, 0);
     const totalRegistered = groups.reduce((sum, g) => sum + g.registeredStudents, 0);
 
+    const dailyRate = computeWeightedRate(groups, totalStudents, 'daily');
     const weeklyRate = computeWeightedRate(groups, totalStudents, 'weekly');
     const monthlyRate = computeWeightedRate(groups, totalStudents, 'monthly');
     const yearlyRate = computeWeightedRate(groups, totalStudents, 'yearly');
 
+    const dailyTotal = roundToDecimal(
+        groups.reduce((sum, g) => sum + g.daily.attendanceCount, 0),
+        1
+    );
     const weeklyAvg = roundToDecimal(
         groups.reduce((sum, g) => sum + g.weekly.avgAttendance, 0),
         1
@@ -41,9 +51,11 @@ function TotalRow({ groups }: { groups: GroupStatisticsItem[] }) {
             <TableCell className="px-2 py-2 md:px-5 md:py-4">총계</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{totalStudents}명</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{totalRegistered}명</TableCell>
+            <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">{dailyTotal}명</TableCell>
             <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">{weeklyAvg}명</TableCell>
             <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">{monthlyAvg}명</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{yearlyAvg}명</TableCell>
+            <TableCell className="hidden text-center tabular-nums md:table-cell">{dailyRate}%</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{weeklyRate}%</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{monthlyRate}%</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{yearlyRate}%</TableCell>
@@ -76,12 +88,20 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">총 인원</TableHead>
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">등록 인원</TableHead>
                         <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
-                            주간 평균
+                            일간 출석
                         </TableHead>
                         <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
-                            월간 평균
+                            주간 평균 출석
                         </TableHead>
-                        <TableHead className="hidden whitespace-nowrap text-center md:table-cell">연간 평균</TableHead>
+                        <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
+                            월간 평균 출석
+                        </TableHead>
+                        <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
+                            연간 평균 출석
+                        </TableHead>
+                        <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
+                            일간 출석률
+                        </TableHead>
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
                             주간 출석률
                         </TableHead>
@@ -112,6 +132,9 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                                 {group.registeredStudents}명
                             </TableCell>
                             <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">
+                                {group.daily.attendanceCount}명
+                            </TableCell>
+                            <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">
                                 {group.weekly.avgAttendance}명
                             </TableCell>
                             <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">
@@ -119,6 +142,9 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                             </TableCell>
                             <TableCell className="hidden text-center tabular-nums md:table-cell">
                                 {group.yearly.avgAttendance}명
+                            </TableCell>
+                            <TableCell className="hidden text-center tabular-nums md:table-cell">
+                                {group.daily.attendanceRate}%
                             </TableCell>
                             <TableCell className="hidden text-center tabular-nums md:table-cell">
                                 {group.weekly.attendanceRate}%

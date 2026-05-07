@@ -21,6 +21,10 @@ export const statisticsInputSchema = z.object({
     year: z.number().int().positive().optional(),
     month: z.number().int().min(1).max(12).optional(),
     week: z.number().int().min(1).max(5).optional(),
+    day: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)')
+        .optional(),
 });
 
 /**
@@ -118,12 +122,23 @@ export interface TopOverallOutput {
 }
 
 /**
+ * 통계 기간 단위
+ */
+export type StatisticsPeriod = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+/**
  * 그룹별 상세 통계 항목
  */
 export interface GroupStatisticsItem {
     groupId: string;
     groupName: string;
     groupType: string;
+    daily: {
+        attendanceRate: number;
+        attendanceCount: number;
+        startDate: string;
+        endDate: string;
+    };
     weekly: {
         attendanceRate: number;
         avgAttendance: number;
@@ -148,8 +163,11 @@ export interface GroupStatisticsItem {
 
 /**
  * 그룹별 상세 통계 응답
+ *
+ * - effectiveDay: 일간 집계 기준 일자(YYYY-MM-DD). 출석 데이터가 전혀 없고 input.day도 없으면 null.
  */
 export interface GroupStatisticsOutput {
     year: number;
+    effectiveDay: string | null;
     groups: GroupStatisticsItem[];
 }

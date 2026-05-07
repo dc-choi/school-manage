@@ -47,10 +47,12 @@ vi.mock('~/lib/trpc', () => ({
                 useQuery: vi.fn(() => ({
                     data: {
                         year: 2024,
+                        effectiveDay: '2024-01-14',
                         groups: [
                             {
                                 groupId: '1',
                                 groupName: '1반',
+                                daily: { attendanceRate: 90, attendanceCount: 9 },
                                 weekly: { attendanceRate: 90, avgAttendance: 10 },
                                 monthly: { attendanceRate: 85, avgAttendance: 9 },
                                 yearly: { attendanceRate: 80, avgAttendance: 8 },
@@ -113,15 +115,19 @@ describe('useDashboardStatistics', () => {
         const result = useDashboardStatistics({ year: 2024 });
 
         expect(result.groupStatistics).toHaveProperty('groups');
+        expect(result.groupStatistics).toHaveProperty('effectiveDay');
         expect(Array.isArray(result.groupStatistics?.groups)).toBe(true);
 
         const group = result.groupStatistics?.groups[0];
         expect(group).toHaveProperty('groupId');
         expect(group).toHaveProperty('groupName');
+        expect(group).toHaveProperty('daily');
         expect(group).toHaveProperty('weekly');
         expect(group).toHaveProperty('monthly');
         expect(group).toHaveProperty('yearly');
         expect(group).toHaveProperty('totalStudents');
+        expect(group?.daily).toHaveProperty('attendanceRate');
+        expect(group?.daily).toHaveProperty('attendanceCount');
         expect(group?.weekly).toHaveProperty('attendanceRate');
         expect(group?.weekly).toHaveProperty('avgAttendance');
     });

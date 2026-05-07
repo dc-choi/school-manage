@@ -403,6 +403,100 @@ describe('statistics 통합 테스트', () => {
                 code: 'UNAUTHORIZED',
             });
         });
+
+        it('일간 출석: day 미지정 시 가장 최근 출석일이 effectiveDay로 결정', async () => {
+            await createGroupWithStudentsAndAttendance({
+                orgId: seed.org.id,
+                groupName: '1반',
+                students: [
+                    {
+                        societyName: '홍길동',
+                        attendances: [
+                            { date: '20240107', content: '◎' },
+                            { date: '20240114', content: '○' },
+                        ],
+                    },
+                    {
+                        societyName: '김철수',
+                        attendances: [{ date: '20240114', content: '◎' }],
+                    },
+                ],
+            });
+
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.statistics.groupStatistics({ year: 2024 });
+
+            expect(result.effectiveDay).toBe('2024-01-14');
+            expect(result.groups[0]).toHaveProperty('daily');
+            // 2024-01-14에 ○ 1명 + ◎ 1명 = 2명 출석 인정
+            expect(result.groups[0].daily.attendanceCount).toBe(2);
+            // 2명 / 총 학생 2명 = 100%
+            expect(result.groups[0].daily.attendanceRate).toBe(100);
+        });
+
+        it('일간 출석: day 명시 시 해당 날짜 학년별 출석 수 정확', async () => {
+            await createGroupWithStudentsAndAttendance({
+                orgId: seed.org.id,
+                groupName: '1반',
+                students: [
+                    {
+                        societyName: '홍길동',
+                        attendances: [{ date: '20240107', content: '◎' }],
+                    },
+                    {
+                        societyName: '김철수',
+                        attendances: [{ date: '20240107', content: '○' }],
+                    },
+                    {
+                        societyName: '이영희',
+                        attendances: [{ date: '20240114', content: '◎' }],
+                    },
+                ],
+            });
+
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.statistics.groupStatistics({
+                year: 2024,
+                day: '2024-01-07',
+            });
+
+            expect(result.effectiveDay).toBe('2024-01-07');
+            // 2024-01-07: 홍길동 ◎, 김철수 ○ = 2명
+            expect(result.groups[0].daily.attendanceCount).toBe(2);
+            // 2명 / 총 3명 = 66.7%
+            expect(result.groups[0].daily.attendanceRate).toBe(66.7);
+        });
+
+        it('일간 출석: 출석 0건 organization은 effectiveDay = null', async () => {
+            // 그룹은 있지만 출석 없음
+            await createGroupWithStudentsAndAttendance({
+                orgId: seed.org.id,
+                groupName: '1반',
+                students: [{ societyName: '홍길동' }],
+            });
+
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.statistics.groupStatistics({ year: 2024 });
+
+            expect(result.effectiveDay).toBeNull();
+            expect(result.groups[0].daily.attendanceCount).toBe(0);
+            expect(result.groups[0].daily.attendanceRate).toBe(0);
+        });
+
+        it('일간 출석: 잘못된 day 형식은 BAD_REQUEST', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            await expect(caller.statistics.groupStatistics({ year: 2024, day: '2024/01/07' })).rejects.toMatchObject({
+                code: 'BAD_REQUEST',
+            });
+        });
+
+        it('일간 출석: 그룹/출석 없는 organization은 effectiveDay = null + 빈 groups', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            const result = await caller.statistics.groupStatistics({ year: 2024 });
+
+            expect(result.groups).toEqual([]);
+            expect(result.effectiveDay).toBeNull();
+        });
     });
 
     describe('졸업생 필터링', () => {
