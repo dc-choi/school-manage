@@ -33,6 +33,25 @@ interface PeriodGroupData {
     endDateStr: string;
 }
 
+interface PeriodStats {
+    attendanceRate: number;
+    avgAttendance: number;
+}
+
+const DAY_INPUT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+const parseDayToDate = (day: string): Date | null => {
+    if (!DAY_INPUT_REGEX.test(day)) return null;
+    const [y, m, d] = day.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
+    return date;
+};
+
+const compactToIsoDate = (compact: string): string => {
+    return `${compact.slice(0, 4)}-${compact.slice(4, 6)}-${compact.slice(6, 8)}`;
+};
+
 export class GetGroupStatisticsUseCase {
     async execute(input: StatisticsInput): Promise<GroupStatisticsOutput> {
         const year = input.year ?? getNowKST().getFullYear();
@@ -46,8 +65,11 @@ export class GetGroupStatisticsUseCase {
         });
         const groupIds = groups.map((g) => g.id);
 
+        // 0. 기준 일자 결정 (input.day > 학년 그룹의 MAX(attendance.date) > null)
+        const { effectiveDay, effectiveDayCompact } = await this.resolveEffectiveDay(input.day, groupIds);
+
         if (groupIds.length === 0) {
-            return { year, groups: [] };
+            return { year, effectiveDay, groups: [] };
         }
 
         // 2. 그룹별 학생 수 조회 (조회 기간 시작일 기준 졸업 필터 적용, StudentGroup 기반)
@@ -100,10 +122,16 @@ export class GetGroupStatisticsUseCase {
         const yearlyRange = this.getYearlyRange(year);
 
         // 5. 각 기간별 attendance 조회 및 그룹핑
-        const [weeklyData, monthlyData, yearlyData] = await Promise.all([
+        // effectiveDay null = 출석 데이터 자체 없음 → daily 쿼리 skip (빈 결과로 모든 학년 0)
+        const dailyPromise: Promise<PeriodGroupData> = effectiveDayCompact
+            ? this.fetchDailyData(groupIds, effectiveDayCompact)
+            : Promise.resolve({ grouped: new Map(), totalDays: 1, startDateStr: '', endDateStr: '' });
+
+        const [weeklyData, monthlyData, yearlyData, dailyData] = await Promise.all([
             this.fetchPeriodData(groupIds, weeklyRange),
             this.fetchPeriodData(groupIds, monthlyRange),
             this.fetchPeriodData(groupIds, yearlyRange),
+            dailyPromise,
         ]);
 
         // 6. 학생이 있는 그룹 기준으로 통계 조합
@@ -113,7 +141,7 @@ export class GetGroupStatisticsUseCase {
             const groupName = snapshot?.name ?? group?.name ?? '삭제된 학년';
             const totalStudents = studentsByGroup.get(groupId)?.size ?? 0;
 
-            const calcStats = (data: PeriodGroupData) => {
+            const calcStats = (data: PeriodGroupData): PeriodStats => {
                 const groupData = data.grouped.get(groupId);
                 if (!groupData || data.totalDays === 0 || totalStudents === 0) {
                     return { attendanceRate: 0, avgAttendance: 0 };
@@ -127,10 +155,19 @@ export class GetGroupStatisticsUseCase {
                 };
             };
 
+            const dailyStats = calcStats(dailyData);
+
             return {
                 groupId: String(groupId),
                 groupName,
                 groupType: group?.type ?? 'GRADE',
+                daily: {
+                    attendanceRate: dailyStats.attendanceRate,
+                    // 단일 일자 집계라 totalDays=1 → avgAttendance가 곧 그 날의 출석 수다
+                    attendanceCount: dailyStats.avgAttendance,
+                    startDate: dailyData.startDateStr,
+                    endDate: dailyData.endDateStr,
+                },
                 weekly: {
                     ...calcStats(weeklyData),
                     startDate: weeklyData.startDateStr,
@@ -151,7 +188,72 @@ export class GetGroupStatisticsUseCase {
             };
         });
 
-        return { year, groups: groupStats };
+        return { year, effectiveDay, groups: groupStats };
+    }
+
+    /**
+     * 기준 일자 결정
+     * 1. input.day 명시 → 그 값 사용
+     * 2. 미지정 + 출석 데이터 존재 → organization 내 가장 최근 attendance.date
+     * 3. 둘 다 없으면 → null (출석 데이터 자체가 없음을 알린다)
+     */
+    private async resolveEffectiveDay(
+        inputDay: string | undefined,
+        groupIds: bigint[]
+    ): Promise<{ effectiveDay: string | null; effectiveDayCompact: string | null }> {
+        if (inputDay) {
+            const date = parseDayToDate(inputDay);
+            if (date) {
+                return { effectiveDay: inputDay, effectiveDayCompact: formatDateCompact(date) };
+            }
+        }
+
+        if (groupIds.length > 0) {
+            const latest = await database.attendance.findFirst({
+                where: { groupId: { in: groupIds }, deletedAt: null },
+                select: { date: true },
+                orderBy: { date: 'desc' },
+            });
+
+            if (latest?.date) {
+                const compact = String(latest.date);
+                const iso = compactToIsoDate(compact);
+                if (parseDayToDate(iso)) {
+                    return { effectiveDay: iso, effectiveDayCompact: compact };
+                }
+            }
+        }
+
+        return { effectiveDay: null, effectiveDayCompact: null };
+    }
+
+    /**
+     * 단일 일자 출석 인정 수 조회 — DB 레벨 GROUP BY group_id
+     * 출석 집계는 그룹 단위라 졸업생 출석도 presentCount에 포함된다 (weekly/monthly/yearly와 동일).
+     * 졸업 필터는 totalStudents(분모)에만 적용되므로 분자/분모 일관성 검증 시 주의.
+     */
+    private async fetchDailyData(groupIds: bigint[], dayCompact: string): Promise<PeriodGroupData> {
+        const presentRows = await database.$kysely
+            .selectFrom('attendance as a')
+            .select('a.groupId')
+            .select(PRESENT_COUNT_SQL.as('presentCount'))
+            .where('a.deleteAt', 'is', null)
+            .where(
+                'a.groupId',
+                'in',
+                groupIds.map((id) => Number(id))
+            )
+            .where('a.date', '=', dayCompact)
+            .groupBy('a.groupId')
+            .execute();
+
+        const grouped = new Map<bigint, { presentCount: number }>();
+        for (const row of presentRows) {
+            if (row.groupId === null) continue;
+            grouped.set(BigInt(row.groupId), { presentCount: Number(row.presentCount ?? 0) });
+        }
+
+        return { grouped, totalDays: 1, startDateStr: dayCompact, endDateStr: dayCompact };
     }
 
     /**

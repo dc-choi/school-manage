@@ -17,6 +17,7 @@ export interface DashboardFilters {
     year?: number;
     month?: number;
     week?: number;
+    day?: string;
 }
 
 /**
@@ -24,7 +25,7 @@ export interface DashboardFilters {
  * 성별 분포, TOP 학생, 그룹별 상세 통계 조회
  */
 export function useDashboardStatistics(filters: DashboardFilters) {
-    const { year, month, week } = filters;
+    const { year, month, week, day } = filters;
 
     // 성별 분포
     const byGenderQuery = trpc.statistics.byGender.useQuery({ year, month, week });
@@ -32,8 +33,8 @@ export function useDashboardStatistics(filters: DashboardFilters) {
     // TOP 학생
     const topOverallQuery = trpc.statistics.topOverall.useQuery({ year, month, week, limit: 5 });
 
-    // 그룹별 상세 통계
-    const groupStatisticsQuery = trpc.statistics.groupStatistics.useQuery({ year, month, week });
+    // 그룹별 상세 통계 (일간 포함)
+    const groupStatisticsQuery = trpc.statistics.groupStatistics.useQuery({ year, month, week, day });
 
     const isLoading = byGenderQuery.isLoading || topOverallQuery.isLoading || groupStatisticsQuery.isLoading;
 
