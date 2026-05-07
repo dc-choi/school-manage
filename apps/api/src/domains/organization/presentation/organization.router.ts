@@ -7,6 +7,7 @@ import { ListMembersUseCase } from '../application/list-members.usecase.ts';
 import { ListOrganizationsUseCase } from '../application/list-organizations.usecase.ts';
 import { PendingRequestsUseCase } from '../application/pending-requests.usecase.ts';
 import { RejectJoinUseCase } from '../application/reject-join.usecase.ts';
+import { RemoveMemberUseCase } from '../application/remove-member.usecase.ts';
 import { RequestJoinUseCase } from '../application/request-join.usecase.ts';
 import { TransferAdminUseCase } from '../application/transfer-admin.usecase.ts';
 import {
@@ -14,6 +15,7 @@ import {
     createOrganizationInputSchema,
     listOrganizationsInputSchema,
     rejectJoinInputSchema,
+    removeMemberInputSchema,
     requestJoinInputSchema,
     transferAdminInputSchema,
 } from '@school/shared';
@@ -73,6 +75,14 @@ export const organizationRouter = router({
      */
     transferAdmin: scopedProcedure.input(transferAdminInputSchema).mutation(async ({ input, ctx }) => {
         const usecase = new TransferAdminUseCase();
+        return usecase.execute(input, ctx.account.id, ctx.organization.id, ctx.account.role);
+    }),
+
+    /**
+     * 멤버 강퇴 (scoped, admin)
+     */
+    removeMember: scopedProcedure.input(removeMemberInputSchema).mutation(async ({ input, ctx }) => {
+        const usecase = new RemoveMemberUseCase();
         return usecase.execute(input, ctx.account.id, ctx.organization.id, ctx.account.role);
     }),
 
