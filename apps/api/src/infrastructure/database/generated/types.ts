@@ -108,7 +108,7 @@ export type Student = {
     catholicName: string | null;
     gender: string | null;
     age: number | null;
-    contact: number | null;
+    contact: string | null;
     parentContact: string | null;
     description: string | null;
     baptizedAt: string | null;
@@ -130,7 +130,7 @@ export type StudentSnapshot = {
     societyName: string;
     catholicName: string | null;
     gender: string | null;
-    contact: number | null;
+    contact: string | null;
     parentContact: string | null;
     description: string | null;
     baptizedAt: string | null;
