@@ -70,7 +70,7 @@ export function BottomTabBar({ onMoreClick, isMoreOpen }: BottomTabBarProps) {
     return (
         <nav
             aria-label="주요 내비게이션"
-            className="fixed inset-x-0 bottom-0 z-40 flex h-16 border-t bg-card pb-[env(safe-area-inset-bottom)] md:hidden"
+            className="fixed inset-x-0 bottom-0 z-40 flex h-[var(--bottom-tab-bar-height)] border-t bg-card pb-[env(safe-area-inset-bottom)] md:hidden"
         >
             {TABS.map((tab) => {
                 const Icon = tab.icon;

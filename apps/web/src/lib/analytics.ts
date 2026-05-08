@@ -31,6 +31,11 @@
  * - 모바일 탭 클릭: analytics.trackNavTabClicked(tab)
  * - 모바일 더보기 시트 노출: analytics.trackMoreSheetOpened()
  * - 통계 페이지 진입: analytics.trackStatisticsViewed()
+ * - PWA 가이드 노출: analytics.trackPwaGuideShown(env)
+ * - PWA 가이드 dismiss: analytics.trackPwaGuideDismissed(env, persistent)
+ * - PWA 외부 브라우저 유도: analytics.trackPwaExternalBrowserClicked(env)
+ * - PWA 홈화면 추가 완료: analytics.trackPwaA2hsInstalled(env)
+ * - PWA 사용자 속성 설정: analytics.setPwaUserProperty()
  *
  * 사용자 속성 (커스텀 디멘션):
  * - 사용자 속성 설정: analytics.setUserProperties(accountName, organizationName)
@@ -476,5 +481,50 @@ export const analytics = {
      */
     trackAttendanceSortClicked: (sortType: 'registration' | 'name'): void => {
         safeGtag('event', 'attendance_sort_clicked', { sort_type: sortType });
+    },
+
+    /**
+     * PWA 가이드 카드 노출 이벤트 (pwa-mobile-guide)
+     * 트리거: PwaGuideCard 마운트 시 (useEffect, 1회)
+     * @param env 가이드 환경 분기
+     */
+    trackPwaGuideShown: (env: string): void => {
+        safeGtag('event', 'pwa_guide_shown', { env });
+    },
+
+    /**
+     * PWA 가이드 카드 dismiss 이벤트 (pwa-mobile-guide)
+     * 트리거: 닫기(X) 또는 "다시 보지 않기" 클릭 시
+     * @param env 가이드 환경 분기
+     * @param persistent 영구 dismiss 여부 (true=다시 보지 않기, false=7일 재노출)
+     */
+    trackPwaGuideDismissed: (env: string, persistent: boolean): void => {
+        safeGtag('event', 'pwa_guide_dismissed', { env, persistent });
+    },
+
+    /**
+     * PWA 외부 브라우저 유도 클릭 이벤트 (pwa-mobile-guide)
+     * 트리거: iOS Chrome / 카카오톡 / 인스타 / 페북 인앱에서 1차 CTA 클릭 시
+     * @param env 가이드 환경 분기
+     */
+    trackPwaExternalBrowserClicked: (env: string): void => {
+        safeGtag('event', 'pwa_external_browser_clicked', { env });
+    },
+
+    /**
+     * PWA 홈 화면 추가 완료 이벤트 (pwa-mobile-guide)
+     * 트리거: window 'appinstalled' 이벤트 발화 시 (Android Chrome)
+     * @param env 가이드 환경 분기
+     */
+    trackPwaA2hsInstalled: (env: string): void => {
+        safeGtag('event', 'pwa_a2hs_installed', { env });
+    },
+
+    /**
+     * PWA 사용자 user_property 설정 (pwa-mobile-guide)
+     * 트리거: standalone 모드 진입 감지 시 (display-mode standalone 또는 navigator.standalone)
+     */
+    setPwaUserProperty: (): void => {
+        safeGtagSet('user_properties', { is_pwa_user: true });
     },
 };
