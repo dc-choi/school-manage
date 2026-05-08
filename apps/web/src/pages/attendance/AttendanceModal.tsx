@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 import { type SortKey, sortStudents } from '~/features/attendance/utils/sortStudents';
 import { analytics } from '~/lib/analytics';
 import { extractErrorMessage } from '~/lib/error';
+import { markFirstAttendanceDone } from '~/lib/pwa';
 import { cn } from '~/lib/utils';
 
 interface StudentAttendance {
@@ -160,6 +161,7 @@ export function AttendanceModal({
                 await onSave([data]);
 
                 setSaveStatus('saved');
+                markFirstAttendanceDone();
                 setTimeout(() => setSaveStatus('idle'), 2000);
             } catch (error) {
                 toast.error(extractErrorMessage(error));

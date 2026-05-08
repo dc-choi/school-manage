@@ -1,13 +1,16 @@
 import { BottomTabBar } from './BottomTabBar';
 import { Sidebar } from './Sidebar';
 import { Heart, LogIn, LogOut, Settings, User, UserPlus, Users } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { PwaGuideCard } from '~/components/common/PwaGuideCard';
 import { Footer } from '~/components/layout/Footer';
 import { Button } from '~/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '~/components/ui/sheet';
 import { useAuth } from '~/features/auth';
 import { useLiturgicalTheme } from '~/hooks/useLiturgicalTheme';
+import { usePwaEnvironment } from '~/hooks/usePwaEnvironment';
+import { usePwaGuideTrigger } from '~/hooks/usePwaGuideTrigger';
 import { analytics } from '~/lib/analytics';
 import { hasDonationLink } from '~/lib/donation';
 
@@ -24,6 +27,25 @@ export function MainLayout({ children, title }: MainLayoutProps) {
     const navigate = useNavigate();
     const [moreOpen, setMoreOpen] = useState(false);
     useLiturgicalTheme();
+
+    const { isStandalone } = usePwaEnvironment();
+    const pwaUserPropertySetRef = useRef(false);
+    useEffect(() => {
+        if (isStandalone && !pwaUserPropertySetRef.current) {
+            analytics.setPwaUserProperty();
+            pwaUserPropertySetRef.current = true;
+        }
+    }, [isStandalone]);
+
+    const pwaGuide = usePwaGuideTrigger();
+    // 세션당 1회 발화 — 같은 세션에서 재트리거(예: dismiss 후 정책 변경)되어도 GA 중복 방지
+    const pwaShownRef = useRef(false);
+    useEffect(() => {
+        if (pwaGuide.shouldShow && !pwaShownRef.current) {
+            analytics.trackPwaGuideShown(pwaGuide.env);
+            pwaShownRef.current = true;
+        }
+    }, [pwaGuide.shouldShow, pwaGuide.env]);
 
     const handleMoreOpenChange = (open: boolean) => {
         setMoreOpen(open);
@@ -110,6 +132,9 @@ export function MainLayout({ children, title }: MainLayoutProps) {
 
             {/* 모바일 하단 탭바 (md:hidden 내부 처리) */}
             <BottomTabBar onMoreClick={() => setMoreOpen(true)} isMoreOpen={moreOpen} />
+
+            {/* PWA 설치 가이드 (pwa-mobile-guide) — 모바일 + 노출 정책 충족 시만 */}
+            {pwaGuide.shouldShow ? <PwaGuideCard env={pwaGuide.env} onDismiss={pwaGuide.onDismiss} /> : null}
 
             {/* 모바일 더보기 시트 — 보조 메뉴 (인증 시 학년/설정/후원/로그아웃, 게스트 시 학년/로그인/회원가입/후원) */}
             <Sheet open={moreOpen} onOpenChange={handleMoreOpenChange}>
