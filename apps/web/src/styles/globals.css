@@ -10,6 +10,9 @@
     font-weight: 400;
     --radius: 0.625rem;
 
+    /* 모바일 BottomTabBar 높이 (PwaGuideCard 등 sticky 영역 위치 계산용 SSoT) */
+    --bottom-tab-bar-height: 4rem;
+
     /* 따뜻한 크림 배경 + 전례 보라 primary */
     --background: oklch(0.985 0.007 75);
     --foreground: oklch(0.185 0.015 55);

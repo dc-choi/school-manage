@@ -57,5 +57,6 @@ module.exports = defineConfig([
         '**/database/generated/**',
         'packages/utils/test/**',
         'apps/api/scripts/**',
+        'apps/web/public/**',
     ]),
 ]);
