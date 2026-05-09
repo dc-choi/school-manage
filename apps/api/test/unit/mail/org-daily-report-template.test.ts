@@ -14,7 +14,7 @@ describe('orgDailyReportTemplate', () => {
         );
 
         const firstLine = text.split('\n')[0];
-        expect(firstLine).toBe('7개 본당에서 12명의 계정이 134명의 학생과 함께하고 있어요.');
+        expect(firstLine).toBe('7개 본당에서 12명의 선생님들이 134명의 학생과 함께하고 있어요.');
     });
 
     it('카운트가 0이어도 분기 없이 0으로 표시된다', () => {
@@ -26,7 +26,7 @@ describe('orgDailyReportTemplate', () => {
         );
 
         const firstLine = text.split('\n')[0];
-        expect(firstLine).toBe('0개 본당에서 0명의 계정이 0명의 학생과 함께하고 있어요.');
+        expect(firstLine).toBe('0개 본당에서 0명의 선생님들이 0명의 학생과 함께하고 있어요.');
     });
 
     it('제목은 기존 형식을 유지한다', () => {

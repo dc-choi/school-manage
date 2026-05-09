@@ -57,7 +57,7 @@ export const orgDailyReportTemplate = (
     const formatDate = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : '-');
 
     // 섹션 0: 사회적 증거
-    const socialProofLine = `${socialProof.churchCount}개 본당에서 ${socialProof.accountCount}명의 계정이 ${socialProof.studentCount}명의 학생과 함께하고 있어요.`;
+    const socialProofLine = `${socialProof.churchCount}개 본당에서 ${socialProof.accountCount}명의 선생님들이 ${socialProof.studentCount.toLocaleString('ko-KR')}명의 학생과 함께하고 있어요.`;
 
     // 섹션 1: 조직 활성화 현황
     const activityLines = activityRows.map(
