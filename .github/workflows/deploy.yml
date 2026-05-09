@@ -117,6 +117,20 @@ jobs:
           VITE_GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
         run: pnpm turbo build --filter=@school/web
 
+      # SCP는 tar 압축해제 시 기존 디렉토리에 utime/chmod를 시도하므로,
+      # 다른 소유자/권한으로 만들어진 신규 디렉토리(icons, assets 등)에서
+      # "Operation not permitted" 에러로 배포가 실패할 수 있다.
+      # 새 정적 디렉토리 추가 직후 한 번 정리 → 이후 배포는 안정적.
+      - name: Pre-clean static dirs (avoid SCP utime/chmod conflicts)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ${{ secrets.WEB_DEPLOY_PATH }}
+            rm -rf icons
+
       - name: Deploy to server via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
