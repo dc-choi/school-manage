@@ -244,7 +244,7 @@ export const analytics = {
     /**
      * 랜딩 섹션 조회 이벤트
      * 트리거: 각 섹션이 뷰포트에 진입할 때 (1회만)
-     * @param section 섹션 이름 (hero, pain-points, features, demo, cta, faq)
+     * @param section 섹션 이름 (hero, social-proof, features, why-choose-us, demo, reviews, faq)
      */
     trackLandingSectionView: (section: string): void => {
         safeGtag('event', 'landing_section_view', { section });
@@ -253,9 +253,9 @@ export const analytics = {
     /**
      * 랜딩 CTA 클릭 이벤트
      * 트리거: CTA 버튼 클릭 시
-     * @param position 클릭 위치 (hero: 히어로 CTA, bottom: 하단 CTA)
+     * @param position 클릭 위치 (top: 상단 Nav CTA, hero: 히어로 CTA, bottom: 마무리 CTA)
      */
-    trackLandingCtaClick: (position: 'hero' | 'bottom'): void => {
+    trackLandingCtaClick: (position: 'top' | 'hero' | 'bottom'): void => {
         safeGtag('event', 'landing_cta_click', { position });
     },
 
