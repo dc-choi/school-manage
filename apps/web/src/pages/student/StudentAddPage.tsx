@@ -1,10 +1,11 @@
 import { StudentForm } from './StudentForm';
-import type { CreateStudentInput, ExistingStudentBrief } from '@school/shared';
-import { useState } from 'react';
+import { type CreateStudentInput, type ExistingStudentBrief, getOrganizationLabels } from '@school/shared';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '~/components/common';
 import { MainLayout } from '~/components/layout';
+import { useAuth } from '~/features/auth';
 import { useGroups } from '~/features/group';
 import { useStudents } from '~/features/student';
 import { StudentDuplicateDialog } from '~/features/student/components/StudentDuplicateDialog';
@@ -16,6 +17,8 @@ type StudentFormPayload = Omit<CreateStudentInput, 'force'>;
 
 export function StudentAddPage() {
     const navigate = useNavigate();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const { groups, isLoading: groupsLoading } = useGroups();
     const { create, isCreating } = useStudents();
     const utils = trpc.useUtils();
@@ -71,14 +74,14 @@ export function StudentAddPage() {
 
     if (groupsLoading) {
         return (
-            <MainLayout title="학생 추가">
+            <MainLayout title={`${labels.member} 추가`}>
                 <LoadingSpinner />
             </MainLayout>
         );
     }
 
     return (
-        <MainLayout title="학생 추가">
+        <MainLayout title={`${labels.member} 추가`}>
             <div className="mx-auto max-w-md">
                 <StudentForm
                     groups={groups}

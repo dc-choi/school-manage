@@ -1,12 +1,16 @@
 import { GroupForm } from './GroupForm';
-import type { GroupType } from '@school/shared';
+import { type GroupType, getOrganizationLabels } from '@school/shared';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
+import { useAuth } from '~/features/auth';
 import { useGroups } from '~/features/group';
 
 export function GroupAddPage() {
     const navigate = useNavigate();
     const { create, isCreating } = useGroups();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
 
     const handleSubmit = async (data: { name: string; type: GroupType }) => {
         await create(data);
@@ -14,7 +18,7 @@ export function GroupAddPage() {
     };
 
     return (
-        <MainLayout title="학년&부서 추가">
+        <MainLayout title={`${labels.groupAndDepartment} 추가`}>
             <div className="mx-auto max-w-md">
                 <GroupForm
                     onSubmit={handleSubmit}

@@ -2,7 +2,7 @@ import { FadeInSection } from './FadeInSection';
 import { InteractiveDemo } from './InteractiveDemo';
 import { ScrollDownHint } from './ScrollDownHint';
 import { Helmet } from '@dr.pogodin/react-helmet';
-import { BarChart3, Calendar, ClipboardCheck, Users } from 'lucide-react';
+import { BarChart3, BookOpen, Calendar, ClipboardCheck, Heart, Music, Shield, Sparkles, Users } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '~/components/ui/accordion';
@@ -41,7 +41,7 @@ const FAQ_ITEMS = [
     },
     {
         question: '가입하면 뭘 먼저 해야 하나요?',
-        answer: '가입 후 ① 학년(반)을 만들고 ② 학생을 등록하면 ③ 출석 체크를 시작할 수 있어요. 3분이면 충분해요.',
+        answer: '가입 후 ① 학년(그룹)을 만들고 ② 학생(멤버)을 등록하면 ③ 출석 체크를 시작할 수 있어요. 3분이면 충분해요.',
     },
     {
         question: '스마트폰에서도 쓸 수 있나요?',
@@ -49,7 +49,7 @@ const FAQ_ITEMS = [
     },
     {
         question: '가톨릭 주일학교만 쓸 수 있나요?',
-        answer: '주일학교 운영에 최적화되어 있지만, 출석 관리가 필요한 모임이면 어디든 사용할 수 있어요.',
+        answer: '주일학교, 청년, 레지오, 군종, 성가대 등 가톨릭 모임 운영에 사용할 수 있어요.',
     },
     {
         question: '기존에 쓰던 출석 데이터를 옮길 수 있나요?',
@@ -65,8 +65,8 @@ const FEATURES = [
     },
     {
         icon: Users,
-        title: '학생·축일 관리',
-        description: '학생 정보와 축일을 한곳에서 기록하고 바로 검색.',
+        title: '구성원과 축일 관리',
+        description: '구성원 정보와 축일을 한곳에서 기록하고 바로 검색.',
     },
     {
         icon: BarChart3,
@@ -76,8 +76,16 @@ const FEATURES = [
     {
         icon: Calendar,
         title: '달력으로 한눈에',
-        description: '우리 반 아이들이 언제 왔는지 한눈에 보여요.',
+        description: '우리 모임 구성원이 언제 왔는지 한눈에 보여요.',
     },
+];
+
+const TARGET_GROUPS = [
+    { icon: BookOpen, title: '주일학교', description: '매주 학생 출석을 한 곳에서' },
+    { icon: Sparkles, title: '청년', description: '청년 모임 참석 기록을 간편하게' },
+    { icon: Heart, title: '레지오', description: '주회 출석과 활동을 빠르게' },
+    { icon: Shield, title: '군종', description: '장병들의 미사 참여를 한눈에' },
+    { icon: Music, title: '성가대', description: '연습 출석을 카톡 대신 한 곳에서' },
 ];
 
 export function LandingPage() {
@@ -125,13 +133,13 @@ export function LandingPage() {
                 <title>주일학교 출석부</title>
                 <meta
                     name="description"
-                    content="주일학교 출석부 — 가톨릭(천주교) 주일학교 교리교사를 위한 출석 관리 도구. 출석, 축일, 멤버 현황까지 한곳에서."
+                    content="주일학교 출석부 — 가톨릭 모임을 위한 출석 관리 도구. 주일학교, 청년, 레지오, 군종, 성가대까지 한곳에서."
                 />
                 <link rel="canonical" href="https://weekly-school.site/landing" />
                 <meta property="og:title" content="주일학교 출석부" />
                 <meta
                     property="og:description"
-                    content="주일학교 출석부 — 가톨릭(천주교) 주일학교 교리교사를 위한 출석 관리 도구. 출석, 축일, 멤버 현황까지 한곳에서."
+                    content="주일학교 출석부 — 가톨릭 모임을 위한 출석 관리 도구. 주일학교, 청년, 레지오, 군종, 성가대까지 한곳에서."
                 />
                 <meta property="og:url" content="https://weekly-school.site/landing" />
                 <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
@@ -145,9 +153,9 @@ export function LandingPage() {
                         이거 하나면 됩니다
                     </h1>
                     <p className="text-2xl text-muted-foreground sm:text-3xl">
-                        <span className="font-semibold text-foreground">출석, 축일, 학생 현황</span>까지.
+                        <span className="font-semibold text-foreground">출석, 축일, 구성원 현황</span>까지.
                         <br />
-                        주일학교 교리교사를 위한 주간 도구.
+                        가톨릭 모임을 위한 주간 도구.
                     </p>
                     <ScrollDownHint targetId="pain-points" />
                 </section>
@@ -196,6 +204,28 @@ export function LandingPage() {
                                 </div>
                             ))}
                         </div>
+                        <ScrollDownHint targetId="target-groups" />
+                    </section>
+                </FadeInSection>
+
+                {/* ③.5 청년/레지오/군종/성가대 후킹 섹션 */}
+                <FadeInSection onVisible={() => analytics.trackLandingSectionView('target_groups')}>
+                    <section
+                        id="target-groups"
+                        className="flex min-h-screen flex-col items-center justify-center gap-12 px-6 text-center"
+                    >
+                        <h2 className="text-2xl font-bold text-balance sm:text-4xl lg:text-5xl">
+                            이런 가톨릭 모임에서 사용 중
+                        </h2>
+                        <div className="grid w-full max-w-6xl grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-5">
+                            {TARGET_GROUPS.map((g) => (
+                                <div key={g.title} className="flex flex-col items-center gap-3">
+                                    <g.icon className="h-10 w-10 text-primary" aria-hidden="true" />
+                                    <h3 className="text-lg font-semibold">{g.title}</h3>
+                                    <p className="text-sm text-muted-foreground text-balance">{g.description}</p>
+                                </div>
+                            ))}
+                        </div>
                         <ScrollDownHint targetId="screenshot" />
                     </section>
                 </FadeInSection>
@@ -225,7 +255,7 @@ export function LandingPage() {
                                 <Users className="h-7 w-7 shrink-0 text-primary" />
                                 <span>
                                     {countData.churchCount}개 본당에서 {countData.accountCount}명의 선생님들이{' '}
-                                    {countData.studentCount.toLocaleString('ko-KR')}명의 학생과 함께하고 있어요.
+                                    {countData.studentCount.toLocaleString('ko-KR')}명과 함께하고 있어요.
                                 </span>
                             </div>
                         )}

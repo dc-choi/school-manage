@@ -3,8 +3,12 @@
  */
 import type { GroupStatisticsItem, GroupStatisticsOutput } from '@school/shared';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { GroupStatisticsTable } from '~/pages/dashboard/GroupStatisticsTable';
+
+vi.mock('~/features/auth', () => ({
+    useAuth: () => ({ organizationType: null }),
+}));
 
 const makeGroup = (overrides: Partial<GroupStatisticsItem>): GroupStatisticsItem => ({
     groupId: '1',

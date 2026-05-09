@@ -1,19 +1,24 @@
+import { getOrganizationLabels } from '@school/shared';
 import { Calendar, Heart, Home, UserCog, Users } from 'lucide-react';
+import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '~/features/auth';
 import { hasDonationLink } from '~/lib/donation';
 import { cn } from '~/lib/utils';
 
-export const navItems = [
-    { path: '/', label: '대시보드', icon: Home },
-    { path: '/attendance', label: '출석부', icon: Calendar },
-    { path: '/groups', label: '학년&부서', icon: Users },
-    { path: '/students', label: '학생 관리', icon: UserCog },
-];
-
 export function Sidebar() {
     const location = useLocation();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
+    const navItems = useMemo(
+        () => [
+            { path: '/', label: '대시보드', icon: Home },
+            { path: '/attendance', label: '출석부', icon: Calendar },
+            { path: '/groups', label: labels.groupAndDepartment, icon: Users },
+            { path: '/students', label: `${labels.member} 관리`, icon: UserCog },
+        ],
+        [labels]
+    );
 
     const isActive = (path: string) => {
         if (path === '/') return location.pathname === '/';

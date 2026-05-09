@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { getOrganizationLabels } from '@school/shared';
+import { josa } from '@school/utils';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Pagination, Table } from '~/components/common';
 import {
@@ -15,6 +17,7 @@ import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { useAuth } from '~/features/auth';
 import { useCheckboxSelection, useStudents } from '~/features/student';
 import { extractErrorMessage } from '~/lib/error';
 
@@ -24,6 +27,8 @@ interface RegistrationModalProps {
 }
 
 export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps) {
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const {
         students,
         totalPage,
@@ -90,7 +95,7 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
         { key: 'societyName', header: '이름' },
         {
             key: 'groups',
-            header: '학년',
+            header: labels.group,
             render: (row: StudentItem) => (row.groups?.length ? row.groups.map((g) => g.name).join(', ') : '-'),
         },
         {
@@ -111,7 +116,9 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
                 <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{registrationYear}년 등록 관리</DialogTitle>
-                        <DialogDescription>학생을 선택하여 등록 또는 등록 취소할 수 있습니다.</DialogDescription>
+                        <DialogDescription>
+                            {josa(labels.member, '을/를')} 선택하여 등록 또는 등록 취소할 수 있습니다.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="mt-4">
                         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -156,7 +163,7 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
                             data={students}
                             keyExtractor={(row) => row.id}
                             isLoading={isLoading}
-                            emptyMessage="학생이 없습니다."
+                            emptyMessage={`${josa(labels.member, '이/가')} 없습니다.`}
                         />
                         {totalPage > 1 ? (
                             <div className="mt-4">
@@ -171,10 +178,10 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
             <AlertDialog open={confirmAction === 'register'} onOpenChange={(open) => !open && setConfirmAction(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>학생 등록</AlertDialogTitle>
+                        <AlertDialogTitle>{labels.member} 등록</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 {registrationYear}년도에 등록하시겠습니까? 이미 등록된
-                            학생은 건너뜁니다.
+                            선택한 {selectedIds.size}명의 {josa(labels.member, '을/를')} {registrationYear}년도에
+                            등록하시겠습니까? 이미 등록된 {josa(labels.member, '은/는')} 건너뜁니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -195,7 +202,8 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
                     <AlertDialogHeader>
                         <AlertDialogTitle>등록 취소</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생의 {registrationYear}년도 등록을 취소하시겠습니까?
+                            선택한 {selectedIds.size}명의 {labels.member}의 {registrationYear}년도 등록을
+                            취소하시겠습니까?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
