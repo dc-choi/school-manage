@@ -1,8 +1,9 @@
 import { GraduatedStudentsModal } from './GraduatedStudentsModal';
 import { RegistrationModal } from './RegistrationModal';
-import { formatContact } from '@school/utils';
+import { getOrganizationLabels } from '@school/shared';
+import { formatContact, josa } from '@school/utils';
 import { Upload, X } from 'lucide-react';
-import { Fragment, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Pagination, Table } from '~/components/common';
@@ -35,6 +36,7 @@ const GRADUATION_AGE_LABEL: Record<string, string> = {
 export function StudentListPage() {
     const navigate = useNavigate();
     const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const [searchInput, setSearchInput] = useState('');
     const [bulkAction, setBulkAction] = useState<'delete' | 'graduate' | null>(null);
     const [graduatedModalOpen, setGraduatedModalOpen] = useState(false);
@@ -141,7 +143,7 @@ export function StudentListPage() {
         { key: 'catholicName', header: '세례명' },
         {
             key: 'groups',
-            header: '학년&부서',
+            header: labels.groupAndDepartment,
             className: 'hidden md:table-cell',
             render: (row: (typeof students)[0]) =>
                 row.groups?.length ? row.groups.map((g) => g.name).join(', ') : '-',
@@ -188,7 +190,7 @@ export function StudentListPage() {
     ];
 
     return (
-        <MainLayout title="학생 목록">
+        <MainLayout title={`${labels.member} 목록`}>
             <div className="flex h-[calc(100vh-6.5rem)] flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
                 {/* 컨트롤 영역 */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -250,10 +252,10 @@ export function StudentListPage() {
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
                             <Upload className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-                            학생 일괄 등록
+                            {labels.member} 일괄 등록
                         </Button>
                         <Button size="sm" onClick={() => navigate('/students/new')}>
-                            학생 추가
+                            {labels.member} 추가
                         </Button>
                     </div>
                 </div>
@@ -264,7 +266,7 @@ export function StudentListPage() {
                     data={students}
                     keyExtractor={(row) => row.id}
                     isLoading={isLoading}
-                    emptyMessage="등록된 학생이 없습니다. 학생을 등록하면 출석 체크를 시작할 수 있어요."
+                    emptyMessage={`등록된 ${josa(labels.member, '이/가')} 없습니다. ${josa(labels.member, '을/를')} 등록하면 출석 체크를 시작할 수 있어요.`}
                     onRowClick={(row) => navigate(`/students/${row.id}`)}
                     className="min-h-0 flex-1"
                 />
@@ -279,9 +281,9 @@ export function StudentListPage() {
             <AlertDialog open={bulkAction === 'delete'} onOpenChange={(open) => !open && setBulkAction(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>학생 삭제</AlertDialogTitle>
+                        <AlertDialogTitle>{labels.member} 삭제</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 삭제하시겠습니까?
+                            선택한 {selectedIds.size}명의 {josa(labels.member, '을/를')} 삭제하시겠습니까?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -300,12 +302,13 @@ export function StudentListPage() {
                         <AlertDialogTitle>졸업 처리</AlertDialogTitle>
                         {organizationType ? (
                             <p className="text-sm text-muted-foreground">
-                                {GRADUATION_AGE_LABEL[organizationType]} 나이 미달 학생은 자동으로 제외됩니다.
+                                {GRADUATION_AGE_LABEL[organizationType]} 나이 미달 {josa(labels.member, '은/는')}{' '}
+                                자동으로 제외됩니다.
                             </p>
                         ) : null}
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 졸업 처리하시겠습니까? 졸업 처리된 학생은
-                            &apos;졸업생&apos; 버튼에서 확인할 수 있습니다.
+                            선택한 {selectedIds.size}명의 {josa(labels.member, '을/를')} 졸업 처리하시겠습니까? 졸업
+                            처리된 {josa(labels.member, '은/는')} &apos;졸업생&apos; 버튼에서 확인할 수 있습니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

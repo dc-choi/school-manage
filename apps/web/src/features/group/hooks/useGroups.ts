@@ -1,10 +1,15 @@
-import type { CreateGroupInput, GroupType, UpdateGroupInput } from '@school/shared';
+import { type CreateGroupInput, type GroupType, type UpdateGroupInput, getOrganizationLabels } from '@school/shared';
+import { josa } from '@school/utils';
+import { useMemo } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '~/features/auth';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
 export function useGroups(typeFilter?: GroupType) {
     const utils = trpc.useUtils();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
 
     const listQuery = trpc.group.list.useQuery({ type: typeFilter });
 
@@ -22,7 +27,7 @@ export function useGroups(typeFilter?: GroupType) {
             // GA4 이벤트: 그룹 생성
             analytics.trackGroupCreated();
 
-            toast.success('학년&부서가 생성되었습니다.');
+            toast.success(`${labels.groupAndDepartment}가 생성되었습니다.`);
         },
     });
 
@@ -34,7 +39,7 @@ export function useGroups(typeFilter?: GroupType) {
             // GA4 이벤트: 그룹 수정
             analytics.trackGroupUpdated();
 
-            toast.success('학년&부서가 수정되었습니다.');
+            toast.success(`${labels.groupAndDepartment}가 수정되었습니다.`);
         },
     });
 
@@ -45,7 +50,7 @@ export function useGroups(typeFilter?: GroupType) {
             // GA4 이벤트: 그룹 삭제
             analytics.trackGroupDeleted(1);
 
-            toast.success('학년&부서가 삭제되었습니다.');
+            toast.success(`${labels.groupAndDepartment}가 삭제되었습니다.`);
         },
     });
 
@@ -56,7 +61,7 @@ export function useGroups(typeFilter?: GroupType) {
             // GA4 이벤트: 그룹 일괄 삭제
             analytics.trackGroupDeleted(variables.ids.length);
 
-            toast.success('선택한 학년&부서가 삭제되었습니다.');
+            toast.success(`선택한 ${labels.groupAndDepartment}가 삭제되었습니다.`);
         },
     });
 
@@ -64,7 +69,7 @@ export function useGroups(typeFilter?: GroupType) {
         onSuccess: () => {
             utils.group.get.invalidate();
             utils.group.list.invalidate();
-            toast.success('학생이 추가되었습니다.');
+            toast.success(`${josa(labels.member, '이/가')} 추가되었습니다.`);
         },
     });
 
@@ -72,7 +77,7 @@ export function useGroups(typeFilter?: GroupType) {
         onSuccess: () => {
             utils.group.get.invalidate();
             utils.group.list.invalidate();
-            toast.success('학생이 제거되었습니다.');
+            toast.success(`${josa(labels.member, '이/가')} 제거되었습니다.`);
         },
     });
 

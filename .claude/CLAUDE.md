@@ -52,7 +52,7 @@ pnpm --filter @school/api db:seed    # 비어있는 DB에 seed만 주입
 ```
 
 - Seed 엔트리: `apps/api/prisma/seed.ts`
-- 데이터: Parish 2 / Church 4 / Organization 5 / Account 7 / Group 8 / Student 20 / Registration 10 / Attendance 20
+- 데이터: Parish 2 / Church 4 / Organization 5 / Account 7 / Group 8 / Student 70 (기본 20 + 페이지네이션 확인용 50, 장위동 중고등부 60명) / Registration 10 / Attendance 20
 - 모든 계정 비밀번호: `5678` (로컬 전용)
 - 프로덕션 가드: `NODE_ENV=production`이면 seed 자체가 abort
 - 테스트 DB는 영향받지 않음 (`vitest.global-setup.ts`가 독립적으로 리셋)

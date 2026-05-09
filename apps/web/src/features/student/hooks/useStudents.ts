@@ -1,7 +1,9 @@
-import type { CreateStudentInput, UpdateStudentInput } from '@school/shared';
-import { useState } from 'react';
+import { type CreateStudentInput, type UpdateStudentInput, getOrganizationLabels } from '@school/shared';
+import { josa } from '@school/utils';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useAuth } from '~/features/auth';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
@@ -25,6 +27,8 @@ const parsePageParam = (value: string | null): number => {
 
 export function useStudents(options: UseStudentsOptions = {}) {
     const [searchParams, setSearchParams] = useSearchParams();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
 
     const initialPage = options.syncPageWithUrl ? parsePageParam(searchParams.get('page')) : (options.initialPage ?? 1);
 
@@ -103,7 +107,7 @@ export function useStudents(options: UseStudentsOptions = {}) {
             // GA4 이벤트: 학생 등록
             analytics.trackStudentCreated();
 
-            toast.success('학생이 등록되었습니다.');
+            toast.success(`${josa(labels.member, '이/가')} 등록되었습니다.`);
         },
     });
 
@@ -115,7 +119,7 @@ export function useStudents(options: UseStudentsOptions = {}) {
             // GA4 이벤트: 학생 수정
             analytics.trackStudentUpdated();
 
-            toast.success('학생이 수정되었습니다.');
+            toast.success(`${josa(labels.member, '이/가')} 수정되었습니다.`);
         },
     });
 
@@ -126,7 +130,7 @@ export function useStudents(options: UseStudentsOptions = {}) {
             // GA4 이벤트: 학생 삭제
             analytics.trackStudentDeleted(1);
 
-            toast.success('학생이 삭제되었습니다.');
+            toast.success(`${josa(labels.member, '이/가')} 삭제되었습니다.`);
         },
     });
 
@@ -137,7 +141,7 @@ export function useStudents(options: UseStudentsOptions = {}) {
             // GA4 이벤트: 학생 일괄 삭제
             analytics.trackStudentDeleted(variables.ids.length);
 
-            toast.success('선택한 학생이 삭제되었습니다.');
+            toast.success(`선택한 ${josa(labels.member, '이/가')} 삭제되었습니다.`);
         },
     });
 
@@ -145,7 +149,7 @@ export function useStudents(options: UseStudentsOptions = {}) {
         onSuccess: () => {
             utils.student.list.invalidate();
 
-            toast.success('학생이 복원되었습니다.');
+            toast.success(`${josa(labels.member, '이/가')} 복원되었습니다.`);
         },
     });
 

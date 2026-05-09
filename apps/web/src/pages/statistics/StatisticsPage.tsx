@@ -1,3 +1,4 @@
+import { getOrganizationLabels } from '@school/shared';
 import { getNthSundayOf, getWeeksInMonth } from '@school/utils';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -9,6 +10,7 @@ import { Button } from '~/components/ui/button';
 import { Calendar } from '~/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { useAuth } from '~/features/auth';
 import { useDashboardStatistics } from '~/features/statistics';
 import { analytics } from '~/lib/analytics';
 import { cn } from '~/lib/utils';
@@ -35,6 +37,8 @@ export const parseDayParam = (value: string | null): string | undefined => {
 
 export function StatisticsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const [now] = useState(() => new Date());
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
@@ -236,7 +240,7 @@ export function StatisticsPage() {
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <GenderDistributionChart data={stats.byGender} isLoading={stats.isLoading} error={hasError} />
                     <TopRankingCard
-                        title="전체 우수 출석 학생 TOP 5"
+                        title={`전체 우수 출석 ${labels.member} TOP 5`}
                         items={topStudentItems}
                         isLoading={stats.isLoading}
                         error={hasError}

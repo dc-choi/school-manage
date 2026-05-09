@@ -29,41 +29,51 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
     };
 
     return (
-        <nav className="flex items-center justify-center gap-2">
-            <Button
-                variant="outline"
-                onClick={() => onPageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="min-w-20"
-            >
-                이전
-            </Button>
+        <nav aria-label="페이지네이션" className="w-full overflow-x-auto sm:overflow-visible">
+            <div className="mx-auto flex w-max items-center gap-1.5 px-1 sm:w-auto sm:justify-center sm:gap-2 sm:px-0">
+                <Button
+                    variant="outline"
+                    onClick={() => onPageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    aria-label="이전 페이지"
+                    className="h-10 min-w-12 px-2.5 py-1.5 text-sm sm:h-14 sm:min-w-20 sm:px-6 sm:py-3 sm:text-lg"
+                >
+                    이전
+                </Button>
 
-            {getPageNumbers().map((page) =>
-                typeof page === 'number' ? (
-                    <Button
-                        key={`page-${page}`}
-                        variant={currentPage === page ? 'default' : 'outline'}
-                        onClick={() => onPageChange(page)}
-                        className="min-w-14"
-                    >
-                        {page}
-                    </Button>
-                ) : (
-                    <span key={`ellipsis-${page}`} className="px-3 py-2 text-xl text-muted-foreground">
-                        {page}
-                    </span>
-                )
-            )}
+                {getPageNumbers().map((page, idx) =>
+                    typeof page === 'number' ? (
+                        <Button
+                            key={`page-${page}`}
+                            variant={currentPage === page ? 'default' : 'outline'}
+                            onClick={() => onPageChange(page)}
+                            aria-current={currentPage === page ? 'page' : undefined}
+                            aria-label={`${page} 페이지${currentPage === page ? ', 현재 페이지' : ''}`}
+                            className="h-10 min-w-10 px-2 py-1.5 text-sm tabular-nums sm:h-14 sm:min-w-14 sm:px-6 sm:py-3 sm:text-lg"
+                        >
+                            {page}
+                        </Button>
+                    ) : (
+                        <span
+                            key={`ellipsis-${idx}`}
+                            aria-hidden="true"
+                            className="px-1 py-1 text-sm text-muted-foreground sm:px-3 sm:py-2 sm:text-xl"
+                        >
+                            …
+                        </span>
+                    )
+                )}
 
-            <Button
-                variant="outline"
-                onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="min-w-20"
-            >
-                다음
-            </Button>
+                <Button
+                    variant="outline"
+                    onClick={() => onPageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    aria-label="다음 페이지"
+                    className="h-10 min-w-12 px-2.5 py-1.5 text-sm sm:h-14 sm:min-w-20 sm:px-6 sm:py-3 sm:text-lg"
+                >
+                    다음
+                </Button>
+            </div>
         </nav>
     );
 }

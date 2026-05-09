@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="위클리스쿨 로고">
+    <defs>
+        <radialGradient id="ws-halo" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#FBBF24" stop-opacity="0.45" />
+            <stop offset="0.55" stop-color="#FBBF24" stop-opacity="0.18" />
+            <stop offset="1" stop-color="#FBBF24" stop-opacity="0" />
+        </radialGradient>
+    </defs>
+
+    <!-- 배경 + 컨테이너 -->
+    <rect width="1024" height="1024" fill="#FAFAF9" />
+    <rect x="110" y="110" width="804" height="804" rx="110" ry="110"
+          fill="#FAFAF9" stroke="#E8DFCC" stroke-width="14" />
+
+    <!-- amber 별 (우상단, 5포인트, R=44) -->
+    <path d="M 830 196 L 839.88 226.42 L 871.86 226.42 L 845.99 245.21 L 855.87 275.63 L 830 256.84 L 804.13 275.63 L 814.01 245.21 L 788.14 226.42 L 820.12 226.42 Z"
+          fill="#FBBF24" />
+
+    <!-- 워드마크 WEEKLY / SCHOOL — 시스템 폰트 ExtraBold fallback -->
+    <text x="512" y="420"
+          font-family="Pretendard, 'Pretendard ExtraBold', 'SF Pro Display', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif"
+          font-weight="900" font-size="165" letter-spacing="-3"
+          text-anchor="middle" fill="#4F46E5">WEEKLY</text>
+    <text x="512" y="585"
+          font-family="Pretendard, 'Pretendard ExtraBold', 'SF Pro Display', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif"
+          font-weight="900" font-size="165" letter-spacing="-3"
+          text-anchor="middle" fill="#4F46E5">SCHOOL</text>
+
+    <!-- amber halo (◎ 뒤) -->
+    <circle cx="512" cy="770" r="185" fill="url(#ws-halo)" />
+
+    <!-- 웃는 ◎ — 외곽 굵은 링 + 안쪽 링 + 눈 + 입 -->
+    <circle cx="512" cy="770" r="130" fill="#FAFAF9" stroke="#4F46E5" stroke-width="22" />
+    <circle cx="512" cy="770" r="95" fill="none" stroke="#4F46E5" stroke-width="10" />
+    <circle cx="488" cy="760" r="10" fill="#4F46E5" />
+    <circle cx="536" cy="760" r="10" fill="#4F46E5" />
+    <path d="M 492 785 Q 512 805 532 785"
+          fill="none" stroke="#4F46E5" stroke-width="8" stroke-linecap="round" />
+
+    <!-- sparkle 4갈래 별 (우하단 2개) -->
+    <path d="M 875 905 L 882 920 L 897 927 L 882 934 L 875 949 L 868 934 L 853 927 L 868 920 Z"
+          fill="#FBBF24" fill-opacity="0.65" />
+    <path d="M 940 965 L 944.5 974.5 L 954 979 L 944.5 983.5 L 940 993 L 935.5 983.5 L 926 979 L 935.5 974.5 Z"
+          fill="#FBBF24" fill-opacity="0.45" />
+</svg>

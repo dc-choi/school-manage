@@ -1,5 +1,6 @@
-import { formatContact, formatDateKR } from '@school/utils';
-import { useState } from 'react';
+import { getOrganizationLabels } from '@school/shared';
+import { formatContact, formatDateKR, josa } from '@school/utils';
+import { useMemo, useState } from 'react';
 import { Pagination, Table } from '~/components/common';
 import {
     AlertDialog,
@@ -14,6 +15,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { useAuth } from '~/features/auth';
 import { useCheckboxSelection } from '~/features/student';
 import type { useStudents } from '~/features/student';
 
@@ -42,6 +44,8 @@ export function GraduatedStudentsModal({
     onCancelGraduation,
     isCancellingGraduation,
 }: GraduatedStudentsModalProps) {
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const { selectedIds, selectAll, selectOne, clearSelection, isAllSelected, isSomeSelected } =
         useCheckboxSelection(students);
     const [confirmCancel, setConfirmCancel] = useState(false);
@@ -126,7 +130,8 @@ export function GraduatedStudentsModal({
                     <AlertDialogHeader>
                         <AlertDialogTitle>졸업 취소</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생의 졸업을 취소하시겠습니까? 재학생으로 복원됩니다.
+                            선택한 {selectedIds.size}명의 {labels.member}의 졸업을 취소하시겠습니까?{' '}
+                            {josa(labels.member, '으로/로')} 복원됩니다.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
