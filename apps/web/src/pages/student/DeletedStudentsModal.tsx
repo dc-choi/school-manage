@@ -1,5 +1,6 @@
-import { formatDateKR } from '@school/utils';
-import { useState } from 'react';
+import { getOrganizationLabels } from '@school/shared';
+import { formatDateKR, josa } from '@school/utils';
+import { useMemo, useState } from 'react';
 import { Pagination, Table } from '~/components/common';
 import {
     AlertDialog,
@@ -14,6 +15,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { useAuth } from '~/features/auth';
 import { useCheckboxSelection } from '~/features/student';
 import type { useStudents } from '~/features/student';
 
@@ -42,6 +44,8 @@ export function DeletedStudentsModal({
     onRestore,
     isRestoring,
 }: DeletedStudentsModalProps) {
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const { selectedIds, selectAll, selectOne, clearSelection, isAllSelected, isSomeSelected } =
         useCheckboxSelection(students);
     const [confirmRestore, setConfirmRestore] = useState(false);
@@ -71,7 +75,7 @@ export function DeletedStudentsModal({
         { key: 'catholicName', header: '세례명' },
         {
             key: 'groups',
-            header: '학년',
+            header: labels.group,
             render: (row: StudentItem) => (row.groups?.length ? row.groups.map((g) => g.name).join(', ') : '-'),
         },
         {
@@ -86,8 +90,10 @@ export function DeletedStudentsModal({
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>삭제된 학생 관리</DialogTitle>
-                        <DialogDescription>삭제된 학생을 선택하여 복구할 수 있습니다.</DialogDescription>
+                        <DialogTitle>삭제된 {labels.member} 관리</DialogTitle>
+                        <DialogDescription>
+                            삭제된 {josa(labels.member, '을/를')} 선택하여 복구할 수 있습니다.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="mt-4">
                         {isSomeSelected && (
@@ -102,7 +108,7 @@ export function DeletedStudentsModal({
                             data={students}
                             keyExtractor={(row) => row.id}
                             isLoading={isLoading}
-                            emptyMessage="삭제된 학생이 없습니다."
+                            emptyMessage={`삭제된 ${josa(labels.member, '이/가')} 없습니다.`}
                         />
                         {totalPage > 1 && (
                             <div className="mt-4">
@@ -120,9 +126,9 @@ export function DeletedStudentsModal({
             <AlertDialog open={confirmRestore} onOpenChange={setConfirmRestore}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>학생 복구</AlertDialogTitle>
+                        <AlertDialogTitle>{labels.member} 복구</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 복구하시겠습니까?
+                            선택한 {selectedIds.size}명의 {josa(labels.member, '을/를')} 복구하시겠습니까?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

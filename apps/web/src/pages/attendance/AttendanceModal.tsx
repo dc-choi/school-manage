@@ -1,4 +1,5 @@
-import type { AttendanceData, StudentAttendanceDetail } from '@school/shared';
+import { type AttendanceData, type StudentAttendanceDetail, getOrganizationLabels } from '@school/shared';
+import { josa } from '@school/utils';
 import { Check, Loader2, X } from 'lucide-react';
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -8,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/u
 import { Label } from '~/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { type SortKey, sortStudents } from '~/features/attendance/utils/sortStudents';
+import { useAuth } from '~/features/auth';
 import { analytics } from '~/lib/analytics';
 import { extractErrorMessage } from '~/lib/error';
 import { markFirstAttendanceDone } from '~/lib/pwa';
@@ -84,6 +86,8 @@ export function AttendanceModal({
     onSave,
     year,
 }: AttendanceModalProps) {
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const [studentAttendance, setStudentAttendance] = useState<StudentAttendance[]>([]);
     const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
     const [sortKey, setSortKey] = useState<SortKey>('registration');
@@ -188,7 +192,7 @@ export function AttendanceModal({
                     </div>
                 )}
                 {!isLoading && students.length === 0 && (
-                    <p className="py-8 text-center text-muted-foreground">학생이 없습니다.</p>
+                    <p className="py-8 text-center text-muted-foreground">{josa(labels.member, '이/가')} 없습니다.</p>
                 )}
                 {!isLoading && students.length > 0 && (
                     <div className="space-y-4">

@@ -5,7 +5,7 @@ import { JoinRequestsSection } from './JoinRequestsSection';
 import { LiturgicalSeasonCard } from './LiturgicalSeasonCard';
 import { PatronFeastCard } from './PatronFeastCard';
 import { TopRankingCard } from './TopRankingCard';
-import { JOIN_REQUEST_STATUS, ROLE } from '@school/shared';
+import { JOIN_REQUEST_STATUS, ROLE, getOrganizationLabels } from '@school/shared';
 import { getNthSundayOf, getWeeksInMonth } from '@school/utils';
 import { Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -20,19 +20,19 @@ import { useDashboardStatistics } from '~/features/statistics';
 import { useOnboardingStatus } from '~/hooks/useOnboardingStatus';
 import { analytics } from '~/lib/analytics';
 
-const ONBOARDING_STEPS = [
+const buildOnboardingSteps = (group: string, member: string) => [
     {
         step: 1,
-        title: '학년 만들기',
+        title: `${group} 만들기`,
         description: '반이나 모임을 만들어보세요',
-        ctaLabel: '학년 추가',
+        ctaLabel: `${group} 추가`,
         ctaPath: '/groups/new',
     },
     {
         step: 2,
-        title: '학생 등록하기',
-        description: '학생을 추가하면 출석 체크를 시작할 수 있어요',
-        ctaLabel: '학생 추가',
+        title: `${member} 등록하기`,
+        description: `${member}을 추가하면 출석 체크를 시작할 수 있어요`,
+        ctaLabel: `${member} 추가`,
         ctaPath: '/students/new',
     },
     {
@@ -56,6 +56,12 @@ function OnboardingChecklist({
     hasAttendance: boolean;
 }) {
     const navigate = useNavigate();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
+    const ONBOARDING_STEPS = useMemo(
+        () => buildOnboardingSteps(labels.group, labels.member),
+        [labels.group, labels.member]
+    );
     const completedFlags = [hasGroups, hasStudents, hasAttendance];
 
     useEffect(() => {
@@ -128,7 +134,9 @@ function OnboardingChecklist({
 }
 
 function DashboardContent({ showContextBanner = false }: { showContextBanner?: boolean }) {
-    const { account, role } = useAuth();
+    const { account, role, organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
+    const memberLabel = labels.member;
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
@@ -278,7 +286,7 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
                 <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-2">
                     <GenderDistributionChart data={stats.byGender} isLoading={stats.isLoading} error={hasError} />
                     <TopRankingCard
-                        title="전체 우수 출석 학생 TOP 5"
+                        title={`전체 우수 출석 ${memberLabel} TOP 5`}
                         items={topStudentItems}
                         isLoading={stats.isLoading}
                         error={hasError}

@@ -27,9 +27,9 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                             이거 하나면 됩니다
                         </h1>
                         <p className="text-2xl text-muted-foreground xl:text-3xl">
-                            <span className="font-semibold text-foreground">출석, 축일, 학생 현황</span>까지.
+                            <span className="font-semibold text-foreground">출석, 축일, 구성원 현황</span>까지.
                             <br />
-                            주일학교 교리교사를 위한 주간 도구.
+                            가톨릭 모임을 위한 주간 도구.
                         </p>
                     </div>
 
@@ -38,7 +38,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                             <Users className="h-6 w-6" />
                             <span>
                                 {countData.churchCount}개 본당에서 {countData.accountCount}명의 선생님들이{' '}
-                                {countData.studentCount.toLocaleString('ko-KR')}명의 학생과 함께하고 있어요.
+                                {countData.studentCount.toLocaleString('ko-KR')}명과 함께하고 있어요.
                             </span>
                         </div>
                     )}
@@ -60,13 +60,15 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 <div className="flex w-full flex-col items-center justify-center p-4 lg:w-1/2">
                     {/* 모바일 히어로 (compact) */}
                     <div className="mb-6 space-y-2 text-center lg:hidden">
-                        <h1 className="text-2xl font-bold tracking-tight">매주 주일, 이거 하나면 됩니다</h1>
+                        <h1 className="text-2xl font-bold tracking-tight text-balance">
+                            매주 주일, 이거 하나면 됩니다
+                        </h1>
                         {countData && countData.churchCount > 0 && (
                             <div className="flex items-center justify-center gap-2 text-base text-muted-foreground">
                                 <Users className="h-5 w-5" />
                                 <span>
                                     {countData.churchCount}개 본당에서 {countData.accountCount}명의 선생님들이{' '}
-                                    {countData.studentCount.toLocaleString('ko-KR')}명의 학생과 함께하고 있어요.
+                                    {countData.studentCount.toLocaleString('ko-KR')}명과 함께하고 있어요.
                                 </span>
                             </div>
                         )}

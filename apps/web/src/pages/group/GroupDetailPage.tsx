@@ -1,7 +1,7 @@
-import { GROUP_TYPE, type GroupType } from '@school/shared';
-import { formatContact } from '@school/utils';
+import { GROUP_TYPE, type GroupType, getOrganizationLabels } from '@school/shared';
+import { formatContact, josa } from '@school/utils';
 import { Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Table } from '~/components/common';
@@ -23,19 +23,24 @@ import { Checkbox } from '~/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { useAuth } from '~/features/auth';
 import { useGroups } from '~/features/group';
 import { useCheckboxSelection } from '~/features/student';
 import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
 
-const TYPE_LABEL: Record<string, string> = {
-    [GROUP_TYPE.GRADE]: '학년',
-    [GROUP_TYPE.DEPARTMENT]: '부서',
-};
-
 export function GroupDetailPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
+    const typeLabel = useMemo<Record<string, string>>(
+        () => ({
+            [GROUP_TYPE.GRADE]: labels.group,
+            [GROUP_TYPE.DEPARTMENT]: '부서',
+        }),
+        [labels.group]
+    );
     const {
         getQuery,
         update,
@@ -120,7 +125,7 @@ export function GroupDetailPage() {
         if (!id || addSelectedIds.size === 0) return;
         try {
             const { addedCount } = await bulkAddStudents(id, Array.from(addSelectedIds));
-            toast.success(`${addedCount}명의 학생을 추가했습니다.`);
+            toast.success(`${addedCount}명의 ${josa(labels.member, '을/를')} 추가했습니다.`);
             setAddSelectedIds(new Set());
             setSearchQuery('');
         } catch (e) {
@@ -132,7 +137,7 @@ export function GroupDetailPage() {
         if (!id || selectedIds.size === 0) return;
         try {
             const { removedCount } = await bulkRemoveStudents(id, Array.from(selectedIds));
-            toast.success(`${removedCount}명의 학생을 제거했습니다.`);
+            toast.success(`${removedCount}명의 ${josa(labels.member, '을/를')} 제거했습니다.`);
             clearSelection();
             setShowBulkRemoveConfirm(false);
         } catch (e) {
@@ -142,10 +147,12 @@ export function GroupDetailPage() {
 
     if (error) {
         return (
-            <MainLayout title="학년&부서 상세">
+            <MainLayout title={`${labels.groupAndDepartment} 상세`}>
                 <Card>
                     <CardContent className="pt-6">
-                        <p className="text-center text-destructive">학년&부서를 불러오는데 실패했습니다.</p>
+                        <p className="text-center text-destructive">
+                            {labels.groupAndDepartment}를 불러오는데 실패했습니다.
+                        </p>
                         <div className="mt-4 flex justify-center">
                             <Button size="lg" onClick={() => navigate(-1)}>
                                 목록으로
@@ -190,7 +197,7 @@ export function GroupDetailPage() {
     ];
 
     return (
-        <MainLayout title="학년&부서 상세">
+        <MainLayout title={`${labels.groupAndDepartment} 상세`}>
             <div className="space-y-6">
                 <Card>
                     <CardHeader>
@@ -214,7 +221,7 @@ export function GroupDetailPage() {
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value={GROUP_TYPE.GRADE}>학년</SelectItem>
+                                                    <SelectItem value={GROUP_TYPE.GRADE}>{labels.group}</SelectItem>
                                                     <SelectItem value={GROUP_TYPE.DEPARTMENT}>부서</SelectItem>
                                                 </SelectContent>
                                             </Select>
@@ -246,7 +253,7 @@ export function GroupDetailPage() {
                                                 <Badge
                                                     variant={group.type === GROUP_TYPE.GRADE ? 'default' : 'secondary'}
                                                 >
-                                                    {TYPE_LABEL[group.type] ?? group.type}
+                                                    {typeLabel[group.type] ?? group.type}
                                                 </Badge>
                                                 <CardDescription>클릭하여 수정</CardDescription>
                                             </div>
@@ -274,11 +281,11 @@ export function GroupDetailPage() {
                     <CardHeader>
                         <div className="flex items-center justify-between">
                             <div>
-                                <CardTitle>학생 목록</CardTitle>
+                                <CardTitle>{labels.member} 목록</CardTitle>
                                 <CardDescription>
                                     {isLoading
                                         ? '로딩 중...'
-                                        : `총 ${group?.students.length ?? 0}명의 학생이 있습니다.`}
+                                        : `총 ${group?.students.length ?? 0}명의 ${josa(labels.member, '이/가')} 있습니다.`}
                                 </CardDescription>
                             </div>
                             <div className="flex gap-2">
@@ -287,7 +294,7 @@ export function GroupDetailPage() {
                                         선택 제거 ({selectedIds.size})
                                     </Button>
                                 ) : null}
-                                <Button onClick={() => setShowAddDialog(true)}>학생 추가</Button>
+                                <Button onClick={() => setShowAddDialog(true)}>{labels.member} 추가</Button>
                             </div>
                         </div>
                     </CardHeader>
@@ -297,7 +304,7 @@ export function GroupDetailPage() {
                             data={students}
                             keyExtractor={(row) => row.id}
                             isLoading={isLoading}
-                            emptyMessage="등록된 학생이 없습니다."
+                            emptyMessage={`등록된 ${josa(labels.member, '이/가')} 없습니다.`}
                         />
                     </CardContent>
                 </Card>
@@ -316,8 +323,10 @@ export function GroupDetailPage() {
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>학생 추가</DialogTitle>
-                        <DialogDescription>이름을 검색하여 추가할 학생을 선택하세요.</DialogDescription>
+                        <DialogTitle>{labels.member} 추가</DialogTitle>
+                        <DialogDescription>
+                            이름을 검색하여 추가할 {josa(labels.member, '을/를')} 선택하세요.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="flex gap-2">
@@ -325,7 +334,7 @@ export function GroupDetailPage() {
                             <Input
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="학생 이름 검색…"
+                                placeholder={`${labels.member} 이름 검색…`}
                                 autoFocus
                             />
                         </div>
@@ -372,9 +381,10 @@ export function GroupDetailPage() {
             <AlertDialog open={showBulkRemoveConfirm} onOpenChange={setShowBulkRemoveConfirm}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>학생 제거</AlertDialogTitle>
+                        <AlertDialogTitle>{labels.member} 제거</AlertDialogTitle>
                         <AlertDialogDescription>
-                            선택한 {selectedIds.size}명의 학생을 이 학년&부서에서 제거하시겠습니까?
+                            선택한 {selectedIds.size}명의 {josa(labels.member, '을/를')} 이 {labels.groupAndDepartment}
+                            에서 제거하시겠습니까?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

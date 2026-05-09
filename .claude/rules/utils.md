@@ -1,6 +1,6 @@
 ---
 paths:
-  - "packages/utils/**"
+    - 'packages/utils/**'
 ---
 
 # Utils Package Rules (@school/utils)
@@ -26,51 +26,51 @@ packages/utils/
 
 ### 날짜/시간 (date.ts)
 
-| 함수 | 설명 |
-|------|------|
-| `getNowKST()` | 현재 시간을 KST(UTC+9)로 반환 |
-| `addDays(date, days)` | 날짜에 일수 더하기 |
-| `getThisWeekSunday(date)` | 해당 주의 일요일 반환 |
-| `getThisWeekSaturday(date)` | 해당 주의 토요일 반환 |
-| `countSundays(startDate, endDate)` | 기간 내 일요일 수 계산 |
-| `countSundaysInYear(year)` | 연간 일요일 수 계산 |
-| `getNthSundayOf(year, month, n)` | N번째 주일 계산 |
-| `getNthSaturdayOf(year, month, n)` | N번째 토요일 계산 |
-| `getLastSundayOf(year, month)` | 해당 월의 마지막 주일 계산 |
-| `calculateEaster(year)` | 부활 대축일 계산 |
+| 함수                               | 설명                          |
+| ---------------------------------- | ----------------------------- |
+| `getNowKST()`                      | 현재 시간을 KST(UTC+9)로 반환 |
+| `addDays(date, days)`              | 날짜에 일수 더하기            |
+| `getThisWeekSunday(date)`          | 해당 주의 일요일 반환         |
+| `getThisWeekSaturday(date)`        | 해당 주의 토요일 반환         |
+| `countSundays(startDate, endDate)` | 기간 내 일요일 수 계산        |
+| `countSundaysInYear(year)`         | 연간 일요일 수 계산           |
+| `getNthSundayOf(year, month, n)`   | N번째 주일 계산               |
+| `getNthSaturdayOf(year, month, n)` | N번째 토요일 계산             |
+| `getLastSundayOf(year, month)`     | 해당 월의 마지막 주일 계산    |
+| `calculateEaster(year)`            | 부활 대축일 계산              |
 
 ### 포맷팅 (format.ts)
 
-| 함수 | 설명 |
-|------|------|
-| `formatContact(contact)` | 연락처 포맷팅 (010-XXXX-XXXX) |
-| `formatDateCompact(date)` | Date → YYYYMMDD 형식 |
-| `formatDateISO(date)` | Date → YYYY-MM-DD 형식 |
+| 함수                      | 설명                          |
+| ------------------------- | ----------------------------- |
+| `formatContact(contact)`  | 연락처 포맷팅 (010-XXXX-XXXX) |
+| `formatDateCompact(date)` | Date → YYYYMMDD 형식          |
+| `formatDateISO(date)`     | Date → YYYY-MM-DD 형식        |
 
 ### 객체 (object.ts)
 
-| 함수 | 설명 |
-|------|------|
+| 함수         | 설명                                        |
+| ------------ | ------------------------------------------- |
 | `prune(obj)` | 객체에서 null/undefined 값을 가진 속성 제거 |
+
+### 한국어 조사 (josa.ts)
+
+| 함수                  | 설명                                                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `hasJongseong(word)`  | 마지막 글자에 받침 있는지 판정                                                                                      |
+| `josa(word, '을/를')` | 받침 유무 따라 적절한 조사 붙임 — "학생을" / "멤버를". `'이/가'`, `'은/는'`, `'와/과'`, `'으로/로'`, `'아/야'` 지원 |
 
 ### 수학/계산 (math.ts)
 
-| 함수 | 설명 |
-|------|------|
-| `roundToDecimal(value, places)` | 소수점 N자리까지 반올림 |
-| `calculateRate(actual, expected, places)` | 비율 계산 (%) |
+| 함수                                      | 설명                    |
+| ----------------------------------------- | ----------------------- |
+| `roundToDecimal(value, places)`           | 소수점 N자리까지 반올림 |
+| `calculateRate(actual, expected, places)` | 비율 계산 (%)           |
 
 ## 사용법
 
 ```typescript
-import {
-    getNowKST,
-    countSundaysInYear,
-    formatDateCompact,
-    formatContact,
-    roundToDecimal,
-    prune,
-} from '@school/utils';
+import { countSundaysInYear, formatContact, formatDateCompact, getNowKST, prune, roundToDecimal } from '@school/utils';
 
 // 날짜
 const now = getNowKST();

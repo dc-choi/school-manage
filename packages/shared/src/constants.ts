@@ -71,6 +71,47 @@ export const GROUP_TYPE = {
 export type GroupType = (typeof GROUP_TYPE)[keyof typeof GROUP_TYPE];
 
 /**
+ * 조직 타입별 라벨 (UI 라벨 분기용)
+ *
+ * ELEMENTARY/MIDDLE_HIGH 모임은 주일학교 맥락의 "학년/학생", YOUNG_ADULT 모임은
+ * 청년·레지오·군종·성가대 맥락에 자연스러운 "그룹/멤버"를 사용한다. DB/API/URL은
+ * 동일하며 UI 라벨만 분기된다.
+ */
+export interface OrganizationLabels {
+    group: string;
+    member: string;
+    groupAndDepartment: string;
+}
+
+export const ORGANIZATION_LABELS_DEFAULT: OrganizationLabels = {
+    group: '학년',
+    member: '학생',
+    groupAndDepartment: '학년&부서',
+} as const;
+
+export const ORGANIZATION_LABELS_YOUNG_ADULT: OrganizationLabels = {
+    group: '그룹',
+    member: '멤버',
+    groupAndDepartment: '그룹&부서',
+} as const;
+
+export const ORGANIZATION_LABEL_CONFIG = {
+    ELEMENTARY: ORGANIZATION_LABELS_DEFAULT,
+    MIDDLE_HIGH: ORGANIZATION_LABELS_DEFAULT,
+    YOUNG_ADULT: ORGANIZATION_LABELS_YOUNG_ADULT,
+} as const satisfies Record<OrganizationType, OrganizationLabels>;
+
+/**
+ * ORGANIZATION_TYPE → 라벨 객체 조회. null/undefined/잘못된 값은 DEFAULT로 안전 fallback.
+ */
+export const getOrganizationLabels = (type: OrganizationType | string | null | undefined): OrganizationLabels => {
+    if (type && type in ORGANIZATION_LABEL_CONFIG) {
+        return ORGANIZATION_LABEL_CONFIG[type as OrganizationType];
+    }
+    return ORGANIZATION_LABELS_DEFAULT;
+};
+
+/**
  * 출석 표시 (출석으로 인정되는 마크)
  */
 export const PRESENT_MARKS = new Set(['◎', '○', '△']) as ReadonlySet<string>;

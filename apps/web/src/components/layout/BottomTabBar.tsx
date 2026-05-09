@@ -1,4 +1,6 @@
+import { getOrganizationLabels } from '@school/shared';
 import { BarChart3, CalendarCheck, GraduationCap, Home, Menu } from 'lucide-react';
+import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '~/features/auth';
 import { analytics } from '~/lib/analytics';
@@ -14,10 +16,10 @@ interface TabDef {
     requiresAuth: boolean;
 }
 
-const TABS: ReadonlyArray<TabDef> = [
+const buildTabs = (memberLabel: string): ReadonlyArray<TabDef> => [
     { id: 'home', label: '홈', path: '/', icon: Home, requiresAuth: false },
     { id: 'attendance', label: '출석', path: '/attendance', icon: CalendarCheck, requiresAuth: true },
-    { id: 'students', label: '학생', path: '/students', icon: GraduationCap, requiresAuth: true },
+    { id: 'students', label: memberLabel, path: '/students', icon: GraduationCap, requiresAuth: true },
     { id: 'statistics', label: '통계', path: '/statistics', icon: BarChart3, requiresAuth: true },
 ];
 
@@ -53,7 +55,9 @@ const ACTIVE_INDICATOR_CLASS = 'absolute inset-x-2 top-0 h-[2px] rounded-full bg
 export function BottomTabBar({ onMoreClick, isMoreOpen }: BottomTabBarProps) {
     const location = useLocation();
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
+    const TABS = useMemo(() => buildTabs(labels.member), [labels.member]);
 
     const handleTabClick = (tab: TabDef) => {
         analytics.trackNavTabClicked(tab.id);
