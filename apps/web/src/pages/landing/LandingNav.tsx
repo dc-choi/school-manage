@@ -25,10 +25,10 @@ export function LandingNav() {
                 <a href="#hero" className="flex items-center gap-2 font-semibold">
                     <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
                         <span className="text-sm font-bold" aria-hidden="true">
-                            출
+                            W
                         </span>
                     </span>
-                    <span className="text-sm sm:text-base">주일학교 출석부</span>
+                    <span className="text-sm sm:text-base">Weekly-School</span>
                 </a>
                 <nav aria-label="섹션 이동" className="hidden items-center gap-6 md:flex">
                     {ANCHORS.map((anchor) => (
