@@ -9,7 +9,7 @@
  * 모든 계정 비밀번호: TEST_PASSWORD ('5678')
  *
  * 데이터 스코프: Parish 2 / Church 4 / Organization 5 / Account 7 / Group 8
- * / Student 20 / Registration 10 / Attendance 20
+ * / Student 70 (기본 20 + 페이지네이션 확인용 50) / Registration 10 / Attendance 20
  */
 import { PrismaClient } from '@prisma/client';
 import { CURRENT_PRIVACY_VERSION } from '@school/shared';
@@ -313,6 +313,83 @@ async function main() {
         { societyName: '이지유', catholicName: '엘레나', gender: 'F', age: 14, orgId: bundangOrg.id, groupIds: [] },
     ];
 
+    // 페이지네이션 시각 확인용 추가 학생 50명 (장위동 중고등부 → 총 60명, 페이지 10건 ÷ → 6페이지)
+    const paginationFillerNames = [
+        '김지원',
+        '이도현',
+        '박서윤',
+        '정민서',
+        '최지안',
+        '강유진',
+        '조현서',
+        '윤하준',
+        '한수아',
+        '오지호',
+        '신예린',
+        '임도현',
+        '서윤서',
+        '권민재',
+        '황지유',
+        '안재희',
+        '송하윤',
+        '류시우',
+        '백서진',
+        '문가은',
+        '주은서',
+        '남이준',
+        '구하린',
+        '엄지호',
+        '진아람',
+        '나서윤',
+        '노재현',
+        '하지유',
+        '구도윤',
+        '심지아',
+        '하재민',
+        '진서아',
+        '고하준',
+        '민유나',
+        '제이서',
+        '추예린',
+        '복지원',
+        '편민재',
+        '석유진',
+        '음서연',
+        '곽재현',
+        '도지유',
+        '손유찬',
+        '배서아',
+        '맹지호',
+        '왕가은',
+        '국하늘',
+        '예다은',
+        '천지원',
+        '봉서진',
+    ];
+    const paginationFillerCatholicNames = [
+        '요한',
+        '베드로',
+        '바오로',
+        '안나',
+        '마리아',
+        '루치아',
+        '데레사',
+        '미카엘',
+        '안드레아',
+        '클라라',
+    ];
+    const middleHighGroupIds = [mh1.id, mh2.id, mh3.id];
+    for (let i = 0; i < paginationFillerNames.length; i++) {
+        studentDefs.push({
+            societyName: paginationFillerNames[i],
+            catholicName: paginationFillerCatholicNames[i % paginationFillerCatholicNames.length],
+            gender: i % 2 === 0 ? 'M' : 'F',
+            age: 14 + (i % 3),
+            orgId: middleHigh.id,
+            groupIds: [middleHighGroupIds[i % middleHighGroupIds.length]],
+        });
+    }
+
     const studentIds: bigint[] = [];
     for (const s of studentDefs) {
         const created = await prisma.student.create({
@@ -370,6 +447,7 @@ async function main() {
     console.log(`   Parish 2 / Church 4 / Organization 5`);
     console.log(`   Account 7 / JoinRequest 2`);
     console.log(`   Group 8 / Student ${studentDefs.length} / Registration 10 / Attendance 20`);
+    console.log(`   (학생 ${studentDefs.length}명 = 기본 20 + 페이지네이션 시각 확인용 50, 장위동 중고등부 60명)`);
     console.log(`   계정 이름: admin, teacher1, elemadmin, heukseok, bundang, orphan, pending`);
     console.log(`   비밀번호 (모두): ${TEST_PASSWORD}`);
 }
