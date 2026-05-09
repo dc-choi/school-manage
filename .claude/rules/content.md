@@ -24,17 +24,17 @@ paths:
 
 ## 입력 문서 (읽기 전용)
 
-| 문서              | 경로                                                             | 확인 포인트                |
-| ----------------- | ---------------------------------------------------------------- | -------------------------- |
-| GTM 전략          | `docs/business/3_gtm/gtm.md`                                     | 포지셔닝 메시지, 전환 경로 |
-| 인스타그램 운영   | `docs/business/3_gtm/instagram.md`                               | 콘텐츠 전략, 톤, 게시 주기 |
-| 진행 현황         | `docs/business/STATUS.md`                                        | 현재 목표, 완료된 기능     |
-| 사업 모델         | `docs/business/2_bm/bm.md`                                       | 가치 제안                  |
-| **브랜드 인덱스** | `docs/content/brand/README.md`                                   | 컬러·타이포·산출물 인덱스  |
-| **로고 (확정)**   | `docs/content/brand/logo.md` + `assets/logo-reference.jpg`       | 햇살+워드마크+웃는 ◎       |
-| **캐릭터 (확정)** | `docs/content/brand/character.md` + `assets/joo-i-reference.jpg` | 주이 6종 표정 시트         |
+| 문서              | 경로                                                             | 확인 포인트                                  |
+| ----------------- | ---------------------------------------------------------------- | -------------------------------------------- |
+| GTM 전략          | `docs/business/3_gtm/gtm.md`                                     | 포지셔닝 메시지, 전환 경로                   |
+| 인스타그램 운영   | `docs/business/3_gtm/instagram.md`                               | 콘텐츠 전략, 톤, 게시 주기                   |
+| 진행 현황         | `docs/business/STATUS.md`                                        | 현재 목표, 완료된 기능                       |
+| 사업 모델         | `docs/business/2_bm/bm.md`                                       | 가치 제안                                    |
+| **브랜드 인덱스** | `docs/content/brand/README.md`                                   | 컬러, 타이포, 산출물 인덱스                  |
+| **로고 (확정)**   | `docs/content/brand/logo.md` + `assets/logo-reference.jpg`       | 워드마크 + 웃는 ◎ + amber 별 (v2, 햇살 제거) |
+| **캐릭터 (확정)** | `docs/content/brand/character.md` + `assets/joo-i-reference.jpg` | 주이 6종 표정 시트                           |
 
-> **모든 신규 콘텐츠 제작 시 위 두 레퍼런스 이미지를 우선 참고**한다. 캐릭터 컷은 6종 시트에서 먼저 매칭하고, 부족할 때만 `character.md`의 생성 프롬프트로 추가 생성한다. 로고는 `logo.md`의 사용 규칙(햇살 색·웃는 ◎ 표정·요소 비율)을 위반하지 않는다.
+> **모든 신규 콘텐츠 제작 시 위 두 레퍼런스 이미지를 우선 참고**한다. 캐릭터 컷은 6종 시트에서 먼저 매칭하고, 부족할 때만 `character.md`의 생성 프롬프트로 추가 생성한다. 로고는 `logo.md`의 사용 규칙(웃는 ◎ 표정 보존, amber 액센트 보존, **햇살/sunburst 절대 금지**)을 위반하지 않는다.
 
 ## 출력 디렉토리
 
