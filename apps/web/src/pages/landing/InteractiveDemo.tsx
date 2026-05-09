@@ -309,7 +309,7 @@ export function InteractiveDemo() {
                     <>
                         {/* 학생 관리 헤더 */}
                         <div className="border-b px-5 py-4">
-                            <h3 className="text-base font-semibold">학생 정보</h3>
+                            <h3 className="text-base font-semibold">구성원 정보</h3>
                             <p className="text-xs text-muted-foreground">정보를 수정해보세요</p>
                         </div>
 
@@ -379,7 +379,7 @@ export function InteractiveDemo() {
                                 className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed py-2 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
                             >
                                 <Plus className="h-4 w-4" />
-                                학생 추가
+                                구성원 추가
                             </button>
                         </div>
                     </>

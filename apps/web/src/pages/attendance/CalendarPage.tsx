@@ -1,8 +1,8 @@
 import { AttendanceModal } from './AttendanceModal';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarHeader } from './CalendarHeader';
-import { type AttendanceData, GROUP_TYPE } from '@school/shared';
-import { useCallback, useEffect, useState } from 'react';
+import { type AttendanceData, GROUP_TYPE, getOrganizationLabels } from '@school/shared';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LoadingSpinner } from '~/components/common';
 import { MainLayout } from '~/components/layout';
 import { Badge } from '~/components/ui/badge';
@@ -18,10 +18,13 @@ import {
     SelectValue,
 } from '~/components/ui/select';
 import { useCalendar, useDayDetail } from '~/features/attendance';
+import { useAuth } from '~/features/auth';
 import { useGroups } from '~/features/group';
 
 export function CalendarPage() {
     const currentDate = new Date();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const [selectedGroupId, setSelectedGroupId] = useState('');
     const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
     const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth() + 1);
@@ -113,7 +116,7 @@ export function CalendarPage() {
                 {/* 컨트롤 영역 */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-muted-foreground">학년&부서</span>
+                        <span className="text-sm font-medium text-muted-foreground">{labels.groupAndDepartment}</span>
                         <Select
                             value={selectedGroupId}
                             onValueChange={(value) => {
@@ -125,7 +128,7 @@ export function CalendarPage() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectLabel>학년</SelectLabel>
+                                    <SelectLabel>{labels.group}</SelectLabel>
                                     {groups
                                         .filter((g) => g.type === GROUP_TYPE.GRADE)
                                         .map((g) => (
@@ -175,7 +178,7 @@ export function CalendarPage() {
                 {/* 달력 영역 — 나머지 높이를 모두 채움 */}
                 {!selectedGroupId ? (
                     <Card className="flex flex-1 items-center justify-center">
-                        <p className="text-lg text-muted-foreground">학년을 선택해주세요.</p>
+                        <p className="text-lg text-muted-foreground">{labels.groupAndDepartment}를 선택해주세요.</p>
                     </Card>
                 ) : null}
                 {selectedGroupId && calendarLoading ? (

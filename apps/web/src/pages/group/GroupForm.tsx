@@ -1,9 +1,10 @@
-import { GROUP_TYPE, type GroupType } from '@school/shared';
-import { type FormEvent, useState } from 'react';
+import { GROUP_TYPE, type GroupType, getOrganizationLabels } from '@school/shared';
+import { type FormEvent, useMemo, useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { useAuth } from '~/features/auth';
 import { extractErrorMessage } from '~/lib/error';
 
 interface GroupFormProps {
@@ -18,6 +19,8 @@ interface GroupFormProps {
 }
 
 export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submitLabel }: GroupFormProps) {
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const [name, setName] = useState(initialData?.name ?? '');
     const [type, setType] = useState<GroupType>(initialData?.type ?? GROUP_TYPE.GRADE);
     const [error, setError] = useState('');
@@ -41,7 +44,9 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{submitLabel === '추가' ? '새 학년&부서' : '학년&부서 수정'}</CardTitle>
+                <CardTitle>
+                    {submitLabel === '추가' ? `새 ${labels.groupAndDepartment}` : `${labels.groupAndDepartment} 수정`}
+                </CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -64,7 +69,7 @@ export function GroupForm({ initialData, onSubmit, onCancel, isSubmitting, submi
                                     disabled={isSubmitting}
                                     className="accent-primary"
                                 />
-                                <span className="text-lg">학년</span>
+                                <span className="text-lg">{labels.group}</span>
                             </label>
                             <label className="flex cursor-pointer items-center gap-2 rounded-md border p-3 hover:bg-muted/50">
                                 <input

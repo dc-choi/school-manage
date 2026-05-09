@@ -16,6 +16,10 @@ export {
     GROUP_TYPE,
     CURRENT_PRIVACY_VERSION,
     PRIVACY_POLICY_CHANGELOG,
+    ORGANIZATION_LABELS_DEFAULT,
+    ORGANIZATION_LABELS_YOUNG_ADULT,
+    ORGANIZATION_LABEL_CONFIG,
+    getOrganizationLabels,
 } from './constants.js';
 export type {
     AccountInfo,
@@ -26,6 +30,7 @@ export type {
     Gender,
     OrganizationType,
     GroupType,
+    OrganizationLabels,
 } from './constants.js';
 
 // 도메인 인증 상태

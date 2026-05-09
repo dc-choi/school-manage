@@ -40,3 +40,7 @@ export type { LiturgicalSeasonInfo } from './liturgical.js';
 // Student key utilities
 export { normalizeStudentKey, studentKeyEquals, studentKeyToString } from './student-key.js';
 export type { StudentKey } from './student-key.js';
+
+// Korean josa (조사) utilities
+export { hasJongseong, josa } from './josa.js';
+export type { JosaPair } from './josa.js';

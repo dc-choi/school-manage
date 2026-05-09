@@ -1,5 +1,5 @@
-import { ROLE } from '@school/shared';
-import { useState } from 'react';
+import { ROLE, getOrganizationLabels } from '@school/shared';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     AlertDialog,
@@ -20,7 +20,8 @@ import { extractErrorMessage } from '~/lib/error';
 import { trpc } from '~/lib/trpc';
 
 export function AccountDeleteSection() {
-    const { logout, role } = useAuth();
+    const { logout, role, organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const navigate = useNavigate();
 
     const [deletePassword, setDeletePassword] = useState('');
@@ -55,15 +56,16 @@ export function AccountDeleteSection() {
         }
     };
 
+    const dataLabels = `${labels.group}, ${labels.member}, 출석`;
     const descriptionText = isAdminWithMembers
         ? '먼저 관리자를 양도한 후 탈퇴할 수 있습니다.'
         : isSoleMember
-          ? '조직의 유일한 관리자입니다. 탈퇴 시 조직과 모든 데이터(학년, 학생, 출석)가 삭제됩니다.'
-          : '계정을 삭제해도 학년, 학생, 출석 기록은 유지됩니다.';
+          ? `조직의 유일한 관리자입니다. 탈퇴 시 조직과 모든 데이터(${dataLabels})가 삭제됩니다.`
+          : `계정을 삭제해도 ${dataLabels} 기록은 유지됩니다.`;
 
     const dialogDescription = isSoleMember
-        ? '조직의 유일한 관리자입니다. 탈퇴 시 조직과 모든 데이터(학년, 학생, 출석)가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.'
-        : '계정이 삭제됩니다. 학년, 학생, 출석 기록은 유지됩니다. 삭제 후 2년 이내에 동일한 아이디와 비밀번호로 로그인하면 계정을 복원할 수 있습니다.';
+        ? `조직의 유일한 관리자입니다. 탈퇴 시 조직과 모든 데이터(${dataLabels})가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.`
+        : `계정이 삭제됩니다. ${dataLabels} 기록은 유지됩니다. 삭제 후 2년 이내에 동일한 아이디와 비밀번호로 로그인하면 계정을 복원할 수 있습니다.`;
 
     return (
         <Card className="border-destructive/50">

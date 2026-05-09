@@ -1,5 +1,6 @@
-import { GROUP_TYPE, type GroupType } from '@school/shared';
-import { useState } from 'react';
+import { GROUP_TYPE, type GroupType, getOrganizationLabels } from '@school/shared';
+import { josa } from '@school/utils';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { MainLayout } from '~/components/layout';
@@ -19,16 +20,21 @@ import { Card } from '~/components/ui/card';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table as UITable } from '~/components/ui/table';
+import { useAuth } from '~/features/auth';
 import { useGroups } from '~/features/group';
 import { extractErrorMessage } from '~/lib/error';
 
-const TYPE_LABEL: Record<string, string> = {
-    [GROUP_TYPE.GRADE]: '학년',
-    [GROUP_TYPE.DEPARTMENT]: '부서',
-};
-
 export function GroupListPage() {
     const navigate = useNavigate();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
+    const typeLabel = useMemo<Record<string, string>>(
+        () => ({
+            [GROUP_TYPE.GRADE]: labels.group,
+            [GROUP_TYPE.DEPARTMENT]: '부서',
+        }),
+        [labels.group]
+    );
     const [typeFilter, setTypeFilter] = useState<GroupType | undefined>(undefined);
     const { groups, isLoading, bulkDelete, isBulkDeleting } = useGroups(typeFilter);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -65,7 +71,7 @@ export function GroupListPage() {
 
     if (isLoading) {
         return (
-            <MainLayout title="학년&부서 목록">
+            <MainLayout title={`${labels.groupAndDepartment} 목록`}>
                 <div className="flex h-64 items-center justify-center">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                 </div>
@@ -74,7 +80,7 @@ export function GroupListPage() {
     }
 
     return (
-        <MainLayout title="학년&부서 목록">
+        <MainLayout title={`${labels.groupAndDepartment} 목록`}>
             <div className="flex h-[calc(100vh-6.5rem)] flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
                 {/* 컨트롤 영역 */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
@@ -91,7 +97,7 @@ export function GroupListPage() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">전체</SelectItem>
-                                <SelectItem value={GROUP_TYPE.GRADE}>학년</SelectItem>
+                                <SelectItem value={GROUP_TYPE.GRADE}>{labels.group}</SelectItem>
                                 <SelectItem value={GROUP_TYPE.DEPARTMENT}>부서</SelectItem>
                             </SelectContent>
                         </Select>
@@ -106,7 +112,7 @@ export function GroupListPage() {
                         ) : null}
                     </div>
                     <Button onClick={() => navigate('/groups/new')} className="w-full sm:w-auto">
-                        학년&부서 추가
+                        {labels.groupAndDepartment} 추가
                     </Button>
                 </div>
 
@@ -137,9 +143,10 @@ export function GroupListPage() {
                             {groups.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                                        등록된 학년&부서가 없습니다.
+                                        등록된 {labels.groupAndDepartment}가 없습니다.
                                         <br />
-                                        학년&부서를 만들면 학생을 등록할 수 있어요.
+                                        {labels.groupAndDepartment}를 만들면 {josa(labels.member, '을/를')} 등록할 수
+                                        있어요.
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -160,7 +167,7 @@ export function GroupListPage() {
                                         <TableCell>{row.name}</TableCell>
                                         <TableCell className="text-center">
                                             <Badge variant={row.type === GROUP_TYPE.GRADE ? 'default' : 'secondary'}>
-                                                {TYPE_LABEL[row.type] ?? row.type}
+                                                {typeLabel[row.type] ?? row.type}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="hidden text-center md:table-cell">
@@ -178,9 +185,10 @@ export function GroupListPage() {
             <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>학년&부서 일괄 삭제</AlertDialogTitle>
+                        <AlertDialogTitle>{labels.groupAndDepartment} 일괄 삭제</AlertDialogTitle>
                         <AlertDialogDescription>
-                            다음 {selectedIds.size}개의 학년&부서를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                            다음 {selectedIds.size}개의 {labels.groupAndDepartment}를 삭제하시겠습니까? 이 작업은 되돌릴
+                            수 없습니다.
                             <ul className="mt-2 list-inside list-disc text-sm">
                                 {selectedGroups.map((g) => (
                                     <li key={g.id}>{g.name}</li>

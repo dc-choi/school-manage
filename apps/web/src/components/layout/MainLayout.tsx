@@ -1,7 +1,8 @@
 import { BottomTabBar } from './BottomTabBar';
 import { Sidebar } from './Sidebar';
+import { getOrganizationLabels } from '@school/shared';
 import { Heart, LogIn, LogOut, Settings, User, UserPlus, Users } from 'lucide-react';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PwaGuideCard } from '~/components/common/PwaGuideCard';
 import { Footer } from '~/components/layout/Footer';
@@ -23,9 +24,10 @@ const MORE_ITEM_CLASS =
     'flex items-center gap-4 rounded-xl px-4 py-3 text-base font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary';
 
 export function MainLayout({ children, title }: MainLayoutProps) {
-    const { isAuthenticated, account, logout } = useAuth();
+    const { isAuthenticated, account, logout, organizationType } = useAuth();
     const navigate = useNavigate();
     const [moreOpen, setMoreOpen] = useState(false);
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     useLiturgicalTheme();
 
     const { isStandalone } = usePwaEnvironment();
@@ -145,7 +147,7 @@ export function MainLayout({ children, title }: MainLayoutProps) {
                     <nav className="mt-6 flex flex-col gap-2">
                         <button type="button" onClick={() => handleMoreNav('/groups')} className={MORE_ITEM_CLASS}>
                             <Users className="h-5 w-5" aria-hidden="true" />
-                            학년
+                            {labels.group}
                         </button>
                         {isAuthenticated ? (
                             <button

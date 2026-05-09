@@ -1,4 +1,4 @@
-import { GROUP_TYPE, type GroupOutput } from '@school/shared';
+import { GROUP_TYPE, type GroupOutput, getOrganizationLabels } from '@school/shared';
 import { formatContact } from '@school/utils';
 import { type FormEvent, useMemo, useState } from 'react';
 import { Badge } from '~/components/ui/badge';
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { useAuth } from '~/features/auth';
 import { extractErrorMessage } from '~/lib/error';
 
 interface StudentFormData {
@@ -41,6 +42,8 @@ const toFeastDayFormat = (value?: string): string => {
 };
 
 export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitting, submitLabel }: StudentFormProps) {
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const gradeGroups = useMemo(() => groups.filter((g) => g.type === GROUP_TYPE.GRADE), [groups]);
     const deptGroups = useMemo(() => groups.filter((g) => g.type === GROUP_TYPE.DEPARTMENT), [groups]);
 
@@ -116,7 +119,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
         <>
             <Card>
                 <CardHeader>
-                    <CardTitle>{submitLabel === '추가' ? '새 학생' : '학생 수정'}</CardTitle>
+                    <CardTitle>{submitLabel === '추가' ? `새 ${labels.member}` : `${labels.member} 수정`}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -156,7 +159,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-lg">학년&부서 (선택)</Label>
+                            <Label className="text-lg">{labels.groupAndDepartment} (선택)</Label>
                             <div className="flex flex-wrap items-center gap-2">
                                 {selectedGroups.length > 0 ? (
                                     selectedGroups.map((g) => (
@@ -168,7 +171,9 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                                         </Badge>
                                     ))
                                 ) : (
-                                    <span className="text-muted-foreground">선택된 학년&부서가 없습니다</span>
+                                    <span className="text-muted-foreground">
+                                        선택된 {labels.groupAndDepartment}가 없습니다
+                                    </span>
                                 )}
                             </div>
                             <Button
@@ -178,7 +183,7 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
                                 onClick={openGroupModal}
                                 disabled={isSubmitting}
                             >
-                                학년&부서 선택
+                                {labels.groupAndDepartment} 선택
                             </Button>
                         </div>
 
@@ -313,12 +318,14 @@ export function StudentForm({ initialData, groups, onSubmit, onCancel, isSubmitt
             <Dialog open={showGroupModal} onOpenChange={setShowGroupModal}>
                 <DialogContent className="max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>학년&부서 선택</DialogTitle>
-                        <DialogDescription>학년은 1개만, 부서는 여러 개 선택할 수 있습니다.</DialogDescription>
+                        <DialogTitle>{labels.groupAndDepartment} 선택</DialogTitle>
+                        <DialogDescription>
+                            {labels.group}은 1개만, 부서는 여러 개 선택할 수 있습니다.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-6">
                         <fieldset className="space-y-2">
-                            <legend className="text-base font-medium">학년 (0~1개)</legend>
+                            <legend className="text-base font-medium">{labels.group} (0~1개)</legend>
                             <div className="space-y-1">
                                 <label className="flex cursor-pointer items-center gap-3 rounded-md border p-3 hover:bg-muted/50">
                                     <input

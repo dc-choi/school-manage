@@ -3,12 +3,15 @@ import {
     type GroupStatisticsItem,
     type GroupStatisticsOutput,
     type StatisticsPeriod,
+    getOrganizationLabels,
 } from '@school/shared';
 import { roundToDecimal } from '@school/utils';
+import { useMemo } from 'react';
 import { LoadingSpinner } from '~/components/common/LoadingSpinner';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
+import { useAuth } from '~/features/auth';
 
 const computeWeightedRate = (
     groups: GroupStatisticsItem[],
@@ -71,6 +74,8 @@ interface GroupStatisticsTableProps {
 }
 
 function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTableProps) {
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     if (isLoading) {
         return (
             <div className="flex h-[200px] items-center justify-center">
@@ -84,7 +89,7 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
             <Table className="text-sm md:min-w-[600px] md:text-base">
                 <TableHeader className="sticky top-0 z-20 bg-muted/80 backdrop-blur-sm">
                     <TableRow>
-                        <TableHead className="h-10 whitespace-nowrap px-2 md:h-14 md:px-5">학년명</TableHead>
+                        <TableHead className="h-10 whitespace-nowrap px-2 md:h-14 md:px-5">{labels.group}명</TableHead>
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">총 인원</TableHead>
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">등록 인원</TableHead>
                         <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
@@ -122,7 +127,7 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                                     variant={group.groupType === GROUP_TYPE.GRADE ? 'default' : 'secondary'}
                                     className="ml-2 hidden md:inline-flex"
                                 >
-                                    {group.groupType === GROUP_TYPE.GRADE ? '학년' : '부서'}
+                                    {group.groupType === GROUP_TYPE.GRADE ? labels.group : '부서'}
                                 </Badge>
                             </TableCell>
                             <TableCell className="hidden text-center tabular-nums md:table-cell">
@@ -166,10 +171,12 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
 }
 
 export function GroupStatisticsTable({ data, isLoading, error, className }: GroupStatisticsTableProps) {
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     return (
         <Card className={`flex flex-col ${className ?? ''}`}>
             <CardHeader className="pb-2">
-                <CardTitle className="text-base">학년별 통계</CardTitle>
+                <CardTitle className="text-base">{labels.group}별 통계</CardTitle>
             </CardHeader>
             <CardContent className="min-h-0 flex-1 overflow-auto">
                 <GroupStatisticsContent data={data} isLoading={isLoading} error={error} />

@@ -1,11 +1,13 @@
 import { StudentForm } from './StudentForm';
+import { getOrganizationLabels } from '@school/shared';
 import { formatContact, formatDateKR } from '@school/utils';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { useAuth } from '~/features/auth';
 import { useGroups } from '~/features/group';
 import { useStudent, useStudents } from '~/features/student';
 
@@ -25,6 +27,8 @@ function InfoRow({ label, value, variant }: Readonly<{ label: string; value: str
 export function StudentDetailPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { organizationType } = useAuth();
+    const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     const { data: student, isLoading, error } = useStudent(id ?? '');
     const { update, isUpdating } = useStudents();
     const { groups } = useGroups();
@@ -44,10 +48,12 @@ export function StudentDetailPage() {
 
     if (error) {
         return (
-            <MainLayout title="학생 상세">
+            <MainLayout title={`${labels.member} 상세`}>
                 <Card>
                     <CardContent className="pt-6">
-                        <p className="text-center text-xl text-destructive">학생 정보를 불러오는데 실패했습니다.</p>
+                        <p className="text-center text-xl text-destructive">
+                            {labels.member} 정보를 불러오는데 실패했습니다.
+                        </p>
                         <div className="mt-4 flex justify-center">
                             <Button size="lg" onClick={() => navigate(-1)}>
                                 목록으로
@@ -61,7 +67,7 @@ export function StudentDetailPage() {
 
     if (isEditing && student) {
         return (
-            <MainLayout title="학생 상세">
+            <MainLayout title={`${labels.member} 상세`}>
                 <div className="mx-auto max-w-md">
                     <StudentForm
                         initialData={{
@@ -103,7 +109,7 @@ export function StudentDetailPage() {
     }
 
     return (
-        <MainLayout title="학생 상세">
+        <MainLayout title={`${labels.member} 상세`}>
             <div className="space-y-6">
                 <Card>
                     <CardHeader>
@@ -165,7 +171,7 @@ export function StudentDetailPage() {
                                 <InfoRow label="부모님 연락처" value={student?.parentContact ?? '-'} />
                                 <div className="flex flex-col border-b py-4 last:border-b-0 sm:flex-row sm:items-center">
                                     <dt className="mb-1 shrink-0 text-base font-medium text-muted-foreground sm:mb-0 sm:w-32 sm:text-xl">
-                                        학년&부서
+                                        {labels.groupAndDepartment}
                                     </dt>
                                     <dd className="flex flex-wrap gap-1">
                                         {student?.groups?.length ? (
