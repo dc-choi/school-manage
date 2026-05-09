@@ -33,7 +33,7 @@ export function ContextBanner() {
 
     const message = isToday
         ? `오늘(${month}월 ${day}일)에 첫 출석을 기록해보세요`
-        : `이번 주 일요일(${month}월 ${day}일)에 첫 출석을 기록해보세요`;
+        : `이번 주 주일(${month}월 ${day}일)에 첫 출석을 기록해보세요`;
 
     return (
         <Card className="p-4 border-primary">

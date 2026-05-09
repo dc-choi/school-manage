@@ -22,7 +22,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 <div className="hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background lg:flex lg:w-1/2 lg:flex-col lg:items-center lg:justify-center lg:gap-8 lg:p-16">
                     <div className="max-w-lg space-y-6 text-center">
                         <h1 className="text-5xl font-bold leading-snug tracking-tight xl:text-6xl">
-                            매주 일요일,
+                            매주 주일,
                             <br />
                             이거 하나면 됩니다
                         </h1>
@@ -60,7 +60,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 <div className="flex w-full flex-col items-center justify-center p-4 lg:w-1/2">
                     {/* 모바일 히어로 (compact) */}
                     <div className="mb-6 space-y-2 text-center lg:hidden">
-                        <h1 className="text-2xl font-bold tracking-tight">매주 일요일, 이거 하나면 됩니다</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">매주 주일, 이거 하나면 됩니다</h1>
                         {countData && countData.churchCount > 0 && (
                             <div className="flex items-center justify-center gap-2 text-base text-muted-foreground">
                                 <Users className="h-5 w-5" />

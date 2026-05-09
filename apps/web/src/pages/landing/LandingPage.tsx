@@ -140,7 +140,7 @@ export function LandingPage() {
                 {/* ① Hero — 첫 화면은 즉시 표시 */}
                 <section className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gradient-to-b from-primary/8 to-background px-6 text-center">
                     <h1 className="text-4xl font-bold leading-snug tracking-tight text-balance sm:text-5xl lg:text-7xl">
-                        매주 일요일,
+                        매주 주일,
                         <br />
                         이거 하나면 됩니다
                     </h1>
