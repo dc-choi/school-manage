@@ -57,6 +57,11 @@ vi.mock('~/lib/trpc', () => ({
                 useQuery: () => useCountQueryMock(),
             },
         },
+        liturgical: {
+            season: {
+                useQuery: () => ({ data: undefined, isLoading: false, error: null }),
+            },
+        },
     },
 }));
 
