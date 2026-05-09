@@ -152,7 +152,7 @@ export function LandingPage() {
                         <div className="mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
                             <div className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left">
                                 <h1 className="text-4xl font-bold leading-snug tracking-tight text-balance sm:text-5xl lg:text-6xl">
-                                    매주 일요일,
+                                    매주 주일,
                                     <br />
                                     이거 하나면 됩니다
                                 </h1>

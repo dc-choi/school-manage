@@ -7,7 +7,7 @@ const WHY_CHOOSE_US = [
     {
         icon: Calendar,
         title: '주간 도구로 설계',
-        description: '매주 일요일 한 번만 열면 됩니다',
+        description: '매주 주일 한 번만 열면 됩니다',
     },
     {
         icon: Sparkles,
