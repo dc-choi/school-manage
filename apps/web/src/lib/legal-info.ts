@@ -12,3 +12,7 @@ export const LEGAL_ROUTES = {
     privacy: '/privacy',
     refund: '/refund',
 } as const;
+
+export const SOCIAL_LINKS = {
+    instagram: 'https://www.instagram.com/weekly-school/',
+} as const;

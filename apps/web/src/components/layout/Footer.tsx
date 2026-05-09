@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { LEGAL_INFO, LEGAL_ROUTES } from '~/lib/legal-info';
+import { LEGAL_INFO, LEGAL_ROUTES, SOCIAL_LINKS } from '~/lib/legal-info';
 
 export function Footer() {
     return (
@@ -57,6 +57,19 @@ export function Footer() {
                             >
                                 환불약관
                             </Link>
+                        </li>
+                        <li className="text-border" aria-hidden="true">
+                            |
+                        </li>
+                        <li>
+                            <a
+                                href={SOCIAL_LINKS.instagram}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-foreground hover:underline focus-visible:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                            >
+                                인스타그램
+                            </a>
                         </li>
                     </ul>
                     <p>© 2026 {LEGAL_INFO.businessName}</p>
