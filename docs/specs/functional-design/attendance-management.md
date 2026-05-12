@@ -76,7 +76,7 @@
 | `attendance[].data` | DB 동작                                                         |
 | ------------------- | --------------------------------------------------------------- |
 | `◎` / `○` / `△`     | UPSERT (`INSERT ... ON DUPLICATE KEY UPDATE content, updateAt`) |
-| `-` / `''`          | DELETE (`DELETE WHERE (studentId, date)`)                       |
+| `''`                | DELETE (`DELETE WHERE (studentId, date)`)                       |
 
 - 한 배열에 마크/삭제 항목이 섞여도 항목별 자동 분기 (단일 트랜잭션)
 - `groupId`는 onDuplicateKeyUpdate 절에 미포함 → 학생 그룹 이동 후에도 historical groupId 보존
