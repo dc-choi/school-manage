@@ -20,8 +20,8 @@ description: 사업 에이전트 워크플로우 실행. /biz [status|market|bm|
 /biz roadmap              # 로드맵 (일정 중심)
 /biz pricing              # 가격 정책 (가설/근거/검증 패턴 적용)
 /biz content [주제]       # 콘텐츠 마케터 서브 에이전트 호출
-/biz audit [문서1] [문서2] # 사업 문서 교차 점검 (용어·수치·가정 충돌 감지)
 /biz handoff [기능명]     # SDD 작성자 핸드오프 (→ /bs-to-target → /sdd 0 체인)
+/biz-audit [문서1] [문서2] # 사업 문서 교차 점검 (별도 스킬로 분리, /biz-audit 참조)
 /bs [주제]                # 기획자↔비판자 3라운드 토론 (별도 스킬)
 ```
 
@@ -85,41 +85,11 @@ description: 사업 에이전트 워크플로우 실행. /biz [status|market|bm|
 - 규칙: `.claude/rules/content.md`
 - 입력 문서: `gtm.md`, `instagram.md`, `STATUS.md`, `bm.md`
 - 출력 위치: `docs/content/`
-- 프롬프트 템플릿 — 하단 "콘텐츠 마케터 서브 에이전트" 섹션 참조
+- 프롬프트 템플릿 — `.claude/rules/content.md` "호출 프롬프트 템플릿" 섹션
 
-### /biz audit [문서1] [문서2] — 교차 점검
+### /biz audit — 분리됨
 
-사업 문서 간 용어·수치·가정 충돌 감지. `business.md` 8번 규칙 자동화.
-
-**모드**:
-
-- **전체**: `/biz audit` — 7개 문서 + STATUS 로드 후 전수 점검
-- **선택**: `/biz audit bm pricing` — 지정 2개 문서 교차 비교
-
-**확인 항목**:
-| # | 항목 | 예시 |
-|---|------|------|
-| 1 | 가격 수치 일관성 | `bm.md` 수익 구조 vs `pricing.md` 플랜 금액 |
-| 2 | 타겟 정의 일관성 | `market.md` 타겟 vs `bm.md` 사용자 vs `gtm.md` 채널 |
-| 3 | 로드맵 단계 일관성 | `roadmap.md` 단계 vs 각 문서의 "3단계/4단계" 참조 |
-| 4 | 핵심 지표 용어 | `STATUS.md` MAO vs 타 문서의 WAU/MAU 혼재 |
-| 5 | 리스크 반영 | `risks.md` 식별 리스크가 `bm.md`/`pricing.md`에 반영됐는지 |
-| 6 | 가설/근거/검증 패턴 준수 | 적용 대상 문서(market/bm/risk/pricing) |
-| 7 | 오픈 이슈 추적 | STATUS.md 오픈 이슈가 관련 문서에 기록됐는지 |
-| 8 | **STATUS 누적 섹션** | STATUS.md에 `### 주요 변화 (X 갱신)` 섹션이 1개 초과 → **WARN** (HISTORY 이동 필요). 0건이 정상 |
-| 9 | **STATUS 메타 누적** | STATUS.md 메타 라인의 `최종 업데이트:` 항목에 갱신 요약 2건 이상 누적 → **WARN** (1건 + HISTORY 참조 형태로 단축 필요) |
-
-**출력 형식**:
-
-```
-[biz-audit] 점검 문서: <N개>
-이슈 N건:
-  [CRITICAL] bm.md 프로 15,000원 vs pricing.md 프로 10,000원 — 업데이트 필요
-  [WARN] STATUS.md 주요 변화 섹션 3개 누적 (05-05/05-04/05-03) — HISTORY로 이동 필요
-  [WARN] market.md "교리교사" vs gtm.md "주일학교 교사" 용어 혼재
-  [INFO] risks.md R05 개인정보 리스크, pricing.md에 가정으로 반영 부재
-수정 제안: 각 이슈별 구체 수정안 제시
-```
+사업 문서 교차 점검은 **별도 스킬 `/biz-audit`로 분리**됨. 확인 항목·판정 가드·출력 형식은 `.claude/skills/biz-audit/SKILL.md` 참조.
 
 ### /biz handoff [기능명] — SDD 작성자 핸드오프
 
@@ -172,21 +142,7 @@ description: 사업 에이전트 워크플로우 실행. /biz [status|market|bm|
 
 ## 콘텐츠 마케터 서브 에이전트
 
-### 서브 에이전트 프롬프트 템플릿
-
-```
-너는 콘텐츠 마케터 서브 에이전트다.
-규칙: .claude/rules/content.md 를 읽고 역할을 숙지해라.
-
-입력 문서:
-- docs/business/3_gtm/gtm.md (포지셔닝)
-- docs/business/3_gtm/instagram.md (콘텐츠 전략)
-- docs/business/STATUS.md (현재 목표, 완료 기능)
-- docs/business/2_bm/bm.md (가치 제안)
-
-작업: [구체적 콘텐츠 제작 지시]
-출력: docs/content/ 하위에 저장
-```
+호출 프롬프트 템플릿(할루시네이션 가드 포함)은 `.claude/rules/content.md` "호출 프롬프트 템플릿" 섹션에 통합됨. `/biz content [주제]` 실행 시 그 템플릿을 그대로 사용한다.
 
 ## 작성 규칙
 
