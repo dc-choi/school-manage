@@ -17,22 +17,22 @@ Claude Design(claude.ai/design)과 school_back 코드베이스를 연결하는 5
 $ARGUMENTS(기능명/화면명) 기준으로:
 
 1. 관련 파일 자동 스캔:
-   - `apps/web/src/app/**` — 기존 페이지 구조
-   - `apps/web/src/components/**` — shadcn 기반 재사용 컴포넌트
-   - `apps/web/src/styles/globals.css` — 디자인 토큰, CSS Cascade Layer
-   - `packages/shared/src/constants.ts` — 도메인 용어/상태값
+    - `apps/web/src/app/**` — 기존 페이지 구조
+    - `apps/web/src/components/**` — shadcn 기반 재사용 컴포넌트
+    - `apps/web/src/styles/globals.css` — 디자인 토큰, CSS Cascade Layer
+    - `packages/shared/src/constants.ts` — 도메인 용어/상태값
 2. 프롬프트 초안 생성 (한국어, 다음 섹션 포함):
-   - **목표**: 한 줄 요약
-   - **대상 사용자**: 교사/관리자/학부모 중 누구
-   - **핵심 화면 요소**: 3~7개 bullet
-   - **디자인 제약**:
-     - shadcn/ui + Tailwind 토큰 준수
-     - 기존 `apps/web/src/components/ui/`와 스타일 일관
-     - WCAG AA 접근성
-     - 다크 모드 호환
-     - margin 기반 유틸(`space-y-*`, `mt-*`)은 `@layer base` 이슈 주의
-   - **참조 컴포넌트**: 기존 파일명 3개 (Claude Design이 패턴 파악하도록)
-   - **더미 데이터 예시**: 실명/연락처/교구명 절대 금지
+    - **목표**: 한 줄 요약
+    - **대상 사용자**: 교사/관리자/학부모 중 누구
+    - **핵심 화면 요소**: 3~7개 bullet
+    - **디자인 제약**:
+        - shadcn/ui + Tailwind 토큰 준수
+        - 기존 `apps/web/src/components/ui/`와 스타일 일관
+        - WCAG AA 접근성
+        - 다크 모드 호환
+        - margin 기반 유틸(`space-y-*`, `mt-*`)은 `@layer base` 이슈 주의
+    - **참조 컴포넌트**: 기존 파일명 3개 (Claude Design이 패턴 파악하도록)
+    - **더미 데이터 예시**: 실명/연락처/교구명 절대 금지
 3. 사용자에게 프롬프트 보여주고 승인 요청
 
 ## Phase 2: Claude Design 시안 요청
@@ -54,16 +54,24 @@ Phase 1 프롬프트 승인 후, 사용자에게 안내:
 
 사용자가 시안 자산을 공유하면 **두 에이전트 병렬 호출**:
 
+> **할루시네이션 가드** (양쪽 평가 모두 준수):
+>
+> 1. 평가 항목은 시안에 *실제로 보이는 요소*만. "X가 부족해 보임"·"느낌적으로 어색" 같은 추측 X.
+> 2. 시안 좌표(상단 헤더, 카드 1번째 등) 또는 구체 텍스트 인용 강제.
+> 3. 코드 통합 평가는 실제 파일 존재(`Read`/`Glob`) 확인 후만 보고.
+> 4. 확신 없으면 침묵. 억지로 코멘트 채우지 마라.
+
 1. **design-reviewer 에이전트** Task 위임:
-   - 입력: 시안 스크린샷/PDF/HTML 경로
-   - 요청: 심미성·UX 플로우·접근성(WCAG AA)·shadcn 토큰 일관성 평가
+    - 입력: 시안 스크린샷/PDF/HTML 경로
+    - 요청: 심미성·UX 플로우·접근성(WCAG AA)·shadcn 토큰 일관성 평가
 2. **본 세션에서 직접 수행** — 코드 통합 관점:
-   - 기존 컴포넌트 재사용 가능 부분 식별(`apps/web/src/components/ui/*`)
-   - shadcn/Tailwind로 즉시 구현 가능 vs 커스텀 CSS 필요 구분
-   - 예상 구현 난이도(S/M/L), 새로 생길 파일 수 예측
-   - `apps/web` 기존 라우팅/상태 구조와 충돌 여부
+    - 기존 컴포넌트 재사용 가능 부분 식별(`apps/web/src/components/ui/*`)
+    - shadcn/Tailwind로 즉시 구현 가능 vs 커스텀 CSS 필요 구분
+    - 예상 구현 난이도(S/M/L), 새로 생길 파일 수 예측
+    - `apps/web` 기존 라우팅/상태 구조와 충돌 여부
 
 두 리포트를 병합해 사용자에게 컨펌 요청:
+
 - **승인** → Phase 4
 - **수정 요청** → Phase 1/2 프롬프트 보강해서 재실행
 
@@ -73,20 +81,20 @@ Phase 1 프롬프트 승인 후, 사용자에게 안내:
 
 1. bundle 구조 분석: 색상 변수, 타이포 스케일, 컴포넌트 계층, 인터랙션
 2. **`/sdd` 워크플로우에 위임**:
-   - `/sdd 1` PRD 작성 시 `디자인 소스: <bundle 경로 또는 Claude Design 세션 URL>` 명시
-   - `/sdd 2` 기능 설계에 bundle의 컴포넌트 계층 반영
-   - `/sdd 5` 구현 단계에서 `frontend-design` 스킬을 보조 호출(고품질 구현 보장)
+    - `/sdd 1` PRD 작성 시 `디자인 소스: <bundle 경로 또는 Claude Design 세션 URL>` 명시
+    - `/sdd 2` 기능 설계에 bundle의 컴포넌트 계층 반영
+    - `/sdd 5` 구현 단계에서 `frontend-design` 스킬을 보조 호출(고품질 구현 보장)
 3. SDD 5단계 완료 후 Phase 5로
 
 ## Phase 5: 검증 + PR
 
 1. 구현 화면 vs 원본 시안 교차 검증:
-   - `design-reviewer` 재호출 (이번엔 실제 브라우저 스크린샷 기준)
-   - 시안과 차이가 있는 부분은 `tradeoff 수용` 또는 `구현 수정` 명시 결정
+    - `design-reviewer` 재호출 (이번엔 실제 브라우저 스크린샷 기준)
+    - 시안과 차이가 있는 부분은 `tradeoff 수용` 또는 `구현 수정` 명시 결정
 2. PR 본문에 반드시 포함:
-   - Claude Design 세션 URL (있으면)
-   - Before(시안 스크린샷) / After(구현 스크린샷) 병치
-   - 시안 대비 변경된 부분의 사유 (있으면)
+    - Claude Design 세션 URL (있으면)
+    - Before(시안 스크린샷) / After(구현 스크린샷) 병치
+    - 시안 대비 변경된 부분의 사유 (있으면)
 
 ## 관련 자산
 
