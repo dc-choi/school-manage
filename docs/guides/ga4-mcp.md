@@ -112,13 +112,13 @@ https://analytics.google.com → 관리(톱니) → 속성 액세스 관리
 {
     "mcpServers": {
         "google-analytics": {
-            "command": "/Users/<username>/.local/bin/analytics-mcp"
+            "command": "analytics-mcp"
         }
     }
 }
 ```
 
-> ⚠️ 현재 저장소에 박혀 있는 절대 경로는 원 작성자 기준이다. 본인 사용자명이 다르면 `which analytics-mcp` 결과로 치환하거나, PATH에 의존하도록 `"command": "analytics-mcp"`로 바꿔도 된다.
+> `command`는 PATH에서 `analytics-mcp`를 찾는다. `pipx install`이 바이너리를 `~/.local/bin/analytics-mcp`로 설치하고, 1단계의 `pipx ensurepath`가 이 디렉토리를 사용자 PATH에 등록한다. 새 셸/Claude Code 세션에서 자동으로 해결된다. 절대 경로 박지 말 것 — 다른 사용자 환경에서 깨진다.
 
 ## 8단계: 동작 확인
 

@@ -9,7 +9,7 @@
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "google-analytics": {
-      "command": "/Users/dc-choi/.local/bin/analytics-mcp"
+      "command": "analytics-mcp"
     }
   }
 }
