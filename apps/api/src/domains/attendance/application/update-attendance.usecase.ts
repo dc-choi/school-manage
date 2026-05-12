@@ -3,7 +3,7 @@
  *
  * 출석 데이터 업데이트/삭제 — content 기반 분기:
  *   ◎/○/△ → atomic upsert (Kysely insertInto.onDuplicateKeyUpdate)
- *   - / '' → hard delete (deleteMany)
+ *   ''     → hard delete (deleteMany)
  */
 import type { AttendanceData, UpdateAttendanceInput, UpdateAttendanceOutput } from '@school/shared';
 import { getNowKST } from '@school/utils';
@@ -73,7 +73,7 @@ export class UpdateAttendanceUseCase {
             let fullAttendanceCount = 0; // ◎ (미사+교리)
             let massOnlyCount = 0; // ○ (미사만)
             let catechismOnlyCount = 0; // △ (교리만)
-            let absentCount = 0; // - 또는 빈값
+            let absentCount = 0; // 빈 문자열
 
             for (const item of input.attendance) {
                 switch (item.data) {
@@ -86,11 +86,16 @@ export class UpdateAttendanceUseCase {
                     case '△':
                         catechismOnlyCount++;
                         break;
-                    case '-':
                     case '':
-                    default:
                         absentCount++;
                         break;
+                    default: {
+                        // exhaustive check — 새 토큰 추가 시 컴파일 에러로 케이스 누락 감지
+                        const _exhaustive: never = item.data;
+                        void _exhaustive;
+                        absentCount++; // runtime 안전망 (Zod 우회 시)
+                        break;
+                    }
                 }
             }
 
@@ -131,7 +136,7 @@ export class UpdateAttendanceUseCase {
      * - 마크(◎/○/△): Kysely `insertInto.onDuplicateKeyUpdate` (atomic upsert).
      *   `(student_id, date)` UNIQUE 제약(20260428)에 conflict 시 update.
      *   `groupId`는 onDuplicateKeyUpdate 절에 미포함 → historical groupId 보존.
-     * - 삭제(`-` / `''`): `deleteMany WHERE (studentId, date)`. 0행 영향이어도 throw 없음 (Prisma 기본).
+     * - 삭제(`''`): `deleteMany WHERE (studentId, date)`. 0행 영향이어도 throw 없음 (Prisma 기본).
      *
      * 반환값 `row`는 처리된 항목 수의 합 (마크 수 + 실제 삭제된 row 수).
      */

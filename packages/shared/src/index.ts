@@ -128,6 +128,7 @@ export type {
     BulkCancelRegistrationInput,
     FeastDayListInput,
     CheckDuplicateInput,
+    AttendanceSymbol,
     AttendanceData,
     UpdateAttendanceInput,
     GetCalendarInput,

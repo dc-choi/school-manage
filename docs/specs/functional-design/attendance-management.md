@@ -76,7 +76,7 @@
 | `attendance[].data` | DB 동작                                                         |
 | ------------------- | --------------------------------------------------------------- |
 | `◎` / `○` / `△`     | UPSERT (`INSERT ... ON DUPLICATE KEY UPDATE content, updateAt`) |
-| `-` / `''`          | DELETE (`DELETE WHERE (studentId, date)`)                       |
+| `''`                | DELETE (`DELETE WHERE (studentId, date)`)                       |
 
 - 한 배열에 마크/삭제 항목이 섞여도 항목별 자동 분기 (단일 트랜잭션)
 - `groupId`는 onDuplicateKeyUpdate 절에 미포함 → 학생 그룹 이동 후에도 historical groupId 보존
@@ -104,17 +104,18 @@
 
 `CalendarDayAttendance` 필드: `present`(전체 출석), `massPresent`(◎+○), `catechismPresent`(◎+△), `total`(전체 학생). 모바일(sm 미만)은 `{미사}/{교리}` 축약.
 
-## 출석 data 입력 검증 강화 (BUGFIX)
+## 출석 data 입력 검증 강화 (BUGFIX, 2026-05-11 토큰 통일)
 
-`attendance.update`의 `attendance[].data`에 화이트리스트 기반 서버측 재검증.
+`attendance.update`의 `attendance[].data`에 Zod union literal 기반 서버측 재검증.
 
-| 항목      | 값                            |
-| --------- | ----------------------------- |
-| 허용 문자 | `◎` / `○` / `△` / `-` / `''`  |
-| 최대 길이 | 10자                          |
-| 위반 응답 | 400 BAD_REQUEST (한글 메시지) |
+| 항목      | 값                                     |
+| --------- | -------------------------------------- |
+| 허용 토큰 | `◎` / `○` / `△` / `''` (단일 sentinel) |
+| 위반 응답 | 400 BAD_REQUEST (한글 메시지)          |
 
-운영 DB 비정상 마크 44건(2026-04-28 1회성 마이그레이션 정리). 회귀 방지 TC `TC-A-E3`/`E4`. 한계: `'○○'`/`'◎◎'` 동일 마크 반복은 regex/길이 통과 — 후속 과제로 분리.
+**결석 sentinel = `''` 단일화 (2026-05-11)**: 구 `'-'` 토큰 폐지. Zod 스키마를 `z.string().regex(...)` → `z.union([z.literal('◎'), z.literal('○'), z.literal('△'), z.literal('')])` 로 전환하여 타입 좁힘 + 길이/반복 위반(`'○○'`·`'◎◎'`) 자동 차단. usecase switch에 `satisfies never` exhaustive check + 안전망. 회귀 방지 TC `TC-A-N1/N2`(`''` DELETE) + `TC-A-E2~E5`(invalid 거부, `-` 포함).
+
+운영 DB 비정상 마크 44건(2026-04-28 1회성 마이그레이션 정리). 잔존 `-` 데이터는 `parseContent` default 분기로 결석 흡수 (회귀 없음).
 
 ## 신규 GA4 이벤트 (출석부 UI 개편)
 
