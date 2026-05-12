@@ -26,7 +26,7 @@
 - `docs/business/7_pricing/pricing.md` 가격 가설/플랜
 - `docs/business/STATUS.md` 진행 현황
 - `docs/business/HISTORY.md` 과거 분석/완료 항목 아카이브
-- `docs/business/HISTORY_WAU.md` WAU 시기(~04-08) 전환율 추이 및 초기 이력
+- `docs/business/HISTORY_WAU.md` WAU 시기(-04-08) 전환율 추이 및 초기 이력
 
 ## 문제 배경
 
