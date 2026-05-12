@@ -84,8 +84,19 @@ export type {
 } from './student.js';
 
 // Attendance 스키마
-export { updateAttendanceInputSchema, getCalendarInputSchema, getDayDetailInputSchema } from './attendance.js';
-export type { AttendanceData, UpdateAttendanceInput, GetCalendarInput, GetDayDetailInput } from './attendance.js';
+export {
+    attendanceSymbolSchema,
+    updateAttendanceInputSchema,
+    getCalendarInputSchema,
+    getDayDetailInputSchema,
+} from './attendance.js';
+export type {
+    AttendanceSymbol,
+    AttendanceData,
+    UpdateAttendanceInput,
+    GetCalendarInput,
+    GetDayDetailInput,
+} from './attendance.js';
 
 // Statistics 스키마
 export { getExcellentStudentsInputSchema, statisticsInputSchema, topStatisticsInputSchema } from './statistics.js';

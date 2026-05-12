@@ -5,16 +5,21 @@ import { idSchema } from './common.js';
 import { z } from 'zod';
 
 /**
+ * 출석 마크 단일 토큰 (sentinel: '' = 결석)
+ */
+export const attendanceSymbolSchema = z.union([z.literal('◎'), z.literal('○'), z.literal('△'), z.literal('')], {
+    errorMap: () => ({ message: '출석 내용은 ◎, ○, △ 또는 빈 문자열만 허용됩니다' }),
+});
+export type AttendanceSymbol = z.infer<typeof attendanceSymbolSchema>;
+
+/**
  * 출석 데이터 단일 항목 스키마
  */
 const attendanceDataSchema = z.object({
     id: idSchema,
     month: z.number().int().min(1).max(12),
     day: z.number().int().min(1).max(31),
-    data: z
-        .string()
-        .max(10, '출석 내용은 10자 이하여야 합니다')
-        .regex(/^[◎○△\-]*$/, '출석 내용은 ◎, ○, △, - 또는 빈 문자열만 허용됩니다'),
+    data: attendanceSymbolSchema,
 });
 
 /**
@@ -73,7 +78,7 @@ export interface UpdateAttendanceOutput {
     massOnlyCount?: number;
     /** 교리만 출석 수 - △ (측정 인프라용) */
     catechismOnlyCount?: number;
-    /** 결석 수 - 또는 빈값 (측정 인프라용) */
+    /** 결석 수 — 빈 문자열 (측정 인프라용) */
     absentCount?: number;
     /** 출석률 % (측정 인프라용) */
     attendanceRate?: number;
@@ -116,7 +121,7 @@ export interface StudentAttendanceDetail {
     id: string;
     societyName: string;
     catholicName?: string; // 세례명
-    content: string; // O, X, ?, 빈 문자열
+    content: string; // ◎ / ○ / △ / 빈 문자열
 }
 
 /**

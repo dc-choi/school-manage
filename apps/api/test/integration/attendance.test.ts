@@ -5,6 +5,7 @@
  */
 import { type SeedBase, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
 import { createPublicCaller, createScopedCaller } from '../helpers/trpc-caller.ts';
+import type { AttendanceSymbol } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { database } from '~/infrastructure/database/database.js';
@@ -219,7 +220,7 @@ describe('attendance 통합 테스트', () => {
                 id: String(i + 1),
                 month: 1,
                 day: 7,
-                data: '◎',
+                data: '◎' as const,
             }));
 
             await expect(
@@ -247,7 +248,7 @@ describe('attendance 통합 테스트', () => {
             });
         });
 
-        it('TC-A-N1: data = "-" (결석 명시) → 기존 row 삭제', async () => {
+        it('TC-A-N1: data = "" (결석 명시) → 기존 row 삭제', async () => {
             const now = getNowKST();
             const group = await database.group.create({
                 data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
@@ -258,7 +259,7 @@ describe('attendance 통합 테스트', () => {
             await database.studentGroup.create({
                 data: { studentId: student.id, groupId: group.id, createdAt: now },
             });
-            // 기존 출석 ◎이 있는 상태에서 '-' 입력 → DELETE 검증
+            // 기존 출석 ◎이 있는 상태에서 '' 입력 → DELETE 검증
             await database.attendance.create({
                 data: {
                     date: '20240107',
@@ -273,7 +274,7 @@ describe('attendance 통합 테스트', () => {
             const result = await caller.attendance.update({
                 year: 2024,
                 groupId: String(group.id),
-                attendance: [{ id: String(student.id), month: 1, day: 7, data: '-' }],
+                attendance: [{ id: String(student.id), month: 1, day: 7, data: '' }],
             });
 
             expect(result.row).toBe(1); // 1행 삭제
@@ -283,7 +284,7 @@ describe('attendance 통합 테스트', () => {
             expect(dbAttendance).toBeNull();
         });
 
-        it('TC-A-N2: data = "-" 입력 시 기존 row 없으면 noop (멱등)', async () => {
+        it('TC-A-N2: data = "" 입력 시 기존 row 없으면 noop (멱등)', async () => {
             const now = getNowKST();
             const group = await database.group.create({
                 data: { name: '1학년', organizationId: seed.org.id, createdAt: now },
@@ -299,7 +300,7 @@ describe('attendance 통합 테스트', () => {
             const result = await caller.attendance.update({
                 year: 2024,
                 groupId: String(group.id),
-                attendance: [{ id: String(student.id), month: 1, day: 7, data: '-' }],
+                attendance: [{ id: String(student.id), month: 1, day: 7, data: '' }],
             });
 
             expect(result.row).toBe(0); // 0행 영향, throw 없음
@@ -312,7 +313,8 @@ describe('attendance 통합 테스트', () => {
                 caller.attendance.update({
                     year: 2024,
                     groupId: '1',
-                    attendance: [{ id: '1', month: 1, day: 7, data: '◎'.repeat(11) }],
+                    // 의도된 invalid input — Zod 거부 검증
+                    attendance: [{ id: '1', month: 1, day: 7, data: '◎'.repeat(11) as AttendanceSymbol }],
                 })
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -324,7 +326,8 @@ describe('attendance 통합 테스트', () => {
                 caller.attendance.update({
                     year: 2024,
                     groupId: '1',
-                    attendance: [{ id: '1', month: 1, day: 7, data: 'X' }],
+                    // 의도된 invalid input
+                    attendance: [{ id: '1', month: 1, day: 7, data: 'X' as unknown as AttendanceSymbol }],
                 })
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -336,7 +339,8 @@ describe('attendance 통합 테스트', () => {
                 caller.attendance.update({
                     year: 2024,
                     groupId: '1',
-                    attendance: [{ id: '1', month: 1, day: 7, data: '○ ' }],
+                    // 의도된 invalid input
+                    attendance: [{ id: '1', month: 1, day: 7, data: '○ ' as unknown as AttendanceSymbol }],
                 })
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });
@@ -348,7 +352,21 @@ describe('attendance 통합 테스트', () => {
                 caller.attendance.update({
                     year: 2024,
                     groupId: '1',
-                    attendance: [{ id: '1', month: 1, day: 7, data: '△ 결석=미 표기' }],
+                    // 의도된 invalid input
+                    attendance: [{ id: '1', month: 1, day: 7, data: '△ 결석=미 표기' as unknown as AttendanceSymbol }],
+                })
+            ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+        });
+
+        it('TC-A-E5: data = "-" (구 결석 sentinel) → BAD_REQUEST', async () => {
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+            await expect(
+                caller.attendance.update({
+                    year: 2024,
+                    groupId: '1',
+                    // 의도된 invalid input — '-' 폐지 검증
+                    attendance: [{ id: '1', month: 1, day: 7, data: '-' as unknown as AttendanceSymbol }],
                 })
             ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
         });

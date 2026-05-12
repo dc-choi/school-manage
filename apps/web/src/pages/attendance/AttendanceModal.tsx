@@ -1,4 +1,9 @@
-import { type AttendanceData, type StudentAttendanceDetail, getOrganizationLabels } from '@school/shared';
+import {
+    type AttendanceData,
+    type AttendanceSymbol,
+    type StudentAttendanceDetail,
+    getOrganizationLabels,
+} from '@school/shared';
 import { josa } from '@school/utils';
 import { Check, Loader2, X } from 'lucide-react';
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
@@ -50,13 +55,13 @@ const isValidSortKey = (value: string): value is SortKey => value === 'registrat
  * ◎ = 출석 (미사+교리)
  * ○ = 미사만
  * △ = 교리만
- * - = 결석
+ * (빈 문자열) = 결석
  */
-function getStatusSymbol(mass: boolean, catechism: boolean): string {
+function getStatusSymbol(mass: boolean, catechism: boolean): AttendanceSymbol {
     if (mass && catechism) return '◎';
     if (mass && !catechism) return '○';
     if (!mass && catechism) return '△';
-    return '-';
+    return '';
 }
 
 /**
@@ -70,8 +75,13 @@ function parseContent(content: string): { mass: boolean; catechism: boolean } {
             return { mass: true, catechism: false };
         case '△':
             return { mass: false, catechism: true };
-        case '-':
+        case '':
+            return { mass: false, catechism: false };
         default:
+            // 운영 DB 잔존 '-' 또는 비예상 토큰은 결석으로 흡수 — dev 환경에서만 경고
+            if (import.meta.env.DEV) {
+                console.warn(`[parseContent] unknown content token: "${content}"`);
+            }
             return { mass: false, catechism: false };
     }
 }
@@ -161,7 +171,7 @@ export function AttendanceModal({
                     data: content,
                 };
 
-                // 서버가 content로 자동 분기: ◎/○/△ → upsert, '-' → DELETE
+                // 서버가 content로 자동 분기: ◎/○/△ → upsert, '' → DELETE
                 await onSave([data]);
 
                 setSaveStatus('saved');
