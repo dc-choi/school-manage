@@ -207,6 +207,7 @@ STATUS.md를 직접 갱신하기 전 **반드시** `business.md`의 STATUS/HISTO
 
 - `/bs` — 브레인스토밍 (3라운드 토론 + Decision Tree)
 - `/bs-to-target` — 브레인스토밍 결과 → 로드맵·TARGET 편입
+- `/biz-pulse` — DB 운영 메일 + GA4로 정량 스냅샷 (`/biz status`와 함께 사용)
 - `/feedback` — 신규 피드백 entries 스캐폴딩
 - `/sdd 0` — SDD 작업 선택 (handoff 다음 단계)
 
