@@ -81,6 +81,8 @@ export function PrivacyPage() {
                 </p>
                 <ul className="mt-2 list-disc space-y-1 pl-6">
                     <li>클라우드 인프라 운영: Amazon Web Services, Inc.</li>
+                    <li>서비스 이용 통계 분석: Google LLC (Google Analytics)</li>
+                    <li>서비스 이용 행태 분석: Microsoft Corporation (Microsoft Clarity)</li>
                 </ul>
             </section>
 
@@ -112,6 +114,10 @@ export function PrivacyPage() {
                 <p className="mt-2">
                     회사는 로그인 상태 유지·서비스 품질 측정 목적으로 쿠키를 사용할 수 있습니다. 정보주체는 브라우저
                     설정을 통해 쿠키 저장을 거부할 수 있으나, 이 경우 일부 서비스 이용에 제한이 있을 수 있습니다.
+                </p>
+                <p className="mt-2">
+                    회사는 서비스 개선과 이용 행태 분석을 위해 Google Analytics, Microsoft Clarity 등 외부 분석 도구를
+                    사용하며, 이 과정에서 쿠키 및 유사 기술을 통해 이용 기록이 수집될 수 있습니다.
                 </p>
             </section>
 

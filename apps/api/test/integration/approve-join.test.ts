@@ -133,6 +133,56 @@ describe('organization.approveJoin 통합 테스트', () => {
         });
     });
 
+    it('TC-7: 대상 계정이 이미 다른 조직에 소속 → CONFLICT + 전체 롤백 (조용한 조직 이동 차단)', async () => {
+        const { applicant, joinRequest } = await createApplicantAndRequest();
+        // 옛 PENDING이 남아있는 사이 계정이 다른 조직에 소속됨
+        const otherOrg = await database.organization.create({
+            data: { name: '타조직', type: 'ELEMENTARY', churchId: seed.church.id, createdAt: getNowKST() },
+        });
+        await database.account.update({
+            where: { id: applicant.id },
+            data: { organizationId: otherOrg.id, role: ROLE.TEACHER, updatedAt: getNowKST() },
+        });
+        const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+        await expect(caller.organization.approveJoin({ joinRequestId: String(joinRequest.id) })).rejects.toMatchObject({
+            code: 'CONFLICT',
+        });
+
+        // joinRequest는 PENDING으로 롤백
+        const updatedRequest = await database.joinRequest.findUnique({ where: { id: joinRequest.id } });
+        expect(updatedRequest?.status).toBe(JOIN_REQUEST_STATUS.PENDING);
+
+        // 계정 소속은 기존 조직 그대로 (조용한 이동 없음)
+        const updatedAccount = await database.account.findUnique({ where: { id: applicant.id } });
+        expect(updatedAccount?.organizationId).toBe(otherOrg.id);
+
+        const snapshots = await database.accountSnapshot.findMany({ where: { accountId: applicant.id } });
+        expect(snapshots).toHaveLength(0);
+    });
+
+    it('TC-8: 대상 계정이 soft-deleted → CONFLICT + 전체 롤백 (삭제 계정 부활 차단)', async () => {
+        const { applicant, joinRequest } = await createApplicantAndRequest();
+        await database.account.update({
+            where: { id: applicant.id },
+            data: { deletedAt: getNowKST() },
+        });
+        const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+
+        await expect(caller.organization.approveJoin({ joinRequestId: String(joinRequest.id) })).rejects.toMatchObject({
+            code: 'CONFLICT',
+        });
+
+        const updatedRequest = await database.joinRequest.findUnique({ where: { id: joinRequest.id } });
+        expect(updatedRequest?.status).toBe(JOIN_REQUEST_STATUS.PENDING);
+
+        const updatedAccount = await database.account.findUnique({ where: { id: applicant.id } });
+        expect(updatedAccount?.organizationId).toBeNull();
+
+        const snapshots = await database.accountSnapshot.findMany({ where: { accountId: applicant.id } });
+        expect(snapshots).toHaveLength(0);
+    });
+
     // 핵심 TOCTOU 방어 케이스
     it('TC-E1: 동시 승인 시 정확히 1건만 성공, 나머지는 CONFLICT — account/snapshot 중복 없음', async () => {
         const { applicant, joinRequest } = await createApplicantAndRequest();
