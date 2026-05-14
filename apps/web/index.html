@@ -67,6 +67,21 @@
         }
       })();
     </script>
+
+    <!-- Microsoft Clarity (세션 리플레이) -->
+    <!-- 미성년자(학생) PII 보호: 마스킹 모드는 Clarity 대시보드 > Settings > Masking 에서 -->
+    <!-- 반드시 "Strict"(모든 텍스트/입력 마스킹)로 설정한다. 코드가 아닌 대시보드 설정값이다. -->
+    <script>
+      (function() {
+        var CLARITY_ID = '%VITE_CLARITY_PROJECT_ID%';
+        if (!CLARITY_ID || CLARITY_ID.indexOf('VITE_') !== -1 || CLARITY_ID.indexOf('%') !== -1) return;
+        (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, 'clarity', 'script', CLARITY_ID);
+      })();
+    </script>
 </head>
 <body>
     <div id="root"></div>
