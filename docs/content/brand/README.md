@@ -9,7 +9,7 @@
 | [logo.md](./logo.md)                                       | **확정 로고 v2** (워드마크 + 웃는 ◎ + amber 별, 햇살 제거), 베리에이션, 사용 규칙 |
 | [character.md](./character.md)                             | **확정 캐릭터 주이(Joo-i)**, 6종 표정 시트, 사용 규칙, 시나리오                   |
 | [assets/logo-reference.jpg](./assets/logo-reference.jpg)   | 로고 정식 레퍼런스 이미지                                                         |
-| [assets/joo-i-reference.jpg](./assets/joo-i-reference.jpg) | 주이 6종 표정 정식 레퍼런스 이미지                                                |
+| [assets/joo-i-reference.jpg](./assets/joo-i-reference.jpg) | 주이 6종 표정 정식 레퍼런스 이미지 (콘텐츠 생성 시 이 시트째 첨부)                |
 
 > **모든 후속 콘텐츠**(인스타 카드뉴스, 릴스, OG, UI 일러스트)는 위 두 레퍼런스 이미지를 우선 참고한다. 레퍼런스에 없는 컷은 `character.md`의 사용 규칙, 생성 프롬프트 안에서만 신규 생성한다.
 
