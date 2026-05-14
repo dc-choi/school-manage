@@ -10,6 +10,10 @@
     },
     "google-analytics": {
       "command": "analytics-mcp"
+    },
+    "clarity": {
+      "command": "npx",
+      "args": ["-y", "@microsoft/clarity-mcp-server", "--clarity_api_token=${CLARITY_API_TOKEN}"]
     }
   }
 }
