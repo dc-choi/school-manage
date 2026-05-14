@@ -16,7 +16,7 @@ export class SearchChurchesUseCase {
             where: {
                 parishId: BigInt(input.parishId),
                 deletedAt: null,
-                ...(normalizedQuery ? { normalizedName: { contains: normalizedQuery } } : {}),
+                ...(normalizedQuery ? { name: { contains: normalizedQuery } } : {}),
             },
             include: {
                 _count: {

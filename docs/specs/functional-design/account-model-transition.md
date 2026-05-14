@@ -37,16 +37,15 @@ Parish(교구)
 
 ### Church (본당)
 
-| 필드                  | 타입       | 설명                                                            |
-| --------------------- | ---------- | --------------------------------------------------------------- |
-| id                    | BigInt     | PK                                                              |
-| name                  | String(50) | 본당 이름 (사용자 입력 원본, 표시값)                            |
-| normalizedName        | String(50) | `name`에서 모든 공백 제거한 값. 중복 검사 기준 (BUGFIX C-1+C-2) |
-| parishId              | BigInt     | FK → Parish                                                     |
-| createdAt / deletedAt | DateTime   | 생성일 / 소프트 삭제                                            |
+| 필드                  | 타입       | 설명                                                                  |
+| --------------------- | ---------- | --------------------------------------------------------------------- |
+| id                    | BigInt     | PK                                                                    |
+| name                  | String(50) | 본당 이름. 모든 공백을 제거한 값으로 정규화하여 저장 (BUGFIX C-1+C-2) |
+| parishId              | BigInt     | FK → Parish                                                           |
+| createdAt / deletedAt | DateTime   | 생성일 / 소프트 삭제                                                  |
 
-- 제약: `@@unique([parishId, normalizedName])` — 교구 내 본당명 중복(공백 변형) 차단.
-- 본당 생성/검색은 `normalizeChurchName`(공백 전부 제거)을 거친다. "반포동 성당" === "반포동성당"으로 간주하되, 글자가 다르면("반포4동성당") 항상 별개. 동시 생성 요청은 DB unique 제약(P2002 → CONFLICT)으로 차단.
+- 제약: `@@unique([parishId, name])` — 교구 내 본당명 중복(공백 변형) 차단.
+- 본당 생성/검색은 `normalizeChurchName`(공백 전부 제거)을 거쳐 `name`에 저장한다. 별도 정규화 컬럼 없이 `name` 자체가 정규화값 — 입력 띄어쓰기는 보존하지 않는다. "반포동 성당" === "반포동성당"으로 간주하되, 글자가 다르면("반포4동성당") 항상 별개. 동시 생성 요청은 DB unique 제약(P2002 → CONFLICT)으로 차단.
 - soft-deleted Church는 이름 슬롯을 점유하지 않는다 — BUGFIX C-3로 기존 soft-deleted Church 서브트리를 물리 삭제 (`migrations/20260514/church_name_unique.sql`).
 
 ### Organization (조직)

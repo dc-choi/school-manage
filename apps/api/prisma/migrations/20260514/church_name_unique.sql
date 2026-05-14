@@ -1,9 +1,9 @@
--- Migration: Church 이름 중복 방지 — normalized_name 컬럼 + (parish_id, normalized_name) UNIQUE
+-- Migration: Church 이름 중복 방지 — name 정규화(공백 제거) + (parish_id, name) UNIQUE
 -- Date: 2026-05-14
 -- Feature: church-name-unique (BUGFIX C-1+C-2+C-3)
 -- Description:
 --   교구 내 본당명 중복(공백 변형)을 DB 레벨에서 차단한다.
---   - normalized_name: name에서 모든 공백 제거한 값. 중복 검사 기준.
+--   - name: 모든 공백을 제거한 값으로 정규화하여 저장 (별도 컬럼 없이 name 자체를 정규화).
 --   - C-3 결정: soft-deleted Church 서브트리를 물리 삭제하여 이름 슬롯/데이터 정리.
 --   확인된 운영 데이터(2026-05-14): soft-deleted Church 6건(id 46,55,56,59,66 = org 0건 /
 --   id 81 = org103→group696→student3214, 전부 soft-deleted). 활성 본당 정규화 충돌 0건.
@@ -12,7 +12,8 @@
 -- Pre-flight (운영 적용 전 반드시 실행)
 -- ────────────────────────────────────────────────────────────────────
 --
--- BACKUP REQUIRED — soft-deleted Church 서브트리 cascade 삭제는 비가역. 백업 없이 적용 금지.
+-- BACKUP REQUIRED — soft-deleted Church 서브트리 cascade 삭제 + name 정규화(공백 소실)는 비가역.
+-- 백업 없이 적용 금지.
 --   $ mysqldump -u <user> -p school_back \
 --       church organization `group` student account join_request \
 --       student_group attendance student_snapshot registration \
@@ -43,6 +44,8 @@
 --
 -- Guard 2 — 활성 본당 정규화 충돌 (기대: 0행).
 --   0행이 아니면 적용 중단. 충돌 본당을 수동 병합한 뒤 재시도한다.
+--   (정규화 후 같은 name이 되는 활성 본당이 있으면 Step 11 UPDATE가 실제 중복 row를 만들고
+--    Step 12 UNIQUE 인덱스 생성이 실패한다.)
 --   SELECT parish_id,
 --          REPLACE(REPLACE(REPLACE(REPLACE(name,' ',''),'\t',''),'\n',''),'\r','') AS nn,
 --          COUNT(*) AS cnt, GROUP_CONCAT(_id) AS ids, GROUP_CONCAT(name SEPARATOR ' | ') AS names
@@ -137,46 +140,43 @@ WHERE c.delete_at IS NOT NULL;
 
 DELETE FROM church WHERE delete_at IS NOT NULL;
 
--- Step 11: normalized_name 컬럼 추가 (우선 nullable)
-ALTER TABLE `church` ADD COLUMN `normalized_name` VARCHAR(50) NULL;
-
--- Step 12: 기존(활성) 행 백필 — 모든 공백 문자 제거
+-- Step 11: 활성 Church name 정규화 — 모든 공백 문자 제거 (in-place)
+-- Step 10에서 soft-deleted Church는 이미 물리 삭제됨 → 남은 행은 전부 활성.
+-- `REGEXP '[[:space:]]'` 조건으로 공백이 남은 행만 대상 → Step 12 실패 후 재실행해도 멱등.
 UPDATE `church`
-SET `normalized_name` =
+SET `name` =
     REPLACE(REPLACE(REPLACE(REPLACE(`name`, ' ', ''), '\t', ''), '\n', ''), '\r', '')
-WHERE `_id` > 0;
+WHERE `name` REGEXP '[[:space:]]';
 
--- Step 13: NOT NULL 전환 + UNIQUE 인덱스 (Prisma @@unique 명명 규칙과 일치)
-ALTER TABLE `church` MODIFY COLUMN `normalized_name` VARCHAR(50) NOT NULL;
+-- Step 12: UNIQUE 인덱스 추가 (Prisma @@unique([parishId, name]) 명명 규칙과 일치)
 ALTER TABLE `church`
-    ADD UNIQUE INDEX `church_parish_id_normalized_name_key` (`parish_id`, `normalized_name`);
+    ADD UNIQUE INDEX `church_parish_id_name_key` (`parish_id`, `name`);
 
 -- ────────────────────────────────────────────────────────────────────
 -- Post-flight (적용 직후 확인)
 -- ────────────────────────────────────────────────────────────────────
 --   -- 1) soft-deleted Church 잔존 0건
 --   SELECT COUNT(*) FROM church WHERE delete_at IS NOT NULL;   -- 기대: 0
---   -- 2) normalized_name NOT NULL + UNIQUE 적용
---   SHOW INDEX FROM church WHERE Key_name = 'church_parish_id_normalized_name_key';
---   SHOW COLUMNS FROM church LIKE 'normalized_name';           -- 기대: VARCHAR(50), NOT NULL
---   -- 3) 백필 검증 (모든 활성 행 normalized_name 채워짐)
---   SELECT COUNT(*) FROM church WHERE normalized_name IS NULL OR normalized_name = '';  -- 기대: 0
+--   -- 2) UNIQUE 인덱스 적용
+--   SHOW INDEX FROM church WHERE Key_name = 'church_parish_id_name_key';
+--   -- 3) name 정규화 검증 (공백 포함 행 0건)
+--   SELECT COUNT(*) FROM church WHERE name REGEXP '[[:space:]]';  -- 기대: 0
 
 -- ────────────────────────────────────────────────────────────────────
 -- Down Migration (rollback)
 -- ────────────────────────────────────────────────────────────────────
--- 컬럼/제약 제거는 가능하나, 삭제된 soft-deleted Church 서브트리는 비가역.
+-- UNIQUE 인덱스 제거는 가능하나, 정규화로 사라진 name 공백과 삭제된 soft-deleted Church 서브트리는 비가역.
 -- 데이터 복원은 사전 백업으로만 가능: $ mysql -u <user> -p school_back < backup_church_name_unique_<TS>.sql
 -- 참고용 SQL (실행 금지):
--- ALTER TABLE `church` DROP INDEX `church_parish_id_normalized_name_key`;
--- ALTER TABLE `church` DROP COLUMN `normalized_name`;
+-- ALTER TABLE `church` DROP INDEX `church_parish_id_name_key`;
 
 -- ────────────────────────────────────────────────────────────────────
 -- Notes
 -- ────────────────────────────────────────────────────────────────────
 -- - 데이터 규모: church 87행 수준. MySQL online DDL(ALGORITHM=INPLACE)로 1초 미만.
--- - 백필 REPLACE는 space/tab/LF/CR만 제거. 애플리케이션의 normalizeChurchName(/\s+/g)이 신규 쓰기의 SSoT.
+-- - name 정규화는 별도 컬럼 없이 name 자체를 in-place 수정한다 — 입력 시 띄어쓰기는 보존하지 않는다.
+--   REPLACE는 space/tab/LF/CR만 제거. 애플리케이션의 normalizeChurchName(/\s+/g)이 신규 쓰기의 SSoT.
 --   기존 데이터에 비ASCII 공백(U+00A0 등)이 있을 가능성은 극히 낮으나, Guard 2에서 충돌로 잡히면 수동 처리.
 -- - 배포 순서: 백업 → Guard 1·2 확인 → Up Migration → prisma generate → 코드 배포.
--- - 로컬/테스트 DB: soft-deleted Church가 없어 Step 1~10은 no-op. 로컬은 `db:reset`으로 스키마 동기화
---   (seed.ts가 normalized_name 포함하도록 갱신됨).
+-- - 로컬/테스트 DB: soft-deleted Church가 없어 Step 1~10은 no-op.
+--   로컬은 `db:reset`으로 스키마 동기화 (seed.ts의 본당명은 이미 공백 없음).

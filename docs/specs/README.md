@@ -85,7 +85,7 @@
 | P3       | Account.name unique soft-delete 슬롯 검증 (A-1) | 미착수   | 도메인 의도 가능성. `Account.name @unique`가 soft-delete 후에도 슬롯 점유 → 재가입 불가 UX. 의도면 close, 변경 필요 시 restore-account 흐름 함께 정리. 사용자 판단 항목                                                                                             |
 | P3       | 겸직 모델 검토 (A-4)                            | 미착수   | 도메인 의도 가능성. `Account.organizationId` 단일 nullable로 본당 교사 겸직 표현 불가. 겸직 시그널 발생 시 별도 멤버십 테이블 도입 검토. 사용자 판단 항목                                                                                                           |
 | P3       | `trackFirstAttendanceRecorded` 호출 누락 (T-1)  | 미착수   | `apps/web/src/lib/analytics.ts:141` 정의만 있고 호출처 0건. 출석 첫 입력 시점 + `daysSinceSignup` 계산 + 호출 게이팅 추가. GA4 `first_attendance_recorded` 이벤트 7일 0건은 트래킹 누락 확인(2026-05-14 `/biz-pulse` 검증). `useStudents.ts:104` 패턴 참고. 1-2시간 |
-| P3       | Church `@@index([parishId])` 중복 제거          | 미착수   | `schema.prisma` Church. `@@unique([parishId, normalizedName])` 추가로 leftmost prefix가 `parishId`를 커버 → 단일 인덱스 `@@index([parishId])`는 중복. 제거 시 별도 마이그레이션 필요. church-name-unique PR(2026-05-14) reviewer 후속.                              |
+| P3       | Church `@@index([parishId])` 중복 제거          | 미착수   | `schema.prisma` Church. `@@unique([parishId, name])` 추가로 leftmost prefix가 `parishId`를 커버 → 단일 인덱스 `@@index([parishId])`는 중복. 제거 시 별도 마이그레이션 필요. church-name-unique PR(2026-05-14) reviewer 후속.                                        |
 
 ### DX (Non-Functional)
 

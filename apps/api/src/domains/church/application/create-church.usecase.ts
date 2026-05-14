@@ -14,9 +14,10 @@ const DUPLICATE_NAME_MESSAGE = '이미 존재하는 본당명입니다.';
 
 export class CreateChurchUseCase {
     async execute(input: CreateChurchInput): Promise<CreateChurchOutput> {
-        const normalizedName = normalizeChurchName(input.name);
+        // 공백을 모두 제거한 값을 본당명으로 저장 — "반포동 성당" === "반포동성당"
+        const name = normalizeChurchName(input.name);
 
-        if (normalizedName.length === 0) {
+        if (name.length === 0) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
                 message: '본당명을 입력해주세요.',
@@ -27,7 +28,7 @@ export class CreateChurchUseCase {
             const existingChurch = await tx.church.findFirst({
                 where: {
                     parishId: BigInt(input.parishId),
-                    normalizedName,
+                    name,
                     deletedAt: null,
                 },
             });
@@ -42,8 +43,7 @@ export class CreateChurchUseCase {
             try {
                 return await tx.church.create({
                     data: {
-                        name: input.name,
-                        normalizedName,
+                        name,
                         parishId: BigInt(input.parishId),
                         createdAt: getNowKST(),
                     },
@@ -51,9 +51,9 @@ export class CreateChurchUseCase {
             } catch (e) {
                 // DB UNIQUE 제약으로 동시 생성 요청 충돌 차단
                 if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-                    logger.log('[create-church] normalized name collision on DB unique', {
+                    logger.log('[create-church] name collision on DB unique', {
                         parishId: input.parishId,
-                        normalizedName,
+                        name,
                     });
                     throw new TRPCError({
                         code: 'CONFLICT',

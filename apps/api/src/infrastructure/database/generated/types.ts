@@ -38,7 +38,6 @@ export type Attendance = {
 export type Church = {
     id: Generated<number>;
     name: string;
-    normalizedName: string;
     parishId: number;
     createAt: Timestamp;
     deleteAt: Timestamp | null;

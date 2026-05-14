@@ -34,11 +34,11 @@
 
 ### 포함
 
-- `Church` 모델에 정규화 이름 컬럼(`normalizedName`) 추가 + `@@unique([parishId, normalizedName])`
-- 입력 정규화 유틸(trim + 공백 압축) 신규 작성 — `@school/utils`
-- `create-church.usecase.ts`: 정규화 값으로 중복 검사 + `normalizedName` 저장, DB 제약 위반(P2002) → `CONFLICT` 매핑
+- `Church` 모델에 `@@unique([parishId, name])` 제약 추가. 별도 컬럼 없이 `name` 자체를 정규화하여 저장
+- 입력 정규화 유틸(모든 공백 제거) 신규 작성 — `@school/utils`
+- `create-church.usecase.ts`: 정규화한 값을 `name`으로 저장 + 중복 검사, DB 제약 위반(P2002) → `CONFLICT` 매핑
 - `search-churches.usecase.ts`: 검색어 정규화 적용 (검색 일관성)
-- 마이그레이션: 기존 행 `normalizedName` 백필 + **soft-deleted Church 행 물리 삭제** (C-3 결정)
+- 마이그레이션: 기존 행 `name` 정규화(in-place) + **soft-deleted Church 행 물리 삭제** (C-3 결정)
 
 ### 제외
 
@@ -56,11 +56,11 @@
 
 ### 필수 (Must)
 
-- [ ] `Church`에 `normalizedName` 컬럼 추가, `@@unique([parishId, normalizedName])` 제약
+- [ ] `Church`에 `@@unique([parishId, name])` 제약 추가
 - [ ] 정규화 유틸: 모든 공백 문자 제거(`replace(/\s+/g, '')`). 공백 위치/개수만 다르면 동일 본당으로 간주
-- [ ] 생성 시 `normalizedName` 저장 + 정규화 기준 중복 검사
+- [ ] 생성 시 정규화한 값을 `name`으로 저장 + 중복 검사
 - [ ] DB unique 위반(Prisma P2002)을 `TRPCError CONFLICT('이미 존재하는 본당명입니다.')`로 매핑 (race condition 방어)
-- [ ] 마이그레이션에서 기존 모든 Church 행 `normalizedName` 백필
+- [ ] 마이그레이션에서 기존 모든 Church 행 `name` 정규화(in-place)
 - [ ] 마이그레이션에서 `delete_at IS NOT NULL`인 Church 행 물리 삭제
 
 ### 선택 (Should)
@@ -74,10 +74,10 @@
 
 ## 제약/가정/리스크/의존성
 
-- **제약**: DB는 MySQL. Prisma는 표현식 인덱스를 지원하지 않으므로 정규화 값은 **물리 컬럼**으로 저장해야 unique 제약 적용 가능.
+- **제약**: DB는 MySQL. 별도 정규화 컬럼 없이 `name` 자체를 정규화하여 저장 — 사용자가 입력한 띄어쓰기는 보존하지 않는다 (대부분의 본당명이 붙여쓰기이므로 KISS 우선).
 - **가정**: 현재 운영 DB의 활성 Church 중 정규화 후 충돌하는 행은 없거나 소수다 (마이그레이션 전 점검 필요).
 - **리스크**:
-    - 백필 후 정규화 기준 중복이 이미 존재하면 unique 제약 생성이 실패 → 마이그레이션 전 수동 점검/병합 필요.
+    - 정규화(in-place) 후 동일 `name`이 이미 존재하면 unique 제약 생성이 실패 → 마이그레이션 전 수동 점검/병합 필요.
     - soft-deleted Church 물리 삭제 시 해당 Church를 참조하는 `organization` 행이 남아 있으면 FK 위반 → 종속 행 처리 정책 필요 (오픈 이슈).
 - **내부 의존성**: `/prisma-migrate` 스킬로 수동 SQL 마이그레이션 작성 (스키마 변경 hook 보호 대상).
 - **외부 의존성**: 없음.
@@ -96,4 +96,4 @@
 ## 연결 문서
 
 - 사업 문서: `docs/specs/README.md` BUGFIX TARGET (C-1+C-2+C-3), `docs/business/STATUS.md`
-- 기능 설계: `docs/specs/functional-design/church-name-unique.md` (다음 단계에서 작성)
+- 기능 설계: `docs/specs/functional-design/account-model-transition.md` (Church 엔티티 섹션에 병합)
