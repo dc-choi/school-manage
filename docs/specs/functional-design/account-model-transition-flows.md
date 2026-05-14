@@ -22,12 +22,12 @@
 
 ### 프로시저
 
-| 프로시저 | 인증 | 동의 | Organization | 용도 |
-|---------|------|------|-------------|------|
-| publicProcedure | - | - | - | 로그인, 회원가입 |
-| protectedProcedure | 필수 | - | - | 계정 조회, 동의 |
-| consentedProcedure | 필수 | 필수 | - | 합류/생성 |
-| **scopedProcedure** | 필수 | 필수 | **필수** | 모든 도메인 작업 |
+| 프로시저            | 인증 | 동의 | Organization | 용도             |
+| ------------------- | ---- | ---- | ------------ | ---------------- |
+| publicProcedure     | -    | -    | -            | 로그인, 회원가입 |
+| protectedProcedure  | 필수 | -    | -            | 계정 조회, 동의  |
+| consentedProcedure  | 필수 | 필수 | -            | 합류/생성        |
+| **scopedProcedure** | 필수 | 필수 | **필수**     | 모든 도메인 작업 |
 
 ---
 
@@ -79,14 +79,17 @@
 - 다이얼로그 상단에 단체 설명("본당 내 초등부, 중고등부, 청년부 등의 조직 단위") + "먼저 목록에서 단체를 찾아보세요" 안내 문구 표시
 
 **타입 선택 개선:**
+
 - 기본값 없음 (미선택 placeholder). 사용자가 반드시 능동 선택해야 생성 가능
 - 각 옵션에 설명 텍스트 표시: "초등부 — 만 14세 졸업", "중고등부 — 만 20세 졸업", "청년 — 졸업 없음"
 - 타입 미선택 시 "만들기" 버튼 비활성화
 
 **이름-타입 불일치 경고:**
+
 - 이름 키워드(초등/중고등/청년)와 선택한 타입 불일치 시 경고 표시. 비차단 (dismissable)
 
 **동일 이름 모임 차단:**
+
 - 이미 로드된 organization.list 데이터에서 클라이언트 비교 (추가 API 호출 없음)
 - 동일 이름 존재 시: "이미 '{이름}'이(가) 있습니다." 안내 + "만들기" 버튼 비활성화
 
@@ -99,12 +102,12 @@
 
 `/`는 게스트 대시보드를 지원하므로 `ProtectedRoute`를 사용하지 않는다. 대신 DashboardPage 내부에서 상태 전이를 처리한다.
 
-| 조건 | 동작 |
-|------|------|
-| 비인증 | 게스트 대시보드 표시 |
+| 조건                                                | 동작                  |
+| --------------------------------------------------- | --------------------- |
+| 비인증                                              | 게스트 대시보드 표시  |
 | 인증 + orgId 없음 + joinRequestStatus === 'pending' | `/pending` 리다이렉트 |
-| 인증 + orgId 없음 + 그 외 | `/join` 리다이렉트 |
-| 인증 + orgId 있음 | 대시보드 표시 |
+| 인증 + orgId 없음 + 그 외                           | `/join` 리다이렉트    |
+| 인증 + orgId 있음                                   | 대시보드 표시         |
 
 `account.get` 응답의 `organizationId`와 `joinRequestStatus`로 판단한다. 로딩 중에는 리다이렉트하지 않는다.
 
@@ -116,18 +119,18 @@
 
 ## 신규 API
 
-| 프로시저 | 타입 | 인증 | 설명 |
-|---------|------|------|------|
-| parish.list | query | consented | 교구 목록 |
-| church.create | mutation | consented | 본당 생성. 같은 교구 동명 존재 시 에러 |
-| church.search | query | consented | 본당 검색 |
-| organization.list | query | consented | Church 하위 조직 목록 |
-| organization.create | mutation | consented | 조직 생성 → admin. 입력: name, churchId, type(필수). 같은 Church 동명 존재 시 에러 |
-| organization.requestJoin | mutation | consented | 합류 요청 |
-| organization.pendingRequests | query | scoped (admin) | 합류 요청 목록 |
-| organization.approveJoin | mutation | scoped (admin) | 승인 |
-| organization.rejectJoin | mutation | scoped (admin) | 거절 |
-| organization.members | query | scoped | 멤버 목록 |
+| 프로시저                     | 타입     | 인증           | 설명                                                                               |
+| ---------------------------- | -------- | -------------- | ---------------------------------------------------------------------------------- |
+| parish.list                  | query    | consented      | 교구 목록                                                                          |
+| church.create                | mutation | consented      | 본당 생성. 같은 교구 동명 존재 시 에러                                             |
+| church.search                | query    | consented      | 본당 검색                                                                          |
+| organization.list            | query    | consented      | Church 하위 조직 목록                                                              |
+| organization.create          | mutation | consented      | 조직 생성 → admin. 입력: name, churchId, type(필수). 같은 Church 동명 존재 시 에러 |
+| organization.requestJoin     | mutation | consented      | 합류 요청                                                                          |
+| organization.pendingRequests | query    | scoped (admin) | 합류 요청 목록                                                                     |
+| organization.approveJoin     | mutation | scoped (admin) | 승인                                                                               |
+| organization.rejectJoin      | mutation | scoped (admin) | 거절                                                                               |
+| organization.members         | query    | scoped         | 멤버 목록                                                                          |
 
 ## 변경 API (스코프 전환)
 
@@ -143,12 +146,12 @@
 
 ## 접근 제어
 
-| 권한 | 접근 가능 |
-|------|---------|
-| 비인증 | 랜딩, 로그인, 회원가입, ID 중복 확인, 비밀번호 재설정 |
-| 인증 + 동의 + 미소속 | 교구/본당/조직 검색·생성·합류 |
-| teacher | 모든 도메인 작업, 멤버 목록 |
-| admin | teacher + 합류 승인/거절 |
+| 권한                 | 접근 가능                                             |
+| -------------------- | ----------------------------------------------------- |
+| 비인증               | 랜딩, 로그인, 회원가입, ID 중복 확인, 비밀번호 재설정 |
+| 인증 + 동의 + 미소속 | 교구/본당/조직 검색·생성·합류                         |
+| teacher              | 모든 도메인 작업, 멤버 목록                           |
+| admin                | teacher + 합류 승인/거절                              |
 
 ### IDOR 구조적 해소
 
@@ -158,19 +161,20 @@ scopedProcedure에서 ctx.organization.id 자동 설정 → UseCase에서 organi
 
 ## 예외/엣지 케이스
 
-| 상황 | 처리 |
-|------|------|
-| organizationId null + `/` 접근 | DashboardPage 내부에서 `/join` 또는 `/pending` 리다이렉트 |
-| organizationId null + 도메인 API | scopedProcedure FORBIDDEN (ProtectedRoute가 `/join` 리다이렉트) |
-| 이미 조직 소속 + 합류 요청 | 에러 (이미 소속) |
-| 이미 pending + 재요청 | 에러 (중복 요청) |
-| teacher → 승인/거절 | FORBIDDEN (admin 전용) |
-| admin 삭제 시도 | 에러 (삭제 불가) |
-| teacher 삭제 | organizationId null, Organization 유지 |
-| 학생 모든 Group 제거 | StudentGroup 0건 허용 (미배정) |
-| 같은 Church 동명 Organization | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT) |
-| 이름-타입 키워드 불일치 | 프론트엔드 경고만 (비차단). 예: "초등부"인데 MIDDLE_HIGH 선택 |
-| 같은 교구 동명 Church | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT) |
+| 상황                                                            | 처리                                                                                                                                                      |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| organizationId null + `/` 접근                                  | DashboardPage 내부에서 `/join` 또는 `/pending` 리다이렉트                                                                                                 |
+| organizationId null + 도메인 API                                | scopedProcedure FORBIDDEN (ProtectedRoute가 `/join` 리다이렉트)                                                                                           |
+| 이미 조직 소속 + 합류 요청                                      | 에러 (이미 소속)                                                                                                                                          |
+| 이미 pending + 재요청                                           | 에러 (중복 요청)                                                                                                                                          |
+| teacher → 승인/거절                                             | FORBIDDEN (admin 전용)                                                                                                                                    |
+| 합류 승인 시 대상 계정이 이미 다른 조직 소속/탈퇴(soft-deleted) | 백엔드 CONFLICT + 트랜잭션 롤백. 조건부 `account.updateMany`(`organizationId: null, deletedAt: null`)로 옛 PENDING 승인의 무인지 조직 이동/계정 부활 차단 |
+| admin 삭제 시도                                                 | 에러 (삭제 불가)                                                                                                                                          |
+| teacher 삭제                                                    | organizationId null, Organization 유지                                                                                                                    |
+| 학생 모든 Group 제거                                            | StudentGroup 0건 허용 (미배정)                                                                                                                            |
+| 같은 Church 동명 Organization                                   | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT)                                                                                                         |
+| 이름-타입 키워드 불일치                                         | 프론트엔드 경고만 (비차단). 예: "초등부"인데 MIDDLE_HIGH 선택                                                                                             |
+| 같은 교구 동명 Church                                           | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT)                                                                                                         |
 
 ---
 
@@ -201,9 +205,9 @@ scopedProcedure에서 ctx.organization.id 자동 설정 → UseCase에서 organi
 
 ## 이벤트
 
-| 이벤트 | 설명 |
-|--------|------|
-| church_created | 본당 생성 |
-| organization_created | 조직 생성 |
-| join_requested / join_approved / join_rejected | 합류 플로우 |
-| join_flow_completed / join_flow_abandoned | 합류 완료/이탈 |
+| 이벤트                                         | 설명           |
+| ---------------------------------------------- | -------------- |
+| church_created                                 | 본당 생성      |
+| organization_created                           | 조직 생성      |
+| join_requested / join_approved / join_rejected | 합류 플로우    |
+| join_flow_completed / join_flow_abandoned      | 합류 완료/이탈 |

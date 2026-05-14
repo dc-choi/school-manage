@@ -52,13 +52,31 @@ export class ApproveJoinUseCase {
                 });
             }
 
-            const account = await tx.account.update({
-                where: { id: joinRequest.accountId },
+            // 조건부 업데이트: 미소속(organizationId=null) + 미삭제(deletedAt=null) 계정만 배정 성공.
+            // 옛 PENDING 승인 시 이미 다른 조직에 소속됐거나 삭제된 계정의 조용한 조직 이동/부활을 차단한다.
+            const assigned = await tx.account.updateMany({
+                where: {
+                    id: joinRequest.accountId,
+                    organizationId: null,
+                    deletedAt: null,
+                },
                 data: {
                     organizationId: BigInt(organizationId),
                     role: ROLE.TEACHER,
                     updatedAt: now,
                 },
+            });
+
+            if (assigned.count === 0) {
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: 'CONFLICT: 이미 다른 조직에 소속됐거나 탈퇴한 계정입니다',
+                });
+            }
+
+            // updateMany는 row를 반환하지 않으므로 스냅샷용 필드를 재조회한다.
+            const account = await tx.account.findUniqueOrThrow({
+                where: { id: joinRequest.accountId },
             });
 
             await createAccountSnapshot(tx, {
