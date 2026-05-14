@@ -48,7 +48,7 @@ export const seedBase = async () => {
     });
 
     const church = await database.church.create({
-        data: { name: '장위동성당', parishId: parish.id, createdAt: now },
+        data: { name: '장위동성당', normalizedName: '장위동성당', parishId: parish.id, createdAt: now },
     });
 
     const org = await database.organization.create({

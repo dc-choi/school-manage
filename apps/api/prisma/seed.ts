@@ -35,10 +35,18 @@ async function main() {
     const suwon = await prisma.parish.create({ data: { name: '수원교구', createdAt: now } });
 
     // Church
-    const jangwi = await prisma.church.create({ data: { name: '장위동성당', parishId: seoul.id, createdAt: now } });
-    const heukseok = await prisma.church.create({ data: { name: '흑석동성당', parishId: seoul.id, createdAt: now } });
-    const suwonHq = await prisma.church.create({ data: { name: '수원본당', parishId: suwon.id, createdAt: now } });
-    const bundang = await prisma.church.create({ data: { name: '분당성당', parishId: suwon.id, createdAt: now } });
+    const jangwi = await prisma.church.create({
+        data: { name: '장위동성당', normalizedName: '장위동성당', parishId: seoul.id, createdAt: now },
+    });
+    const heukseok = await prisma.church.create({
+        data: { name: '흑석동성당', normalizedName: '흑석동성당', parishId: seoul.id, createdAt: now },
+    });
+    const suwonHq = await prisma.church.create({
+        data: { name: '수원본당', normalizedName: '수원본당', parishId: suwon.id, createdAt: now },
+    });
+    const bundang = await prisma.church.create({
+        data: { name: '분당성당', normalizedName: '분당성당', parishId: suwon.id, createdAt: now },
+    });
 
     // Organization
     const elementary = await prisma.organization.create({

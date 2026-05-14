@@ -45,7 +45,12 @@ describe('organization 통합 테스트', () => {
         it('TC-E1: 조직 0건 → 빈 배열, total=0, totalPage=0', async () => {
             // 다른 Church (조직 없음)
             const otherChurch = await database.church.create({
-                data: { name: '빈성당', parishId: seed.parish.id, createdAt: getNowKST() },
+                data: {
+                    name: '빈성당',
+                    normalizedName: '빈성당',
+                    parishId: seed.parish.id,
+                    createdAt: getNowKST(),
+                },
             });
 
             const caller = createAuthenticatedCaller(seed.ids.accountId, seed.account.name);
@@ -86,7 +91,12 @@ describe('organization 통합 테스트', () => {
 
         it('다른 Church에서 동일 이름 조직 생성 허용', async () => {
             const otherChurch = await database.church.create({
-                data: { name: '다른성당', parishId: seed.parish.id, createdAt: getNowKST() },
+                data: {
+                    name: '다른성당',
+                    normalizedName: '다른성당',
+                    parishId: seed.parish.id,
+                    createdAt: getNowKST(),
+                },
             });
 
             const caller = createAuthenticatedCaller(seed.ids.accountId, seed.account.name);

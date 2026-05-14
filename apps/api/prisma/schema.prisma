@@ -30,15 +30,17 @@ model Parish {
 }
 
 model Church {
-    id        BigInt    @id @default(autoincrement()) @map("_id")
-    name      String    @db.VarChar(50)
-    parishId  BigInt    @map("parish_id")
-    createdAt DateTime  @map("create_at")
-    deletedAt DateTime? @map("delete_at")
+    id             BigInt    @id @default(autoincrement()) @map("_id")
+    name           String    @db.VarChar(50)
+    normalizedName String    @map("normalized_name") @db.VarChar(50)
+    parishId       BigInt    @map("parish_id")
+    createdAt      DateTime  @map("create_at")
+    deletedAt      DateTime? @map("delete_at")
 
     parish        Parish         @relation(fields: [parishId], references: [id])
     organizations Organization[]
 
+    @@unique([parishId, normalizedName])
     @@index([parishId])
     @@map("church")
 }

@@ -105,6 +105,7 @@ describe('OrgDailyReportUseCase', () => {
         const church2 = await database.church.create({
             data: {
                 name: '가재울성당',
+                normalizedName: '가재울성당',
                 parishId: seed.parish.id,
                 createdAt: now,
             },
