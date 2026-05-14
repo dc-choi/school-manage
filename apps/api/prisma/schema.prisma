@@ -39,6 +39,7 @@ model Church {
     parish        Parish         @relation(fields: [parishId], references: [id])
     organizations Organization[]
 
+    @@unique([parishId, name])
     @@index([parishId])
     @@map("church")
 }

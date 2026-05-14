@@ -29,75 +29,79 @@ Parish(교구)
 
 ### Parish (교구)
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt | PK |
-| name | String(50) | 교구 이름 |
-| createdAt / deletedAt | DateTime | 생성일 / 소프트 삭제 |
+| 필드                  | 타입       | 설명                 |
+| --------------------- | ---------- | -------------------- |
+| id                    | BigInt     | PK                   |
+| name                  | String(50) | 교구 이름            |
+| createdAt / deletedAt | DateTime   | 생성일 / 소프트 삭제 |
 
 ### Church (본당)
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt | PK |
-| name | String(50) | 본당 이름 |
-| parishId | BigInt | FK → Parish |
-| createdAt / deletedAt | DateTime | 생성일 / 소프트 삭제 |
+| 필드                  | 타입       | 설명                                                                  |
+| --------------------- | ---------- | --------------------------------------------------------------------- |
+| id                    | BigInt     | PK                                                                    |
+| name                  | String(50) | 본당 이름. 모든 공백을 제거한 값으로 정규화하여 저장 (BUGFIX C-1+C-2) |
+| parishId              | BigInt     | FK → Parish                                                           |
+| createdAt / deletedAt | DateTime   | 생성일 / 소프트 삭제                                                  |
+
+- 제약: `@@unique([parishId, name])` — 교구 내 본당명 중복(공백 변형) 차단.
+- 본당 생성/검색은 `normalizeChurchName`(공백 전부 제거)을 거쳐 `name`에 저장한다. 별도 정규화 컬럼 없이 `name` 자체가 정규화값 — 입력 띄어쓰기는 보존하지 않는다. "반포동 성당" === "반포동성당"으로 간주하되, 글자가 다르면("반포4동성당") 항상 별개. 동시 생성 요청은 DB unique 제약(P2002 → CONFLICT)으로 차단.
+- soft-deleted Church는 이름 슬롯을 점유하지 않는다 — BUGFIX C-3로 기존 soft-deleted Church 서브트리를 물리 삭제 (`migrations/20260514/church_name_unique.sql`).
 
 ### Organization (조직)
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt | PK |
-| name | String(50) | 조직 이름 (예: "중고등부") |
-| type | String(20) | 조직 타입: ELEMENTARY / MIDDLE_HIGH / YOUNG_ADULT. NOT NULL, 기본값 MIDDLE_HIGH (로드맵 2단계) |
-| churchId | BigInt | FK → Church |
-| createdAt / deletedAt | DateTime | 생성일 / 소프트 삭제 |
+| 필드                  | 타입       | 설명                                                                                           |
+| --------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
+| id                    | BigInt     | PK                                                                                             |
+| name                  | String(50) | 조직 이름 (예: "중고등부")                                                                     |
+| type                  | String(20) | 조직 타입: ELEMENTARY / MIDDLE_HIGH / YOUNG_ADULT. NOT NULL, 기본값 MIDDLE_HIGH (로드맵 2단계) |
+| churchId              | BigInt     | FK → Church                                                                                    |
+| createdAt / deletedAt | DateTime   | 생성일 / 소프트 삭제                                                                           |
 
 ### StudentGroup (N:M)
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt | PK |
-| studentId | BigInt | FK → Student |
-| groupId | BigInt | FK → Group |
-| createdAt | DateTime | 소속일 |
+| 필드      | 타입     | 설명         |
+| --------- | -------- | ------------ |
+| id        | BigInt   | PK           |
+| studentId | BigInt   | FK → Student |
+| groupId   | BigInt   | FK → Group   |
+| createdAt | DateTime | 소속일       |
 
 복합 유니크: (studentId, groupId)
 
 ### JoinRequest (합류 요청)
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt | PK |
-| accountId | BigInt | FK → Account (요청자) |
-| organizationId | BigInt | FK → Organization |
-| status | String | "pending" / "approved" / "rejected" |
-| createdAt / updatedAt | DateTime | 요청일 / 상태 변경일 |
+| 필드                  | 타입     | 설명                                |
+| --------------------- | -------- | ----------------------------------- |
+| id                    | BigInt   | PK                                  |
+| accountId             | BigInt   | FK → Account (요청자)               |
+| organizationId        | BigInt   | FK → Organization                   |
+| status                | String   | "pending" / "approved" / "rejected" |
+| createdAt / updatedAt | DateTime | 요청일 / 상태 변경일                |
 
 유니크: (accountId, organizationId, status="pending")
 
 ### AccountSnapshot (계정 스냅샷)
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt | PK |
-| accountId | BigInt | FK → Account |
-| name / displayName | String | 로그인 ID / 표시 이름 |
-| organizationId | BigInt | 소속 조직 |
-| snapshotAt | DateTime | 스냅샷 시점 |
+| 필드               | 타입     | 설명                  |
+| ------------------ | -------- | --------------------- |
+| id                 | BigInt   | PK                    |
+| accountId          | BigInt   | FK → Account          |
+| name / displayName | String   | 로그인 ID / 표시 이름 |
+| organizationId     | BigInt   | 소속 조직             |
+| snapshotAt         | DateTime | 스냅샷 시점           |
 
 ---
 
 ## 변경 엔티티
 
-| 엔티티 | 추가 | 삭제 | 비고 |
-|--------|------|------|------|
-| Account | organizationId (FK → Org), role ("ADMIN"/"TEACHER") | groups 관계 | organizationId null = 미소속 → /join |
-| Group | organizationId (FK → Org) | accountId | students → studentGroups (N:M) |
-| Student | organizationId (FK → Org), studentGroups | groupId, group 관계 | 조직 소속 1개, Group은 N:M 복수 |
-| StudentSnapshot | organizationId | groupId (신규부터) | 기존 groupId 데이터 보존 |
-| Attendance | — | — | groupId 비정규화 유지 |
-| Registration | — | — | Student 경유 organizationId 스코프 |
+| 엔티티          | 추가                                                | 삭제                | 비고                                 |
+| --------------- | --------------------------------------------------- | ------------------- | ------------------------------------ |
+| Account         | organizationId (FK → Org), role ("ADMIN"/"TEACHER") | groups 관계         | organizationId null = 미소속 → /join |
+| Group           | organizationId (FK → Org)                           | accountId           | students → studentGroups (N:M)       |
+| Student         | organizationId (FK → Org), studentGroups            | groupId, group 관계 | 조직 소속 1개, Group은 N:M 복수      |
+| StudentSnapshot | organizationId                                      | groupId (신규부터)  | 기존 groupId 데이터 보존             |
+| Attendance      | —                                                   | —                   | groupId 비정규화 유지                |
+| Registration    | —                                                   | —                   | Student 경유 organizationId 스코프   |
 
 > 컨텍스트 스코프, 사용자 플로우, UI/UX, API, 접근 제어, 예외, 테스트 → `account-model-transition-flows.md` 참조
