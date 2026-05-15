@@ -6,6 +6,7 @@ import { ScrollDownHint } from './ScrollDownHint';
 import { UseCaseCards } from './UseCaseCards';
 import { WhyChooseUsSection } from './WhyChooseUsSection';
 import { Helmet } from '@dr.pogodin/react-helmet';
+import { formatSocialProof } from '@school/shared';
 import { BarChart3, BookOpen, Calendar, ClipboardCheck, Heart, Music, Shield, Sparkles, Users } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
@@ -185,10 +186,7 @@ export function LandingPage() {
                         {countData && countData.churchCount > 0 ? (
                             <div className="flex flex-col items-center gap-2 text-lg font-medium text-balance sm:flex-row sm:gap-3 sm:text-2xl">
                                 <Users className="h-7 w-7 shrink-0 text-primary" aria-hidden="true" />
-                                <span>
-                                    {countData.churchCount}개 본당에서 {countData.accountCount}명의 선생님들이{' '}
-                                    {countData.studentCount.toLocaleString('ko-KR')}명과 함께하고 있어요.
-                                </span>
+                                <span>{formatSocialProof(countData)}</span>
                             </div>
                         ) : null}
                         <h2 className="text-2xl font-bold text-balance sm:text-4xl lg:text-5xl">

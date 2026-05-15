@@ -1,3 +1,4 @@
+import { formatSocialProof } from '@school/shared';
 import { Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Footer } from '~/components/layout/Footer';
@@ -36,10 +37,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                     {countData && countData.churchCount > 0 && (
                         <div className="flex items-center gap-3 text-lg text-muted-foreground xl:text-xl">
                             <Users className="h-6 w-6" />
-                            <span>
-                                {countData.churchCount}개 본당에서 {countData.accountCount}명의 선생님들이{' '}
-                                {countData.studentCount.toLocaleString('ko-KR')}명과 함께하고 있어요.
-                            </span>
+                            <span>{formatSocialProof(countData)}</span>
                         </div>
                     )}
 
