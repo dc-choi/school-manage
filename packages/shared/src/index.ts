@@ -36,6 +36,10 @@ export type {
 // 도메인 인증 상태
 export type { AuthState } from './auth.js';
 
+// 공유 카피 (클라이언트/서버 공통)
+export { formatSocialProof } from './copy.js';
+export type { SocialProofCounts } from './copy.js';
+
 // Zod 스키마 (Input)
 export {
     idSchema,

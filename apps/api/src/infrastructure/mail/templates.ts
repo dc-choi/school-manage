@@ -3,6 +3,7 @@
  *
  * 메일 템플릿 정의
  */
+import { formatSocialProof } from '@school/shared';
 import type { OrgAccountRow, OrgActivityRow, OrgSocialProof } from '~/domains/report/report.types.js';
 
 interface SignupNotificationData {
@@ -57,7 +58,7 @@ export const orgDailyReportTemplate = (
     const formatDate = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : '-');
 
     // 섹션 0: 사회적 증거
-    const socialProofLine = `${socialProof.churchCount}개 본당에서 ${socialProof.accountCount}명의 선생님들이 ${socialProof.studentCount.toLocaleString('ko-KR')}명의 학생과 함께하고 있어요.`;
+    const socialProofLine = formatSocialProof(socialProof);
 
     // 섹션 1: 조직 활성화 현황
     const activityLines = activityRows.map(
