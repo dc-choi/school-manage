@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '~/components/ui/button';
 import { analytics } from '~/lib/analytics';
 
@@ -22,14 +22,14 @@ export function LandingNav() {
             className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70"
         >
             <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 md:px-6">
-                <a href="#hero" className="flex items-center gap-2 font-semibold">
+                <Link to="/" className="flex items-center gap-2 font-semibold">
                     <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
                         <span className="text-sm font-bold" aria-hidden="true">
                             W
                         </span>
                     </span>
                     <span className="text-sm sm:text-base">Weekly-School</span>
-                </a>
+                </Link>
                 <nav aria-label="섹션 이동" className="hidden items-center gap-6 md:flex">
                     {ANCHORS.map((anchor) => (
                         <a
