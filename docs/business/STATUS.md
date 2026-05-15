@@ -29,17 +29,17 @@
 >
 > **랜딩 집계 (마케팅용, 실측 아님)** — `count-accounts.usecase.ts` 기준 누적치: 본당 78 / 선생님 293 / 학생 **3,326** (05-14 첨부 헤더 기준, 05-13 대비 본당·학생 각 -1 = 소프트 삭제 추정). 소프트 삭제·미할당 포함으로 실측과 의도적 분리. 계정 카피만 활성+미소속 합산으로 실측 일치(293). 카피 위치: `AuthLayout.tsx`, `LandingPage.tsx`.
 
-### 사용자 정량 (GA4, 2026-05-07 - 05-13, 7일)
+### 사용자 정량 (GA4 2026-05-07 - 05-13 7일 + Clarity 마찰 05-14)
 
 - **온보딩 단절 ⚠ 2주 연속 재현**: `first_visit` **54(+46.0% vs 전주 37 reset, +1.9% vs 직전 STATUS 53)** → `first_group_created` **0** → `first_student_registered` **1(1.9%)** → `first_attendance_recorded` **0**. **코드 확인 결과 (2026-05-14)**: `trackFirstGroupCreated`/`trackFirstStudentRegistered`는 호출처 존재(`useGroups.ts:24`/`useStudents.ts:104`) = **0/1건은 실제 비즈니스 단절 신호** (휴면률 55%와 일관). 단 `trackFirstAttendanceRecorded`는 정의만 있고 호출처 부재 = **BUGFIX TARGET 1건 등록**
 - **활성/액션**: AU(일별 합산) **192(+22% vs 전주 157)** / 세션 **281(+13% vs 248)** / PV **1,435(−9% vs 1,577)** / eventCount 4,520(+13%) / sign_up 7, login 41, student_created 15, group_created 4, pwa_a2hs_installed 5
-- **🔴 페이지 사용도 (vs 전주)**: `/` PV 400(+24%), **`/attendance` PV 291(+14%) but 평균체류 540s(+189% vs 187s)** = 기존 사용자 사용 깊이 폭증, `/students` PV 206(−29%) AU 46(−36%), `/groups` PV 75(−52%) AU 27(−29%), `/login` PV 99(+1%), `/landing` 63, `/settings` 56, `/statistics` 56(+신규 노출, 전주 0), `/signup` 24, `/students/new` 21, `/donate` 3 — **/attendance 깊이 + /students·/groups 약화 양립**
+- **🔴 페이지 사용도 (vs 전주)**: `/` PV 400(+24%), **`/attendance` PV 291(+14%) but 평균체류 540s(+189% vs 187s)** = 기존 사용자 사용 깊이 폭증 — **긍정(기능 활용)/부정(입력 마찰) 미분기**, Clarity 05-14 마찰 0이나 페이지별 커버리지가 `/landing`, `/`, `/pending` 3개뿐이라 `/attendance` 직접 확인 안 됨 → 다음 회차 조준 필요. `/students` PV 206(−29%) AU 46(−36%), `/groups` PV 75(−52%) AU 27(−29%), `/login` PV 99(+1%), `/landing` 63, `/settings` 56, `/statistics` 56(+신규 노출, 전주 0), `/signup` 24, `/students/new` 21, `/donate` 3 — **/attendance 깊이 + /students·/groups 약화 양립**
 - **이벤트 사용도**: nav_tab 431(+8%), **liturgical_card 412 / patron_feast 349**(106AU, 전례달력 활용 안정), dashboard 348(+2%), scroll 314, pwa_guide_shown 63(53AU, 가이드 노출 → 설치 5/53=9.4% 안정)
 - **채널/유입**: Organic Social ig **57세션(+2%)** + link_in_bio 22AU(인스타 바이오 유입 안정) / Direct 42 / Search(google) 18 / consent+reconsent 142세션(가입 플로우 안정)
 - **분포**: 모바일 76% (iOS 72 + Android 51) / 데스크톱 23% (Win 28 + Mac 9) / 서울 118AU, 부산 17, 고양 9, 천안 8, 대전 8, 청주 6, 수원 6, 대구·파주·창원 각 5 (**본당 분포 안정**)
 - **🔴 휴면 조직률 55% (54/99)**: 메일 활성화 99곳 중 출석 0건 또는 30일+ 무활동 54곳 — `/students·/groups` AU 약화와 양축 일관, **온보딩 단절은 기존 단체 학생/그룹 페이지 사용 감소로도 정량 확인**
 - **요일×시간 피크**: 토 17시 28AU + 주일 10시 13AU + 토 20시 14AU = 주일학교 출석 사이클 안정. 화요일 05-13(수) 변동 없음 → R18 화요일 분산 가설은 05-19 화요일 재현 여부로 확정 진행
-- **커스텀 디멘션 조회 쿼리 정정 필요**: GA4 호출 쿼리에서 `customEvent:campaign`/`customEvent:content` dimension 사용했으나, 코드는 `account_name`/`organization_name`을 `user_properties`로 설정(`analytics.ts:81-85`) = **`customUser:` prefix로 조회해야 정합**. `/biz-pulse` 스킬 호출 8번 dimension 정정 후 재측정 필요 (BUGFIX 아닌 스킬 정정 항목)
+- **Clarity 마찰 (첫 통합 실측, 05-14 커버)**: rage/dead click + excessive scroll + quickback + script error **전 항목 0건** / **Mobile 평균 스크롤 깊이 93%** (콘텐츠 도달률 양호) / rage click 세션 0건. 단 Clarity Data Export가 당일(05-15)과 3일전(05-13) 데이터를 반환하지 않음 → **실질 커버리지 05-14 하루치**, 마찰 베이스라인은 트래픽 누적 후 다음 회차부터 추세로 판단. GA4 커스텀 디멘션 prefix 정정 건은 오픈 이슈 표 참조
 
 ### 전환율 분석 (단체 기준)
 
@@ -50,7 +50,7 @@
 | 학생 → 출석 기록 | 63 → 54 | 85.7%       | 54.5%       |
 | 출석 → MAO       | 54 → 42 | 77.8%       | 42.4%       |
 
-> 05-12→05-13 **MAO 43→42(-1)**. 출석 +72 = 05-12 21시-05-13 21시 활성 단체 변동. **불광동벤야민 04-13 마지막 후 30일 도달 + 05-13 첨부 변동 없음 → MAO 탈락 확정** (R18 영구 분기 3건째 후보, 운영자 1명 + 5월 시험기간 가능성 잔존). **R18 분기 3:9 일시 우세 유지** — 다음 분기점: **풍납동 05-15 D-2 / 화곡본동 05-16 D-3**. **GA4 `first_*` 퍼널 단절 2주 재현** — `first_visit` 54 / `first_student_registered` 1(1.9%) / `first_group_created` 0 / `first_attendance_*` 0 = 트래킹 코드 누락 의심, BUGFIX TARGET 후보. 상세 누적: `HISTORY.md` 참조.
+> 05-12→05-13 **MAO 43→42(-1)**. 출석 +72 = 05-12 21시-05-13 21시 활성 단체 변동. **불광동벤야민 04-13 마지막 후 30일 도달 + 05-13 첨부 변동 없음 → MAO 탈락 확정** (R18 영구 분기 3건째 후보, 운영자 1명 + 5월 시험기간 가능성 잔존). **R18 분기 3:9 일시 우세 유지** — 다음 분기점: **풍납동 05-15 D-2 / 화곡본동 05-16 D-3**. **GA4 `first_*` 퍼널 단절 2주 재현** — 수치/원인은 사용자 정량 섹션 참조, BUGFIX TARGET T-1 등록 완료(line 185). 상세 누적: `HISTORY.md` 참조.
 
 ## 파일럿 현황
 
