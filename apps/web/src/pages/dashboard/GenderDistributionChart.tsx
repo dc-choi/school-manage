@@ -24,7 +24,7 @@ function GenderContent({
 }) {
     if (isLoading) {
         return (
-            <div className="flex h-[200px] items-center justify-center">
+            <div className="flex h-[110px] items-center justify-center">
                 <LoadingSpinner />
             </div>
         );
@@ -33,14 +33,14 @@ function GenderContent({
     if (chartData.length > 0) {
         return (
             <div className="flex flex-col items-center">
-                <ResponsiveContainer width="100%" height={180}>
+                <ResponsiveContainer width="100%" height={110}>
                     <PieChart>
                         <Pie
                             data={chartData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={40}
-                            outerRadius={70}
+                            innerRadius={22}
+                            outerRadius={42}
                             paddingAngle={2}
                             dataKey="value"
                         >
@@ -81,11 +81,11 @@ export function GenderDistributionChart({ data, isLoading, error }: GenderDistri
     const totalStudents = data ? data.male.count + data.female.count + data.unknown.count : 0;
 
     return (
-        <Card>
-            <CardHeader>
+        <Card className="min-h-0">
+            <CardHeader className="p-4 pb-2">
                 <CardTitle className="text-base">성별 분포</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0">
                 <GenderContent
                     chartData={chartData}
                     totalStudents={totalStudents}

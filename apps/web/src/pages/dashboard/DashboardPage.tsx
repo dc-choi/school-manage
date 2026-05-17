@@ -7,18 +7,23 @@ import { PatronFeastCard } from './PatronFeastCard';
 import { TopRankingCard } from './TopRankingCard';
 import { JOIN_REQUEST_STATUS, ROLE, getOrganizationLabels } from '@school/shared';
 import { getNthSundayOf, getWeeksInMonth } from '@school/utils';
-import { Check } from 'lucide-react';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { CalendarIcon, Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { MainLayout } from '~/components/layout';
 import { Button } from '~/components/ui/button';
+import { Calendar } from '~/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Label } from '~/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useAuth } from '~/features/auth';
 import { useDashboardStatistics } from '~/features/statistics';
 import { useOnboardingStatus } from '~/hooks/useOnboardingStatus';
 import { analytics } from '~/lib/analytics';
+import { cn } from '~/lib/utils';
 
 const buildOnboardingSteps = (group: string, member: string) => [
     {
@@ -141,14 +146,23 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
     const [selectedYear, setSelectedYear] = useState(currentYear);
-    const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
-    const [selectedWeek, setSelectedWeek] = useState<number | undefined>(undefined);
+    const [selectedMonth, setSelectedMonth] = useState<number | undefined>(currentMonth);
+    const [selectedWeek, setSelectedWeek] = useState<number | undefined>(() => {
+        const weeks = getWeeksInMonth(currentYear, currentMonth);
+        for (let w = weeks; w >= 1; w--) {
+            if (getNthSundayOf(currentYear, currentMonth, w) <= now) return w;
+        }
+        return undefined;
+    });
+    const [selectedDay, setSelectedDay] = useState<string | undefined>(() => format(now, 'yyyy-MM-dd'));
 
     const stats = useDashboardStatistics({
         year: selectedYear,
         month: selectedMonth,
         week: selectedWeek,
+        day: selectedDay,
     });
+    const effectiveDay = stats.groupStatistics?.effectiveDay ?? null;
     const hasError = !!stats.error;
 
     // GA4 이벤트: 대시보드 진입
@@ -198,7 +212,7 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
 
     return (
         <MainLayout title={`안녕하세요, ${account?.displayName}님!`}>
-            <div className="flex flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
+            <div className="flex flex-col gap-3">
                 {/* 합류 요청 관리 (admin만) */}
                 {role === ROLE.ADMIN ? <JoinRequestsSection /> : null}
 
@@ -206,7 +220,7 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
                 {showContextBanner ? <ContextBanner /> : null}
 
                 {/* 필터 + 전례 시기 카드 — 필터는 모바일 숨김(통계 페이지에 노출), 전례/축일자는 모바일에도 표시 */}
-                <div className="flex flex-col gap-3 md:flex-row md:items-start">
+                <div className="flex flex-col gap-3">
                     <div className="hidden flex-wrap items-center gap-2 md:flex">
                         <Label className="text-xs text-muted-foreground">연도</Label>
                         <Select
@@ -215,9 +229,10 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
                                 setSelectedYear(Number(v));
                                 setSelectedMonth(undefined);
                                 setSelectedWeek(undefined);
+                                setSelectedDay(undefined);
                             }}
                         >
-                            <SelectTrigger className="h-9 w-20">
+                            <SelectTrigger className="h-9 w-28">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -234,9 +249,10 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
                             onValueChange={(v) => {
                                 setSelectedMonth(v ? Number(v) : undefined);
                                 setSelectedWeek(undefined);
+                                setSelectedDay(undefined);
                             }}
                         >
-                            <SelectTrigger className="h-9 w-20">
+                            <SelectTrigger className="h-9 w-28">
                                 <SelectValue placeholder="전체" />
                             </SelectTrigger>
                             <SelectContent>
@@ -250,10 +266,13 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
                         <Label className="text-xs text-muted-foreground">주차</Label>
                         <Select
                             value={selectedWeek?.toString() ?? ''}
-                            onValueChange={(v) => setSelectedWeek(v && v !== 'all' ? Number(v) : undefined)}
+                            onValueChange={(v) => {
+                                setSelectedWeek(v && v !== 'all' ? Number(v) : undefined);
+                                setSelectedDay(undefined);
+                            }}
                             disabled={!selectedMonth}
                         >
-                            <SelectTrigger className="h-9 w-20">
+                            <SelectTrigger className="h-9 w-28">
                                 <SelectValue placeholder="전체" />
                             </SelectTrigger>
                             <SelectContent>
@@ -264,13 +283,51 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
                                 ))}
                             </SelectContent>
                         </Select>
+                        <Label className="text-xs text-muted-foreground">날짜</Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className={cn(
+                                        'h-9 w-[9.5rem] justify-start gap-2 px-2 text-left text-sm font-normal tabular-nums',
+                                        !(selectedDay ?? effectiveDay) && 'text-muted-foreground'
+                                    )}
+                                >
+                                    <CalendarIcon className="size-4 shrink-0" aria-hidden="true" />
+                                    <span className="truncate">
+                                        {(selectedDay ?? effectiveDay)
+                                            ? format(new Date(selectedDay ?? effectiveDay ?? ''), 'yyyy-MM-dd', {
+                                                  locale: ko,
+                                              })
+                                            : '날짜 선택'}
+                                    </span>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={
+                                        (selectedDay ?? effectiveDay)
+                                            ? new Date(selectedDay ?? effectiveDay ?? '')
+                                            : undefined
+                                    }
+                                    onSelect={(selected) =>
+                                        setSelectedDay(selected ? format(selected, 'yyyy-MM-dd') : undefined)
+                                    }
+                                    captionLayout="dropdown"
+                                />
+                            </PopoverContent>
+                        </Popover>
                     </div>
 
-                    <div className="md:flex-1">
-                        <LiturgicalSeasonCard />
-                    </div>
-                    <div className="md:flex-1">
-                        <PatronFeastCard />
+                    <div className="flex flex-col gap-3 md:flex-row md:items-start">
+                        <div className="md:flex-1">
+                            <LiturgicalSeasonCard />
+                        </div>
+                        <div className="md:flex-1">
+                            <PatronFeastCard />
+                        </div>
                     </div>
                 </div>
 
@@ -279,7 +336,7 @@ function DashboardContent({ showContextBanner = false }: { showContextBanner?: b
                     data={stats.groupStatistics}
                     isLoading={stats.isLoading}
                     error={hasError}
-                    className="hidden min-h-0 flex-1 md:flex"
+                    className="hidden h-[420px] md:flex"
                 />
 
                 {/* 성별 분포 & 우수 출석 학생 — 모바일 숨김 */}
@@ -307,13 +364,13 @@ function GuestDashboardContent() {
 
     return (
         <MainLayout title="주일학교 출석부">
-            <div className="flex flex-col gap-3 md:h-[calc(100vh-7.5rem)]">
+            <div className="flex flex-col gap-3">
                 {/* 필터 (disabled) + 전례 시기 카드 — 필터/통계 카드는 모바일 숨김 */}
                 <div className="flex flex-col gap-3 md:flex-row md:items-start">
                     <div className="hidden flex-wrap items-center gap-2 md:flex">
                         <Label className="text-xs text-muted-foreground">연도</Label>
                         <Select value={currentYear.toString()} disabled>
-                            <SelectTrigger className="h-9 w-20">
+                            <SelectTrigger className="h-9 w-28">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -322,7 +379,7 @@ function GuestDashboardContent() {
                         </Select>
                         <Label className="text-xs text-muted-foreground">월</Label>
                         <Select value="" disabled>
-                            <SelectTrigger className="h-9 w-20">
+                            <SelectTrigger className="h-9 w-28">
                                 <SelectValue placeholder="전체" />
                             </SelectTrigger>
                             <SelectContent>
@@ -331,7 +388,7 @@ function GuestDashboardContent() {
                         </Select>
                         <Label className="text-xs text-muted-foreground">주차</Label>
                         <Select value="" disabled>
-                            <SelectTrigger className="h-9 w-20">
+                            <SelectTrigger className="h-9 w-28">
                                 <SelectValue placeholder="전체" />
                             </SelectTrigger>
                             <SelectContent>
@@ -352,11 +409,11 @@ function GuestDashboardContent() {
                 </div>
 
                 {/* 학년별 통계 — 모바일 숨김 */}
-                <Card className="hidden min-h-0 flex-1 md:block">
-                    <CardHeader>
+                <Card className="hidden h-[420px] md:block">
+                    <CardHeader className="p-4 pb-2">
                         <CardTitle className="text-base">학년별 통계</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-4 pt-0">
                         <p className="text-sm text-muted-foreground">로그인이 필요합니다</p>
                     </CardContent>
                 </Card>
@@ -364,18 +421,18 @@ function GuestDashboardContent() {
                 {/* 성별 분포 & 우수 출석 학생 — 모바일 숨김 */}
                 <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-2">
                     <Card>
-                        <CardHeader>
+                        <CardHeader className="p-4 pb-2">
                             <CardTitle className="text-base">성별 분포</CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="p-4 pt-0">
                             <p className="text-sm text-muted-foreground">로그인이 필요합니다</p>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader>
+                        <CardHeader className="p-4 pb-2">
                             <CardTitle className="text-base">전체 우수 출석 학생 TOP 5</CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="p-4 pt-0">
                             <p className="text-sm text-muted-foreground">로그인이 필요합니다</p>
                         </CardContent>
                     </Card>
