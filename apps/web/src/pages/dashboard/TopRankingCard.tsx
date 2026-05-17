@@ -19,7 +19,7 @@ interface TopRankingCardProps {
 function RankingContent({ items, isLoading, error }: Omit<TopRankingCardProps, 'title'>) {
     if (isLoading) {
         return (
-            <div className="flex h-[150px] items-center justify-center">
+            <div className="flex h-[110px] items-center justify-center">
                 <LoadingSpinner />
             </div>
         );
@@ -27,14 +27,14 @@ function RankingContent({ items, isLoading, error }: Omit<TopRankingCardProps, '
     if (error) return <p className="text-sm text-destructive">데이터 로드 실패</p>;
     if (items.length > 0) {
         return (
-            <div className="space-y-2">
+            <div className="space-y-1 text-sm">
                 {items.map((item, index) => (
                     <div key={item.id} className="flex items-center justify-between">
                         <span className="truncate">
                             <span className="mr-2 font-medium text-muted-foreground">{index + 1}.</span>
                             {item.name}
                             {item.subText && (
-                                <span className="ml-1 text-sm text-muted-foreground">({item.subText})</span>
+                                <span className="ml-1 text-xs text-muted-foreground">({item.subText})</span>
                             )}
                         </span>
                         <span className="ml-2 whitespace-nowrap font-medium">
@@ -51,11 +51,11 @@ function RankingContent({ items, isLoading, error }: Omit<TopRankingCardProps, '
 
 export function TopRankingCard({ title, items, isLoading, error }: TopRankingCardProps) {
     return (
-        <Card>
-            <CardHeader>
+        <Card className="min-h-0">
+            <CardHeader className="p-4 pb-2">
                 <CardTitle className="text-base">{title}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0">
                 <RankingContent items={items} isLoading={isLoading} error={error} />
             </CardContent>
         </Card>

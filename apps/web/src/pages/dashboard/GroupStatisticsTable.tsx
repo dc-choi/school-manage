@@ -51,12 +51,12 @@ function TotalRow({ groups }: { groups: GroupStatisticsItem[] }) {
 
     return (
         <TableRow className="border-t-2 font-bold">
-            <TableCell className="px-2 py-2 md:px-5 md:py-4">총계</TableCell>
+            <TableCell className="px-2 py-2 md:px-4 md:py-2">총계</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{totalStudents}명</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{totalRegistered}명</TableCell>
-            <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">{dailyTotal}명</TableCell>
-            <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">{weeklyAvg}명</TableCell>
-            <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">{monthlyAvg}명</TableCell>
+            <TableCell className="px-2 py-2 text-center tabular-nums md:px-4 md:py-2">{dailyTotal}명</TableCell>
+            <TableCell className="px-2 py-2 text-center tabular-nums md:px-4 md:py-2">{weeklyAvg}명</TableCell>
+            <TableCell className="px-2 py-2 text-center tabular-nums md:px-4 md:py-2">{monthlyAvg}명</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{yearlyAvg}명</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{dailyRate}%</TableCell>
             <TableCell className="hidden text-center tabular-nums md:table-cell">{weeklyRate}%</TableCell>
@@ -89,16 +89,16 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
             <Table className="text-sm md:min-w-[600px] md:text-base">
                 <TableHeader className="sticky top-0 z-20 bg-muted/80 backdrop-blur-sm">
                     <TableRow>
-                        <TableHead className="h-10 whitespace-nowrap px-2 md:h-14 md:px-5">{labels.group}명</TableHead>
+                        <TableHead className="h-10 whitespace-nowrap px-2 md:h-11 md:px-4">{labels.group}명</TableHead>
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">총 인원</TableHead>
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">등록 인원</TableHead>
-                        <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
+                        <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-11 md:px-4">
                             일간<span className="hidden md:inline"> 출석</span>
                         </TableHead>
-                        <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
+                        <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-11 md:px-4">
                             주간 평균<span className="hidden md:inline"> 출석</span>
                         </TableHead>
-                        <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-14 md:px-5">
+                        <TableHead className="h-10 whitespace-nowrap px-2 text-center md:h-11 md:px-4">
                             월간 평균<span className="hidden md:inline"> 출석</span>
                         </TableHead>
                         <TableHead className="hidden whitespace-nowrap text-center md:table-cell">
@@ -121,7 +121,7 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                 <TableBody>
                     {data.groups.map((group) => (
                         <TableRow key={group.groupId}>
-                            <TableCell className="px-2 py-2 font-medium md:px-5 md:py-4">
+                            <TableCell className="px-2 py-2 font-medium md:px-4 md:py-2">
                                 {group.groupName}
                                 <Badge
                                     variant={group.groupType === GROUP_TYPE.GRADE ? 'default' : 'secondary'}
@@ -136,13 +136,13 @@ function GroupStatisticsContent({ data, isLoading, error }: GroupStatisticsTable
                             <TableCell className="hidden text-center tabular-nums md:table-cell">
                                 {group.registeredStudents}명
                             </TableCell>
-                            <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">
+                            <TableCell className="px-2 py-2 text-center tabular-nums md:px-4 md:py-2">
                                 {group.daily.attendanceCount}명
                             </TableCell>
-                            <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">
+                            <TableCell className="px-2 py-2 text-center tabular-nums md:px-4 md:py-2">
                                 {group.weekly.avgAttendance}명
                             </TableCell>
-                            <TableCell className="px-2 py-2 text-center tabular-nums md:px-5 md:py-4">
+                            <TableCell className="px-2 py-2 text-center tabular-nums md:px-4 md:py-2">
                                 {group.monthly.avgAttendance}명
                             </TableCell>
                             <TableCell className="hidden text-center tabular-nums md:table-cell">
@@ -175,10 +175,10 @@ export function GroupStatisticsTable({ data, isLoading, error, className }: Grou
     const labels = useMemo(() => getOrganizationLabels(organizationType), [organizationType]);
     return (
         <Card className={`flex flex-col ${className ?? ''}`}>
-            <CardHeader className="pb-2">
+            <CardHeader className="p-4 pb-2">
                 <CardTitle className="text-base">{labels.group}별 통계</CardTitle>
             </CardHeader>
-            <CardContent className="min-h-0 flex-1 overflow-auto">
+            <CardContent className="min-h-0 flex-1 overflow-auto p-4 pt-0">
                 <GroupStatisticsContent data={data} isLoading={isLoading} error={error} />
             </CardContent>
         </Card>
