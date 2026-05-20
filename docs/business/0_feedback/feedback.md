@@ -16,6 +16,7 @@
 | 2026-03-13 | 수색성당 박지안          | 계정 모델 이슈 실증                                    | [entries/2026-03-13-susaek.md](./entries/2026-03-13-susaek.md)                           |
 | 2026-03-11 | 흑석동                   | 추가 필드 니즈, 학생 참여형 출석                       | [entries/2026-03-11-heukseok.md](./entries/2026-03-11-heukseok.md)                       |
 | 2026-02-28 | 구글폼 이벤트            | 자동 로그인, 전체 그룹 학생 확인                       | [entries/2026-02-28-googleform.md](./entries/2026-02-28-googleform.md)                   |
+| 2026-02-18 | 고덕동 운영자            | 단발 능동 DM 후 의례적 거절 + 침묵 (D유형 DM 반증)     | [entries/2026-02-18-godeokdong.md](./entries/2026-02-18-godeokdong.md)                   |
 | 2026-01-25 | 성북동 미카엘라 (1차)    | BM 방향 제안, 확장 방향                                | [entries/2026-01-25-sungbuk-mikaela-1.md](./entries/2026-01-25-sungbuk-mikaela-1.md)     |
 
 ## 카테고리별 항목 (요약)
