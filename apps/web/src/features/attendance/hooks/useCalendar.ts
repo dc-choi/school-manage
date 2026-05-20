@@ -1,4 +1,5 @@
 import type { AttendanceData } from '@school/shared';
+import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
 /**
@@ -16,7 +17,12 @@ export function useCalendar(groupId: string, year: number, month: number) {
 
     // 출석 업데이트 뮤테이션 (기존 API 활용)
     const updateMutation = trpc.attendance.update.useMutation({
-        onSuccess: async () => {
+        onSuccess: async (data) => {
+            // GA4 이벤트: 첫 출석 기록 (가입 후 첫 출석 입력 시점, T-1)
+            if (data.isFirstAttendance && data.daysSinceSignup !== undefined) {
+                analytics.trackFirstAttendanceRecorded(data.daysSinceSignup);
+            }
+
             // 달력 데이터 캐시 무효화 후 refetch
             await utils.attendance.calendar.invalidate({ groupId, year, month });
         },
