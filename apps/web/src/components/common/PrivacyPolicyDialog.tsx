@@ -35,7 +35,14 @@ export const PrivacyPolicyContent = () => (
         </div>
         <div>
             <p className="font-medium text-foreground">5. 개인정보 위탁 및 제3자 제공</p>
-            <p>없음</p>
+            <p>안정적인 서비스 제공을 위해 아래 업체에 개인정보 처리를 위탁합니다.</p>
+            <ul className="mt-1 list-disc space-y-0.5 pl-5">
+                <li>클라우드 인프라 운영: Amazon Web Services, Inc.</li>
+                <li>서비스 이용 통계 분석: Google LLC (Google Analytics)</li>
+                <li>서비스 이용 행태 분석: Microsoft Corporation (Microsoft Clarity)</li>
+                <li>사용자 피드백 수집 및 관리: Lenit (lenit.cloud)</li>
+            </ul>
+            <p className="mt-1">제3자 제공은 법령에 근거가 있는 경우에 한합니다.</p>
         </div>
         <div>
             <p className="font-medium text-foreground">6. 이용자 권리</p>
