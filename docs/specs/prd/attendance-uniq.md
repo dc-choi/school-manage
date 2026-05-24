@@ -71,7 +71,7 @@
 
 ### 선택 (Should)
 
-- [ ] 마이그레이션 적용 결과(중복 cleanup 건수)를 `docs/business/HISTORY.md`에 기록
+- [ ] 마이그레이션 적용 결과(중복 cleanup 건수)를 커밋 메시지에 기록
 - [ ] `update-attendance.usecase.ts:150` 주석 업데이트 (groupId 보존 정책 + race-safe 패턴 설명)
 
 ### 제외 (Out)

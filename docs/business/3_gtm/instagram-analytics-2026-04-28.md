@@ -175,4 +175,4 @@
 - `3_gtm/instagram.md` — 운영 정책 (5/19 동결 모드 진입)
 - `3_gtm/gtm.md` — 채널 전략
 - `STATUS.md` — 인스타 동결 모드 (5/19~9/1) + 9/1 4트리거 점검
-- `HISTORY.md` — 05-19 갱신 (진단 종결 + T-1 분기 결정)
+- 05-19 진단 종결 + T-1 분기 결정 이력: `git log docs/business/`

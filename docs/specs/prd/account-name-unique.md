@@ -71,7 +71,7 @@
 
 ### 선택 (Should)
 
-- [ ] 마이그레이션 적용 결과를 `docs/business/HISTORY.md`에 기록
+- [ ] 마이그레이션 적용 결과를 커밋 메시지에 기록
 - [ ] 운영 DB collation이 `utf8mb4_0900_ai_ci`(대소문자 무시)임을 명시적으로 확인
 
 ### 제외 (Out)

@@ -24,9 +24,7 @@
 - `docs/business/5_metrics/metrics.md` 핵심 지표
 - `docs/business/6_roadmap/roadmap.md` 단계별 확장 로드맵
 - `docs/business/7_pricing/pricing.md` 가격 가설/플랜
-- `docs/business/STATUS.md` 진행 현황
-- `docs/business/HISTORY.md` 과거 분석/완료 항목 아카이브
-- `docs/business/HISTORY_WAU.md` WAU 시기(-04-08) 전환율 추이 및 초기 이력
+- `docs/business/STATUS.md` 진행 현황 (현재 상태만 — 변화 이력은 `git log docs/business/`)
 
 ## 문제 배경
 
