@@ -6,7 +6,7 @@
 ## 배경/문제 요약
 
 - 참고:
-    - `docs/business/HISTORY.md` (05-08 갱신) — 장현도 정성 시그널 + 가이드 ROI 분석 + R24 보조 가설
+    - 05-08 장현도 정성 시그널 + 가이드 ROI 분석 + R24 보조 가설 (이력: `git log docs/business/`)
     - `docs/business/STATUS.md` 오픈 이슈 "PWA 지원 + 모바일 진입 가이드"
     - `docs/business/6_roadmap/roadmap.md` 2단계 잔여
     - `docs/business/4_risk/risks.md` R24 ① 정지 패턴 (광교2동·영종·신암·풍납동)
@@ -151,5 +151,5 @@
 
 ## 연결 문서
 
-- 사업 문서: `docs/business/HISTORY.md` (05-08), `docs/business/STATUS.md`, `docs/business/6_roadmap/roadmap.md`, `docs/business/4_risk/risks.md`
+- 사업 문서: `docs/business/STATUS.md`, `docs/business/6_roadmap/roadmap.md`, `docs/business/4_risk/risks.md` (05-08 갱신 이력은 `git log docs/business/`)
 - 기능 설계: `docs/specs/functional-design/pwa-mobile-guide.md` (다음 단계)

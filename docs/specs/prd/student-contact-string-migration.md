@@ -106,7 +106,7 @@
 
 ### 선택 (Should)
 
-- [ ] 마이그레이션 결과(패딩 적용 row 수, 이상치 샘플)를 `docs/business/HISTORY.md`에 기록
+- [ ] 마이그레이션 결과(패딩 적용 row 수, 이상치 샘플)를 커밋 메시지에 기록
 - [ ] Excel Import 클라이언트 정규화(`excel-import.ts:152-157`의 `padStart(11, '0')`) 재검토 — 사용자 원본 입력 보존 vs 자동 패딩 트레이드오프
 - [ ] `formatContact` JSDoc 갱신 — "원본 입력 보존 가정" 명시
 

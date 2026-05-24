@@ -45,7 +45,6 @@ description: 사업 에이전트 워크플로우 실행. /biz [status|market|bm|
 | 로드맵    | `docs/business/6_roadmap/roadmap.md` | ✗ (일정 중심)             |
 | 가격      | `docs/business/7_pricing/pricing.md` | ✓                         |
 | 진행 현황 | `docs/business/STATUS.md`            | -                         |
-| 이력      | `docs/business/HISTORY.md`           | -                         |
 | 피드백    | `docs/business/0_feedback/`          | - (`/feedback` 스킬 참조) |
 
 ## 워크플로우
@@ -53,8 +52,8 @@ description: 사업 에이전트 워크플로우 실행. /biz [status|market|bm|
 ### /biz status — 현황 파악
 
 1. `STATUS.md` 읽기 (현재 목표, MAO, 파일럿 현황, 오픈 이슈)
-2. **STATUS 누적 침식 점검** (필수) — `### 주요 변화 (X 갱신)` 섹션이 2개 이상 있거나 메타 라인에 갱신 요약이 2건 이상 누적되어 있으면 **WARN 보고 + HISTORY로 이동 권장**. 절차: `business.md` STATUS/HISTORY 갱신 절차 Step 1~4 적용
-3. `HISTORY.md` 최근 변화 스캔 (맥락)
+2. **STATUS 누적 침식 점검** (필수) — `### 주요 변화 (X 갱신)` 섹션이 1개 이상 있거나 메타 라인에 갱신 요약이 2건 이상 누적돼 있으면 **WARN 보고 + 제거 권장** (변화 서사는 커밋 메시지로). 절차: `business.md` STATUS 갱신 + 변화 서사 절차 Step 1~4 적용
+3. 최근 변화 맥락이 필요하면 `git log --oneline -20 docs/business/` 또는 `git show <sha>:docs/business/STATUS.md`
 4. 7개 사업 문서 상태 점검 (최근 수정일, 미완성 항목)
 5. 우선 조치 항목 제안 — 충돌 감지 시 `/biz audit` 권장
 
@@ -146,18 +145,18 @@ description: 사업 에이전트 워크플로우 실행. /biz [status|market|bm|
 
 ## 작성 규칙
 
-`business.md`의 9원칙 그대로 준수. 특히 8번(문서 간 용어/가정/수치 충돌 점검)·9번(STATUS/HISTORY 분리)은 `/biz audit`로 자동화.
+`business.md`의 9원칙 그대로 준수. 특히 8번(문서 간 용어/가정/수치 충돌 점검) / 9번(STATUS = 현재 상태만)은 `/biz audit`로 자동화.
 
 ## STATUS 갱신 절차 (필수)
 
-STATUS.md를 직접 갱신하기 전 **반드시** `business.md`의 STATUS/HISTORY 갱신 절차 Step 1~4를 따른다.
+STATUS.md를 갱신할 때 **반드시** `business.md`의 STATUS 갱신 + 변화 서사 절차 Step 1~4를 따른다.
 
-**Step 1**: 기존 `### 주요 변화 (X 갱신)` 섹션 → HISTORY 상단(`# 이력 (아카이브)` 다음)으로 이동, `###` → `##`
-**Step 2**: STATUS 메타 라인은 1건만 남기고 `이전 갱신 이력: HISTORY.md 참조` 추가
-**Step 3**: 새 변화는 STATUS가 아닌 **HISTORY 상단**에 `## 주요 변화 (오늘 갱신)`로 직접 추가
-**Step 4**: STATUS에서 `### 주요 변화` 패턴 0건 + 메타 1줄 확인
+**Step 1**: STATUS 본문(실측 표/파일럿/이탈/오픈 이슈)을 최신 값으로 덮어쓰기. `### 주요 변화 (X 갱신)` 섹션을 만들지 않음
+**Step 2**: 메타 `최종 업데이트:` 라인은 그날 요약 1건만 (갱신 이력 누적 금지)
+**Step 3**: 변화의 "무엇이 왜"는 **커밋 메시지 본문에 충실히 서술** (변화 신호/수치/근거 빠짐없이, `docs: update` 금지)
+**Step 4**: STATUS에서 `### 주요 변화` 패턴 0건 + 메타 1줄 확인. 과거 상태는 `git show <sha>:docs/business/STATUS.md`로 복원
 
-**금지**: STATUS에 `### 주요 변화 (X 갱신)` 섹션을 새로 추가하는 것 — 이력은 처음부터 HISTORY로 가야 한다.
+**금지**: STATUS에 `### 주요 변화 (X 갱신)` 섹션을 추가하는 것 — 변화 서사는 커밋 메시지로 간다.
 
 ## 관련 스킬
 
