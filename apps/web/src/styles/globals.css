@@ -179,3 +179,15 @@
         transform: translateY(0);
     }
 }
+
+/*
+ * Lenit 피드백 위젯 런처 버튼(#vb-widget-root) 위치 보정.
+ * 위젯은 bottom:24px(inline, non-important)로 고정되는데, 모바일에서 BottomTabBar
+ * (md:hidden, 높이 --bottom-tab-bar-height)와 겹친다. md(768px) 미만에서만 탭바 위로 올린다.
+ * 패널(#vb-panel)은 열릴 때 bottom:0 풀시트라 영향 없음.
+ */
+@media (max-width: 767px) {
+    #vb-widget-root {
+        bottom: calc(var(--bottom-tab-bar-height) + env(safe-area-inset-bottom) + 1rem) !important;
+    }
+}

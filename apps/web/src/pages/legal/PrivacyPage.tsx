@@ -83,6 +83,7 @@ export function PrivacyPage() {
                     <li>클라우드 인프라 운영: Amazon Web Services, Inc.</li>
                     <li>서비스 이용 통계 분석: Google LLC (Google Analytics)</li>
                     <li>서비스 이용 행태 분석: Microsoft Corporation (Microsoft Clarity)</li>
+                    <li>사용자 피드백 수집 및 관리: Lenit (lenit.cloud)</li>
                 </ul>
             </section>
 

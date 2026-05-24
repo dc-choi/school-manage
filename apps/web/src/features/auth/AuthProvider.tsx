@@ -1,6 +1,7 @@
 import type { AccountInfo, JoinRequestStatus } from '@school/shared';
 import { type ReactNode, createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { analytics } from '~/lib/analytics';
+import { loadLenit } from '~/lib/lenit';
 import { queryClient } from '~/lib/queryClient';
 import { trpc } from '~/lib/trpc';
 
@@ -107,6 +108,15 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
 
                 // GA4 사용자 속성 설정
                 analytics.setUserProperties(accountData.displayName, accountData.organizationName ?? null);
+
+                // Lenit 피드백 위젯 로드 (인증 사용자에게만, 멱등)
+                // traits는 세그먼트 분석용 비식별 범주값만 — 식별 가능한 이름/조직명은 제외
+                loadLenit(accountData.id, {
+                    signupDays: accountData.signupDays,
+                    hasOrganization: !!accountData.organizationId,
+                    ...(accountData.role ? { role: accountData.role } : {}),
+                    ...(accountData.organizationType ? { organizationType: accountData.organizationType } : {}),
+                });
             } else {
                 clearAuthState();
                 setAccount(null);

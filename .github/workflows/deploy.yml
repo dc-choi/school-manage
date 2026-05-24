@@ -116,6 +116,7 @@ jobs:
         env:
           VITE_GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
           VITE_CLARITY_PROJECT_ID: ${{ secrets.CLARITY_PROJECT_ID }}
+          VITE_LENIT_BOARD_KEY: ${{ secrets.LENIT_BOARD_KEY }}
         run: pnpm turbo build --filter=@school/web
 
       # SCP는 tar 압축해제 시 기존 디렉토리에 utime/chmod를 시도하므로,
