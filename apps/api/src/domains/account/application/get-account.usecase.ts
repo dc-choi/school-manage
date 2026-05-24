@@ -4,8 +4,11 @@
  * 인증된 사용자의 계정 정보 반환 (DB 조회)
  */
 import type { AccountInfo, GetAccountOutput, JoinRequestStatus, Role } from '@school/shared';
+import { getNowKST } from '@school/utils';
 import { TRPCError } from '@trpc/server';
 import { database } from '~/infrastructure/database/database.js';
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 export class GetAccountUseCase {
     async execute(account: AccountInfo): Promise<GetAccountOutput> {
@@ -15,6 +18,7 @@ export class GetAccountUseCase {
                 id: true,
                 name: true,
                 displayName: true,
+                createdAt: true,
                 privacyAgreedAt: true,
                 privacyPolicyVersion: true,
                 organizationId: true,
@@ -29,12 +33,16 @@ export class GetAccountUseCase {
             });
         }
 
-        const { id, name, displayName, privacyAgreedAt, privacyPolicyVersion, organizationId, role } = found;
+        const { id, name, displayName, createdAt, privacyAgreedAt, privacyPolicyVersion, organizationId, role } = found;
+
+        // 가입 후 경과일: DB/서버 모두 KST 기준이므로 getNowKST() - createdAt 델타로 정합하게 계산
+        const signupDays = Math.max(0, Math.floor((getNowKST().getTime() - createdAt.getTime()) / MS_PER_DAY));
 
         const result: GetAccountOutput = {
             id: String(id),
             name,
             displayName,
+            signupDays,
             privacyAgreedAt,
             privacyPolicyVersion,
         };

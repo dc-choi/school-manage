@@ -29,6 +29,15 @@ describe('account 통합 테스트', () => {
             expect(result.name).toBe(seed.account.name);
         });
 
+        it('응답에 signupDays(가입 경과일, 0 이상 정수) 포함', async () => {
+            const caller = createAuthenticatedCaller(seed.ids.accountId, seed.account.name);
+            const result = await caller.account.get();
+
+            expect(typeof result.signupDays).toBe('number');
+            expect(result.signupDays).toBeGreaterThanOrEqual(0);
+            expect(Number.isInteger(result.signupDays)).toBe(true);
+        });
+
         it('응답에 privacyPolicyVersion 포함 (현재 버전)', async () => {
             const caller = createAuthenticatedCaller(seed.ids.accountId, seed.account.name);
             const result = await caller.account.get();

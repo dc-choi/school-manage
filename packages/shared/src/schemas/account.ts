@@ -46,6 +46,8 @@ export interface GetAccountOutput {
     id: string;
     name: string;
     displayName: string;
+    /** 가입(계정 생성) 후 경과일. 서버에서 KST 기준 계산. */
+    signupDays: number;
     privacyAgreedAt: Date | null;
     privacyPolicyVersion: number;
     organizationId?: string;
