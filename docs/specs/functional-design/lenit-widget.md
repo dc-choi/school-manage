@@ -36,6 +36,7 @@
     - `loadLenit`이 상수 위에 동적값을 병합해 전송.
 - **signupDays 산출(서버)**: DB/서버 모두 KST 기준이므로 클라에서 계산하면 직렬화/타임존 이중 오프셋이 발생한다. `account.get` usecase가 `getNowKST() - createdAt` 델타로 일 단위 계산(음수 0 클램프)해 `signupDays: number`로 반환. 클라는 받은 값을 그대로 trait에 전달.
 - **에러 격리**: 주입 로직을 try/catch로 감싸 실패 시 `console.warn`만 남기고 앱 흐름 비차단(`analytics.ts`의 `safeGtag` 패턴 준수).
+- **모바일 위치 보정**: 위젯 런처(`#vb-widget-root`)는 `bottom:24px` 고정이라 모바일 `BottomTabBar`(`md:hidden`, `--bottom-tab-bar-height`)와 겹친다. `globals.css`에서 `max-width:767px`일 때 `bottom`을 탭바 높이+safe-area 위로 올린다(`!important`로 위젯 inline 스타일 오버라이드). Lenit은 bottom 오프셋 설정이 없어 CSS로 처리.
 
 ### 전역 타입
 
