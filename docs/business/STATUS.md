@@ -4,42 +4,42 @@
 
 ## 메타
 
-- 최종 업데이트: 2026-05-29 (**05-28 첨부: DB 전 지표 05-27 대비 동결 (05-28 목 출석 +0, 평일 무입력) / 출석 15,190 / 학생 2,831 / 랜딩 3,367 / MAO 39 동결 (컷오프 04-29, 철원 탈락 유지) / 미소속 42 / 본당 80 / 교사 297 동결 / GA4 창 05-22~28 롤포워드 — 세션 +25% / 신규 +5% / 참여 +26% / PV -24%(전주 05-17 spike 착시) / first_attendance_recorded 0 유지 (T-1 미해소) / Clarity 마찰 추가 감소, rage/JS error 0**)
+- 최종 업데이트: 2026-05-29 (**05-29 첨부: DB 전 지표 05-28 대비 동결 — 오금동 새싹샛별 05-29(금) 출석 +2 (평일 분산)뿐 / 출석 15,192 (+2) / 학생 2,832 (+1) / 랜딩 3,368 (+1) / MAO 39 동결 (컷오프 04-29, 철원 탈락 유지) / 미소속 42 / 본당 80 / 교사 297 동결 / GA4 창 05-22~28 동일 (백필 미세 갱신) — 세션 273 / 신규 43 / 참여 211 / PV 1,184 (전주 05-17 spike 착시) / first_attendance_recorded 0 유지 (T-1 미해소) / Clarity 마찰 거의 소멸, rage/JS error 0**)
 - 변화 이력: `git log docs/business/STATUS.md`
 
 ## 현재 목표
 
 **MAO(월간 활성 단체) 50곳** — 현재 **39곳** (05-29 재집계, 컷오프 04-29). 철원 04-25 탈락 유지, 신규 진입/탈락 분기 없음. 목표까지 격차 **-11**. 다음 경계 잠실7동 05-07 = 22일 (30일 도달 06-06, 임박 분기점 없음). 분기 누적 **영구 4건 + 화곡본동/방학동초 영구 근접 vs 일시 9건**.
-**MAU(월간 활성 사용자) — GA4 7일 주간 AU 합산 163명**(05-22-05-28, 일별 합산, **+23% vs 전주 133**) / 신규 **41명(+5% vs 전주 39)** / 세션 **273(+25% vs 219)** / 참여세션 **208(+26% vs 165)** / `first_visit` 41 → `first_group_created` 1 → `first_student_registered`/`first_attendance_recorded` **0건 지속**. **first_attendance 5주차 미발화 (T-1 미해소)** — 기존 활성 단체 반복 입력은 first\_\* 미발화 + 신규 유저가 첫 출석 마일스톤 미도달. 차기 창에 다음 주일(05-31) 사이클 포함 시 재확인. PV 1,180(**-24%**, 전주 05-17 1,042 단일 spike 착시).
+**MAU(월간 활성 사용자) — GA4 7일 주간 AU 합산 164명**(05-22-05-28, 일별 합산, **+23% vs 전주 133**) / 신규 **43명(+10% vs 전주 39)** / 세션 **273(+25% vs 219)** / 참여세션 **211(+28% vs 165)** / `first_visit` 43 → `first_group_created` 1 → `first_student_registered`/`first_attendance_recorded` **0건 지속**. **first_attendance 5주차 미발화 (T-1 미해소)** — 기존 활성 단체 반복 입력은 first\_\* 미발화 + 신규 유저가 첫 출석 마일스톤 미도달. 차기 창에 다음 주일(05-31) 사이클 포함 시 재확인. PV 1,184(**-24%**, 전주 05-17 1,042 단일 spike 착시).
 
-### 실측 (2026-05-29 갱신, 05-28 첨부 기준)
+### 실측 (2026-05-29 갱신, 05-29 첨부 기준)
 
-| 지표             | 수치             | 이전(05-27)  | 비고                                                      |
+| 지표             | 수치             | 이전(05-28)  | 비고                                                      |
 | ---------------- | ---------------- | ------------ | --------------------------------------------------------- |
 | 활성 본당        | **80개**         | 80개         | 동결 (랜딩 누적 헤더 80)                                  |
 | 활성 모임        | **101개**        | 101개        | 동결 (활성화 현황 101곳)                                  |
 | 총 계정          | **297개**        | 297개        | 동결 (랜딩 교사 = 활성+미소속 합산)                       |
 | 미소속 계정      | **42개 (14.1%)** | 42개 (14.1%) | 동결                                                      |
-| 학생 (모임 합계) | **2,831명**      | 2,831명      | 동결 (신규 0)                                             |
-| 총 출석 기록     | **15,190건**     | 15,190건     | 동결 (05-28 목 입력 0 — 평일 무입력)                      |
+| 학생 (모임 합계) | **2,832명**      | 2,831명      | 실측 합계 +1 (랜딩 누적 3,368)                            |
+| 총 출석 기록     | **15,192건**     | 15,190건     | +2 (오금동 새싹샛별 05-29 금 — 평일 분산)                 |
 | 출석 기록 단체   | **55곳**         | 55곳         | 동결                                                      |
 | MAO (30일 활성)  | **39곳**         | 39곳         | 동결 (철원 04-25 탈락 유지, 신규 분기 없음, 컷오프 04-29) |
 
 > MAO: 30일 내 출석 기록이 있는 단체 (05-29 컷오프 04-29).
 >
-> **랜딩 집계 (마케팅용, 실측 아님)** — `count-accounts.usecase.ts` 기준 누적치: 본당 **80** / 선생님 **297** / 학생 **3,367** (05-28 첨부 헤더, 05-27 대비 동결). 소프트 삭제/미할당 포함으로 실측과 의도적 분리. 계정 카피는 활성+미소속 합산. 카피 위치: `AuthLayout.tsx`, `LandingPage.tsx`.
+> **랜딩 집계 (마케팅용, 실측 아님)** — `count-accounts.usecase.ts` 기준 누적치: 본당 **80** / 선생님 **297** / 학생 **3,368** (05-29 첨부 헤더, 학생 +1). 소프트 삭제/미할당 포함으로 실측과 의도적 분리. 계정 카피는 활성+미소속 합산. 카피 위치: `AuthLayout.tsx`, `LandingPage.tsx`.
 
 ### 사용자 정량 (GA4 2026-05-22 ~ 05-28 7일 + Clarity 마찰 05-27~05-29)
 
-- **🔴 first_attendance 5주차 0 (T-1 미해소)**: `first_visit` **41(+5% vs 전주 39)** → `first_group_created` **1** → `first_student_registered` **0** → `first_attendance_recorded` **0**. 05-24 주일 사이클이 창에 포함됐는데도 0 지속. 두 가설: (a) T-1 수정(`useCalendar` onSuccess 호출 추가) 미반영/배포 누락, (b) first\_\*는 신규 유저 1회성 — 기존 활성 단체 반복 입력 미발화 + 신규 40명이 첫 출석 미도달. **코드/배포 재진단 필요** (DB는 WAO 33곳 출석 활발 = 실제 단절 아닌 GA4 계측 갭)
-- **활성/액션**: AU(일별 합산) **163(+23% vs 133)** / 세션 **273(+25% vs 219)** / 신규 **41(+5% vs 39)** / 참여세션 **208(+26% vs 165)** / PV **1,180(-24% vs 1,556, 전주 05-17 1,042 단일 spike 착시)**. student_created 11(7AU), student_updated 7(4AU), student_registration 4, group_created 1, login 41(35AU), sign_up 1(1AU), form_start 48(42AU), pwa_a2hs_installed 1. **세션/신규/AU/참여 동반 증가 = 실질 성장**, PV만 spike 착시로 감소
+- **🔴 first_attendance 5주차 0 (T-1 미해소)**: `first_visit` **43(+10% vs 전주 39)** → `first_group_created` **1** → `first_student_registered` **0** → `first_attendance_recorded` **0**. 05-24 주일 사이클이 창에 포함됐는데도 0 지속. 두 가설: (a) T-1 수정(`useCalendar` onSuccess 호출 추가) 미반영/배포 누락, (b) first\_\*는 신규 유저 1회성 — 기존 활성 단체 반복 입력 미발화 + 신규 40명이 첫 출석 미도달. **코드/배포 재진단 필요** (DB는 WAO 33곳 출석 활발 = 실제 단절 아닌 GA4 계측 갭)
+- **활성/액션**: AU(일별 합산) **164(+23% vs 133)** / 세션 **273(+25% vs 219)** / 신규 **43(+10% vs 39)** / 참여세션 **211(+28% vs 165)** / PV **1,184(-24% vs 1,556, 전주 05-17 1,042 단일 spike 착시)**. student_created 11(7AU), student_updated 7(4AU), student_registration 4, group_created 1, login 41(35AU), sign_up 1(1AU), form_start 48(42AU), pwa_a2hs_installed 1. **세션/신규/AU/참여 동반 증가 = 실질 성장**, PV만 spike 착시로 감소
 - **페이지 사용도**: `/` PV 334 AU 112 / **`/attendance` PV 266 AU 102 engagement 7,867s** / `/students` PV 218 AU 39 / `/login` 82 AU 57 / `/landing` 61 AU 21 체류 67.2s / `/groups` 57 AU 23 / `/statistics` 40 AU 15 / `/settings` 16 AU 13 / `/signup` 16 AU 9 / `/students/new` 15 AU 9 / `/donate` 3 PV 3 AU
 - **이벤트 사용도**: nav_tab 332, **liturgical_card 356(108AU) / patron_feast 309(95AU)**(전례달력 활용 안정), dashboard 310(95AU), scroll 298, pwa_guide_shown 93(51AU → 설치 1), landing_cta_click 16(10AU)
 - **채널/유입**: Direct 71세션(46AU) / Organic Social ig **33(23AU)** + link_in_bio 16AU / Search(google) 18(8AU) / consent 49 + reconsent 88 + signup 8(가입 플로우). Naver Pay referral 1세션. **외부 유입 채널 비중: Direct 58% / ig 27% / Search 15%**
 - **분포**: 모바일 72% (iOS 60 + Android 41, iOS 59%) / 데스크톱 28% (Win 26 + Mac 9) / 서울 87AU, 부산 15, 대전 12, 청주 9, 파주 6, 대구 4, 고양 4 (**본당 분포 추세 일관**)
 - **🔴 휴면 조직률**: 메일 101곳 중 출석 0건 **46곳**(45.5%) + 30일+ 무활동 합산 비MAO **62곳**. 출석 0건 중 학생 보유 8곳(수색 34/가톨릭상지대 5/보라동 11/성남동MH 13 등), 나머지 38곳은 학생 0 = 조직만 생성 후 미투입
 - **요일×시간 피크**: 토 15~18시(16+15+30+9AU) + 주일 10~14시(11+14+15+8+10AU) = **주일학교 출석 사이클(토 특전 + 주일) 안정 유지**. 평일 분산 신규 0건
-- **🟡 Clarity 마찰 (추가 감소) / JS error 0**: 3일 창(05-27~29) — dead 6→0, quickback 16→0, rage 0, excessive scroll 0 (총 마찰 ~22 → 거의 소멸). 페이지별 **`/` friction 7(dead 5 + qb 2) 1위**, `/students` 5(qb 5), `/attendance` 4(dead 1 + qb 3). 환경 iOS Safari dead 3 / Win Chrome dead 2 (편중 아님). **JS error 전 환경 0 / rage 0**. 스크롤 Mobile 77.5% / Tablet 93% / PC 99.8% (도달 양호). 리플레이: rage click 세션 0건 (확인 후보 없음 = 무마찰)
+- **🟡 Clarity 마찰 (거의 소멸) / JS error 0**: 3일 창(05-27~29) — dead 6→0→4, quickback 16→0→2, rage 0, excessive scroll 0. 페이지별 **`/` friction 11(dead 9 + qb 2) 1위**, `/students` 5(qb 5), `/attendance` 4(dead 1 + qb 3), `/groups` 3(qb 3). 환경 iOS Safari dead 7 / Win Chrome dead 2 (편중 아님). **JS error 전 환경 0 / rage 0**. 스크롤 Mobile 83.9% / Tablet 93% / PC 99.8% (도달 양호). 리플레이: rage click 세션 0건 (확인 후보 없음 = 무마찰)
 
 ### 전환율 분석 (단체 기준)
 
