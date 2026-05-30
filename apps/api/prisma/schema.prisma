@@ -82,12 +82,16 @@ model JoinRequest {
     accountId      BigInt   @map("account_id")
     organizationId BigInt   @map("organization_id")
     status         String   @db.VarChar(20)
+    // PENDING일 때만 true, 그 외 상태/처리 후 NULL. (accountId, pendingLock) unique로
+    // 계정당 동시 PENDING 1건 강제 (MySQL은 partial unique 미지원 → NULL distinct 특성 활용, A-3).
+    pendingLock    Boolean? @map("pending_lock")
     createdAt      DateTime @map("create_at")
     updatedAt      DateTime @map("update_at")
 
     account      Account      @relation(fields: [accountId], references: [id])
     organization Organization @relation(fields: [organizationId], references: [id])
 
+    @@unique([accountId, pendingLock], map: "uq_join_request_account_pending")
     @@index([organizationId, status])
     @@index([accountId, status])
     @@map("join_request")

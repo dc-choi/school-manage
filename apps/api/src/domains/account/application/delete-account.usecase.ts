@@ -63,7 +63,7 @@ export class DeleteAccountUseCase {
                 // 3b. 대기 중인 합류 요청 거부
                 await tx.joinRequest.updateMany({
                     where: { organizationId: orgId, status: JOIN_REQUEST_STATUS.PENDING },
-                    data: { status: JOIN_REQUEST_STATUS.REJECTED, updatedAt: now },
+                    data: { status: JOIN_REQUEST_STATUS.REJECTED, pendingLock: null, updatedAt: now },
                 });
 
                 // 3c. 학생 소프트 삭제
@@ -99,8 +99,14 @@ export class DeleteAccountUseCase {
             return { success: true };
         }
 
-        // 4. TEACHER: 기존 로직 (계정 소프트 삭제만)
+        // 4. TEACHER / 미소속(role=null) fall-through: 계정 소프트 삭제 + 본인 PENDING 합류 요청 정리
         await database.$transaction(async (tx) => {
+            // 미소속 계정이 보낸 PENDING 합류 요청 거부 — 삭제 후 pendingLock 슬롯 고아 방지 (A-3)
+            await tx.joinRequest.updateMany({
+                where: { accountId: account.id, status: JOIN_REQUEST_STATUS.PENDING },
+                data: { status: JOIN_REQUEST_STATUS.REJECTED, pendingLock: null, updatedAt: now },
+            });
+
             await tx.account.update({
                 where: { id: account.id },
                 data: { deletedAt: now, organizationId: null },

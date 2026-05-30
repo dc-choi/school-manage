@@ -161,20 +161,21 @@ scopedProcedure에서 ctx.organization.id 자동 설정 → UseCase에서 organi
 
 ## 예외/엣지 케이스
 
-| 상황                                                            | 처리                                                                                                                                                      |
-| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| organizationId null + `/` 접근                                  | DashboardPage 내부에서 `/join` 또는 `/pending` 리다이렉트                                                                                                 |
-| organizationId null + 도메인 API                                | scopedProcedure FORBIDDEN (ProtectedRoute가 `/join` 리다이렉트)                                                                                           |
-| 이미 조직 소속 + 합류 요청                                      | 에러 (이미 소속)                                                                                                                                          |
-| 이미 pending + 재요청                                           | 에러 (중복 요청)                                                                                                                                          |
-| teacher → 승인/거절                                             | FORBIDDEN (admin 전용)                                                                                                                                    |
-| 합류 승인 시 대상 계정이 이미 다른 조직 소속/탈퇴(soft-deleted) | 백엔드 CONFLICT + 트랜잭션 롤백. 조건부 `account.updateMany`(`organizationId: null, deletedAt: null`)로 옛 PENDING 승인의 무인지 조직 이동/계정 부활 차단 |
-| admin 삭제 시도                                                 | 에러 (삭제 불가)                                                                                                                                          |
-| teacher 삭제                                                    | organizationId null, Organization 유지                                                                                                                    |
-| 학생 모든 Group 제거                                            | StudentGroup 0건 허용 (미배정)                                                                                                                            |
-| 같은 Church 동명 Organization                                   | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT)                                                                                                         |
-| 이름-타입 키워드 불일치                                         | 프론트엔드 경고만 (비차단). 예: "초등부"인데 MIDDLE_HIGH 선택                                                                                             |
-| 같은 교구 동명 Church                                           | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT)                                                                                                         |
+| 상황                                                            | 처리                                                                                                                                                                                            |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| organizationId null + `/` 접근                                  | DashboardPage 내부에서 `/join` 또는 `/pending` 리다이렉트                                                                                                                                       |
+| organizationId null + 도메인 API                                | scopedProcedure FORBIDDEN (ProtectedRoute가 `/join` 리다이렉트)                                                                                                                                 |
+| 이미 조직 소속 + 합류 요청                                      | 에러 (이미 소속)                                                                                                                                                                                |
+| 미소속 계정이 임의 조직에 PENDING 보유 + 신규 합류 요청         | CONFLICT — 동시 1개 조직만 요청 가능 (A-3). status=PENDING만 차단(과거 REJECTED/APPROVED 이력은 재요청 허용). DB UNIQUE(accountId, pending_lock)로 동시 요청 race도 1건만 성공, 나머지 CONFLICT |
+| teacher → 승인/거절                                             | FORBIDDEN (admin 전용)                                                                                                                                                                          |
+| 합류 승인 시 대상 계정이 이미 다른 조직 소속/탈퇴(soft-deleted) | 백엔드 CONFLICT + 트랜잭션 롤백. 조건부 `account.updateMany`(`organizationId: null, deletedAt: null`)로 옛 PENDING 승인의 무인지 조직 이동/계정 부활 차단                                       |
+| 합류 거부 시 대상 요청이 이미 처리됨(APPROVED 등)               | CONFLICT. 조건부 `updateMany`(status=PENDING) + count로 동시 승인/거부 시 APPROVED→REJECTED 덮어쓰기 차단                                                                                       |
+| admin 삭제 시도                                                 | 에러 (삭제 불가)                                                                                                                                                                                |
+| teacher/미소속 계정 삭제                                        | 계정 soft-delete(organizationId null), Organization 유지. 본인 PENDING 합류 요청은 자동 REJECT(고아 pending_lock 슬롯 방지)                                                                     |
+| 학생 모든 Group 제거                                            | StudentGroup 0건 허용 (미배정)                                                                                                                                                                  |
+| 같은 Church 동명 Organization                                   | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT)                                                                                                                                               |
+| 이름-타입 키워드 불일치                                         | 프론트엔드 경고만 (비차단). 예: "초등부"인데 MIDDLE_HIGH 선택                                                                                                                                   |
+| 같은 교구 동명 Church                                           | 프론트엔드 버튼 비활성화 + 백엔드 에러 (CONFLICT)                                                                                                                                               |
 
 ---
 
@@ -195,7 +196,7 @@ scopedProcedure에서 ctx.organization.id 자동 설정 → UseCase에서 organi
 
 1. organizationId null → scopedProcedure FORBIDDEN
 2. 다른 Organization 데이터 접근 → 데이터 없음
-3. 중복 합류 요청 → 에러
+3. 다중 PENDING(같은/다른 조직) 차단 + 동시 요청 시 1건만 성공(race 백스톱) + 거부 race 시 APPROVED 보존
 4. teacher 승인/거절 시도 → FORBIDDEN
 5. 마이그레이션 데이터 정합성 (Group/Student/Attendance 건수 보존)
 6. 타입 미선택으로 조직 생성 시도 → 버튼 비활성화 (프론트엔드), 스키마 검증 실패 (백엔드)

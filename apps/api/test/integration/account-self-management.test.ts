@@ -3,9 +3,11 @@
  *
  * TC-SM1 ~ TC-SM7, TC-SME1: 비밀번호 재설정/변경, 프로필 수정, 계정 삭제
  */
-import { type SeedBase, TEST_PASSWORD, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
+import { type SeedBase, TEST_PASSWORD, TEST_PASSWORD_HASH, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
 import { getMockMailService } from '../helpers/test-stubs.ts';
 import { createAuthenticatedCaller, createPublicCaller, createScopedCaller } from '../helpers/trpc-caller.ts';
+import { JOIN_REQUEST_STATUS } from '@school/shared';
+import { getNowKST } from '@school/utils';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { database } from '~/infrastructure/database/database.js';
 
@@ -162,6 +164,47 @@ describe('계정 자기 관리 통합 테스트', () => {
             ).rejects.toMatchObject({
                 code: 'UNAUTHORIZED',
             });
+        });
+
+        it('TC-SM8: 미소속 계정 삭제 → 본인 PENDING 합류 요청 REJECTED + pendingLock 해제 (A-3 고아 방지)', async () => {
+            const now = getNowKST();
+            const applicant = await database.account.create({
+                data: {
+                    name: '미소속신청자',
+                    displayName: '미소속신청자',
+                    password: TEST_PASSWORD_HASH,
+                    role: null,
+                    organizationId: null,
+                    createdAt: now,
+                    privacyAgreedAt: now,
+                },
+            });
+            const joinRequest = await database.joinRequest.create({
+                data: {
+                    accountId: applicant.id,
+                    organizationId: seed.org.id,
+                    status: JOIN_REQUEST_STATUS.PENDING,
+                    pendingLock: true,
+                    createdAt: now,
+                    updatedAt: now,
+                },
+            });
+
+            // 미소속 caller (role/organizationId 없음 → fall-through 분기)
+            const caller = createAuthenticatedCaller(String(applicant.id), applicant.name);
+            const result = await caller.account.deleteAccount({ password: TEST_PASSWORD });
+
+            expect(result).toEqual({ success: true });
+
+            const updatedRequest = await database.joinRequest.findUnique({ where: { id: joinRequest.id } });
+            expect(updatedRequest?.status).toBe(JOIN_REQUEST_STATUS.REJECTED);
+            expect(updatedRequest?.pendingLock).toBeNull();
+
+            const account = await database.account.findFirst({
+                where: { id: applicant.id },
+                select: { deletedAt: true },
+            });
+            expect(account?.deletedAt).not.toBeNull();
         });
     });
 });

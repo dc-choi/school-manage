@@ -42,7 +42,7 @@ export class ApproveJoinUseCase {
                     id: joinRequest.id,
                     status: JOIN_REQUEST_STATUS.PENDING,
                 },
-                data: { status: JOIN_REQUEST_STATUS.APPROVED, updatedAt: now },
+                data: { status: JOIN_REQUEST_STATUS.APPROVED, pendingLock: null, updatedAt: now },
             });
 
             if (approved.count === 0) {
