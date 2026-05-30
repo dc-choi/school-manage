@@ -15,14 +15,21 @@ ALTER TABLE join_request ADD COLUMN pending_lock TINYINT(1) NULL;
 -- 기존에 중복 PENDING이 있어도 1건만 lock을 가지므로 아래 UNIQUE 추가가 실패하지 않는다.
 -- 나머지 중복 PENDING은 lock NULL로 보존(status는 그대로) → 신규 요청은 앱의 findFirst가 차단,
 -- 승인은 approve-join의 조건부 update(O-1)가 차단하므로 무해하다.
-UPDATE join_request jr
-    JOIN (
-        SELECT account_id, MAX(_id) AS keep_id
+-- 마이그레이션 세션에서 safe-update 모드를 끈다: 집합 기반 백필은 key=상수 WHERE를 쓸 수 없어
+-- sql_safe_updates=1 환경(일부 클라이언트/서버 기본값)에서 Error 1175로 차단되기 때문이다.
+-- WHERE _id IN (...)로 업데이트 대상을 명시(전체 행 업데이트 아님)하고, 내부 파생 테이블로 감싸
+-- 대상 테이블 self-update 오류(MySQL 1093)도 회피한다.
+SET SESSION sql_safe_updates = 0;
+UPDATE join_request
+SET pending_lock = 1
+WHERE _id IN (
+    SELECT keep_id FROM (
+        SELECT MAX(_id) AS keep_id
         FROM join_request
         WHERE status = 'pending'
         GROUP BY account_id
-    ) latest ON jr.account_id = latest.account_id AND jr._id = latest.keep_id
-    SET jr.pending_lock = 1;
+    ) latest
+);
 
 ALTER TABLE join_request ADD UNIQUE INDEX uq_join_request_account_pending (account_id, pending_lock);
 
