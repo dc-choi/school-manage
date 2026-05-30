@@ -145,6 +145,7 @@ async function main() {
             accountId: pending.id,
             organizationId: middleHigh.id,
             status: 'pending',
+            pendingLock: true,
             createdAt: now,
             updatedAt: now,
         },

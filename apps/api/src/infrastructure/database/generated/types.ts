@@ -62,6 +62,7 @@ export type JoinRequest = {
     accountId: number;
     organizationId: number;
     status: string;
+    pendingLock: number | null;
     createAt: Timestamp;
     updateAt: Timestamp;
 };
