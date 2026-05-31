@@ -30,8 +30,10 @@ export function useDashboardStatistics(filters: DashboardFilters) {
     // 성별 분포
     const byGenderQuery = trpc.statistics.byGender.useQuery({ year, month, week });
 
-    // TOP 학생
-    const topOverallQuery = trpc.statistics.topOverall.useQuery({ year, month, week, limit: 5 });
+    // TOP 학생 — "전체 우수 출석"은 연간 누적 점수 순위이므로 기간 필터(month/week)에
+    // 종속되지 않고 연도 스코프로 고정한다. month/week를 넘기면 단일 주 범위로 좁혀져
+    // 점수 상한이 2점(◎ 1회)으로 붕괴되고 순위가 무의미해진다.
+    const topOverallQuery = trpc.statistics.topOverall.useQuery({ year, limit: 5 });
 
     // 그룹별 상세 통계 (일간 포함)
     const groupStatisticsQuery = trpc.statistics.groupStatistics.useQuery({ year, month, week, day });

@@ -3,9 +3,10 @@
  *
  * 대시보드 통계 훅의 동작 검증
  */
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 // 테스트 전에 훅 import (모킹 후에 import 해야 함)
 import { useDashboardStatistics, useStatistics } from '~/features/statistics/hooks/useStatistics';
+import { trpc } from '~/lib/trpc';
 
 // tRPC 모킹
 vi.mock('~/lib/trpc', () => ({
@@ -137,5 +138,35 @@ describe('useDashboardStatistics', () => {
 
         expect(result.isLoading).toBe(false);
         expect(result.error).toBeFalsy();
+    });
+});
+
+describe('useDashboardStatistics 기간 필터 스코프 (S-1)', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('topOverall은 기간 필터(month/week)를 제외하고 연도 스코프로만 조회한다', () => {
+        // 주간 필터가 활성화된 상태로 호출 (데스크탑 대시보드 기본 진입 상황)
+        useDashboardStatistics({ year: 2024, month: 5, week: 3, day: '2024-05-19' });
+
+        // "전체 우수 출석"은 연간 누적 순위 — month/week가 전달되면 안 됨 (전달 시 단일 주로 붕괴)
+        expect(vi.mocked(trpc.statistics.topOverall.useQuery)).toHaveBeenCalledWith({ year: 2024, limit: 5 });
+    });
+
+    it('byGender/groupStatistics는 선택 기간 필터를 그대로 전달한다 (의도된 기간 스코프)', () => {
+        useDashboardStatistics({ year: 2024, month: 5, week: 3, day: '2024-05-19' });
+
+        expect(vi.mocked(trpc.statistics.byGender.useQuery)).toHaveBeenCalledWith({
+            year: 2024,
+            month: 5,
+            week: 3,
+        });
+        expect(vi.mocked(trpc.statistics.groupStatistics.useQuery)).toHaveBeenCalledWith({
+            year: 2024,
+            month: 5,
+            week: 3,
+            day: '2024-05-19',
+        });
     });
 });
