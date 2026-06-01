@@ -23,6 +23,20 @@ export function useCalendar(groupId: string, year: number, month: number) {
                 analytics.trackFirstAttendanceRecorded(data.daysSinceSignup);
             }
 
+            // GA4 control 이벤트: 출석 저장 완료 (매 저장마다 발화).
+            // first_attendance_recorded 0건이 "신규 단체 모집단 부족"인지 "침묵 실패"인지
+            // 구별하는 대조 이벤트. 백엔드가 항상 studentCount를 반환하나 타입상 선택형이라 방어 가드.
+            if (data.studentCount !== undefined) {
+                analytics.trackAttendanceRecorded({
+                    studentCount: data.studentCount,
+                    fullAttendanceCount: data.fullAttendanceCount,
+                    massOnlyCount: data.massOnlyCount,
+                    catechismOnlyCount: data.catechismOnlyCount,
+                    absentCount: data.absentCount,
+                    attendanceRate: data.attendanceRate,
+                });
+            }
+
             // 달력 데이터 캐시 무효화 후 refetch
             await utils.attendance.calendar.invalidate({ groupId, year, month });
         },
