@@ -8,6 +8,13 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "@school/api#prisma:generate": {
+      "cache": false
+    },
+    "@school/api#build": {
+      "dependsOn": ["@school/api#prisma:generate", "^build"],
+      "outputs": ["dist/**"]
+    },
     "@school/web#build": {
       "dependsOn": ["@school/api#build", "^build"],
       "outputs": ["dist/**"]
@@ -17,6 +24,9 @@
     },
     "typecheck": {
       "dependsOn": ["^build"]
+    },
+    "@school/api#typecheck": {
+      "dependsOn": ["@school/api#prisma:generate", "^build"]
     },
     "@school/web#typecheck": {
       "dependsOn": ["@school/api#build", "^build"]
