@@ -40,7 +40,6 @@ model Church {
     organizations Organization[]
 
     @@unique([parishId, name])
-    @@index([parishId])
     @@map("church")
 }
 
