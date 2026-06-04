@@ -16,13 +16,13 @@
   },
   "scripts": {
     "prisma:generate": "node scripts/prisma-generate.cjs",
-    "build": "pnpm prisma:generate && tsc -b && tsc-alias",
+    "build": "tsc -b && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/src/app.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "dev": "pnpm clean && pnpm build && cross-env NODE_ENV=local node dist/src/app.js",
+    "dev": "pnpm prisma:generate && pnpm clean && pnpm build && cross-env NODE_ENV=local node dist/src/app.js",
     "lint": "eslint src",
-    "typecheck": "pnpm prisma:generate && tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "clean": "rimraf dist",
     "db:seed": "prisma db seed",
     "db:reset": "prisma db push --force-reset --skip-generate && prisma db seed"
