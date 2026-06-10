@@ -253,6 +253,56 @@ describe('auth.signup 통합 테스트', () => {
     });
 });
 
+describe('auth.checkId 통합 테스트', () => {
+    describe('정상 케이스', () => {
+        it('미사용 name은 available: true', async () => {
+            const caller = createPublicCaller();
+            const result = await caller.auth.checkId({ name: 'unuseduser01' });
+
+            expect(result.available).toBe(true);
+        });
+
+        it('활성 계정이 점유한 name은 available: false', async () => {
+            await database.account.create({
+                data: {
+                    name: 'activeuser01',
+                    displayName: '활성유저',
+                    password: TEST_PASSWORD_HASH,
+                    createdAt: getNowKST(),
+                    privacyAgreedAt: getNowKST(),
+                },
+            });
+
+            const caller = createPublicCaller();
+            const result = await caller.auth.checkId({ name: 'activeuser01' });
+
+            expect(result.available).toBe(false);
+        });
+    });
+
+    describe('예외 케이스', () => {
+        it('탈퇴한 계정이 점유한 name은 available: false (restoreAccount 예약 슬롯, signup CONFLICT와 정합)', async () => {
+            const deletedAt = new Date();
+            deletedAt.setMonth(deletedAt.getMonth() - 6);
+
+            await database.account.create({
+                data: {
+                    name: 'deleteduser01',
+                    displayName: '탈퇴유저',
+                    password: TEST_PASSWORD_HASH,
+                    createdAt: getNowKST(),
+                    deletedAt,
+                },
+            });
+
+            const caller = createPublicCaller();
+            const result = await caller.auth.checkId({ name: 'deleteduser01' });
+
+            expect(result.available).toBe(false);
+        });
+    });
+});
+
 describe('auth.restoreAccount 통합 테스트', () => {
     describe('정상 케이스', () => {
         it('삭제된 계정을 정상적으로 복원', async () => {
