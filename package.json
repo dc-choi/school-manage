@@ -23,8 +23,8 @@
     "clean": "turbo run clean && rm -rf node_modules",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint -- --fix",
-    "prettier": "prettier --check \"**/*.ts\"",
-    "prettier:fix": "prettier --write \"**/*.ts\"",
+    "prettier": "prettier --check \"**/*.{ts,tsx}\"",
+    "prettier:fix": "prettier --write \"**/*.{ts,tsx}\"",
     "prepare": "husky || true"
   },
   "author": "dc-choi",
