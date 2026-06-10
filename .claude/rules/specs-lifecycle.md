@@ -33,7 +33,8 @@ paths:
 | 타입 안전성 | `pnpm typecheck`             |
 | 빌드 성공   | `pnpm build`                 |
 | 테스트 통과 | `pnpm test`                  |
-| 코드 품질   | SonarCloud Scan              |
+
+> SonarCloud는 미배선 — `sonar-project.properties`와 `SONAR_TOKEN` secret만 존재하고 scan step은 없음 (2026-06-11 배선하지 않기로 결정, ci-pipeline 보강에서 제외).
 
 ### 사용자 리뷰
 

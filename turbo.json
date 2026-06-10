@@ -44,7 +44,10 @@
       "dependsOn": ["^lint"]
     },
     "test": {
-      "dependsOn": ["^test"]
+      "dependsOn": ["^build"]
+    },
+    "@school/api#test": {
+      "dependsOn": ["@school/api#prisma:generate", "^build"]
     },
     "clean": {
       "dependsOn": ["^clean"]

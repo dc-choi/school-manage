@@ -3,8 +3,10 @@
  *
  * 배너 노출 조건, CTA 동작, 미표시 조건 검증
  */
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { analytics } from '~/lib/analytics';
+import { ContextBanner } from '~/pages/dashboard/ContextBanner';
 
 // react-router-dom 모킹
 const mockNavigate = vi.fn();
@@ -19,9 +21,6 @@ vi.mock('~/lib/analytics', () => ({
         trackContextBannerClicked: vi.fn(),
     },
 }));
-
-import { ContextBanner } from '~/pages/dashboard/ContextBanner';
-import { analytics } from '~/lib/analytics';
 
 describe('ContextBanner', () => {
     beforeEach(() => {
@@ -39,9 +38,7 @@ describe('ContextBanner', () => {
         render(<ContextBanner />);
 
         expect(analytics.trackContextBannerShown).toHaveBeenCalledTimes(1);
-        expect(analytics.trackContextBannerShown).toHaveBeenCalledWith(
-            expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
-        );
+        expect(analytics.trackContextBannerShown).toHaveBeenCalledWith(expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/));
     });
 
     it('CTA 클릭 시 /attendance로 이동하고 GA4 이벤트가 발송된다', () => {
