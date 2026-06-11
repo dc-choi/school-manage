@@ -49,6 +49,10 @@
     "@school/api#test": {
       "dependsOn": ["@school/api#prisma:generate", "^build"]
     },
+    "@school/web#test:e2e": {
+      "dependsOn": ["@school/api#build"],
+      "cache": false
+    },
     "clean": {
       "dependsOn": ["^clean"]
     }

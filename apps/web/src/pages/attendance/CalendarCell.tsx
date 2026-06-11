@@ -36,6 +36,7 @@ export function CalendarCell({ day, onClick }: Readonly<CalendarCellProps>) {
     return (
         <button
             type="button"
+            data-testid={`calendar-cell-${date}`}
             onClick={() => onClick?.(date)}
             onKeyDown={(e) => e.key === 'Enter' && onClick?.(date)}
             className={cn(

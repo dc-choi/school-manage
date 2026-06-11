@@ -63,6 +63,15 @@ main.tsx
 - **위치**: `test/**/*.test.{ts,tsx}`
 - **의존성**: `@testing-library/react`, `@testing-library/jest-dom`
 
+### e2e (Playwright)
+
+- **위치**: `e2e/*.spec.ts` + `playwright.config.ts` (vitest include와 분리, 전용 `e2e/tsconfig.json`)
+- **실행**: 루트 `pnpm test:e2e` — webServer가 API(9000)+vite(9080) 자동 기동, `apps/api/scripts/start-e2e.cjs`가 `school_e2e` 스키마 리셋+seed
+- **계정/데이터**: seed `teacher1`/5678 (worker당 1회 UI 로그인 → sessionStorage `token` 주입 재사용, `e2e/fixtures.ts`)
+- **날짜 규약**: 테스트는 2개월 전 달만 사용 (seed 출석 최근 4주와 격리). 시나리오 간 (학생 x 날짜) 슬롯 분리 — fresh seed 전제라 반복 비멱등
+- **셀렉터**: role + aria-label 우선. 달력 셀만 `data-testid="calendar-cell-{date}"` (접근 가능한 이름이 출석/축일에 따라 가변)
+- **프로젝트**: 데스크톱 전체 + 모바일(Pixel 7)은 `@mobile-smoke` 태그만
+
 ### tRPC 모킹 패턴
 
 ```typescript
@@ -86,25 +95,24 @@ vi.mock('~/lib/trpc', () => ({
 
 ## 라우트 구조
 
-| 경로                | 페이지              | 인증 필요       | 동의 필요 |
-| ------------------- | ------------------- | --------------- | --------- |
-| `/landing`          | `LandingPage`       | No              | No        |
-| `/login`            | `LoginPage`         | No              | No        |
-| `/signup`           | `SignupPage`        | No              | No        |
-| `/reset-password`   | `ResetPasswordPage` | No              | No        |
-| `/donate`           | `DonatePage`        | No              | No        |
-| `/consent`          | `ConsentPage`       | Yes (내부 체크) | No        |
-| `/settings`         | `SettingsPage`      | Yes             | Yes       |
-| `/`                 | `DashboardPage`     | No (내부 분기)  | No        |
-| `/groups`           | `GroupListPage`     | Yes             | Yes       |
-| `/groups/new`       | `GroupAddPage`      | Yes             | Yes       |
-| `/groups/:id`       | `GroupDetailPage`   | Yes             | Yes       |
-| `/students`         | `StudentListPage`   | Yes             | Yes       |
-| `/students/new`     | `StudentAddPage`    | Yes             | Yes       |
-| `/students/:id`     | `StudentDetailPage` | Yes             | Yes       |
-| `/attendance`       | `CalendarPage`      | Yes             | Yes       |
-| `/attendance/table` | `AttendancePage`    | Yes             | Yes       |
-| `/statistics`       | `StatisticsPage`    | Yes             | Yes       |
+| 경로              | 페이지              | 인증 필요       | 동의 필요 |
+| ----------------- | ------------------- | --------------- | --------- |
+| `/landing`        | `LandingPage`       | No              | No        |
+| `/login`          | `LoginPage`         | No              | No        |
+| `/signup`         | `SignupPage`        | No              | No        |
+| `/reset-password` | `ResetPasswordPage` | No              | No        |
+| `/donate`         | `DonatePage`        | No              | No        |
+| `/consent`        | `ConsentPage`       | Yes (내부 체크) | No        |
+| `/settings`       | `SettingsPage`      | Yes             | Yes       |
+| `/`               | `DashboardPage`     | No (내부 분기)  | No        |
+| `/groups`         | `GroupListPage`     | Yes             | Yes       |
+| `/groups/new`     | `GroupAddPage`      | Yes             | Yes       |
+| `/groups/:id`     | `GroupDetailPage`   | Yes             | Yes       |
+| `/students`       | `StudentListPage`   | Yes             | Yes       |
+| `/students/new`   | `StudentAddPage`    | Yes             | Yes       |
+| `/students/:id`   | `StudentDetailPage` | Yes             | Yes       |
+| `/attendance`     | `CalendarPage`      | Yes             | Yes       |
+| `/statistics`     | `StatisticsPage`    | Yes             | Yes       |
 
 ## React 성능 규칙
 
