@@ -6,7 +6,7 @@ import {
 } from '@school/shared';
 import { josa } from '@school/utils';
 import { Check, Loader2, X } from 'lucide-react';
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
@@ -101,6 +101,20 @@ export function AttendanceModal({
     const [studentAttendance, setStudentAttendance] = useState<StudentAttendance[]>([]);
     const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
     const [sortKey, setSortKey] = useState<SortKey>('registration');
+    const idleTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+    const saveChainRef = useRef<Promise<unknown>>(Promise.resolve());
+    // 렌더 타이밍과 무관하게 항상 최신인 체크 상태 미러 — 렌더 전 연속 클릭의 stale closure 방지
+    const studentAttendanceRef = useRef<StudentAttendance[]>([]);
+    // 모달 세션(오픈 단위) in-flight 카운터 — 재오픈 시 새 객체로 교체되어
+    // 이전 세션의 늦은 완료가 새 세션의 동기화 게이트/인디케이터를 오염시키지 않는다
+    const saveSessionRef = useRef({ pending: 0 });
+    // 저장 실패한 학생 목록 — '재시도'가 현재 체크 상태 기준으로 재전송
+    const failedStudentIdsRef = useRef<Set<string>>(new Set());
+
+    const syncStudentAttendance = useCallback((next: StudentAttendance[]) => {
+        studentAttendanceRef.current = next;
+        setStudentAttendance(next);
+    }, []);
 
     const sortSelectId = useId();
 
@@ -111,8 +125,36 @@ export function AttendanceModal({
     const dateObj = new Date(date);
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
 
-    // 모달 오픈 시 학생 목록 초기화 + sortKey 복원
+    // 모달 오픈 시 1회: 저장 상태 초기화 + sortKey 복원
+    // (students 의존을 두면 저장 후 dayDetail 재조회마다 재실행되어
+    //  '저장 완료' 인디케이터가 idle로 즉시 덮여 표시되지 않는다)
     useEffect(() => {
+        if (isOpen) {
+            // 새 저장 세션 시작 — 이전 세션의 in-flight 저장/실패 목록과 분리
+            saveSessionRef.current = { pending: 0 };
+            failedStudentIdsRef.current = new Set();
+            setSaveStatus('idle');
+
+            if (typeof window !== 'undefined') {
+                const stored = window.sessionStorage.getItem(SORT_STORAGE_KEY);
+                if (stored && isValidSortKey(stored)) {
+                    setSortKey(stored);
+                }
+            }
+        }
+    }, [isOpen]);
+
+    // 언마운트 시 잔여 idle 타이머 정리
+    useEffect(() => {
+        return () => clearTimeout(idleTimerRef.current);
+    }, []);
+
+    // 서버 상태 동기화: 오픈 시 + 저장 후 dayDetail 재조회마다
+    // 단, 저장이 진행 중일 때는 건너뛴다 — 직전 저장의 서버 스냅샷이 사용자가
+    // 연속 입력 중인 로컬 체크 상태를 되돌리면(controlled checkbox 역전)
+    // 다음 클릭의 토글 방향이 뒤집혀 마지막 상태가 유실된다
+    useEffect(() => {
+        if (saveSessionRef.current.pending > 0) return;
         if (isOpen && students.length > 0) {
             const initialData = students.map((student) => {
                 const { mass, catechism } = parseContent(student.content);
@@ -124,17 +166,9 @@ export function AttendanceModal({
                     catechism,
                 };
             });
-            setStudentAttendance(initialData);
-            setSaveStatus('idle');
-
-            if (typeof window !== 'undefined') {
-                const stored = window.sessionStorage.getItem(SORT_STORAGE_KEY);
-                if (stored && isValidSortKey(stored)) {
-                    setSortKey(stored);
-                }
-            }
+            syncStudentAttendance(initialData);
         }
-    }, [isOpen, students]);
+    }, [isOpen, students, syncStudentAttendance]);
 
     const sortedStudentAttendance = useMemo(
         () => sortStudents(studentAttendance, sortKey),
@@ -150,18 +184,19 @@ export function AttendanceModal({
         analytics.trackAttendanceSortClicked(value);
     };
 
-    const handleCheckChange = useCallback(
-        async (studentId: string, field: 'mass' | 'catechism', checked: boolean) => {
-            setStudentAttendance((prev) => prev.map((s) => (s.id === studentId ? { ...s, [field]: checked } : s)));
-
-            const student = studentAttendance.find((s) => s.id === studentId);
+    /** 학생의 현재 체크 상태를 직렬 체인으로 저장. 에러는 내부에서 처리(인디케이터 + 토스트 + 재시도 목록). */
+    const performSave = useCallback(
+        async (studentId: string) => {
+            const student = studentAttendanceRef.current.find((s) => s.id === studentId);
             if (!student) return;
 
-            const newMass = field === 'mass' ? checked : student.mass;
-            const newCatechism = field === 'catechism' ? checked : student.catechism;
-            const content = getStatusSymbol(newMass, newCatechism);
+            const content = getStatusSymbol(student.mass, student.catechism);
+            const session = saveSessionRef.current;
 
+            // 이전 저장의 idle 타이머가 진행 중인 'saving'/'error' 표시를 덮지 않도록 시작 시점에 정리
+            clearTimeout(idleTimerRef.current);
             setSaveStatus('saving');
+            session.pending += 1;
 
             try {
                 const data: AttendanceData = {
@@ -171,19 +206,63 @@ export function AttendanceModal({
                     data: content,
                 };
 
+                // 클릭 순서대로 직렬 전송 — 병렬 요청의 커밋 순서 역전(last-write-lost) 방지.
+                // 앞 저장이 실패해도 체인은 계속 진행한다.
                 // 서버가 content로 자동 분기: ◎/○/△ → upsert, '' → DELETE
-                await onSave([data]);
+                const savePromise = saveChainRef.current.then(
+                    () => onSave([data]),
+                    () => onSave([data])
+                );
+                saveChainRef.current = savePromise;
+                await savePromise;
 
-                setSaveStatus('saved');
                 markFirstAttendanceDone();
-                setTimeout(() => setSaveStatus('idle'), 2000);
+                failedStudentIdsRef.current.delete(studentId);
+                // 마지막 저장까지 끝났을 때만 '저장 완료' — 중간 완료가 진행 중 표시를 가리지 않도록.
+                // 세션이 바뀌었으면(모달 재오픈) 이전 세션의 늦은 완료는 인디케이터를 건드리지 않는다.
+                if (session === saveSessionRef.current && session.pending === 1) {
+                    setSaveStatus('saved');
+                    idleTimerRef.current = setTimeout(() => setSaveStatus('idle'), 2000);
+                }
             } catch (error) {
                 toast.error(extractErrorMessage(error));
-                setSaveStatus('error');
+                if (session === saveSessionRef.current) {
+                    failedStudentIdsRef.current.add(studentId);
+                    setSaveStatus('error');
+                }
+            } finally {
+                session.pending -= 1;
             }
         },
-        [studentAttendance, month, day, onSave]
+        [month, day, onSave]
     );
+
+    const handleCheckChange = useCallback(
+        async (studentId: string, field: 'mass' | 'catechism', checked: boolean) => {
+            // ref 미러를 동기 갱신한 뒤 그 값으로 저장 — 렌더 전 연속 클릭에도 stale 없음
+            syncStudentAttendance(
+                studentAttendanceRef.current.map((s) => (s.id === studentId ? { ...s, [field]: checked } : s))
+            );
+            await performSave(studentId);
+        },
+        [performSave, syncStudentAttendance]
+    );
+
+    /** 실패분을 현재 체크 상태 기준으로 재전송. performSave가 에러를 내부 처리하므로 floating 안전. */
+    const handleRetry = () => {
+        const failedIds = [...failedStudentIdsRef.current];
+        failedStudentIdsRef.current = new Set();
+
+        if (failedIds.length === 0) {
+            setSaveStatus('idle');
+
+            return;
+        }
+
+        for (const id of failedIds) {
+            void performSave(id);
+        }
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -308,7 +387,7 @@ export function AttendanceModal({
                                 <>
                                     <X className="h-4 w-4 text-red-700" aria-hidden="true" />
                                     <span className="text-red-700">저장 실패</span>
-                                    <Button variant="outline" size="sm" onClick={() => setSaveStatus('idle')}>
+                                    <Button variant="outline" size="sm" onClick={handleRetry}>
                                         재시도
                                     </Button>
                                 </>
