@@ -38,14 +38,41 @@ export class CreateOrganizationUseCase {
                 },
             });
 
-            const account = await tx.account.update({
-                where: { id: BigInt(accountId) },
+            // 조건부 업데이트: 미소속(organizationId=null) + 미삭제(deletedAt=null) 계정만 ADMIN 배정 성공.
+            // 소속 계정의 조용한 조직 이탈(유일 ADMIN이면 구 조직이 관리자 0명으로 고아화)을 차단한다 (O-1 패턴).
+            const assigned = await tx.account.updateMany({
+                where: {
+                    id: BigInt(accountId),
+                    organizationId: null,
+                    deletedAt: null,
+                },
                 data: {
                     organizationId: organization.id,
                     role: ROLE.ADMIN,
                     updatedAt: now,
                 },
             });
+
+            if (assigned.count === 0) {
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: 'CONFLICT: 이미 조직에 소속되어 있거나 탈퇴한 계정입니다',
+                });
+            }
+
+            // updateMany는 row를 반환하지 않으므로 스냅샷용 필드만 한정해 재조회한다.
+            const account = await tx.account.findUnique({
+                where: { id: BigInt(accountId) },
+                select: { id: true, name: true, displayName: true },
+            });
+
+            // 같은 트랜잭션에서 방금 조건부 갱신에 성공한 행이라 정상 경로에서는 도달 불가
+            if (!account) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'INTERNAL_SERVER_ERROR: 계정 재조회에 실패했습니다',
+                });
+            }
 
             await createAccountSnapshot(tx, {
                 accountId: account.id,

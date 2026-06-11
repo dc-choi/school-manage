@@ -1,12 +1,12 @@
 /**
  * 계정 자기 관리 통합 테스트 (실제 DB)
  *
- * TC-SM1 ~ TC-SM7, TC-SME1: 비밀번호 재설정/변경, 프로필 수정, 계정 삭제
+ * TC-SM1 ~ TC-SM10, TC-SME1: 비밀번호 재설정/변경, 프로필 수정, 계정 삭제/복원
  */
 import { type SeedBase, TEST_PASSWORD, TEST_PASSWORD_HASH, seedBase, truncateAll } from '../helpers/db-lifecycle.ts';
 import { getMockMailService } from '../helpers/test-stubs.ts';
 import { createAuthenticatedCaller, createPublicCaller, createScopedCaller } from '../helpers/trpc-caller.ts';
-import { JOIN_REQUEST_STATUS } from '@school/shared';
+import { JOIN_REQUEST_STATUS, ROLE } from '@school/shared';
 import { getNowKST } from '@school/utils';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { database } from '~/infrastructure/database/database.js';
@@ -148,10 +148,11 @@ describe('계정 자기 관리 통합 테스트', () => {
 
             const account = await database.account.findFirst({
                 where: { id: seed.account.id },
-                select: { deletedAt: true, organizationId: true },
+                select: { deletedAt: true, organizationId: true, role: true },
             });
             expect(account!.deletedAt).not.toBeNull();
             expect(account!.organizationId).toBeNull();
+            expect(account!.role).toBeNull();
         });
 
         it('TC-SM7: 비밀번호 불일치 → UNAUTHORIZED', async () => {
@@ -205,6 +206,51 @@ describe('계정 자기 관리 통합 테스트', () => {
                 select: { deletedAt: true },
             });
             expect(account?.deletedAt).not.toBeNull();
+        });
+
+        it('TC-SM9: TEACHER 탈퇴 → organizationId/role 모두 해제 (강퇴와 대칭) + 조직 cascade 미발동', async () => {
+            const now = getNowKST();
+            const teacher = await database.account.create({
+                data: {
+                    name: '소속교사',
+                    displayName: '소속교사',
+                    password: TEST_PASSWORD_HASH,
+                    organizationId: seed.org.id,
+                    role: ROLE.TEACHER,
+                    createdAt: now,
+                    privacyAgreedAt: now,
+                },
+            });
+
+            const caller = createScopedCaller(String(teacher.id), teacher.name, seed.ids.orgId, seed.org.name, {
+                role: ROLE.TEACHER,
+            });
+            const result = await caller.account.deleteAccount({ password: TEST_PASSWORD });
+
+            expect(result).toEqual({ success: true });
+
+            const account = await database.account.findUnique({ where: { id: teacher.id } });
+            expect(account!.deletedAt).not.toBeNull();
+            expect(account!.organizationId).toBeNull();
+            expect(account!.role).toBeNull();
+
+            // TEACHER 탈퇴는 조직 cascade 미발동
+            const org = await database.organization.findUnique({ where: { id: seed.org.id } });
+            expect(org!.deletedAt).toBeNull();
+        });
+
+        it('TC-SM10: 탈퇴 후 복원 → 미소속 + role 해제 상태 ("role 있음 + 조직 없음" 모순 회귀 방지)', async () => {
+            // 유일 멤버 ADMIN 탈퇴 (cascade) 후 복원
+            const caller = createScopedCaller(seed.ids.accountId, seed.account.name, seed.ids.orgId, seed.org.name);
+            await caller.account.deleteAccount({ password: TEST_PASSWORD });
+
+            const publicCaller = createPublicCaller();
+            await publicCaller.auth.restoreAccount({ name: seed.account.name, password: TEST_PASSWORD });
+
+            const account = await database.account.findUnique({ where: { id: seed.account.id } });
+            expect(account!.deletedAt).toBeNull();
+            expect(account!.organizationId).toBeNull();
+            expect(account!.role).toBeNull();
         });
     });
 });

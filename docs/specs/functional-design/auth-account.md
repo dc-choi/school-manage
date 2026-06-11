@@ -10,6 +10,7 @@
 - PRD: `docs/specs/prd/self-onboarding.md` (셀프 온보딩)
 - PRD: `docs/specs/prd/admin-transfer.md` (관리자 양도)
 - PRD: `docs/specs/prd/input-validation-hardening.md` (입력 검증 강화 — BUGFIX)
+- PRD: `docs/specs/prd/account-multi-membership.md` (겸직 모델 검토 A-4 — BUGFIX)
 - 기능 설계: `docs/specs/functional-design/admin-transfer.md` (관리자 양도 상세)
 
 ## 기능 범위
@@ -23,6 +24,7 @@
 | 계정 자기 관리 (2단계)          | 비밀번호 재설정/변경, 이름 변경, 탈퇴/복원   | 구현 완료 |
 | 셀프 온보딩 (2단계)             | 대시보드 3단계 체크리스트                    | 구현 완료 |
 | 관리자 양도                     | ADMIN↔TEACHER 역할 교환, 유일 멤버 조직 삭제 | 구현 완료 |
+| 단일 소속 정합화 (A-4)          | 조직 생성 소속 가드, 탈퇴 role 해제          | 구현 완료 |
 
 ---
 
@@ -130,11 +132,18 @@ RefreshToken의 `createdAt`, `expiresAt` 포함 모든 DB 타임스탬프는 `ge
 
 회원가입(`auth.signup`)과 ID 중복 확인(`auth.checkId`)은 기존 신규 가입자 대상 엄격 검증 유지. 위반 시 400 BAD_REQUEST + 한글 메시지.
 
+### 단일 소속 도메인 의도 + 미소속 role 불변식 (A-4 BUGFIX)
+
+- Account는 한 시점에 **최대 1개 Organization 소속** (`organizationId` 단일 nullable FK + `role` 단일 컬럼). 계정 모델 전환(2026-03)의 명시적 설계 의도 — "조직별 1개 계정 발급, 멤버십 테이블 불필요". 겸직(복수 모임 동시 소속)의 공식 워크어라운드는 **조직별 별도 계정**이며, 교사 출석 관리는 교사단/교사회 Organization + Student 레코드 패턴이 흡수한다.
+- **도메인 불변식: 미소속(organizationId=null) 계정은 role도 null.** 소속/역할은 합류 승인(approve-join)과 조직 생성(organization.create)이 쌍으로 설정하고, 강퇴(remove-member)와 탈퇴(account.delete)가 쌍으로 해제한다. 탈퇴가 role을 잔존시키던 결함은 2026-06-11 수정 + 기존 모순 데이터는 data migration(`20260611_account_role_unorganized_cleanup.sql`)으로 정리.
+- **organization.create 소속 가드**: 미소속+미삭제 계정만 생성 성공 (조건부 갱신 + 갱신 수 검증, O-1 패턴 — race 안전). 실패 시 `CONFLICT: 이미 조직에 소속되어 있거나 탈퇴한 계정입니다` + 트랜잭션 롤백으로 조직도 미생성. 소속 계정의 조용한 조직 이탈과 유일 ADMIN의 구 조직 관리자 0명 고아화(ADMIN≥1 불변식 우회)를 차단한다.
+- **N:M 멤버십 재진입 트리거** (충족 시 별건 PRD 재등록): ① 겸직 직접 요청 누적 2건 ② 동일 인물 다계정 운영 DB 실측 3건 ③ 교사단 org 패턴 한계 발화 1건. 검토 전체 이력: `docs/specs/prd/account-multi-membership.md`
+
 > 로그인/회원가입 UI 개선, 개인정보 제공동의, 계정 자기 관리, 셀프 온보딩 → `auth-account-extended.md` 참조
 
 ---
 
 **작성일**: 2026-01-13
-**최종 수정**: 2026-04-24 (로그인 입력 길이 상한 BUGFIX 병합)
+**최종 수정**: 2026-06-11 (A-4 단일 소속 도메인 의도 + 미소속 role 불변식 병합)
 **작성자**: PM 에이전트 / SDD 작성자
 **상태**: Approved (구현 완료)

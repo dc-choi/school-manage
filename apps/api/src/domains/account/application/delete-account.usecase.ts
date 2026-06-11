@@ -84,10 +84,10 @@ export class DeleteAccountUseCase {
                     data: { deletedAt: now },
                 });
 
-                // 3f. 계정 소프트 삭제 + 조직 연결 해제
+                // 3f. 계정 소프트 삭제 + 조직/역할 연결 해제 (미소속 계정은 role=null 불변식 — 강퇴와 대칭)
                 await tx.account.update({
                     where: { id: account.id },
-                    data: { deletedAt: now, organizationId: null },
+                    data: { deletedAt: now, organizationId: null, role: null },
                 });
 
                 // 3g. 모든 Refresh Token 삭제
@@ -109,7 +109,7 @@ export class DeleteAccountUseCase {
 
             await tx.account.update({
                 where: { id: account.id },
-                data: { deletedAt: now, organizationId: null },
+                data: { deletedAt: now, organizationId: null, role: null },
             });
 
             await tx.refreshToken.deleteMany({

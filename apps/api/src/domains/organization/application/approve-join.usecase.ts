@@ -74,10 +74,19 @@ export class ApproveJoinUseCase {
                 });
             }
 
-            // updateMany는 row를 반환하지 않으므로 스냅샷용 필드를 재조회한다.
-            const account = await tx.account.findUniqueOrThrow({
+            // updateMany는 row를 반환하지 않으므로 스냅샷용 필드만 한정해 재조회한다.
+            const account = await tx.account.findUnique({
                 where: { id: joinRequest.accountId },
+                select: { id: true, name: true, displayName: true },
             });
+
+            // 같은 트랜잭션에서 방금 조건부 갱신에 성공한 행이라 정상 경로에서는 도달 불가
+            if (!account) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'INTERNAL_SERVER_ERROR: 계정 재조회에 실패했습니다',
+                });
+            }
 
             await createAccountSnapshot(tx, {
                 accountId: account.id,
