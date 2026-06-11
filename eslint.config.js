@@ -23,6 +23,7 @@ module.exports = defineConfig([
                 project: [
                     'apps/api/tsconfig.json',
                     'apps/web/tsconfig.json',
+                    'apps/web/e2e/tsconfig.json',
                     'packages/shared/tsconfig.json',
                     'packages/trpc/tsconfig.json',
                     'packages/utils/tsconfig.eslint.json',

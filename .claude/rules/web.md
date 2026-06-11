@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/web/**"
+    - 'apps/web/**'
 ---
 
 # Web App Rules (@school/web)
@@ -9,15 +9,15 @@ Vite + React 웹 프론트엔드 개발 가이드입니다.
 
 ## 기술 스택
 
-| 항목 | 기술 | 비고 |
-|------|------|------|
-| 빌드 도구 | Vite | 빠른 HMR |
-| 프레임워크 | React 19 | TypeScript |
-| 라우팅 | React Router v6 | createBrowserRouter |
-| 상태 관리 | TanStack Query | 서버 상태 관리 |
-| API 클라이언트 | tRPC | `@school/trpc` 사용 |
-| 스타일링 | Tailwind CSS v4 | shadcn/ui 컴포넌트 |
-| UI 컴포넌트 | shadcn/ui | Radix UI 기반 |
+| 항목           | 기술            | 비고                |
+| -------------- | --------------- | ------------------- |
+| 빌드 도구      | Vite            | 빠른 HMR            |
+| 프레임워크     | React 19        | TypeScript          |
+| 라우팅         | React Router v6 | createBrowserRouter |
+| 상태 관리      | TanStack Query  | 서버 상태 관리      |
+| API 클라이언트 | tRPC            | `@school/trpc` 사용 |
+| 스타일링       | Tailwind CSS v4 | shadcn/ui 컴포넌트  |
+| UI 컴포넌트    | shadcn/ui       | Radix UI 기반       |
 
 ## Directory Structure
 
@@ -52,20 +52,20 @@ apps/web/src/
 
 ### 1. 페이지 vs 컴포넌트 분리
 
-| 폴더 | 역할 |
-|------|------|
-| `pages/` | 라우트와 1:1 매핑. 데이터 fetching, 레이아웃 조합 담당 |
-| `components/` | 재사용 가능한 순수 UI 컴포넌트 (presentational) |
+| 폴더          | 역할                                                   |
+| ------------- | ------------------------------------------------------ |
+| `pages/`      | 라우트와 1:1 매핑. 데이터 fetching, 레이아웃 조합 담당 |
+| `components/` | 재사용 가능한 순수 UI 컴포넌트 (presentational)        |
 
 ### 2. 컴포넌트 네이밍 규칙
 
-| 유형 | 네이밍 패턴 | 예시 |
-|------|-------------|------|
-| 페이지 | `*Page.tsx` | `LoginPage.tsx` |
-| 레이아웃 | `*Layout.tsx` | `MainLayout.tsx` |
-| 폼 | `*Form.tsx` | `StudentForm.tsx` |
-| 공통 컴포넌트 | `PascalCase.tsx` | `Button.tsx` |
-| 훅 | `use*.ts` | `useAuth.ts` |
+| 유형          | 네이밍 패턴      | 예시              |
+| ------------- | ---------------- | ----------------- |
+| 페이지        | `*Page.tsx`      | `LoginPage.tsx`   |
+| 레이아웃      | `*Layout.tsx`    | `MainLayout.tsx`  |
+| 폼            | `*Form.tsx`      | `StudentForm.tsx` |
+| 공통 컴포넌트 | `PascalCase.tsx` | `Button.tsx`      |
+| 훅            | `use*.ts`        | `useAuth.ts`      |
 
 ### 3. 파일 배치 원칙
 
@@ -81,16 +81,17 @@ pnpm build              # 프로덕션 빌드
 pnpm preview            # 빌드 미리보기
 pnpm test               # 테스트 실행 (vitest)
 pnpm test:watch         # 테스트 워치 모드
-pnpm typecheck          # 타입 체크
+pnpm test:e2e           # 출석 화면 e2e 회귀 (Playwright) — 루트에서 실행 권장 (turbo가 api build 선행)
+pnpm typecheck          # 타입 체크 (src/test + e2e tsconfig 체인)
 ```
 
 ## tRPC 클라이언트 설정
 
 ```typescript
 // src/lib/trpc.ts
-import { createTRPCReact } from '@trpc/react-query';
-import { httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '@school/trpc';
+import { httpBatchLink } from '@trpc/client';
+import { createTRPCReact } from '@trpc/react-query';
 
 export const trpc = createTRPCReact<AppRouter>();
 

@@ -64,6 +64,10 @@ typings/
 .env
 .env.*
 
+# Playwright
+test-results/
+playwright-report/
+
 # next.js build output
 .next
 

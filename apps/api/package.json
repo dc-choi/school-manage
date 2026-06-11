@@ -18,6 +18,7 @@
     "prisma:generate": "node scripts/prisma-generate.cjs",
     "build": "tsc -b && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/src/app.js",
+    "start:e2e": "node scripts/start-e2e.cjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "pnpm prisma:generate && pnpm clean && pnpm build && cross-env NODE_ENV=local node dist/src/app.js",

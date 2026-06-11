@@ -39,6 +39,7 @@ pnpm build              # 모든 패키지 빌드 (turbo)
 pnpm dev                # 모든 앱 개발 서버 (병렬)
 pnpm start              # 프로덕션 서버 시작
 pnpm test               # 모든 패키지 테스트 실행
+pnpm test:e2e           # 출석 화면 e2e 회귀 (Playwright). dev 서버 내리고 실행 — 포트 9000/9080 점유 시 의도적 중단
 pnpm typecheck          # 타입 체크
 pnpm lint               # ESLint 검사
 pnpm lint:fix           # ESLint 자동 수정
@@ -60,6 +61,7 @@ pnpm --filter @school/api db:seed    # 비어있는 DB에 seed만 주입
 - 모든 계정 비밀번호: `5678` (로컬 전용)
 - 프로덕션 가드: `NODE_ENV=production`이면 seed 자체가 abort
 - 테스트 DB는 영향받지 않음 (`vitest.global-setup.ts`가 독립적으로 리셋)
+- e2e DB도 독립 (`school_e2e` 스키마, `apps/api/scripts/start-e2e.cjs`가 매 실행 리셋+seed. 로컬 셋업: `apps/api/.env.test-e2e.example` 참조)
 
 ## Coding Style
 

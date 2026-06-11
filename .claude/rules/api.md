@@ -217,6 +217,6 @@ it('그룹 생성', async () => {
 
 ## Environment
 
-- `.env.{NODE_ENV}` 파일 사용 (`.env.local`, `.env.test`)
-- `.env.example`을 복사하여 환경변수 설정
+- `.env.{NODE_ENV}` 파일 사용 (`.env.local`, `.env.test`, `.env.test-e2e`)
+- `.env.example`을 복사하여 환경변수 설정 (e2e는 `.env.test-e2e.example` — `MYSQL_SCHEMA`에 "e2e" 필수, `scripts/start-e2e.cjs` 가드)
 - 실제 credentials는 절대 커밋하지 않음

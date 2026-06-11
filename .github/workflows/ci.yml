@@ -90,3 +90,72 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: school_e2e
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Create e2e env file
+        run: |
+          cat > apps/api/.env.test-e2e <<'EOF'
+          MYSQL_HOST=127.0.0.1
+          MYSQL_PORT=3306
+          MYSQL_USERNAME=test
+          MYSQL_PASSWORD=test
+          MYSQL_SCHEMA=school_e2e
+          APP_NAME=school-manage-e2e
+          APP_PORT=9000
+          JWT_SECRET=e2e-secret-key-for-ci
+          JWT_EXPIRE_ACCESS=1h
+          JWT_EXPIRE_REFRESH=14d
+          EOF
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @school/web exec playwright install --with-deps chromium
+
+      - name: E2E test
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+          retention-days: 7

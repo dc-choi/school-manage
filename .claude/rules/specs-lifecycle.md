@@ -27,12 +27,13 @@ paths:
 
 ### CI 검증 (GitHub Actions — PR 시 자동)
 
-| 검증 항목   | 도구                         |
-| ----------- | ---------------------------- |
-| 코드 스타일 | `pnpm lint && pnpm prettier` |
-| 타입 안전성 | `pnpm typecheck`             |
-| 빌드 성공   | `pnpm build`                 |
-| 테스트 통과 | `pnpm test`                  |
+| 검증 항목            | 도구                                       |
+| -------------------- | ------------------------------------------ |
+| 코드 스타일          | `pnpm lint && pnpm prettier`               |
+| e2e 회귀 (출석 화면) | `pnpm test:e2e` (별도 e2e job, Playwright) |
+| 타입 안전성          | `pnpm typecheck`                           |
+| 빌드 성공            | `pnpm build`                               |
+| 테스트 통과          | `pnpm test`                                |
 
 > SonarCloud는 미배선 — `sonar-project.properties`와 `SONAR_TOKEN` secret만 존재하고 scan step은 없음 (2026-06-11 배선하지 않기로 결정, ci-pipeline 보강에서 제외).
 
