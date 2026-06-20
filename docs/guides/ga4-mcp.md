@@ -153,3 +153,16 @@ OAuth Consent Screen의 Test users에 본인 Gmail이 등록되지 않은 경우
 ## ADC 토큰 갱신
 
 평소엔 자동 refresh되지만 장기간 미사용 등으로 만료되면 5단계 명령을 다시 실행한다.
+
+## Fallback: MCP 서버 DNS 장애 시 Data API 직접 호출
+
+MCP 서버가 `503 ... Could not contact DNS servers (analyticsdata.googleapis.com)`를 반복하면, 서버 프로세스의 gRPC resolver 상태가 깨진 것이다(세션 중 MCP 재연결 churn 시 발생). 호스트 DNS/네트워크는 정상이므로 `nslookup analyticsdata.googleapis.com`으로 먼저 확인. 근본 해소는 **Claude Code 세션 재시작**(서버 재초기화)이지만, 그 전에 ADC 토큰으로 Data API를 직접 호출해 우회할 수 있다(2026-06-21 실증).
+
+```bash
+TOKEN=$(gcloud auth application-default print-access-token)   # --scopes 붙이지 말 것(화이트리스트 제약, ADC에 이미 analytics.readonly 포함)
+curl -s -X POST "https://analyticsdata.googleapis.com/v1beta/properties/521847047:runReport" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"dateRanges":[{"startDate":"7daysAgo","endDate":"yesterday"}],"dimensions":[{"name":"date"}],"metrics":[{"name":"activeUsers"}]}'
+```
+
+요청 바디는 camelCase(`dateRanges`/`startDate`/`dimensionFilter`/`orderBys`) — MCP의 snake_case와 다름. 실시간은 `:runRealtimeReport`.

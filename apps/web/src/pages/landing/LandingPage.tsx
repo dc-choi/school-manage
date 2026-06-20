@@ -14,7 +14,6 @@ import { Footer } from '~/components/layout/Footer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '~/components/ui/accordion';
 import { Button } from '~/components/ui/button';
 import { useAuth } from '~/features/auth';
-import { useLiturgicalTheme } from '~/hooks/useLiturgicalTheme';
 import { analytics } from '~/lib/analytics';
 import { trpc } from '~/lib/trpc';
 
@@ -83,7 +82,6 @@ const FAQ_ITEMS = [
 export function LandingPage() {
     const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
     const navigate = useNavigate();
-    useLiturgicalTheme();
     const { data: countData } = trpc.account.count.useQuery(undefined, {
         retry: false,
         staleTime: 5 * 60 * 1000,
