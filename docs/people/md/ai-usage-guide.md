@@ -1,190 +1,171 @@
-# AI 활용 가이드 (공통)
+# AI 활용 가이드
 
-이 프로젝트는 AI 보조 개발/콘텐츠 제작이 핵심 운영 방식이다.
-기술이나 마케팅 경험이 부족해도, 프로젝트에 세팅된 AI 도구가 가이드라인 역할을 한다.
-**"잘 몰라도 AI에게 물어보면서 할 수 있는 구조"**가 이 프로젝트의 설계 철학이다.
+이 저장소는 AI를 개발과 문서 작업의 보조 도구로 사용한다. 기술 또는 마케팅 경험을 대신하는 것이 아니라 탐색, 초안, 반복 검증 비용을 줄이는 방식이다.
 
-> 처음이면: `ai-setup-guide.md` (설치) → `ai-basics-guide.md` (기초) → 이 문서 (실전) 순서로 진행.
+> 처음이면 `ai-setup-guide.md` → `ai-basics-guide.md` → 이 문서 순서로 진행한다.
 
 ## 핵심 원칙
 
-1. **혼자 고민하지 말고 AI에게 먼저 물어봐라** — Claude Code가 프로젝트 컨텍스트를 이미 알고 있다
-2. **규칙 파일이 가드레일이다** — `.claude/rules/`에 13개 룰 파일이 있고, AI가 이걸 읽고 작업한다
-3. **슬래시 커맨드가 워크플로우다** — 복잡한 절차를 몰라도 `/sdd`, `/biz`, `/commit` 등으로 실행하면 된다
-4. **AI 출력은 시작점이지 최종본이 아니다** — 반드시 검토하고, 맥락에 맞게 수정하라
+1. AI에게 맥락과 근거 파일을 지정한다.
+2. `.claude/CLAUDE.md`와 현재 작업에 해당하는 규칙을 확인한다.
+3. 반복 절차는 저장소 스킬로 실행하되 각 단계 결과를 검토한다.
+4. AI 출력은 시작점이다. 코드, 테스트, 수치, 외부 상태를 사람이 확인한다.
+5. 분석 요청과 수정 권한을 구분하고 운영 작업은 별도 승인한다.
 
----
+## 현재 저장소 도구 구성
 
-## 도구 개요
+rule, skill, agent 목록의 SSoT는 `.claude/CLAUDE.md` 카탈로그와 각 디렉터리다. 고정 개수를 외우지 말고 작업 전 실제 파일을 확인한다.
 
-### Conductor (AI 개발 플랫폼)
-
-여러 AI 에이전트를 병렬로 실행할 수 있는 Mac 앱. 각 워크스페이스가 독립적인 작업 공간.
-
-### Claude Code (AI 코딩/문서 어시스턴트)
-
-프로젝트 전체 컨텍스트를 이해하는 AI. `.claude/CLAUDE.md`와 `.claude/rules/`를 자동으로 읽고 작업한다.
-
-**핵심 기능:**
-- 코드 읽기/쓰기/편집
-- 파일 검색 (Glob, Grep)
-- 터미널 명령 실행 (빌드, 테스트, 배포)
-- 웹 검색
-- 서브 에이전트 생성 (복잡한 작업 위임)
-
----
-
-## 슬래시 커맨드 (역할별)
-
-### 프로덕트 엔지니어 필수
-
-| 커맨드 | 용도 | 언제 사용 |
-|--------|------|----------|
-| `/sdd` | 기능 개발 전체 워크플로우 | 새 기능 시작할 때 `/sdd 0`부터 |
-| `/sdd 5` | 구현 + 테스트 | 코드 작성할 때 |
-| `/sdd 6` | 자동 검증 + PR 생성 | 구현 완료 후 |
-| `/commit` | 변경 분석 + 커밋 | 코드 커밋할 때 |
-| `/test` | 테스트 실행 + 결과 요약 | 코드 변경 후 |
-| `/prisma-migrate` | DB 스키마 변경 | Prisma 스키마 수정 후 |
-
-### 콘텐츠 마케터 필수
-
-| 커맨드 | 용도 | 언제 사용 |
-|--------|------|----------|
-| `/biz content` | 콘텐츠 마케터 서브 에이전트 | 콘텐츠 제작할 때 |
-| `/biz status` | 사업 현황 확인 | 콘텐츠 방향 잡을 때 |
-| `/biz content instagram` | 인스타그램 콘텐츠 제작 | 피드 포스트 만들 때 |
-
-### 공통
-
-| 커맨드 | 용도 | 언제 사용 |
-|--------|------|----------|
-| `/biz` | 사업 문서 관리 | 사업 맥락 파악할 때 |
-| `/bs [주제]` | 브레인스토밍 (기획자↔비판자 3라운드) | 새 아이디어 검토할 때 |
-
----
-
-## 자동 검증 시스템
-
-코드를 편집하면 **자동으로** 다음이 실행된다:
-
-```
-파일 저장 → pnpm lint:fix + pnpm typecheck (PostToolUse 훅)
+```bash
+find .claude/rules -maxdepth 1 -name '*.md'
+find .claude/skills -mindepth 2 -maxdepth 2 -name SKILL.md
+find .claude/agents -maxdepth 1 -name '*.md'
 ```
 
-`/sdd 6` 실행 시 **3개 서브 에이전트가 자동 리뷰**:
+### 인터페이스
 
-| 에이전트 | 검사 내용 |
-|----------|----------|
-| `security-reviewer` | IDOR, XSS, SQL injection, 토큰 노출, OWASP Top 10 |
-| `design-reviewer` | shadcn/ui 일관성, 반응형, 접근성(a11y), 컬러/스페이싱 |
-| `performance-analyzer` | N+1 쿼리, 번들 크기, 렌더링 최적화, 캐싱 |
+- Claude Code 터미널: 이 가이드의 기준 인터페이스
+- 공식 Desktop, VS Code, Web: 역할과 환경에 따라 선택 가능
+- Conductor: 설치 가능성과 팀 승인을 확인한 뒤 사용하는 선택형 외부 GUI
 
-**즉, 보안·디자인·성능을 모두 알 필요 없다. AI가 자동으로 잡아준다.**
+외부 인터페이스 정보는 [Claude Code 공식 quickstart](https://code.claude.com/docs/en/quickstart)를 2026-07-15에 확인했다. 기능과 설치 방식은 공식 문서를 우선한다.
 
----
+## 주요 스킬
 
-## 규칙 파일 구조 (`.claude/rules/`)
+### 프로덕트 엔지니어
 
-AI가 자동으로 읽는 가이드라인. **사람이 직접 읽을 필요는 없지만**, 어떤 규칙이 있는지 알면 AI에게 더 정확한 지시를 내릴 수 있다.
+| 스킬 | 용도 | 사용 시점 |
+| --- | --- | --- |
+| `/sdd` | Functional 0부터 6까지와 예외 흐름 | 승인된 작업 시작 |
+| `/sdd quick` | PRD와 FD를 거치는 소규모 변경 | 단일 파일 등 작은 변경 |
+| `/sdd non-func` | FD → 구현 → 검증 | 성능, 보안, 인프라, DX |
+| `/test` | 전체 또는 패키지 테스트 | 변경 후 |
+| `/pre-pr` | 변경 영역별 reviewer 호출 | PR 전 |
+| `/prisma-migrate` | 스키마 변경과 개발 DB 반영 | Prisma 변경 시 |
+| `/commit` | diff 분석과 확인 후 커밋 | 검증 완료 후 |
+| `/pr` | PR 본문 작성과 생성 | reviewer 대응 완료 후 |
 
-### 개발 규칙
-| 파일 | 가이드 내용 |
-|------|-----------|
-| `api.md` | 백엔드 아키텍처, procedure 타입, IDOR 방지, Kysely 패턴 |
-| `web.md` | 프론트엔드 구조, 인증 플로우, 라우트 테이블 |
-| `web-patterns.md` | 코드 스플리팅, ErrorBoundary, 성능 패턴 |
-| `trpc.md` | tRPC 패키지 구조, 프로시저 계층 |
-| `shared.md` | Zod 스키마, 도메인 상수 |
-| `utils.md` | 날짜/포맷/수학 유틸리티 |
-| `design.md` | UI 컴포넌트, 레이아웃, 반응형, 컬러 |
-| `design-patterns.md` | 폼, 접근성 체크리스트, 컴포넌트 작성 원칙 |
+### 사업과 콘텐츠
 
-### SDD/사업 규칙
-| 파일 | 가이드 내용 |
-|------|-----------|
-| `specs.md` | SDD 7단계 워크플로우 |
-| `specs-lifecycle.md` | 검증, 문서 정리, 예외 처리 |
-| `business.md` | 사업 문서 7단계 프레임워크 |
+| 스킬 | 용도 | 현재 운영 조건 |
+| --- | --- | --- |
+| `/biz status` | STATUS와 사업 문서 현황 점검 | 최신 수치는 STATUS만 사용 |
+| `/biz-pulse` | DB 메일, GA4, Clarity 기반 정량 보강 | 외부 데이터 접근 가능할 때 |
+| `/biz-audit` | 사업 문서 간 용어, 수치, 가정 감사 | 사업 문서 변경 후 |
+| `/biz content [주제]` | 콘텐츠 초안 작업 | 콘텐츠 운영 게이트가 열린 뒤 |
+| `/bs [주제]` | 기획자와 비판자 토론 | 아이디어 검토 |
+| `/biz handoff [기능명]` | 사업 판단을 SDD로 연결 | TARGET 진입 승인 후 |
 
-### 콘텐츠 규칙
-| 파일 | 가이드 내용 |
-|------|-----------|
-| `content.md` | 톤앤매너, Do/Don't, 콘텐츠 유형 |
-| `content-templates.md` | 카드뉴스 템플릿(나노바나나), 릴스 템플릿(Veo) |
+현재 `STATUS.md`상 Instagram 콘텐츠 생산은 별도 재개 승인 전까지 동결이다. 2026년 9월 90일 사업 검증 모드 채택은 재개 승인이 아니다. `/biz content`가 기술적으로 가능해도 게이트 재평가 전에는 게시용 산출물을 만들거나 발행하지 않는다.
 
----
+## 검증 자동화의 실제 동작
 
-## AI 활용 실전 예시
+파일 저장 즉시 모든 검사가 실행되는 구조가 아니다.
 
-### 엔지니어: "학생 목록에 검색 기능 추가하고 싶은데 어떻게 시작하지?"
-
-```
-Claude에게: "/sdd 0 학생 목록 검색 기능"
-→ AI가 자동으로 docs/specs/README.md에 등록하고 PRD 작성 안내
-→ /sdd 1 → PRD 작성 (AI가 기존 student 도메인 패턴 분석해서 초안 제안)
-→ /sdd 2 → 기능설계 (AI가 api.md, web.md 룰 참고해서 설계)
-→ /sdd 5 → 구현 (AI가 기존 코드 패턴 따라 코드 작성 + 테스트)
-→ /sdd 6 → 자동 검증 + PR 생성
+```text
+Edit/Write
+  → PostToolUse가 편집 파일 경로만 기록
+  → Claude Code Stop 훅이 pnpm lint:fix + pnpm typecheck를 한 번 실행
+  → /pre-pr이 변경 영역에 맞는 reviewer를 선택
+  → /sdd 6이 자동 검사, 문서 정리, 커밋, PR 절차를 연결
+  → PR CI가 lint, prettier, typecheck, build, test, E2E를 실행
 ```
 
-### 엔지니어: "이 에러 왜 나는지 모르겠어"
+Stop 훅 통과는 전체 CI 통과와 같지 않다. PR 전에는 필요한 build, test, E2E를 별도로 실행한다.
 
+### `/pre-pr` reviewer 6종
+
+| agent | 검사 영역 |
+| --- | --- |
+| `security-reviewer` | 인증, 권한, 입력 검증, 시크릿, OWASP |
+| `database-reviewer` | Prisma, 쿼리, 인덱스, 트랜잭션 |
+| `typescript-reviewer` | 타입 안전, async, 에러 전파, TS 관용구 |
+| `silent-failure-hunter` | 빈 catch, 삼킨 오류, 위험한 fallback |
+| `design-reviewer` | UI/UX, 접근성, 디자인 시스템 |
+| `performance-analyzer` | 번들, 렌더링, 쿼리 성능 |
+
+모든 reviewer를 항상 호출하지 않는다. diff에 해당하는 영역만 선택하며 문서만 바뀐 경우 코드 reviewer를 생략할 수 있다. AI 리뷰는 사람의 코드 리뷰와 실행 검증을 보완할 뿐 대체하지 않는다.
+
+## rule 구조
+
+| 분류 | 파일 |
+| --- | --- |
+| 품질 | `coding-style.md`, `typescript.md`, `code-review.md` |
+| Backend | `api.md`, `trpc.md`, `shared.md`, `utils.md` |
+| Web/Design | `web.md`, `web-patterns.md`, `design.md`, `design-patterns.md` |
+| SDD/사업 | `specs.md`, `specs-lifecycle.md`, `business.md` |
+| 콘텐츠 | `content.md`, `content-templates-feed.md`, `content-templates-reel.md`, `content-templates-combined.md` |
+
+규칙 목록을 외우기보다 작업 파일과 관련된 원문을 직접 읽는다. 예를 들어 `.ts`와 `.tsx`는 `typescript.md`, API 도메인은 `api.md`, 콘텐츠는 `content.md`를 함께 확인한다.
+
+## 실전 예시
+
+### 승인된 기능 시작
+
+```text
+/sdd 0
 ```
-Claude에게: "이 에러 메시지를 보여주고 관련 코드를 분석해줘"
-→ AI가 에러 추적, 관련 파일 탐색, 원인 분석, 수정안 제시
-→ 수정 후 /test로 검증
+
+`docs/specs/README.md`에서 미착수 후보를 고르고 `STATUS.md`와 로드맵 배경을 확인한다. 보류, 외부 의존성 대기, 재검토 전 항목은 목록에 보인다는 이유만으로 시작하지 않는다.
+
+일반 Functional 흐름:
+
+```text
+/sdd 1 <기능명>  PRD
+/sdd 2 <기능명>  기능 설계
+/sdd 3 <기능명>  역할별 Task
+/sdd 4 <기능명>  역할별 구현 명세
+/sdd 5 <기능명>  Backend → Frontend → 테스트
+/sdd 6 <기능명>  reviewer → 검사 → 문서 정리 → 커밋 → PR
 ```
 
-### 마케터: "새 기능 출시 인스타 콘텐츠 만들어야 해"
+`/sdd 6`은 reviewer 결과 전부에 대한 사용자 대응이 끝날 때까지 커밋과 PR로 진행하지 않는다.
 
-```
-Claude에게: "/biz content instagram"
-→ AI가 content.md 톤앤매너 + content-templates.md 템플릿 + gtm.md 포지셔닝 읽고
-→ 카드뉴스 초안 생성 (나노바나나 이미지 프롬프트 포함)
-→ 캡션 + 해시태그 자동 생성
-→ docs/content/instagram/feed/에 저장
-```
+### 에러 분석
 
-### 공통: "이 아이디어 괜찮을까?"
-
-```
-Claude에게: "/bs 출석 알림 카카오톡 연동"
-→ 기획자 에이전트가 2-3개 구체안 제시
-→ 비판자 에이전트가 사용자/사업/기술/리스크 관점으로 검증
-→ 3라운드 토론 후 의사결정 트리 평가
-→ 최종 결정은 사람이
+```text
+이 에러를 재현해줘. 먼저 실패 명령과 첫 원인만 분석하고 파일은 수정하지 마.
+관련 코드와 테스트를 파일 경로, 줄 근거로 제시해줘.
 ```
 
----
+원인에 동의한 뒤 수정과 검증을 별도 요청한다.
 
-## Week 1 AI 셋업 체크리스트
+### 사업 상태 확인
 
-### 양 역할 공통
+```text
+/biz status
+```
 
-- [ ] Conductor 설치 + 워크스페이스 연결
-- [ ] Claude Code 터미널에서 `/help` 실행해서 기본 사용법 확인
-- [ ] 간단한 질문 3개 해보기: "이 프로젝트 뭐하는 거야?", "Student 도메인 구조 알려줘", "최근 커밋 내역 보여줘"
-- [ ] 슬래시 커맨드 1개 실행해보기: `/biz status` (가장 안전한 읽기 전용 명령)
+- WVO와 MAO는 단체 단위, MAU는 사용자 단위다.
+- 현재값은 `docs/business/STATUS.md`, 정의와 산식은 `docs/business/5_metrics/metrics.md`를 따른다.
+- 서로 다른 단위나 기준일을 나눠 전환율을 만들지 않는다.
+- 외부 PG, 계약, 인터뷰 결과처럼 저장소에서 확인할 수 없는 상태는 `미확인`으로 남긴다.
 
-### 엔지니어 추가
+### 아이디어 검토
 
-- [ ] `/test` 실행해서 테스트 결과 확인
-- [ ] `/commit` 으로 커밋 메시지 자동 생성 체험 (실제 커밋 전 취소 가능)
-- [ ] Claude에게 "Student 도메인 전체 구조 설명해줘" 요청 → 코드 탐색 능력 확인
+```text
+/bs 출석 알림 카카오톡 연동
+```
 
-### 마케터 추가
+토론 결과는 결정이 아니다. 사업 SSoT, 사용자 근거, 기술 의존성을 확인하고 `/bs-to-target`과 `/sdd 0` 진입 여부를 사람이 승인한다.
 
-- [ ] Claude에게 "현재 인스타그램 콘텐츠 목록 보여줘" 요청
-- [ ] `/biz content` 실행해서 콘텐츠 서브 에이전트 체험
-- [ ] Claude에게 "카드뉴스 템플릿 보여줘" 요청 → 콘텐츠 제작 파이프라인 이해
+## 보안과 운영 주의사항
 
----
+1. `.env`, 비밀번호, API 토큰, SSH 키를 읽거나 붙여넣지 않는다.
+2. 학생, 교사, 고객의 개인정보나 운영 DB 행을 프롬프트에 넣지 않는다.
+3. 광범위한 영구 권한을 허용하지 않고 저장소와 명령 범위를 좁힌다.
+4. 운영 DB, 배포, 결제, 외부 발송은 대표 승인과 롤백 계획을 확인한다.
+5. AI가 만든 코드에는 테스트와 사람 리뷰가 필요하다.
+6. AI가 만든 콘텐츠에는 제품 동작, 사업 상태, 금지 표현 검수가 필요하다.
+7. 세션 기억을 가정하지 않고 Git 상태와 SSoT를 다시 읽는다.
 
-## 주의사항
+권한 판단은 [Claude Code permissions](https://code.claude.com/docs/en/permissions)와 [security](https://code.claude.com/docs/en/security)를 2026-07-15 기준으로 확인했다.
 
-1. **AI가 만든 코드는 반드시 테스트하라** — `/test` 통과 확인 필수
-2. **AI가 만든 콘텐츠는 반드시 검토하라** — 톤앤매너, 사실 확인, 금지 표현 체크
-3. **민감 정보 입력 금지** — .env 파일, 비밀번호, 개인정보를 AI에게 붙여넣지 마라
-4. **AI 출력 길이 제한** — 한 번에 너무 많이 시키지 말고, 단계별로 나눠서 시켜라
-5. **컨텍스트 유지** — 같은 워크스페이스에서 이어 작업하면 AI가 맥락을 기억한다
+## Week 1 체크리스트
+
+- [ ] `/help`로 설치된 스킬 확인
+- [ ] 읽기 전용 질문에서 근거 파일 검증
+- [ ] `/biz status`에서 현재값과 정의 분리
+- [ ] 엔지니어는 `/test`, 마케터는 콘텐츠 동결 게이트 확인
+- [ ] Edit/Write, Stop 훅, `/pre-pr`, CI의 차이 설명
+- [ ] 비밀값, 개인정보, 운영 작업의 승인 경계 설명
