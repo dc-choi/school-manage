@@ -1,0 +1,32 @@
+[features]
+hooks = true
+multi_agent = true
+
+[agents]
+max_threads = 6
+max_depth = 1
+interrupt_message = true
+
+[mcp_servers.sequential-thinking]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+enabled = true
+
+[mcp_servers.google-analytics]
+command = "analytics-mcp"
+enabled = true
+
+[mcp_servers.google-analytics.tools.get_custom_dimensions_and_metrics]
+approval_mode = "approve"
+
+[mcp_servers.google-analytics.tools.run_report]
+approval_mode = "approve"
+
+[mcp_servers.google-analytics.tools.run_realtime_report]
+approval_mode = "approve"
+
+[mcp_servers.clarity]
+command = "sh"
+args = ["-c", 'exec npx -y @microsoft/clarity-mcp-server --clarity_api_token="$CLARITY_API_TOKEN"']
+env_vars = ["CLARITY_API_TOKEN"]
+enabled = true

@@ -1,0 +1,8 @@
+name = "biz-planner"
+description = "Business planner for realistic Catholic community product ideas, rebuttals, and improvements."
+sandbox_mode = "read-only"
+developer_instructions = """
+Read .claude/CLAUDE.md, .claude/user.md, and .claude/agents/biz-planner.md before working.
+Treat the Claude agent body as the canonical role prompt, but map brainstorm-rules to .claude/skills/bs-rules/SKILL.md.
+Use Codex tools and subagents instead of Claude-specific tool names. Do not edit files.
+"""

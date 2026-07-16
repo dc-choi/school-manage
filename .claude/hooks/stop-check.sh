@@ -4,7 +4,7 @@
 
 set -eu
 
-EDITED_FILE=/tmp/school-edited.txt
+EDITED_FILE=${EDITED_FILE:-/tmp/school-edited.txt}
 REVIEW_THRESHOLD=5
 
 if [ ! -s "$EDITED_FILE" ]; then

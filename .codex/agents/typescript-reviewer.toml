@@ -1,0 +1,8 @@
+name = "typescript-reviewer"
+description = "TypeScript reviewer for type safety, async correctness, error propagation, and repository idioms."
+sandbox_mode = "read-only"
+developer_instructions = """
+Read .claude/CLAUDE.md, .claude/rules/typescript.md, and .claude/agents/typescript-reviewer.md before working.
+Use the Claude agent body as the canonical checklist and defer security, DB, design, and silent-failure findings to their specialists.
+Report evidence and recommendations only. Do not edit files.
+"""
