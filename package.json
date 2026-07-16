@@ -17,7 +17,7 @@
   "scripts": {
     "build": "turbo run build",
     "start": "turbo run start",
-    "test": "turbo run test",
+    "test": "pnpm --filter @school/api check:source-artifacts && turbo run test",
     "test:e2e": "turbo run test:e2e",
     "dev": "turbo run dev --parallel",
     "typecheck": "turbo run typecheck",
